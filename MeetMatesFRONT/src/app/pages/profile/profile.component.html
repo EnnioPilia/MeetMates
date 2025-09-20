@@ -1,0 +1,14 @@
+  <app-shared-title 
+    level="h4">
+  </app-shared-title>
+
+  <div *ngIf="loading">Chargement...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <div *ngIf="user">
+    <p><strong>Nom :</strong> {{ user.nom }}</p>
+    <p><strong>prenom :</strong> {{ user.prenom }}</p>
+    <p><strong>Email :</strong> {{ user.email }}</p>
+    <p><strong>Âge :</strong> {{ user.age || 'Non renseigné' }}</p>
+    <p><strong>Date de création du compte :</strong> {{ user.dateCreation | date:'medium' }}</p>
+  </div>

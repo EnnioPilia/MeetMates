@@ -1,0 +1,23 @@
+
+<!-- Rien ne s'affiche dans 'app-shared-title' (mettre la valeur dans le html de 'shared-title' pour que ca fonctionne) -->
+  <app-shared-title 
+    level="h1">
+  </app-shared-title>
+
+  <app-shared-text size="base">
+    Bienvenue sur mon application
+  </app-shared-text>
+
+  <app-shared-button
+    label="Inscription"
+    [type]="'button'"
+    [disabled]="false"
+    (click)="navigateTo('register')"
+  ></app-shared-button>
+
+  <app-shared-button
+    label="Connexion"
+    [type]="'button'"
+    [disabled]="false"
+    (click)="navigateTo('login')"
+  ></app-shared-button>

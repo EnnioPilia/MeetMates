@@ -1,0 +1,9 @@
+<h1 *ngIf="level === 'h1'">Mon app Angular <ng-content></ng-content></h1>
+<h2 *ngIf="level === 'h2'">Se connecter <ng-content></ng-content></h2>
+<h3 *ngIf="level === 'h3'">Inscription <ng-content></ng-content></h3>
+<h4 *ngIf="level === 'h4'">Mon profil  <ng-content></ng-content></h4>
+<h5 *ngIf="level === 'h5'">Titre niveau 5 <ng-content></ng-content></h5>
+<h6 *ngIf="level === 'h6'">Titre niveau 6 <ng-content></ng-content></h6>
+<p *ngIf="!['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(level)">
+  Par défaut <ng-content></ng-content>
+</p>

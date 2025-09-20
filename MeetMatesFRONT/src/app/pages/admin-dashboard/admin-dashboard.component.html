@@ -1,0 +1,14 @@
+<div *ngIf="loading">Chargement...</div>
+<div *ngIf="error" class="error">Vous n'avez pas les droits nécessaires pour accerder à cette page </div>
+
+<ul *ngIf="!loading && !error && users.length > 0">
+  <li *ngFor="let user of users">
+    {{ user.nom }} {{ user.prenom }} - {{ user.email }} - {{ user.role }} - Actif : {{ user.actif }} - {{ user.dateCreation | date }}
+    <button (click)="deleteUser(user.id)">Supprimer</button>
+  </li>
+</ul>
+
+
+<div *ngIf="!loading && !error && users.length === 0">
+  Aucun utilisateur trouvé.
+</div>

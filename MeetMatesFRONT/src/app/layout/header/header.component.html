@@ -1,0 +1,30 @@
+<header class="header">
+
+  <app-shared-button
+    [label]="'Profile'"
+    [type]="'button'"
+    [disabled]="false"
+    (click)="navigateTo('profile')"
+  ></app-shared-button>
+
+  <app-shared-button
+    type="button"
+    label="Accueil"
+    (click)="navigateTo('home')"
+  ></app-shared-button>
+
+  <app-shared-button
+    [label]="'Déconnexion'"
+    [type]="'button'"
+    [disabled]="false"
+    (click)="logout()"
+  ></app-shared-button>
+
+  <app-shared-button
+    [label]="'Admin'"
+    [type]="'button'"
+    [disabled]="false"
+    (click)="navigateTo('admin-dashboard')"
+  ></app-shared-button>
+  
+</header>
