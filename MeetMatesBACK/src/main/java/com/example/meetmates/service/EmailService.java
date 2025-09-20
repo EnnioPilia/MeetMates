@@ -1,5 +1,6 @@
 package com.example.meetmates.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -8,6 +9,9 @@ import org.springframework.stereotype.Service;
 public class EmailService {
 
     private final JavaMailSender mailSender;
+
+    @Value("${app.mail.from:no-reply@localhost}") 
+    private String fromEmail; // chargé depuis .env ou fallback
 
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
@@ -43,13 +47,12 @@ public class EmailService {
         sendEmail(toEmail, subject, message);
     }
 
-
     private void sendEmail(String toEmail, String subject, String message) {
         SimpleMailMessage email = new SimpleMailMessage();
         email.setTo(toEmail);
         email.setSubject(subject);
         email.setText(message);
-        email.setFrom("no-reply@configapp.com"); 
+        email.setFrom(fromEmail); // 🔥 plus de valeur en dur
         mailSender.send(email);
     }
 }
