@@ -58,7 +58,7 @@ public String createVerificationToken(User user) {
 
         // Activer l'utilisateur
         User user = token.getUser();
-        user.setActif(true);
+        user.setEnabled(true);
         tokenRepository.delete(token); // supprimer le token après confirmation
         return true;
     }

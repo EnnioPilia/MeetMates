@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.meetmates.model.TokenType;
 import com.example.meetmates.model.User;
+import com.example.meetmates.model.User.Status;
 import com.example.meetmates.repository.TokenRepository;
 import com.example.meetmates.repository.UserRepository;
 
@@ -45,7 +46,8 @@ public class UserService implements UserDetailsService {
         }
         user.setEmail(user.getEmail().toLowerCase());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setActif(false);
+        user.setEnabled(false); // par défaut non activé
+        user.setStatus(Status.ACTIVE); // par défaut actif
         user.setRole(user.getRole() == null ? "USER" : user.getRole().toUpperCase());
         return userRepository.save(user);
     }
@@ -54,7 +56,8 @@ public class UserService implements UserDetailsService {
         user.setEmail(user.getEmail().toLowerCase());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole("USER");
-        user.setActif(true);
+        user.setEnabled(true);
+        user.setStatus(Status.ACTIVE);
         return userRepository.save(user);
     }
 
@@ -62,7 +65,8 @@ public class UserService implements UserDetailsService {
         user.setEmail(user.getEmail().toLowerCase());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole("ADMIN");
-        user.setActif(true);
+        user.setEnabled(true);
+        user.setStatus(Status.ACTIVE);
         return userRepository.save(user);
     }
 
@@ -89,8 +93,8 @@ public class UserService implements UserDetailsService {
         User user = userRepository.findByEmail(email.toLowerCase())
                 .orElseThrow(() -> new UsernameNotFoundException("Utilisateur non trouvé avec email : " + email));
 
-        if (!user.isActif()) {
-            throw new UsernameNotFoundException("Utilisateur non actif");
+        if (!user.isEnabled() || user.getStatus() != Status.ACTIVE) {
+            throw new UsernameNotFoundException("Utilisateur désactivé ou banni");
         }
 
         return org.springframework.security.core.userdetails.User.builder()
@@ -102,22 +106,21 @@ public class UserService implements UserDetailsService {
 
     // =================== Suppression Utilisateur ===================
 
-@Transactional
-public boolean deleteUserById(UUID userId) {
-    // Supprimer les refresh tokens liés à l'utilisateur
-    tokenRepository.deleteByUser_IdAndType(userId, TokenType.REFRESH);
+    @Transactional
+    public boolean deleteUserById(UUID userId) {
+        // Supprimer les refresh tokens liés à l'utilisateur
+        tokenRepository.deleteByUser_IdAndType(userId, TokenType.REFRESH);
 
-    // Supprimer les tokens de vérification
-    tokenRepository.deleteByUser_IdAndType(userId, TokenType.VERIFICATION);
+        // Supprimer les tokens de vérification
+        tokenRepository.deleteByUser_IdAndType(userId, TokenType.VERIFICATION);
 
-    // Supprimer les tokens de reset
-    tokenRepository.deleteByUser_IdAndType(userId, TokenType.PASSWORD_RESET);
+        // Supprimer les tokens de reset
+        tokenRepository.deleteByUser_IdAndType(userId, TokenType.PASSWORD_RESET);
 
-    if (userRepository.existsById(userId)) {
-        userRepository.deleteById(userId);
-        return true;
+        if (userRepository.existsById(userId)) {
+            userRepository.deleteById(userId);
+            return true;
+        }
+        return false;
     }
-    return false;
-}
-
 }

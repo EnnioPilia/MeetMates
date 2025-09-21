@@ -14,6 +14,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -32,11 +34,14 @@ public class User {
             strategy = "org.hibernate.id.UUIDGenerator"
     )
     @JdbcTypeCode(SqlTypes.CHAR)
-    @Column(length = 36, unique = true, nullable = false)
+    @Column(name = "user_id", length = 36, unique = true, nullable = false)
     private UUID id;
 
-    private String nom;
-    private String prenom;
+    @Column(name = "first_name", nullable = false)
+    private String firstName;
+
+    @Column(name = "last_name", nullable = false)
+    private String lastName;
 
     @Column(unique = true, nullable = false)
     private String email;
@@ -45,131 +50,83 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
-    private String role = "USER";
+    private Integer age;
+
+    private String city;
 
     @Column(nullable = false)
     private boolean enabled = false;
 
-    private Integer age;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Status status = Status.ACTIVE;
 
-    private LocalDateTime dateCreation = LocalDateTime.now();
-    private LocalDateTime dateAcceptationCGU;
-    private LocalDateTime verifiedAt;
+    @Column(nullable = false)
+    private String role = "USER";
 
-    private boolean actif;
+    @Column(name = "accepted_cgu_at")
+    private LocalDateTime acceptedCguAt;
 
-    // Nouvelle relation avec Token
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    // Relation avec Token
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Token> tokens;
 
+    // === ENUM ===
+    public enum Status {
+        ACTIVE,
+        BANNED,
+        DELETED
+    }
+
     // === Getters & Setters ===
-    public UUID getId() {
-        return id;
-    }
+    public UUID getId() { return id; }
+    public void setId(UUID id) { this.id = id; }
 
-    public void setId(UUID id) {
-        this.id = id;
-    }
+    public String getFirstName() { return firstName; }
+    public void setFirstName(String firstName) { this.firstName = firstName; }
 
-    public String getNom() {
-        return nom;
-    }
+    public String getLastName() { return lastName; }
+    public void setLastName(String lastName) { this.lastName = lastName; }
 
-    public void setNom(String nom) {
-        this.nom = nom;
-    }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email.toLowerCase(); }
 
-    public String getPrenom() {
-        return prenom;
-    }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
 
-    public void setPrenom(String prenom) {
-        this.prenom = prenom;
-    }
+    public Integer getAge() { return age; }
+    public void setAge(Integer age) { this.age = age; }
 
-    public String getEmail() {
-        return email;
-    }
+    public String getCity() { return city; }
+    public void setCity(String city) { this.city = city; }
 
-    public void setEmail(String email) {
-        this.email = email.toLowerCase();
-    }
+    public boolean isEnabled() { return enabled; }
+    public void setEnabled(boolean enabled) { this.enabled = enabled; }
 
-    public String getPassword() {
-        return password;
-    }
+    public Status getStatus() { return status; }
+    public void setStatus(Status status) { this.status = status; }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role.toUpperCase(); }
 
-    public String getRole() {
-        return role;
-    }
+    public LocalDateTime getAcceptedCguAt() { return acceptedCguAt; }
+    public void setAcceptedCguAt(LocalDateTime acceptedCguAt) { this.acceptedCguAt = acceptedCguAt; }
 
-    public void setRole(String role) {
-        this.role = role.toUpperCase();
-    }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
-    public boolean isEnabled() {
-        return enabled;
-    }
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
+    public List<Token> getTokens() { return tokens; }
+    public void setTokens(List<Token> tokens) { this.tokens = tokens; }
 
-    public boolean isActif() {
-        return actif;
-    }
-
-    public void setActif(boolean actif) {
-        this.actif = actif;
-    }
-
-    public Integer getAge() {
-        return age;
-    }
-
-    public void setAge(Integer age) {
-        this.age = age;
-    }
-
-    public LocalDateTime getDateCreation() {
-        return dateCreation;
-    }
-
-    public void setDateCreation(LocalDateTime dateCreation) {
-        this.dateCreation = dateCreation;
-    }
-
-    public LocalDateTime getDateAcceptationCGU() {
-        return dateAcceptationCGU;
-    }
-
-    public void setDateAcceptationCGU(LocalDateTime dateAcceptationCGU) {
-        this.dateAcceptationCGU = dateAcceptationCGU;
-    }
-
-    public LocalDateTime getVerifiedAt() {
-        return verifiedAt;
-    }
-
-    public void setVerifiedAt(LocalDateTime verifiedAt) {
-        this.verifiedAt = verifiedAt;
-    }
-
-    public String getUsername() {
-        return this.email;
-    }
-
-    public List<Token> getTokens() {
-        return tokens;
-    }
-
-    public void setTokens(List<Token> tokens) {
-        this.tokens = tokens;
-    }
+    public String getUsername() { return this.email; }
 }

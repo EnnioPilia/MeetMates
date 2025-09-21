@@ -57,11 +57,18 @@ public class SecurityConfig {
                 // .requestMatchers("/objects/**").hasAnyRole("USER", "ADMIN")
                 // .requestMatchers("/conversation/**").hasAnyRole("USER", "ADMIN")
                 // .requestMatchers("/message/**").hasAnyRole("USER", "ADMIN")
+
+                //  REFACTO CAR REDONDANCE !!!!! 
                 .requestMatchers("/error/**").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/users/me").hasAnyRole("USER", "ADMIN")
                 .requestMatchers("/users/**").hasRole("ADMIN")
+                // <-----------------
+                
                 .requestMatchers("/auth/registerAdmin/**").permitAll()
+                .requestMatchers("/users/me").hasAnyAuthority("USER", "ADMIN")
+                .requestMatchers("/admin/**").hasAuthority("ADMIN")
+                .requestMatchers("/users/**").hasAuthority("ADMIN")
                 .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

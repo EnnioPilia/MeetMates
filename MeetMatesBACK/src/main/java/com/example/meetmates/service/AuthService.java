@@ -52,18 +52,18 @@ public class AuthService {
 
         if (request.getName() != null && !request.getName().isBlank()) {
             String[] parts = request.getName().trim().split(" ", 2);
-            user.setNom(parts[0]);
-            user.setPrenom(parts.length > 1 ? parts[1] : "");
+            user.setFirstName(parts[0]);
+            user.setLastName(parts.length > 1 ? parts[1] : "");
         } else {
-            user.setNom("");
-            user.setPrenom("");
+            user.setFirstName("");
+            user.setLastName("");
         }
 
         user.setEmail(request.getEmail().toLowerCase());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setAge(request.getAge());
         user.setRole(request.getRole() == null ? "USER" : request.getRole().toUpperCase());
-        user.setActif(false);
+        user.setEnabled(false);
 
         User savedUser = userRepository.save(user);
 
@@ -90,7 +90,7 @@ public class AuthService {
         User user = userRepository.findByEmail(request.getEmail().toLowerCase())
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
 
-        if (!user.isActif()) {
+        if (!user.isEnabled()) {
             throw new RuntimeException("Compte non vérifié");
         }
 
