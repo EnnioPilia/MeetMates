@@ -1,30 +1,26 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { SharedButtonComponent } from '../../shared/components/shared-button/shared-button.component';
-import { SharedTitleComponent } from '../../shared/components/shared-title/shared-title.component';
-import { SharedTextComponent } from '../../shared/components/shared-text/shared-text.component';
-import { RouterModule } from '@angular/router';
+import { SignalsService } from '../../core/services/signals/signals.service';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [
-    CommonModule,
-    SharedButtonComponent,
-    RouterModule,
-    SharedTitleComponent,
-    SharedTextComponent
-  ],
-  templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss']
+  imports: [MatButtonModule, MatCardModule],
+  templateUrl: './home.component.html'
 })
-export class HomeComponent {
-  constructor(private router: Router) {   console.log('HomeComponent chargé');
-}
+export class HomeComponent implements OnInit {
+  constructor(
+    private router: Router,
+    private signals: SignalsService
+  ) {}
+
+  ngOnInit() {
+    this.signals.setPageTitle('Accueil');
+  }
 
   navigateTo(path: string) {
-    this.router.navigate([`/${path}`]);
+    this.router.navigate([path]);
   }
-  
 }

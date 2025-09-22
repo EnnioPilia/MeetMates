@@ -1,23 +1,25 @@
+<div class="flex flex-col items-center justify-center min-h-[calc(100vh-112px)] px-4">
+  <mat-card class="w-full max-w-md p-6 rounded-2xl shadow-lg text-center">
+    
+    <mat-card-title class="text-3xl font-bold text-gray-900 mb-2">
+      MEET MATES
+    </mat-card-title>
 
-<!-- Rien ne s'affiche dans 'app-shared-title' (mettre la valeur dans le html de 'shared-title' pour que ca fonctionne) -->
-  <app-shared-title 
-    level="h1">
-  </app-shared-title>
+    <mat-card-content class="text-gray-600 mb-6">
+      Une application qui permet de particper à des activitées en tout genre,
+      rencontrer de nouvelles personnes, créer des liens et partager des moments de convivialité.<br><br>
+      Vous pouvez également publier vos propres annonces afin d’inviter la communauté à vous rejoindre et partager vos passions.
 
-  <app-shared-text size="base">
-    Bienvenue sur mon application
-  </app-shared-text>
+    </mat-card-content>
 
-  <app-shared-button
-    label="Inscription"
-    [type]="'button'"
-    [disabled]="false"
-    (click)="navigateTo('register')"
-  ></app-shared-button>
+    <mat-card-actions class="flex gap-4 justify-center">
+      <button matButton="filled" color="primary" (click)="navigateTo('register')">
+        S'inscrire
+      </button>
 
-  <app-shared-button
-    label="Connexion"
-    [type]="'button'"
-    [disabled]="false"
-    (click)="navigateTo('login')"
-  ></app-shared-button>
+      <button matButton="outlined" color="accent" (click)="navigateTo('login')">
+        Se connecter
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>

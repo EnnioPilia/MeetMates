@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { UserService } from '../../core/services/users/user.service';
-import { Users } from '../../core/models/users.model'; 
+import { UserService } from '../../core/services/user/user.service';
+import { User } from '../../core/models/user.model'; 
 import { CommonModule,DatePipe  } from '@angular/common'; 
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
@@ -15,7 +15,7 @@ import { environment } from '../../../environments/environment';
 
 export class AdminDashboardComponent implements OnInit {
 
-  users: Users[] = [];
+  user: User[] = [];
   loading = false;
   error: string | null = null;
   isLoading = true;
@@ -35,7 +35,7 @@ loadUsers(): void {
   this.userService.getAllUsers().subscribe({
     next: (data) => {
       console.log('Users received:', data);
-      this.users = data;
+      this.user = data;
       this.loading = false;
     },
     error: (err) => {
@@ -50,7 +50,7 @@ deleteUser(userId: number) {
   console.log('Suppression user id:', userId);
   this.userService.deleteUser(userId).subscribe({
     next: () => {
-      this.users = this.users.filter(u => u.id !== userId);
+      this.user = this.user.filter(u => u.id !== userId);
     },
     error: (err) => {
       console.error('Erreur suppression', err);

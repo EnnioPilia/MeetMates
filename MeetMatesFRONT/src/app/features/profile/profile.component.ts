@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { UserService } from '../../core/services/users/user.service';
-import { Users } from '../../core/models/users.model';
+import { UserService } from '../../core/services/user/user.service';
+import { User } from '../../core/models/user.model';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule,FormControl  } from '@angular/forms';
 import { SharedInputComponent } from '../../shared/components/shared-input/shared-input.component';
@@ -17,7 +17,7 @@ import { SharedTitleComponent } from '../../shared/components/shared-title/share
 export class ProfileComponent implements OnInit {
 
   profileForm: FormGroup;
-  user: Users | null = null;
+  user: User | null = null;
   loading = false;
   error: string | null = null;
 

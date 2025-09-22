@@ -1,5 +1,22 @@
-<footer class="footer">
-  <div class="container">
-    <p>&copy; {{ currentYear }} MonApp. Tous droits réservés.</p>
-  </div>
-</footer>
+<mat-toolbar color="primary" class="fixed bottom-0 left-0 right-0 flex justify-around items-center py-2">
+  <button mat-icon-button class="flex flex-col items-center text-white" (click)="navigateTo('home')">
+    <mat-icon>home</mat-icon>
+  </button>
+
+  <button mat-icon-button class="flex flex-col items-center text-white" (click)="navigateTo('sports')">
+    <mat-icon>fitness_center</mat-icon>
+  </button>
+
+  <!-- + Bouton central -->
+  <button mat-fab color="accent" class="relative -top-5 z-10" (click)="navigateTo('post-annonce')">
+    <mat-icon>add</mat-icon>
+  </button>
+
+  <button mat-icon-button class="flex flex-col items-center text-white" (click)="navigateTo('chat')">
+    <mat-icon>chat</mat-icon>
+  </button>
+
+  <button mat-icon-button class="flex flex-col items-center text-white" (click)="navigateTo('profile')">
+    <mat-icon>person</mat-icon>
+  </button>
+</mat-toolbar>
