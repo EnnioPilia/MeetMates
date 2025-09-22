@@ -32,7 +32,23 @@ build/
 ### VS Code ###
 .vscode/
 
-# Local env files
-.env
+# Build
+target/
+
+# IDEs
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local environment
+application-dev-local.properties
+
 
 
