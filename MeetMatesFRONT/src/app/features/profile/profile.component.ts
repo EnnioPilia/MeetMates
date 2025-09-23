@@ -3,8 +3,8 @@ import { UserService } from '../../core/services/user/user.service';
 import { User } from '../../core/models/user.model';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule,FormControl  } from '@angular/forms';
-import { SharedInputComponent } from '../../shared/components/shared-input/shared-input.component';
-import { SharedButtonComponent } from '../../shared/components/shared-button/shared-button.component';
+import { SharedInputComponent } from '../../shared/components/input/shared-input.component';
+import { SharedButtonComponent } from '../../shared/components/button/shared-button.component';
 import { SharedTitleComponent } from '../../shared/components/shared-title/shared-title.component';
 
 @Component({

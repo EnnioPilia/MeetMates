@@ -9,6 +9,7 @@ import { SignalsService } from '../../core/services/signals/signals.service';
   standalone: true,
   imports: [MatToolbarModule, MatIconModule, MatButtonModule],
   templateUrl: './header.component.html',
+  
 })
 export class HeaderComponent {
   signals = inject(SignalsService);

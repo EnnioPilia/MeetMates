@@ -1,6 +1,6 @@
 import { Component,OnInit  } from '@angular/core';
 import { ActivatedRoute,Router } from '@angular/router';
-import { SharedButtonComponent } from '../../../shared/components/shared-button/shared-button.component';
+import { SharedButtonComponent } from '../../../shared/components/button/shared-button.component';
 import { HttpClient } from '@angular/common/http';
 
 @Component({

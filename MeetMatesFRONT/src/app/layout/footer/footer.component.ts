@@ -9,7 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
   standalone: true,
   imports: [MatToolbarModule, MatIconModule, MatButtonModule],
   templateUrl: './footer.component.html',
-  styleUrls: ['./footer.component.scss'] // ou tu peux utiliser Tailwind directement
+  styleUrls: ['./footer.component.scss'] 
 })
 export class FooterComponent {
   constructor(private router: Router) {}

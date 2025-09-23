@@ -1,25 +1,28 @@
-<div class="flex flex-col items-center justify-center min-h-[calc(100vh-112px)] px-4">
-  <mat-card class="w-full max-w-md p-6 rounded-2xl shadow-lg text-center">
-    
-    <mat-card-title class="text-3xl font-bold text-gray-900 mb-2">
-      MEET MATES
-    </mat-card-title>
+<div class="flex flex-col items-center justify-center min-h-[calc(100vh-30px)] px-5">
 
-    <mat-card-content class="text-gray-600 mb-6">
-      Une application qui permet de particper à des activitées en tout genre,
-      rencontrer de nouvelles personnes, créer des liens et partager des moments de convivialité.<br><br>
-      Vous pouvez également publier vos propres annonces afin d’inviter la communauté à vous rejoindre et partager vos passions.
-
+    <mat-card-content class="card m-5 p-5 text-center">
+      <h2 class="text-color text-4xl mb-3">
+        MEET MATES
+      </h2>
+      <p>
+        Une application qui permet de participer à des activités en tout genre,
+        rencontrer de nouvelles personnes, créer des liens et partager des moments
+        de convivialité.
+      </p>
+      <p class="mt-3">
+        Vous pouvez également publier vos propres annonces afin d’inviter la
+        communauté à vous rejoindre et partager vos passions.
+      </p>
     </mat-card-content>
 
-    <mat-card-actions class="flex gap-4 justify-center">
-      <button matButton="filled" color="primary" (click)="navigateTo('register')">
+    <mat-card-actions class="flex flex-col items-center justify-center gap-4 justify-center mt-1">
+      <button mat-flat-button class="primary-button w-48" (click)="navigateTo('register')">
         S'inscrire
       </button>
 
-      <button matButton="outlined" color="accent" (click)="navigateTo('login')">
+      <button mat-flat-button class="secondary-button w-48" (click)="navigateTo('login')">
         Se connecter
       </button>
     </mat-card-actions>
-  </mat-card>
+
 </div>

@@ -4,8 +4,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 import { AuthService } from '../../../core/services/auth/auth.service';
-import { SharedInputComponent } from '../../../shared/components/shared-input/shared-input.component';
-import { SharedButtonComponent } from '../../../shared/components/shared-button/shared-button.component';
+import { SharedInputComponent } from '../../../shared/components/input/shared-input.component';
+import { SharedButtonComponent } from '../../../shared/components/button/shared-button.component';
 import { ToastComponent } from '../../../shared/components/toast/toast.component';
 
 @Component({

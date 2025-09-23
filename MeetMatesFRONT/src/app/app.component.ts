@@ -1,4 +1,4 @@
-import { Component,OnInit  } from '@angular/core';
+import { Component} from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { FooterComponent } from './layout/footer/footer.component'; // 🔹 Chemin à adapter selon ton projet
 import { HeaderComponent } from './layout/header/header.component'; // 🔹 Chemin à adapter selon ton projet
@@ -11,5 +11,5 @@ import { HeaderComponent } from './layout/header/header.component'; // 🔹 Chem
 })
 
 export class AppComponent  {
-  title = 'AdminFindersKeepers'
+  title = 'MeetMates'
 }
