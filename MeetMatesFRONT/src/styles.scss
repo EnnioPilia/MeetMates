@@ -1,44 +1,48 @@
 @use '@angular/material' as mat;
 @use 'theme-colors' as theme;
 
+html,
+body {
+  font-family: 'Poiret One', cursive;
+}
+
 html {
-    color-scheme: light;
-    @include mat.theme((color: theme.$primary-palette));
-    @include mat.theme-overrides((corner-full: 10px));
+  color-scheme: light;
+  @include mat.theme((color: theme.$primary-palette));
+  @include mat.theme-overrides((corner-full: 10px));
+
 }
 
 :root {
-  @include mat.toolbar-overrides((
-    container-background-color: var(--mat-sys-primary),
-    container-text-color: var(--mat-sys-on-primary),
-  ));
+  @include mat.toolbar-overrides((container-background-color: var(--mat-sys-primary),
+      container-text-color: var(--mat-sys-on-primary),
+    ));
 }
 
-
 .primary-button {
-    @include mat.theme((color: theme.$primary-palette)); // changer 
-    @include mat.theme-overrides((corner-full: 10px));
+  @include mat.theme((color: theme.$tertiary-palette));
+  @include mat.theme-overrides((corner-full: 10px));
 }
 
 .secondary-button {
-    @include mat.theme((color: theme.$tertiary-palette)); // changer 
-    @include mat.theme-overrides((corner-full: 10px));
+  @include mat.theme((color: theme.$tertiary-palette));
+  @include mat.theme-overrides((corner-full: 10px));
 }
 
-.card {
-    border: 1px solid var(--mat-sys-on-background);
-    border-radius: 5px;
+.card-text {
+  border: 1px solid var(--mat-sys-on-background);
+  border-radius: 5px;
 }
 
-.title-color {
-    color: var(--mat-sys-surface-container-low); 
+.title-page {
+  color: var(--mat-sys-surface-container-low);
 }
 
-.text-color {
-    color: var(--mat-sys-error);
+.title-home {
+  color: var(--mat-sys-on-primary-fixed-variant);
 }
+
 ::ng-deep mat-toolbar {
   background-color: var(--mat-sys-primary);
   color: var(--mat-sys-on-primary);
 }
-
