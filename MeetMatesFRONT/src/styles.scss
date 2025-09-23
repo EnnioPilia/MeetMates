@@ -4,6 +4,7 @@
 html,
 body {
   font-family: 'Poiret One', cursive;
+  background-color: var(--mat-sys-tertiary-fixed); 
 }
 
 html {
@@ -30,7 +31,8 @@ html {
 }
 
 .card-text {
-  border: 1px solid var(--mat-sys-on-background);
+  border: 1px solid var(--mat-sys-on-primary-fixed-variant);
+  color: var(--mat-sys-on-primary-fixed-variant);
   border-radius: 5px;
 }
 
