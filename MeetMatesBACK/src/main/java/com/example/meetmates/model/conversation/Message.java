@@ -1,7 +1,9 @@
-package com.example.meetmates.model;
+package com.example.meetmates.model.conversation;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+import com.example.meetmates.model.core.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,7 +12,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.Table; 
 
 @Entity
 @Table(name = "messages")

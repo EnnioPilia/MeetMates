@@ -12,9 +12,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.meetmates.model.TokenType;
-import com.example.meetmates.model.User;
-import com.example.meetmates.model.User.Status;
+import com.example.meetmates.model.core.User;
+import com.example.meetmates.model.core.UserStatus;
+import com.example.meetmates.model.security.TokenType;
 import com.example.meetmates.repository.TokenRepository;
 import com.example.meetmates.repository.UserRepository;
 
@@ -47,7 +47,7 @@ public class UserService implements UserDetailsService {
         user.setEmail(user.getEmail().toLowerCase());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setEnabled(false); // par défaut non activé
-        user.setStatus(Status.ACTIVE); // par défaut actif
+        user.setStatus(UserStatus.ACTIVE); // par défaut actif
         user.setRole(user.getRole() == null ? "USER" : user.getRole().toUpperCase());
         return userRepository.save(user);
     }
@@ -57,7 +57,7 @@ public class UserService implements UserDetailsService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole("USER");
         user.setEnabled(true);
-        user.setStatus(Status.ACTIVE);
+        user.setStatus(UserStatus.ACTIVE);
         return userRepository.save(user);
     }
 
@@ -66,7 +66,7 @@ public class UserService implements UserDetailsService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole("ADMIN");
         user.setEnabled(true);
-        user.setStatus(Status.ACTIVE);
+        user.setStatus(UserStatus.ACTIVE);
         return userRepository.save(user);
     }
 
@@ -93,7 +93,7 @@ public class UserService implements UserDetailsService {
         User user = userRepository.findByEmail(email.toLowerCase())
                 .orElseThrow(() -> new UsernameNotFoundException("Utilisateur non trouvé avec email : " + email));
 
-        if (!user.isEnabled() || user.getStatus() != Status.ACTIVE) {
+        if (!user.isEnabled() || user.getStatus() != UserStatus.ACTIVE) {
             throw new UsernameNotFoundException("Utilisateur désactivé ou banni");
         }
 

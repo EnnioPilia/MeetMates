@@ -12,8 +12,8 @@ import com.example.meetmates.config.JWTUtils;
 import com.example.meetmates.dto.LoginRequest;
 import com.example.meetmates.dto.LoginResponse;
 import com.example.meetmates.dto.RegisterRequest;
-import com.example.meetmates.model.Token;
-import com.example.meetmates.model.User;
+import com.example.meetmates.model.core.User;
+import com.example.meetmates.model.security.Token;
 import com.example.meetmates.repository.UserRepository;
 
 import jakarta.servlet.http.HttpServletResponse;

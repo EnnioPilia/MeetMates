@@ -6,9 +6,9 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.example.meetmates.model.Conversation;
-import com.example.meetmates.model.Message;
-import com.example.meetmates.model.User;
+import com.example.meetmates.model.conversation.Conversation;
+import com.example.meetmates.model.conversation.Message;
+import com.example.meetmates.model.core.User;
 
 @Repository
 public interface MessageRepository extends JpaRepository<Message, UUID> {

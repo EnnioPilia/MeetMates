@@ -1,4 +1,4 @@
-package com.example.meetmates.model;
+package com.example.meetmates.model.core;
 
 import java.util.UUID;
 
@@ -19,8 +19,7 @@ public class Address {
     private String city;
     private String postalCode;
 
-    private Double latitude;   // optionnel
-    private Double longitude;  // optionnel
+    // TYPEEEEEEEEEE Enum 
 
     // Getters & Setters
     public UUID getId() { return id; }
@@ -35,9 +34,4 @@ public class Address {
     public String getPostalCode() { return postalCode; }
     public void setPostalCode(String postalCode) { this.postalCode = postalCode; }
 
-    public Double getLatitude() { return latitude; }
-    public void setLatitude(Double latitude) { this.latitude = latitude; }
-
-    public Double getLongitude() { return longitude; }
-    public void setLongitude(Double longitude) { this.longitude = longitude; }
 }

@@ -6,8 +6,8 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.meetmates.model.Token;
-import com.example.meetmates.model.TokenType;
+import com.example.meetmates.model.security.Token;
+import com.example.meetmates.model.security.TokenType;
 
 public interface TokenRepository extends JpaRepository<Token, UUID> {
 

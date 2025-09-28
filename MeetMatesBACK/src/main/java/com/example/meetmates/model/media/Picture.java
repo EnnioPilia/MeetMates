@@ -1,7 +1,10 @@
-package com.example.meetmates.model;
+package com.example.meetmates.model.media;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+import com.example.meetmates.model.core.Event;
+import com.example.meetmates.model.core.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,6 +16,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+
 
 @Entity
 @Table(name = "pictures")
@@ -48,7 +52,9 @@ public class Picture {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    // === ENUM ===
+    // === ENUM === 
+    //type (1=message, 2=user, 3=event, 4=activity, 5=category) !!!!!  <-----------------------
+
     public enum PictureType {
         PROFILE,
         EVENT

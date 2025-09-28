@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.meetmates.model.User;
+import com.example.meetmates.model.core.User;
 import com.example.meetmates.service.UserService;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/user")
 public class UserController {
 
     private final UserService userService;
@@ -47,14 +47,14 @@ public class UserController {
     }
 
     // === SOFT DELETE ===
-@DeleteMapping("/{id}")
-public ResponseEntity<?> deleteUser(@PathVariable UUID id) {
-    boolean deleted = userService.deleteUserById(id);
-    if (deleted) {
-        return ResponseEntity.noContent().build();
-    } else {
-        return ResponseEntity.notFound().build();
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable UUID id) {
+        boolean deleted = userService.deleteUserById(id);
+        if (deleted) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
-}
 
 }

@@ -1,7 +1,9 @@
-package com.example.meetmates.model;
+package com.example.meetmates.model.security;
 
 import java.time.Instant;
 import java.util.UUID;
+
+import com.example.meetmates.model.core.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

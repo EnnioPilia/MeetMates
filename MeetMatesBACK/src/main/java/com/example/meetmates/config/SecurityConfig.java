@@ -54,21 +54,12 @@ public class SecurityConfig {
                 .requestMatchers("/auth/login", "/auth/register", "/auth/verify", "/auth/logout").permitAll()
                 .requestMatchers("/auth/request-reset", "/auth/reset-password").permitAll()
                 .requestMatchers("/auth/refresh-token").permitAll()
-                // .requestMatchers("/objects/**").hasAnyRole("USER", "ADMIN")
-                // .requestMatchers("/conversation/**").hasAnyRole("USER", "ADMIN")
-                // .requestMatchers("/message/**").hasAnyRole("USER", "ADMIN")
-
-                //  REFACTO CAR REDONDANCE !!!!! 
                 .requestMatchers("/error/**").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/users/me").hasAnyRole("USER", "ADMIN")
-                .requestMatchers("/users/**").hasRole("ADMIN")
-                // <-----------------
-                
-                .requestMatchers("/auth/registerAdmin/**").permitAll()
-                .requestMatchers("/users/me").hasAnyAuthority("USER", "ADMIN")
-                .requestMatchers("/admin/**").hasAuthority("ADMIN")
-                .requestMatchers("/users/**").hasAuthority("ADMIN")
+                .requestMatchers("/user/me").hasAnyRole("USER", "ADMIN")
+                .requestMatchers("/user/**").hasRole("ADMIN") // <------ avec hasAnyAuthority ca ne marche pas 
+
+                // .requestMatchers("/auth/registerAdmin/**").permitAll()
                 .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

@@ -6,11 +6,11 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.example.meetmates.model.ConversationUser;
-import com.example.meetmates.model.ConversationUserId;
+import com.example.meetmates.model.link.ConversationUser;
+import com.example.meetmates.model.link.ConversationUserID;
 
 @Repository
-public interface ConversationUserRepository extends JpaRepository<ConversationUser, ConversationUserId> {
+public interface ConversationUserRepository extends JpaRepository<ConversationUser, ConversationUserID> {
 
     List<ConversationUser> findByConversationId(UUID conversationId);
 

@@ -12,9 +12,9 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.example.meetmates.model.Token;
-import com.example.meetmates.model.TokenType;
-import com.example.meetmates.model.User;
+import com.example.meetmates.model.core.User;
+import com.example.meetmates.model.security.Token;
+import com.example.meetmates.model.security.TokenType;
 import com.example.meetmates.service.RefreshTokenService;
 import com.example.meetmates.service.UserService;
 

@@ -1,6 +1,9 @@
-package com.example.meetmates.model;
+package com.example.meetmates.model.link;
 
 import java.time.LocalDateTime;
+
+import com.example.meetmates.model.conversation.Conversation;
+import com.example.meetmates.model.core.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
@@ -18,7 +21,7 @@ import jakarta.persistence.Table;
 public class ConversationUser {
 
     @EmbeddedId
-    private ConversationUserId id;
+    private ConversationUserID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("conversationId")
@@ -44,8 +47,8 @@ public class ConversationUser {
     }
 
     // === Getters & Setters ===
-    public ConversationUserId getId() { return id; }
-    public void setId(ConversationUserId id) { this.id = id; }
+    public ConversationUserID getId() { return id; }
+    public void setId(ConversationUserID id) { this.id = id; }
 
     public Conversation getConversation() { return conversation; }
     public void setConversation(Conversation conversation) { this.conversation = conversation; }

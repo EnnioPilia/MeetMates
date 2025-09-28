@@ -1,4 +1,4 @@
-package com.example.meetmates.model;
+package com.example.meetmates.model.link;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -7,14 +7,14 @@ import java.util.UUID;
 import jakarta.persistence.Embeddable;
 
 @Embeddable
-public class EventUserId implements Serializable {
+public class EventUserID implements Serializable {
 
     private UUID eventId;
     private UUID userId;
 
-    public EventUserId() {}
+    public EventUserID() {}
 
-    public EventUserId(UUID eventId, UUID userId) {
+    public EventUserID(UUID eventId, UUID userId) {
         this.eventId = eventId;
         this.userId = userId;
     }
@@ -30,8 +30,8 @@ public class EventUserId implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof EventUserId)) return false;
-        EventUserId that = (EventUserId) o;
+        if (!(o instanceof EventUserID)) return false;
+        EventUserID that = (EventUserID) o;
         return Objects.equals(eventId, that.eventId) && Objects.equals(userId, that.userId);
     }
 

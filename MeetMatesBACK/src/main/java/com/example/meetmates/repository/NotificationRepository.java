@@ -6,8 +6,8 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.example.meetmates.model.Notification;
-import com.example.meetmates.model.User;
+import com.example.meetmates.model.notification.Notification;
+import com.example.meetmates.model.core.User;
 
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, UUID> {

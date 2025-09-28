@@ -8,9 +8,9 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import com.example.meetmates.config.JWTUtils;
-import com.example.meetmates.model.Token;
-import com.example.meetmates.model.TokenType;
-import com.example.meetmates.model.User;
+import com.example.meetmates.model.security.Token;
+import com.example.meetmates.model.security.TokenType;
+import com.example.meetmates.model.core.User;
 
 import jakarta.servlet.http.HttpServletRequest;
 

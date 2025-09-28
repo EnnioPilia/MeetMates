@@ -6,11 +6,11 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.example.meetmates.model.EventUser;
-import com.example.meetmates.model.EventUserId;
+import com.example.meetmates.model.link.EventUser;
+import com.example.meetmates.model.link.EventUserID;
 
 @Repository
-public interface EventUserRepository extends JpaRepository<EventUser, EventUserId> {
+public interface EventUserRepository extends JpaRepository<EventUser, EventUserID> {
 
     List<EventUser> findByEventId(UUID eventId);
 
