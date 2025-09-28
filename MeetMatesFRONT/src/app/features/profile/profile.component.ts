@@ -21,7 +21,7 @@ export class ProfileComponent implements OnInit {
   loading = false;
   error: string | null = null;
 
-  constructor(private fb: FormBuilder, private userService: UserService) {
+  constructor(private fb: FormBuilder, private UserService: UserService) {
     this.profileForm = this.fb.group({
       nom: ['', Validators.required],
       prenom: ['', Validators.required],
@@ -55,7 +55,7 @@ export class ProfileComponent implements OnInit {
     this.loading = true;
     this.error = null;
 
-    this.userService.getCurrentUser().subscribe({
+    this.UserService.getCurrentUser().subscribe({
       next: (data) => {
         this.user = data;
         this.profileForm.patchValue({

@@ -1,96 +1,52 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../../core/services/auth/auth.service';
-import { SharedInputComponent } from '../../../shared/components/input/shared-input.component';
-import { SharedButtonComponent } from '../../../shared/components/button/shared-button.component';
-import { SharedTitleComponent } from '../../../shared/components/shared-title/shared-title.component';
-import { AlertComponent } from '../../../shared/components/alert/alert.component';
-import { RouterModule } from '@angular/router';
+import { AuthService } from '../../../core/services/auth/auth.service'; // adapte le chemin à ton projet
 
 @Component({
-  selector: 'app-login',
   standalone: true,
+  selector: 'app-login',
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.scss'],
   imports: [
     CommonModule,
-    ReactiveFormsModule,
-    SharedInputComponent,
-    SharedButtonComponent,
-    AlertComponent,
-    RouterModule,
-    SharedTitleComponent
-  ],
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+    ReactiveFormsModule
+  ]
 })
 export class LoginComponent {
   loginForm: FormGroup;
-  loading = false;
-
-  alertMessage: string | null = null;
-  alertType: 'success' | 'error' | 'info' | 'warning' = 'info';
-  alertVisible = false;
+  errorMessage: string | null = null;
 
   constructor(
     private fb: FormBuilder,
-    private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required]
+      password: ['', Validators.required],
     });
   }
 
-  get emailControl(): FormControl {
-    return this.loginForm.get('email') as FormControl;
-  }
+  login(): void {
+    if (this.loginForm.valid) {
+      const { email, password } = this.loginForm.value;
 
-  get passwordControl(): FormControl {
-    return this.loginForm.get('password') as FormControl;
-  }
-
-  onSubmit(): void {
-    if (this.loginForm.invalid) {
-      this.loginForm.markAllAsTouched();
-      this.showAlert('Veuillez corriger les erreurs du formulaire.', 'error');
-      return;
+      this.authService.login({ email, password }).subscribe({
+        next: () => {
+          console.log('✅ Connexion réussie');
+          this.router.navigate(['/home']);
+        },
+        error: (err) => {
+          console.error('⚠️ Erreur de connexion :', err.message);
+          this.errorMessage = err.message;
+        }
+      });
+    } else {
+      this.errorMessage = 'Veuillez remplir correctement le formulaire.';
     }
-
-    this.loading = true;
-    this.hideAlert();
-
-    const credentials = this.loginForm.value;
-
-    this.authService.login(credentials).subscribe({
-      next: () => {
-        this.loading = false;
-        this.router.navigate(['/dashboard']);
-      },
-      error: (err) => {
-        this.loading = false;
-        this.showAlert(err?.message || 'Erreur serveur, veuillez réessayer plus tard.', 'error');
-      }
-    });
   }
-
-  showAlert(message: string, type: 'success' | 'error' | 'info' | 'warning') {
-    this.alertMessage = message;
-    this.alertType = type;
-    this.alertVisible = true;
-
-    setTimeout(() => {
-      this.alertVisible = false;
-      this.alertMessage = null;
-    }, 5000);
-  }
-
-  hideAlert() {
-    this.alertVisible = false;
-    this.alertMessage = null;
-  }
-
   navigateTo(path: string) {
     this.router.navigate([`/${path}`]);
   }

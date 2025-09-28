@@ -1,48 +1,35 @@
-<form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-  <app-shared-title 
-    level="h2">
-  </app-shared-title>
+<form [formGroup]="loginForm" (ngSubmit)="login()">
+  <div class="mt-10">
+    <label class="block text-sm font-medium mb-10">Email</label>
+    <input
+      type="email"
+      formControlName="email"
+      required
+      class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
+    />
+  </div>
 
-  <app-shared-input
-    label="Email"
-    type="email"
-    [formControl]="emailControl"
-    [invalid]="emailControl.invalid && emailControl.touched"
-    errorMessage="Email invalide"
-  ></app-shared-input>
+  <div class="mb-4">
+    <label class="block text-sm font-medium mb-1">Mot de passe</label>
+    <input
+      type="password"
+      formControlName="password"
+      required
+      class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
+    />
+  </div>
 
-  <app-shared-input
-    label="Mot de passe"
-    type="password"
-    [formControl]="passwordControl"
-    [invalid]="passwordControl.invalid && passwordControl.touched"
-    errorMessage="Mot de passe requis"
-  ></app-shared-input>
-
-  <app-shared-button
+  <button
     type="submit"
-    [disabled]="loading"
-    [loading]="loading"
-    label="Se connecter">
-  </app-shared-button>
-
-  <!-- Ajouter les bonne alert : mot de passe incorrect ect -->
-  <app-alert
-    *ngIf="alertVisible"
-    [message]="alertMessage!"
-    [type]="alertType"
-  ></app-alert>
-
-    <app-shared-button
+    class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
+  >
+    Se connecter
+  </button>
+  <button
     type="button"
-    label="Mot de passe oublié ?"
-    (click)="navigateTo('forgot-password')"
-  ></app-shared-button>
-
-  <app-shared-button
-    label="Pas encore de compte?"
-    [type]="'button'"
-    [disabled]="false"
-    (click)="navigateTo('register')"
-  ></app-shared-button>
+    class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
+     (click)="navigateTo('forgot-password')"
+  >
+   forgot-password
+  </button>
 </form>

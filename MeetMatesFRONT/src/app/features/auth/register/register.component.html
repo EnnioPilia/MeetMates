@@ -1,74 +1,38 @@
-<form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-  <app-shared-title 
-    level="h3">
-  </app-shared-title>
+<div class="flex flex-col items-center justify-center min-h-[calc(100vh-10px)] px-5">
+  <!-- Titre -->
+  <h2 class="text-4xl mb-3 font-bold text-center">INSCRIPTION</h2>
 
-<app-shared-input
-  label="Nom"
-  type="text"
-  [formControl]="nomControl"
-  [invalid]="nomControl.invalid && nomControl.touched"
-  errorMessage="Nom requis"
-></app-shared-input>
 
-<app-shared-input
-  label="Prénom"
-  type="text"
-  [formControl]="prenomControl"
-  [invalid]="prenomControl.invalid && prenomControl.touched"
-  errorMessage="Prénom requis"
-></app-shared-input>
 
-<app-shared-input
-  label="Âge"
-  type="number"
-  [formControl]="ageControl"
-  [invalid]="ageControl.invalid && ageControl.touched"
-  errorMessage="Âge invalide"
-></app-shared-input>
 
-  <app-shared-input
-    label="Email"
-    type="email"
-    [formControl]="emailControl"
-    [invalid]="emailControl.invalid && emailControl.touched"
-    errorMessage="Email invalide"
-  ></app-shared-input>
+    <!-- Formulaire -->
+    <form class="flex flex-col gap-4 mt-4">
+      <div>
+        <label class="block text-left text-sm font-medium mb-1">Nom</label>
+        <input type="text" class="w-80 px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300">
+      </div>
 
-  <app-shared-input
-    label="Mot de passe"
-    type="password"
-    [formControl]="passwordControl"
-    [invalid]="passwordControl.invalid && passwordControl.touched"
-    errorMessage="Mot de passe requis"
-  ></app-shared-input>
+      <div>
+        <label class="block text-left text-sm font-medium mb-1">Email</label>
+        <input type="email" class="w-80 px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300">
+      </div>
 
-  <app-shared-input
-    label="Confirmer le mot de passe"
-    type="password"
-    [formControl]="confirmPasswordControl"
-    [invalid]="(registerForm.hasError('passwordMismatch') && confirmPasswordControl.touched)"
-    errorMessage="Les mots de passe ne correspondent pas"
-  ></app-shared-input>
+      <div>
+        <label class="block text-left text-sm font-medium mb-1">Mot de passe</label>
+        <input type="password" class="w-80 px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300">
+      </div>
+    </form>
+  </div>
 
-  <app-shared-button
-    type="submit"
-    [disabled]="loading"
-    [loading]="loading"
-    label="Créer un compte"
-  ></app-shared-button>
-  
-  <app-toast
-    *ngIf="toastVisible"
-    [message]="toastMessage"
-    [type]="toastType"
-    (click)="toastVisible = false"
-  />
+  <!-- Boutons -->
+  <div class="flex flex-col items-center justify-center gap-2 mt-1 w-80">
+    <button (click)="register()"
+            class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
+      S'inscrire
+    </button>
 
-  <app-shared-button
-    type="button"
-    label="Se connecter"
-    (click)="navigateTo('login')"
-  ></app-shared-button>
-
-</form>
+    <button (click)="navigateTo('login')"
+            class="w-full bg-gray-300 text-black py-2 rounded-lg hover:bg-gray-400 transition">
+      Déjà un compte ? Se connecter
+    </button>
+  </div>

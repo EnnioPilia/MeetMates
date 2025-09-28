@@ -8,9 +8,9 @@
 
   <img mat-card-image src="assets/images/photo-home.jpg" alt="Meet Mates" class="w-80 h-40 object-cover rounded">
 
-  <mat-card-content class="card-text mt-4 mb-4 ml-2 mr-2 p-4 text-center">
+  <mat-card-content class=" card card-text mt-4 mb-4 ml-2 mr-2 p-5 text-center">
     <p class="text-sm sm:text-base font-bold ">
-      Une application qui permet de participer à des activités en tout genre,
+      Meet Mates est une application qui permet de participer à des activités en tout genre,
       rencontrer de nouvelles personnes, créer des liens et partager des moments
       de convivialité.
       Vous pouvez également publier vos propres annonces afin d’inviter la
@@ -26,6 +26,8 @@
     <button mat-flat-button class="secondary-button w-80" (click)="navigateTo('login')">
       Se connecter
     </button>
+      <button (click)="onLogout()">Déconnexion</button>
+
   </mat-card-actions>
 
 </div>

@@ -26,7 +26,8 @@ export const appConfig: ApplicationConfig = {
       MatCardModule,
       MatInputModule,
       MatToolbarModule,
-      MatIconModule
+      MatIconModule,
+      
     )
   ]
 };

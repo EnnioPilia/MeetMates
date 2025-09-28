@@ -18,21 +18,25 @@ html {
   @include mat.toolbar-overrides((container-background-color: var(--mat-sys-primary),
       container-text-color: var(--mat-sys-on-primary),
     ));
+    
 }
 
 .primary-button {
   @include mat.theme((color: theme.$tertiary-palette));
   @include mat.theme-overrides((corner-full: 10px));
+  font-weight: bold !important; // material Angular ecrase le style obligé de mettre !important
 }
 
 .secondary-button {
   @include mat.theme((color: theme.$tertiary-palette));
   @include mat.theme-overrides((corner-full: 10px));
+  font-weight: bold !important; // material Angular ecrase le style obligé de mettre !important
+
 }
 
 .card-text {
   border: 1px solid var(--mat-sys-on-primary-fixed-variant);
-  color: var(--mat-sys-on-primary-fixed-variant);
+  @include mat.theme((color: theme.$tertiary-palette));
   border-radius: 5px;
 }
 
@@ -44,7 +48,15 @@ html {
   color: var(--mat-sys-on-primary-fixed-variant);
 }
 
-::ng-deep mat-toolbar {
-  background-color: var(--mat-sys-primary);
-  color: var(--mat-sys-on-primary);
+:root {
+  @include mat.card-overrides((
+    container-color: var(--mat-sys-primary) // ou la couleur que tu veux
+  ));
 }
+
+// <-----  pour le header mais visiblement plus besoin 
+
+// ::ng-deep mat-toolbar {
+//   background-color: var(--mat-sys-primary);
+//   color: var(--mat-sys-on-primary);
+// } 

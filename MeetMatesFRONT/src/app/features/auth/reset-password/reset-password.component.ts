@@ -1,90 +1,62 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormControl, ReactiveFormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
-
 import { AuthService } from '../../../core/services/auth/auth.service';
-import { SharedInputComponent } from '../../../shared/components/input/shared-input.component';
-import { SharedButtonComponent } from '../../../shared/components/button/shared-button.component';
-import { ToastComponent } from '../../../shared/components/toast/toast.component';
 
 @Component({
   selector: 'app-reset-password',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    SharedInputComponent,
-    SharedButtonComponent,
-    ToastComponent
-  ],
   templateUrl: './reset-password.component.html',
-  styleUrls: ['./reset-password.component.scss']
+  styleUrls: ['./reset-password.component.scss'],
+  imports: [CommonModule, ReactiveFormsModule]
 })
-export class ResetPasswordComponent implements OnInit {
+export class ResetPasswordComponent {
   resetForm: FormGroup;
   token: string = '';
-  loading = false;
-
-  toastVisible = false;
-  toastMessage = '';
-  toastType: 'success' | 'error' | 'info' | 'warning' = 'info';
 
   constructor(
     private fb: FormBuilder,
+    private router: Router,
     private route: ActivatedRoute,
-    private authService: AuthService,
-    private router: Router
+    private authService: AuthService
   ) {
     this.resetForm = this.fb.group({
-      newPassword: ['', [Validators.required, Validators.minLength(6)]]
+      newPassword: ['', [Validators.required, Validators.minLength(6)]],
+      confirmPassword: ['', Validators.required],
     });
-  }
 
-  get passwordControl(): FormControl {
-    return this.resetForm.get('newPassword') as FormControl;
-  }
-
-  ngOnInit(): void {
-    // Récupération uniquement du token UUID depuis l'URL
-    const tokenParam = this.route.snapshot.queryParamMap.get('token');
-    if (!tokenParam) {
-      this.showToast("Token de réinitialisation manquant dans l'URL.", 'error');
-    } else {
-      this.token = tokenParam;
-    }
-  }
-
-  showToast(message: string, type: 'success' | 'error' | 'info' | 'warning') {
-    this.toastMessage = message;
-    this.toastType = type;
-    this.toastVisible = true;
-    setTimeout(() => this.toastVisible = false, 5000);
+    // Récupère le token dans l’URL
+    this.route.queryParams.subscribe(params => {
+      this.token = params['token'] || '';
+    });
   }
 
   onSubmit(): void {
-    if (this.resetForm.invalid || !this.token) {
-      this.resetForm.markAllAsTouched();
-      if (!this.token) this.showToast("Token invalide ou manquant.", 'error');
+    if (this.resetForm.invalid) {
       return;
     }
 
-    this.loading = true;
+    const { newPassword, confirmPassword } = this.resetForm.value;
 
-    this.authService.resetPassword({
-      token: this.token,             // uniquement UUID
-      newPassword: this.passwordControl.value
-    }).subscribe({
-      next: (res: any) => {
-        this.loading = false;
-        this.showToast(res || "Mot de passe réinitialisé avec succès.", 'success');
-        this.router.navigate(['/login']); // redirection après succès
+    if (newPassword !== confirmPassword) {
+      alert('⚠️ Les mots de passe ne correspondent pas');
+      return;
+    }
+
+    this.authService.resetPassword({ token: this.token, newPassword }).subscribe({
+      next: () => {
+        alert('✅ Mot de passe réinitialisé avec succès');
+        this.router.navigate(['/login']);
       },
-      error: (err: any) => {
-        this.loading = false;
-        const msg = err?.error || err?.message || "Erreur lors de la réinitialisation.";
-        this.showToast(msg, 'error');
+      error: (err) => {
+        console.error('Erreur reset password', err);
+        alert('❌ Erreur lors de la réinitialisation');
       }
     });
+  }
+
+  navigateTo(path: string): void {
+    this.router.navigate([`/${path}`]);
   }
 }
