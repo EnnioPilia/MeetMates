@@ -3,41 +3,37 @@
 
 html,
 body {
-  font-family: 'Poiret One', cursive;
-  background-color: var(--mat-sys-tertiary-fixed); 
-}
-
-html {
-  color-scheme: light;
-  @include mat.theme((color: theme.$primary-palette));
+  @include mat.theme((color: (primary: theme.$primary-palette,tertiary: theme.$tertiary-palette,)));
   @include mat.theme-overrides((corner-full: 10px));
 
+  font-family: 'Poiret One', cursive;
+  background-color: var(--mat-sys-primary);
+  color-scheme: light;
 }
 
 :root {
-  @include mat.toolbar-overrides((container-background-color: var(--mat-sys-primary),
-      container-text-color: var(--mat-sys-on-primary),
+  @include mat.toolbar-overrides((container-background-color: var(--mat-sys-tertiary),
+      container-text-color: var(--mat-sys-on-tertiary),
     ));
-    
 }
 
 .primary-button {
   @include mat.theme((color: theme.$tertiary-palette));
   @include mat.theme-overrides((corner-full: 10px));
-  font-weight: bold !important; // material Angular ecrase le style obligé de mettre !important
+  // font-weight: bold !important; // material Angular ecrase le style obligé de mettre !important
 }
 
 .secondary-button {
   @include mat.theme((color: theme.$tertiary-palette));
   @include mat.theme-overrides((corner-full: 10px));
-  font-weight: bold !important; // material Angular ecrase le style obligé de mettre !important
-
+  // font-weight: bold !important; // material Angular ecrase le style obligé de mettre !important
 }
 
 .card-text {
-  border: 1px solid var(--mat-sys-on-primary-fixed-variant);
-  @include mat.theme((color: theme.$tertiary-palette));
+  border: 1px solid var(--mat-sys-on-tertiary);
   border-radius: 5px;
+  color: var(--mat-sys-on-tertiary);
+  
 }
 
 .title-page {
@@ -45,18 +41,40 @@ html {
 }
 
 .title-home {
-  color: var(--mat-sys-on-primary-fixed-variant);
+  color: var(--mat-sys-on-tertiary);
 }
 
-:root {
-  @include mat.card-overrides((
-    container-color: var(--mat-sys-primary) // ou la couleur que tu veux
-  ));
-}
 
-// <-----  pour le header mais visiblement plus besoin 
 
-// ::ng-deep mat-toolbar {
-//   background-color: var(--mat-sys-primary);
-//   color: var(--mat-sys-on-primary);
-// } 
+
+
+
+
+
+
+
+// :root {
+//   // Couleurs principales
+//   --color-primary: #76b8fa;  
+//   --color-secondary: #3388cc; 
+//   --color-tertiary: #6b71b8;  
+
+//   --color-text-light: #ffffff;
+//   --color-background: #f9f9f9;
+
+//   --border-radius: 10px;
+//   --font-main: 'Poiret One', cursive;
+// }
+
+// body {
+//   background-color: var(--color-secondary);
+//   color: var(--color-text-light);
+//   font-family: var(--font-main);
+// }
+
+// .header,
+// .footer {
+//   background-color: var(--color-primary) !important;
+//   color: var(--color-text-light);
+//   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+// }

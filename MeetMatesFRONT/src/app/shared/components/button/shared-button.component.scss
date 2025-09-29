@@ -1,0 +1,38 @@
+/* Shared Button Styles (design system) */
+button {
+  cursor: pointer;
+
+  &.btn-primary {
+    background-color: var(--color-tertiary);
+    color: var(--color-text-light);
+
+    &:hover:not(:disabled) {
+      background-color: color-mix(in srgb, var(--color-primary) 90%, black);
+      transform: translateY(-2px);
+    }
+
+    &:active {
+      background-color: color-mix(in srgb, var(--color-primary) 80%, black);
+    }
+  }
+
+  &.btn-secondary {
+    background-color: var(--color-tertiary);
+    color: var(--color-text-light);
+
+    &:hover:not(:disabled) {
+      background-color: color-mix(in srgb, var(--color-secondary) 50%, black);
+      transform: translateY(-2px);
+    }
+
+    &:active {
+      background-color: color-mix(in srgb, var(--color-secondary) 80%, black);
+    }
+  }
+
+  &.btn-disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+}

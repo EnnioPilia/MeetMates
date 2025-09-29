@@ -1,0 +1,51 @@
+import { Component, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { NgFor, NgIf } from '@angular/common';
+
+interface Category {
+  categoryId: string;
+  name: string;
+  imageUrl?: string;
+  activities?: any[];
+}
+
+@Component({
+  selector: 'app-category',
+  standalone: true,
+  imports: [MatCardModule, MatIconModule,NgFor, NgIf],
+  templateUrl: './category.component.html',
+  styleUrls: ['./category.component.scss']
+})
+export class CategoryComponent implements OnInit {
+
+  categories: Category[] = [];
+  private apiUrl = 'http://localhost:8080/category';
+
+  constructor(private http: HttpClient, private router: Router) { }
+
+  ngOnInit(): void {
+    this.loadCategories();
+  }
+
+  loadCategories(): void {
+    this.http.get<Category[]>(this.apiUrl).subscribe({
+      next: (data) => {
+        console.log('Categories loaded: ', data);
+        this.categories = data;
+      },
+      error: (err) => console.error('Erreur API catégories', err)
+    });
+  }
+
+  navigateTo(categoryId: string): void {
+    if (!categoryId) {
+      console.error('Category ID is undefined!');
+      return;
+    }
+    console.log('Navigating to categoryId:', categoryId);
+    this.router.navigate([`/activity/${categoryId}`]);
+  }
+}
