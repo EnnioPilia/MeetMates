@@ -3,9 +3,9 @@ package com.example.meetmates.model.media;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.example.meetmates.model.core.Event;
 import com.example.meetmates.model.core.User;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -16,7 +16,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-
 
 @Entity
 @Table(name = "pictures")
@@ -34,33 +33,30 @@ public class Picture {
     @Column(nullable = false)
     private PictureType type;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "event_id")
-    private Event event;
+    @Column(nullable = false)
+    private String status = "ACTIVE";
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    // Audit
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
+    // Relation directe vers User
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id")
+    private User user;
 
-    // === ENUM === 
-    //type (1=message, 2=user, 3=event, 4=activity, 5=category) !!!!!  <-----------------------
-
+    // ========================
+    // ENUM
+    // ========================
     public enum PictureType {
-        PROFILE,
-        EVENT
+        PROFILE, EVENT, ACTIVITY, CATEGORY, MESSAGE
     }
 
-    // === Getters & Setters ===
+    // ========================
+    // Getters & Setters
+    // ========================
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
 
@@ -70,11 +66,8 @@ public class Picture {
     public PictureType getType() { return type; }
     public void setType(PictureType type) { this.type = type; }
 
-    public Event getEvent() { return event; }
-    public void setEvent(Event event) { this.event = event; }
-
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
@@ -82,6 +75,6 @@ public class Picture {
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 
-    public LocalDateTime getDeletedAt() { return deletedAt; }
-    public void setDeletedAt(LocalDateTime deletedAt) { this.deletedAt = deletedAt; }
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 }

@@ -8,19 +8,19 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
 @Embeddable
-public class PictureMessageID implements Serializable {
+public class PictureActivityID implements Serializable {
 
     @Column(name = "picture_id", nullable = false)
     private UUID pictureId;
 
-    @Column(name = "message_id", nullable = false)
-    private UUID messageId;
+    @Column(name = "activity_id", nullable = false)
+    private UUID activityId;
 
-    public PictureMessageID() {}
+    public PictureActivityID() {}
 
-    public PictureMessageID(UUID pictureId, UUID messageId) {
+    public PictureActivityID(UUID pictureId, UUID activityId) {
         this.pictureId = pictureId;
-        this.messageId = messageId;
+        this.activityId = activityId;
     }
 
     public UUID getPictureId() {
@@ -31,25 +31,25 @@ public class PictureMessageID implements Serializable {
         this.pictureId = pictureId;
     }
 
-    public UUID getMessageId() {
-        return messageId;
+    public UUID getActivityId() {
+        return activityId;
     }
 
-    public void setMessageId(UUID messageId) {
-        this.messageId = messageId;
+    public void setActivityId(UUID activityId) {
+        this.activityId = activityId;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof PictureMessageID)) return false;
-        PictureMessageID that = (PictureMessageID) o;
+        if (!(o instanceof PictureActivityID)) return false;
+        PictureActivityID that = (PictureActivityID) o;
         return Objects.equals(pictureId, that.pictureId) &&
-               Objects.equals(messageId, that.messageId);
+               Objects.equals(activityId, that.activityId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(pictureId, messageId);
+        return Objects.hash(pictureId, activityId);
     }
 }

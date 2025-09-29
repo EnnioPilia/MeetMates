@@ -6,25 +6,15 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.example.meetmates.model.core.Event;
 import com.example.meetmates.model.core.User;
 import com.example.meetmates.model.media.Picture;
 
 @Repository
 public interface PictureRepository extends JpaRepository<Picture, UUID> {
 
-    // Récupérer toutes les photos d’un événement
-    List<Picture> findByEvent(Event event);
-
     // Récupérer toutes les photos d’un utilisateur
     List<Picture> findByUser(User user);
 
     // Récupérer les photos d’un utilisateur pour un type spécifique (PROFILE ou EVENT)
     List<Picture> findByUserAndType(User user, Picture.PictureType type);
-
-    // Supprimer toutes les photos d’un utilisateur
-    void deleteByUser(User user);
-
-    // Supprimer toutes les photos d’un événement
-    void deleteByEvent(Event event);
 }

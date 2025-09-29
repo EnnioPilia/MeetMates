@@ -2,7 +2,7 @@ package com.example.meetmates.model.link;
 
 import java.time.LocalDateTime;
 
-import com.example.meetmates.model.core.Event;
+import com.example.meetmates.model.core.Activity;
 import com.example.meetmates.model.media.Picture;
 
 import jakarta.persistence.Column;
@@ -15,11 +15,11 @@ import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "picture_event")
-public class PictureEvent {
+@Table(name = "picture_activity")
+public class PictureActivity {
 
     @EmbeddedId
-    private PictureEventID id;
+    private PictureActivityID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("pictureId")
@@ -27,9 +27,9 @@ public class PictureEvent {
     private Picture picture;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("eventId")
-    @JoinColumn(name = "event_id", nullable = false)
-    private Event event;
+    @MapsId("activityId")
+    @JoinColumn(name = "activity_id", nullable = false)
+    private Activity activity;
 
     @Column(name = "is_main", nullable = false)
     private boolean isMain = false;
@@ -43,12 +43,11 @@ public class PictureEvent {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // === Getters & Setters ===
-    public PictureEventID getId() {
+    public PictureActivityID getId() {
         return id;
     }
 
-    public void setId(PictureEventID id) {
+    public void setId(PictureActivityID id) {
         this.id = id;
     }
 
@@ -60,12 +59,12 @@ public class PictureEvent {
         this.picture = picture;
     }
 
-    public Event getEvent() {
-        return event;
+    public Activity getActivity() {
+        return activity;
     }
 
-    public void setEvent(Event event) {
-        this.event = event;
+    public void setActivity(Activity activity) {
+        this.activity = activity;
     }
 
     public boolean isMain() {
