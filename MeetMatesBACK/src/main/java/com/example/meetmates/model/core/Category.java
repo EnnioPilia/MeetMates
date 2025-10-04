@@ -37,9 +37,9 @@ public class Category {
     @Column(name = "image_url")
     private String imageUrl;
 
-@OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
-@JsonManagedReference
-private List<Activity> activities;
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Activity> activities;
 
     // Getters & Setters
     public UUID getCategoryId() {
