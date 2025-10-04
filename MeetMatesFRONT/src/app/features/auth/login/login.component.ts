@@ -1,53 +1,84 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { AuthService } from '../../../core/services/auth/auth.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../../core/services/auth/auth.service'; // adapte le chemin à ton projet
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { finalize } from 'rxjs/operators';
 
 @Component({
-  standalone: true,
   selector: 'app-login',
+  standalone: true,
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatSnackBarModule,
+    
   ]
 })
 export class LoginComponent {
-  loginForm: FormGroup;
-  errorMessage: string | null = null;
+  form: FormGroup;
+  isSubmitting = false;
+  formSubmitted = false;
 
   constructor(
     private fb: FormBuilder,
+    private authService: AuthService,
     private router: Router,
-    private authService: AuthService
+    private snackBar: MatSnackBar,
+      private cdr: ChangeDetectorRef // ✅ Ajout
+
   ) {
-    this.loginForm = this.fb.group({
+    this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required],
+      password: ['', [Validators.required, Validators.minLength(6)]]
     });
   }
 
-  login(): void {
-    if (this.loginForm.valid) {
-      const { email, password } = this.loginForm.value;
+  onSubmit(): void {
+    this.formSubmitted = true;
 
-      this.authService.login({ email, password }).subscribe({
-        next: () => {
-          console.log('✅ Connexion réussie');
-          this.router.navigate(['/home']);
-        },
-        error: (err) => {
-          console.error('⚠️ Erreur de connexion :', err.message);
-          this.errorMessage = err.message;
-        }
-      });
-    } else {
-      this.errorMessage = 'Veuillez remplir correctement le formulaire.';
+    if (this.form.invalid) {
+      this.isSubmitting = false;
+      return;
     }
+
+  const { email, password } = this.form.value;
+  this.isSubmitting = true;
+
+    this.authService.login({ email: email.trim().toLowerCase(), password }).subscribe({
+      next: (res) => {
+        this.isSubmitting = false;
+        this.snackBar.open('✅ Connexion réussie !', 'Fermer', {
+          panelClass: ['snack-success'],
+          duration: 4000,
+        });
+        this.router.navigate(['/home']);
+      },
+      error: (err) => {
+        this.isSubmitting = false; // ✅ toujours libérer ici aussi
+        console.error('[Auth] Erreur connexion :', err);
+        this.snackBar.open(err.message || '❌ Échec de la connexion.', 'Fermer', {
+          duration: 4000,
+          panelClass: ['snack-error']
+        });
+      }
+    });
   }
-  navigateTo(path: string) {
+
+  navigateTo(path: string): void {
     this.router.navigate([`/${path}`]);
   }
 }

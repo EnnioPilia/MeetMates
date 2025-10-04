@@ -50,12 +50,24 @@ export class AuthService {
   }
 
   requestPasswordReset(email: string): Observable<string> {
-    const body: PasswordResetRequestDto = { email };
-    return this.http.post<string>(`${this.baseUrl}/request-reset`, body);
+    const body = { email };
+    return this.http.post(`${this.baseUrl}/request-reset`, body, {
+      responseType: 'text' // ✅ Le serveur renvoie du texte
+    }).pipe(
+      catchError(err => {
+        return throwError(() => new Error(err?.error || "Erreur lors de la demande de réinitialisation."));
+      })
+    );
   }
 
-  resetPassword(data: PasswordResetDto): Observable<string> {
-    return this.http.post<string>(`${this.baseUrl}/reset-password`, data);
+  resetPassword(data: { token: string; newPassword: string }): Observable<string> {
+    return this.http.post(`${this.baseUrl}/reset-password`, data, {
+      responseType: 'text' // ✅ On veut recevoir une chaîne, pas du JSON
+    }).pipe(
+      catchError(err => {
+        return throwError(() => new Error(err?.error || "Erreur lors de la réinitialisation du mot de passe."));
+      })
+    );
   }
 
   register(data: RegisterRequest): Observable<string> {
@@ -73,12 +85,12 @@ export class AuthService {
       })
     );
   }
-  
+
   refreshToken(): Observable<{ accessToken: string }> {
     return this.http.post<{ accessToken: string }>(
       `${this.baseUrl}/refresh-token`,
       {},
-      { withCredentials: true } 
+      { withCredentials: true }
     );
   }
 }

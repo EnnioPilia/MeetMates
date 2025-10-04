@@ -1,38 +1,70 @@
-<div class="flex flex-col items-center justify-center min-h-[calc(100vh-10px)] px-5">
-  <!-- Titre -->
-  <h2 class="text-4xl mb-3 font-bold text-center">INSCRIPTION</h2>
+<div class="flex flex-col items-center justify-center min-h-[calc(100vh-10px)] px-8">
+
+  <mat-card-title class="title-home">
+    <h2 class="text-4xl mb-3">INSCRIPTION</h2>
+  </mat-card-title>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col items-center">
+
+    <!-- Nom -->
+    <mat-form-field class="w-80">
+      <mat-label>Nom</mat-label>
+      <input matInput formControlName="name" required>
+      @if (form.get('name')?.invalid && (form.get('name')?.touched || form.get('name')?.dirty)) {
+        <mat-error>Entrez votre nom.</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Email -->
+    <mat-form-field class="w-80">
+      <mat-label>Email</mat-label>
+      <input matInput formControlName="email" required>
+      @if (form.get('email')?.hasError('required') && (form.get('email')?.touched || form.get('email')?.dirty)) {
+        <mat-error>Entrez votre adresse email.</mat-error>
+      }
+      @if (form.get('email')?.hasError('email') && !form.get('email')?.hasError('required')) {
+        <mat-error>Adresse email invalide.</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Mot de passe -->
+    <mat-form-field class="w-80">
+      <mat-label>Mot de passe</mat-label>
+      <input matInput type="password" formControlName="password" required>
+      @if (form.get('password')?.hasError('required') && (form.get('password')?.touched || form.get('password')?.dirty)) {
+        <mat-error>Entrez votre mot de passe.</mat-error>
+      }
+      @if (form.get('password')?.hasError('minlength') && !form.get('password')?.hasError('required')) {
+        <mat-error>Minimum 6 caractères.</mat-error>
+      }
+    </mat-form-field>
 
 
 
+    <!-- Boutons -->
+    <mat-card-actions class="flex flex-col items-center justify-center gap-2 mt-6 w-80">
+      <button
+        mat-flat-button
+        color="primary"
+        class="w-full primary-button"
+        type="submit"
+        [disabled]="isSubmitting">
+        S’inscrire
+      </button>
 
-    <!-- Formulaire -->
-    <form class="flex flex-col gap-4 mt-4">
-      <div>
-        <label class="block text-left text-sm font-medium mb-1">Nom</label>
-        <input type="text" class="w-80 px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300">
-      </div>
-
-      <div>
-        <label class="block text-left text-sm font-medium mb-1">Email</label>
-        <input type="email" class="w-80 px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300">
-      </div>
-
-      <div>
-        <label class="block text-left text-sm font-medium mb-1">Mot de passe</label>
-        <input type="password" class="w-80 px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300">
-      </div>
-    </form>
-  </div>
-
-  <!-- Boutons -->
-  <div class="flex flex-col items-center justify-center gap-2 mt-1 w-80">
-    <button (click)="register()"
-            class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
-      S'inscrire
-    </button>
-
-    <button (click)="navigateTo('login')"
-            class="w-full bg-gray-300 text-black py-2 rounded-lg hover:bg-gray-400 transition">
-      Déjà un compte ? Se connecter
-    </button>
-  </div>
+      <button
+        mat-flat-button
+        class="secondary-button w-80"
+        type="button"
+        (click)="navigateTo('login')">
+        Déjà un compte ?
+      </button>
+    </mat-card-actions>
+    <!-- Message global d'erreur -->
+    @if (formSubmitted && form.invalid) {
+      <mat-error class="text-center mt-2 text-red-600">
+       Veuillez remplir correctement tous les champs avant de continuer.
+      </mat-error>
+    }
+  </form>
+</div>

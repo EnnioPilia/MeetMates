@@ -1,59 +1,107 @@
-import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth/auth.service';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { CommonModule } from '@angular/common';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-reset-password',
   standalone: true,
   templateUrl: './reset-password.component.html',
   styleUrls: ['./reset-password.component.scss'],
-  imports: [CommonModule, ReactiveFormsModule]
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatSnackBarModule
+  ]
 })
 export class ResetPasswordComponent {
   resetForm: FormGroup;
-  token: string = '';
+  isSubmitting = false;
+  formSubmitted = false;
+  token: string | null = null;
 
   constructor(
     private fb: FormBuilder,
-    private router: Router,
+    private authService: AuthService,
     private route: ActivatedRoute,
-    private authService: AuthService
+    private router: Router,
+    private snackBar: MatSnackBar,
+    private cdr: ChangeDetectorRef
   ) {
     this.resetForm = this.fb.group({
       newPassword: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', Validators.required],
-    });
-
-    // Récupère le token dans l’URL
-    this.route.queryParams.subscribe(params => {
-      this.token = params['token'] || '';
+      confirmPassword: ['', [Validators.required]]
     });
   }
 
+  ngOnInit(): void {
+    this.token = this.route.snapshot.queryParamMap.get('token');
+  }
+
   onSubmit(): void {
+    this.formSubmitted = true;
+
     if (this.resetForm.invalid) {
+      this.snackBar.open('Veuillez remplir correctement les champs.', 'Fermer', {
+        duration: 3000,
+        panelClass: ['snack-error']
+      });
       return;
     }
 
     const { newPassword, confirmPassword } = this.resetForm.value;
 
     if (newPassword !== confirmPassword) {
-      alert('⚠️ Les mots de passe ne correspondent pas');
+      this.snackBar.open('Les mots de passe ne correspondent pas.', 'Fermer', {
+        duration: 3000,
+        panelClass: ['snack-error']
+      });
       return;
     }
 
-    this.authService.resetPassword({ token: this.token, newPassword }).subscribe({
-      next: () => {
-        alert('✅ Mot de passe réinitialisé avec succès');
-        this.router.navigate(['/login']);
-      },
-      error: (err) => {
-        console.error('Erreur reset password', err);
-        alert('❌ Erreur lors de la réinitialisation');
-      }
-    });
+    if (!this.token) {
+      this.snackBar.open('Lien de réinitialisation invalide ou expiré.', 'Fermer', {
+        duration: 3000,
+        panelClass: ['snack-error']
+      });
+      return;
+    }
+
+    this.isSubmitting = true;
+
+    this.authService.resetPassword({ token: this.token, newPassword })
+      .pipe(finalize(() => {
+        this.isSubmitting = false;
+        this.cdr.markForCheck();
+      }))
+      .subscribe({
+        next: () => {
+          this.snackBar.open('✅ Mot de passe réinitialisé avec succès.', 'Fermer', {
+            duration: 4000,
+            panelClass: ['snack-success']
+          });
+          this.router.navigate(['/login']);
+        },
+        error: (err) => {
+          console.error('[Auth] Erreur reset password :', err);
+          this.snackBar.open(err.message || '❌ Erreur lors de la réinitialisation.', 'Fermer', {
+            duration: 4000,
+            panelClass: ['snack-error']
+          });
+        }
+      });
   }
 
   navigateTo(path: string): void {

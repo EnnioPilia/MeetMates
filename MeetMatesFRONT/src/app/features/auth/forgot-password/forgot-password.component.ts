@@ -1,54 +1,84 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth/auth.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-forgot-password',
   standalone: true,
   templateUrl: './forgot-password.component.html',
   styleUrls: ['./forgot-password.component.scss'],
-  imports: [CommonModule, ReactiveFormsModule]
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatSnackBarModule
+  ]
 })
 export class ForgotPasswordComponent {
-  forgotForm: FormGroup;
-  loading = false;
-  alertVisible = false;
-  alertMessage = '';
-  alertType: 'success' | 'error' = 'success';
+  form: FormGroup;
+  isSubmitting = false;
+  formSubmitted = false;
 
   constructor(
     private fb: FormBuilder,
+    private authService: AuthService,
     private router: Router,
-    private authService: AuthService
+    private snackBar: MatSnackBar
   ) {
-    this.forgotForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
+    this.form = this.fb.group({
+      email: ['', [Validators.required, Validators.email]]
     });
   }
 
   onSubmit(): void {
-    if (this.forgotForm.invalid) {
+    this.formSubmitted = true;
+
+    if (this.form.invalid) {
+      this.snackBar.open('⚠️ Veuillez saisir une adresse e-mail valide.', 'Fermer', {
+        duration: 3000,
+        panelClass: ['snack-error']
+      });
       return;
     }
 
-    this.loading = true;
-    const { email } = this.forgotForm.value;
+    this.isSubmitting = true;
+    const { email } = this.form.value;
 
-this.authService.requestPasswordReset(email).subscribe({
-      next: () => {
-        this.alertMessage = '✅ Un email de réinitialisation a été envoyé.';
-        this.alertType = 'success';
-        this.alertVisible = true;
-        this.loading = false;
+    this.authService.requestPasswordReset(email).subscribe({
+      next: (message) => {
+        this.isSubmitting = false;
+        this.snackBar.open(
+          message || '✅ Un lien de réinitialisation a été envoyé à votre adresse e-mail.',
+          'Fermer',
+          {
+            duration: 4000,
+            panelClass: ['snack-success']
+          }
+        );
+        this.router.navigate(['/login']);
       },
       error: (err) => {
-        console.error('Erreur forgot password', err);
-        this.alertMessage = '❌ Impossible d’envoyer le lien. Vérifie ton adresse.';
-        this.alertType = 'error';
-        this.alertVisible = true;
-        this.loading = false;
+        this.isSubmitting = false;
+        console.error('[Auth] Erreur reset password :', err);
+        this.snackBar.open(
+          err.message || '❌ Une erreur est survenue. Veuillez réessayer.',
+          'Fermer',
+          {
+            duration: 4000,
+            panelClass: ['snack-error']
+          }
+        );
       }
     });
   }

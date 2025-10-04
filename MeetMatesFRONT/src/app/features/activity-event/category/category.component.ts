@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { NgFor, NgIf } from '@angular/common';
+import { environment } from '../../../../environments/environment';
 
 interface Category {
   categoryId: string;
@@ -22,7 +23,8 @@ interface Category {
 export class CategoryComponent implements OnInit {
 
   categories: Category[] = [];
-  private apiUrl = 'http://localhost:8080/category';
+ 
+  private readonly baseUrl = environment.apiUrl.replace(/\/+$/, '') + '/category';
 
   constructor(private http: HttpClient, private router: Router) { }
 
@@ -31,7 +33,7 @@ export class CategoryComponent implements OnInit {
   }
 
   loadCategories(): void {
-    this.http.get<Category[]>(this.apiUrl).subscribe({
+    this.http.get<Category[]>(this.baseUrl).subscribe({
       next: (data) => {
         console.log('Categories loaded: ', data);
         this.categories = data;
