@@ -1,0 +1,10 @@
+<h2 class="text-center" mat-dialog-title>{{ data.title }} </h2>
+
+<mat-dialog-content class="text-center">
+  <p >{{ data.message }}</p>
+</mat-dialog-content>
+
+<mat-dialog-actions class="flex flex-row justify-center items-center mt-4 !flex-nowrap">
+  <button mat-button class="cancel-btn w-40" (click)="onClose(false)">Annuler</button>
+  <button mat-raised-button class="confirm-btn w-40" (click)="onClose(true) ">Confirmer</button>
+</mat-dialog-actions>

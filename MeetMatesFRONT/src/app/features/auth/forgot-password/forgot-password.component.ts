@@ -44,11 +44,7 @@ export class ForgotPasswordComponent {
   onSubmit(): void {
     this.formSubmitted = true;
 
-    if (this.form.invalid) {
-      this.snackBar.open('⚠️ Veuillez saisir une adresse e-mail valide.', 'Fermer', {
-        duration: 3000,
-        panelClass: ['snack-error']
-      });
+    if (this.form.invalid) {;
       return;
     }
 

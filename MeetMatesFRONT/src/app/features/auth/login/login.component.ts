@@ -47,13 +47,23 @@ export class LoginComponent {
     });
   }
 
-  onSubmit(): void {
-    this.formSubmitted = true;
+onSubmit(): void {
+  this.formSubmitted = true;
 
-    if (this.form.invalid) {
-      this.isSubmitting = false;
-      return;
-    }
+  if (this.form.invalid) {
+    this.snackBar.open(
+      'Veuillez remplir correctement tous les champs avant de continuer.',
+      'Fermer',
+      {
+        duration: 4000,
+        horizontalPosition: 'center',
+        verticalPosition: 'top',
+        panelClass: ['snack-error'],
+      }
+    );
+    this.isSubmitting = false;
+    return;
+  }
 
   const { email, password } = this.form.value;
   this.isSubmitting = true;

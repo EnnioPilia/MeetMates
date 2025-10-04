@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { NgFor, NgIf } from '@angular/common';
+import { NgFor } from '@angular/common';
 import { environment } from '../../../../environments/environment';
 
 interface Category {
@@ -11,12 +11,13 @@ interface Category {
   name: string;
   imageUrl?: string;
   activities?: any[];
+  icon?: string;  
 }
 
 @Component({
   selector: 'app-category',
   standalone: true,
-  imports: [MatCardModule, MatIconModule,NgFor, NgIf],
+  imports: [MatCardModule, MatIconModule,NgFor],
   templateUrl: './category.component.html',
   styleUrls: ['./category.component.scss']
 })

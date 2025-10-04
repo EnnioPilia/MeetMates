@@ -1,6 +1,6 @@
 <div class="flex flex-col items-center justify-center min-h-[calc(100vh-10px)] px-8">
 
-  <mat-card-title class="title-home">
+  <mat-card-title class="title-home mb-3">
     <h2 class="text-4xl mb-3">CONNEXION</h2>
   </mat-card-title>
 
@@ -49,12 +49,6 @@
         Mot de passe oulié
       </button>
     </mat-card-actions>
-    
-    @if (formSubmitted && form.invalid) {
-      <mat-error class="text-center mt-4 text-red-600">
-      Veuillez remplir correctement tous les champs avant de continuer.
-      </mat-error>
-    }
 
   </form>
 </div>
