@@ -23,11 +23,11 @@ import { finalize } from 'rxjs/operators';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    MatSnackBarModule
+    MatSnackBarModule,
   ]
 })
 export class ResetPasswordComponent {
-  resetForm: FormGroup;
+  form: FormGroup;
   isSubmitting = false;
   formSubmitted = false;
   token: string | null = null;
@@ -40,9 +40,9 @@ export class ResetPasswordComponent {
     private snackBar: MatSnackBar,
     private cdr: ChangeDetectorRef
   ) {
-    this.resetForm = this.fb.group({
+    this.form = this.fb.group({
       newPassword: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', [Validators.required]]
+      confirmPassword: ['', [Validators.required]],
     });
   }
 
@@ -53,54 +53,77 @@ export class ResetPasswordComponent {
   onSubmit(): void {
     this.formSubmitted = true;
 
-    if (this.resetForm.invalid) {
-      this.snackBar.open('Veuillez remplir correctement les champs.', 'Fermer', {
-        duration: 3000,
-        panelClass: ['snack-error']
-      });
+    if (this.form.invalid) {
+      this.snackBar.open(
+        'Veuillez remplir correctement tous les champs avant de continuer.',
+        'Fermer',
+        {
+          duration: 4000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top',
+          panelClass: ['snack-error'],
+        }
+      );
+      this.isSubmitting = false;
       return;
     }
 
-    const { newPassword, confirmPassword } = this.resetForm.value;
+    const { newPassword, confirmPassword } = this.form.value;
 
     if (newPassword !== confirmPassword) {
       this.snackBar.open('Les mots de passe ne correspondent pas.', 'Fermer', {
-        duration: 3000,
-        panelClass: ['snack-error']
+        duration: 4000,
+        horizontalPosition: 'center',
+        verticalPosition: 'top',
+        panelClass: ['snack-error'],
       });
       return;
     }
 
     if (!this.token) {
       this.snackBar.open('Lien de réinitialisation invalide ou expiré.', 'Fermer', {
-        duration: 3000,
-        panelClass: ['snack-error']
+        duration: 4000,
+        horizontalPosition: 'center',
+        verticalPosition: 'top',
+        panelClass: ['snack-error'],
       });
       return;
     }
 
     this.isSubmitting = true;
 
-    this.authService.resetPassword({ token: this.token, newPassword })
-      .pipe(finalize(() => {
-        this.isSubmitting = false;
-        this.cdr.markForCheck();
-      }))
+    this.authService
+      .resetPassword({ token: this.token, newPassword })
+      .pipe(
+        finalize(() => {
+          this.isSubmitting = false;
+          this.cdr.markForCheck();
+        })
+      )
       .subscribe({
         next: () => {
-          this.snackBar.open('✅ Mot de passe réinitialisé avec succès.', 'Fermer', {
+          this.snackBar.open('✅ Mot de passe réinitialisé avec succès !', 'Fermer', {
             duration: 4000,
-            panelClass: ['snack-success']
+            horizontalPosition: 'center',
+            verticalPosition: 'top',
+            panelClass: ['snack-success'],
           });
           this.router.navigate(['/login']);
         },
         error: (err) => {
+          this.isSubmitting = false;
           console.error('[Auth] Erreur reset password :', err);
-          this.snackBar.open(err.message || '❌ Erreur lors de la réinitialisation.', 'Fermer', {
-            duration: 4000,
-            panelClass: ['snack-error']
-          });
-        }
+          this.snackBar.open(
+            err?.message || '❌ Erreur lors de la réinitialisation du mot de passe.',
+            'Fermer',
+            {
+              duration: 4000,
+              horizontalPosition: 'center',
+              verticalPosition: 'top',
+              panelClass: ['snack-error'],
+            }
+          );
+        },
       });
   }
 

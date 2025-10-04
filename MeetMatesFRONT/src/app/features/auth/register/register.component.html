@@ -11,7 +11,7 @@
       <mat-label>Nom</mat-label>
       <input matInput formControlName="name" required>
       @if (form.get('name')?.invalid && (form.get('name')?.touched || form.get('name')?.dirty)) {
-        <mat-error>Entrez votre nom.</mat-error>
+      <mat-error>Entrez votre nom.</mat-error>
       }
     </mat-form-field>
 
@@ -20,10 +20,10 @@
       <mat-label>Email</mat-label>
       <input matInput formControlName="email" required>
       @if (form.get('email')?.hasError('required') && (form.get('email')?.touched || form.get('email')?.dirty)) {
-        <mat-error>Entrez votre adresse email.</mat-error>
+      <mat-error>Entrez votre adresse email.</mat-error>
       }
       @if (form.get('email')?.hasError('email') && !form.get('email')?.hasError('required')) {
-        <mat-error>Adresse email invalide.</mat-error>
+      <mat-error>Adresse email invalide.</mat-error>
       }
     </mat-form-field>
 
@@ -31,11 +31,12 @@
     <mat-form-field class="w-80">
       <mat-label>Mot de passe</mat-label>
       <input matInput type="password" formControlName="password" required>
-      @if (form.get('password')?.hasError('required') && (form.get('password')?.touched || form.get('password')?.dirty)) {
-        <mat-error>Entrez votre mot de passe.</mat-error>
+      @if (form.get('password')?.hasError('required') && (form.get('password')?.touched || form.get('password')?.dirty))
+      {
+      <mat-error>Entrez votre mot de passe.</mat-error>
       }
       @if (form.get('password')?.hasError('minlength') && !form.get('password')?.hasError('required')) {
-        <mat-error>Minimum 6 caractères.</mat-error>
+      <mat-error>Minimum 6 caractères.</mat-error>
       }
     </mat-form-field>
 
@@ -43,20 +44,11 @@
 
     <!-- Boutons -->
     <mat-card-actions class="flex flex-col items-center justify-center gap-2 mt-6 w-80">
-      <button
-        mat-flat-button
-        color="primary"
-        class="w-full primary-button"
-        type="submit"
-        [disabled]="isSubmitting">
+      <button mat-flat-button color="primary" class="w-full primary-button" type="submit" [disabled]="isSubmitting">
         S’inscrire
       </button>
 
-      <button
-        mat-flat-button
-        class="secondary-button w-80"
-        type="button"
-        (click)="navigateTo('login')">
+      <button mat-flat-button class="secondary-button w-80" type="button" (click)="navigateTo('login')">
         Déjà un compte ?
       </button>
     </mat-card-actions>

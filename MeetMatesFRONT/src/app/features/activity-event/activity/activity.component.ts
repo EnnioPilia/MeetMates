@@ -18,7 +18,7 @@ export interface Activity {
 @Component({
   selector: 'app-activity',
   standalone: true,
-  imports: [MatCardModule, MatIconModule, NgFor, NgIf],
+  imports: [MatCardModule, MatIconModule, NgFor],
 
   templateUrl: './activity.component.html',
   styleUrls: ['./activity.component.scss']

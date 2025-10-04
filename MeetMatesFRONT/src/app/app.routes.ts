@@ -10,6 +10,7 @@ import { HomeComponent } from './features/home/home.component';
 import { CategoryComponent } from './features/activity-event/category/category.component';
 import { ActivityComponent } from './features/activity-event/activity/activity.component';
 import { EventComponent } from './features/activity-event/event/event.component';
+import { PostEventComponent } from './features/post-event/post-event.component';
 
 // import { authGuard } from './core/guards/auth.guard';
 
@@ -26,6 +27,7 @@ export const routes: Routes = [
   { path: 'activity', component: ActivityComponent },
   { path: 'activity/:categoryId', component: ActivityComponent },
   { path: 'event', component: EventComponent },
+  { path: 'post-event', component: PostEventComponent },
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: '**', redirectTo: 'home' }
 ];

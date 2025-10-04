@@ -73,7 +73,7 @@ onSubmit(): void {
         this.isSubmitting = false;
         this.snackBar.open('✅ Connexion réussie !', 'Fermer', {
           panelClass: ['snack-success'],
-          duration: 4000,
+          duration: 2000,
         });
         this.router.navigate(['/home']);
       },

@@ -79,3 +79,7 @@ body {
   transition: all 0.2s ease;
 }
 
+ .mat-mdc-radio-button {
+  --mdc-radio-selected-icon-color: #055daf; 
+  --mdc-radio-unselected-icon-color:  rgba(0, 0, 0, 0.548);
+}

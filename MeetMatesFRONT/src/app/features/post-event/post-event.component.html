@@ -1,0 +1,101 @@
+<div class="flex flex-col items-center justify-center min-h-[calc(205vh-10px)] px-8">
+
+    <mat-card-title class="title-home mb-2">
+        <h2 class="text-2xl mb-3">CRÉER UNE ACTIVITÉ</h2>
+    </mat-card-title>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col items-center">
+
+        <mat-form-field class="w-80">
+            <mat-label>Activité</mat-label>
+            <mat-select formControlName="activityId" required>
+                @for (activity of activities; track activity.id) {
+                <mat-option [value]="activity.id">{{ activity.name }}</mat-option>
+                }
+            </mat-select>
+            @if (form.get('activityId')?.invalid && form.get('activityId')?.touched) {
+            <mat-error>Veuillez choisir une activité.</mat-error>
+            }
+        </mat-form-field>
+
+        <mat-form-field class="w-80">
+            <mat-label>Titre</mat-label>
+            <input matInput formControlName="titre" placeholder="Ex: tournois de basket" required>
+            @if (form.get('titre')?.invalid && form.get('titre')?.touched) {
+            <mat-error>Veuillez entrer un titre valide.</mat-error>
+            }
+        </mat-form-field>
+
+        <mat-form-field class="w-80">
+            <mat-label>Description</mat-label>
+            <textarea matInput rows="4" formControlName="description" placeholder="Décrivez votre activité..."
+                required></textarea>
+            @if (form.get('description')?.invalid && form.get('description')?.touched) {
+            <mat-error>Veuillez entrer une description.</mat-error>
+            }
+        </mat-form-field>
+
+        <div class="flex gap-4 w-80">
+            <mat-form-field class="flex-1">
+                <mat-label>Date de début</mat-label>
+                <input matInput [matDatepicker]="picker1" formControlName="dateDebut">
+                <mat-datepicker-toggle matIconSuffix [for]="picker1"></mat-datepicker-toggle>
+                <mat-datepicker #picker1></mat-datepicker>
+            </mat-form-field>
+
+            <mat-form-field class="flex-1">
+                <mat-label>Date de fin</mat-label>
+                <input matInput [matDatepicker]="picker2" formControlName="dateFin">
+                <mat-datepicker-toggle matIconSuffix [for]="picker2"></mat-datepicker-toggle>
+                <mat-datepicker #picker2></mat-datepicker>
+            </mat-form-field>
+        </div>
+
+        <div class="flex gap-4 w-80">
+            <mat-form-field class="flex-1">
+                <mat-label>Heure de début</mat-label>
+                <input matInput type="time" formControlName="heureDebut" required>
+            </mat-form-field>
+
+            <mat-form-field class="flex-1 ">
+                <mat-label>Heure de fin</mat-label>
+                <input matInput type="time" formControlName="heureFin" required>
+            </mat-form-field>
+        </div>
+
+        <mat-radio-group class="w-80 mb-2" formControlName="materiel">
+            <label class="block mb-2 font-bold text-gray-700">Matériel :</label>
+            <div class="flex flex-col gap-2 font-bold">
+                @for (option of materialOptions; track option.value) {
+                <mat-radio-button  class="materiel-radio" [value]="option.value">{{ option.label }}</mat-radio-button>
+                }
+            </div>
+        </mat-radio-group>
+
+        <mat-form-field class="w-80">
+            <mat-label>Niveau</mat-label>
+            <mat-select formControlName="niveau">
+                @for (option of levelOptions; track option.value) {
+                <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="w-80">
+            <mat-label>Adresse</mat-label>
+            <input matInput formControlName="adresse" placeholder="Ex: 10 rue Victor Hugo, Lyon" required>
+        </mat-form-field>
+
+        <div
+            class="w-80 h-64 mt-2 rounded-xl overflow-hidden shadow-md bg-gray-100 flex items-center justify-center text-gray-500">
+            🗺️ Carte à venir ici
+        </div>
+
+        <mat-card-actions class="flex flex-col items-center justify-center gap-4 mt-6 w-80">
+            <button mat-flat-button color="primary" class="w-full primary-button" type="submit">
+                Créer l’activité
+            </button>
+        </mat-card-actions>
+
+    </form>
+</div>
