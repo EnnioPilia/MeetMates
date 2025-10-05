@@ -56,7 +56,8 @@ public class SecurityConfig {
                 .requestMatchers("/auth/refresh-token").permitAll()
                 .requestMatchers("/category").permitAll()
                 .requestMatchers("/activity").permitAll()
-                .requestMatchers("/activity/**").permitAll() // permet tout accès à /activity et ses sous-URLs
+                .requestMatchers("/activity/**").permitAll()
+                .requestMatchers("/event/**").permitAll()
                 .requestMatchers("/error/**").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/user/me").hasAnyRole("USER", "ADMIN")

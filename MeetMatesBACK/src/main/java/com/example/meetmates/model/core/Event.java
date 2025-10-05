@@ -1,6 +1,8 @@
 package com.example.meetmates.model.core;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.UUID;
 
 import org.hibernate.annotations.JdbcTypeCode;
@@ -23,16 +25,23 @@ public class Event {
 
     @Id
     @GeneratedValue
-    @Column(name = "event_id", updatable = false, nullable = false)
+    @Column(name = "event_id", columnDefinition = "CHAR(36)", updatable = false, nullable = false)
     private UUID id;
 
     @Column(nullable = false)
     private String title;
 
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "event_date", nullable = false)
-    private LocalDateTime eventDate;
+    private LocalDate eventDate;
+
+    @Column(name = "start_time", nullable = false)
+    private LocalTime startTime;
+
+    @Column(name = "end_time", nullable = false)
+    private LocalTime endTime;
 
     @Column(name = "max_participants")
     private Integer maxParticipants;
@@ -49,22 +58,6 @@ public class Event {
     @Column(nullable = false)
     private Level level = Level.ALL_LEVELS;
 
-    // Audit
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-    @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
-
-    // Relations
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    @JdbcTypeCode(SqlTypes.CHAR) // 👈 force CHAR(36) pour FK
-    private User organizer;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "address_id", nullable = false)
     @JdbcTypeCode(SqlTypes.CHAR)
@@ -75,7 +68,26 @@ public class Event {
     @JdbcTypeCode(SqlTypes.CHAR)
     private Activity activity;
 
-    // === ENUMS ===
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    @JdbcTypeCode(SqlTypes.CHAR)
+    private User organizer;
+
+    /**
+     * 🕓 Audit
+     */
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+    // ==============================
+    // ENUMS
+    // ==============================
     public enum EventStatus {
         OPEN, FULL, CANCELLED, FINISHED
     }
@@ -88,7 +100,9 @@ public class Event {
         BEGINNER, INTERMEDIATE, EXPERT, ALL_LEVELS
     }
 
-    // === Getters & Setters ===
+    // ==============================
+    // GETTERS & SETTERS
+    // ==============================
     public UUID getId() {
         return id;
     }
@@ -113,12 +127,28 @@ public class Event {
         this.description = description;
     }
 
-    public LocalDateTime getEventDate() {
+    public LocalDate getEventDate() {
         return eventDate;
     }
 
-    public void setEventDate(LocalDateTime eventDate) {
+    public void setEventDate(LocalDate eventDate) {
         this.eventDate = eventDate;
+    }
+
+    public LocalTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalTime endTime) {
+        this.endTime = endTime;
     }
 
     public Integer getMaxParticipants() {
@@ -153,6 +183,30 @@ public class Event {
         this.level = level;
     }
 
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
+    public Activity getActivity() {
+        return activity;
+    }
+
+    public void setActivity(Activity activity) {
+        this.activity = activity;
+    }
+
+    public User getOrganizer() {
+        return organizer;
+    }
+
+    public void setOrganizer(User organizer) {
+        this.organizer = organizer;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -175,29 +229,5 @@ public class Event {
 
     public void setDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
-    }
-
-    public User getOrganizer() {
-        return organizer;
-    }
-
-    public void setOrganizer(User organizer) {
-        this.organizer = organizer;
-    }
-
-    public Address getAddress() {
-        return address;
-    }
-
-    public void setAddress(Address address) {
-        this.address = address;
-    }
-
-    public Activity getActivity() {
-        return activity;
-    }
-
-    public void setActivity(Activity activity) {
-        this.activity = activity;
     }
 }
