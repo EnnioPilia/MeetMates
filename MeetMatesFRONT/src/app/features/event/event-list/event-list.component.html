@@ -1,0 +1,56 @@
+<div class="pt-[80px] pb-[80px] min-h-screen overflow-y-auto bg-[var(--mat-sys-primary-container)]">
+  @if (loading) {
+    <div class="flex justify-center items-center h-[50vh]">
+      <mat-spinner diameter="50"></mat-spinner>
+    </div>
+  } @else if (events.length > 0) {
+    <div class="flex flex-col gap-6 p-6">
+      @for (event of events; track event.id) {
+        <mat-card
+          class="event-card w-full max-w-3xl mx-auto flex flex-col sm:flex-row items-start sm:items-stretch overflow-hidden hover:shadow-xl transition-all duration-200"
+          appearance="outlined"
+        >
+          <img
+            [src]="event.imageUrl"
+            alt="{{ event.title }}"
+            class="w-full sm:w-48 h-48 object-cover"
+          />
+
+          <div class="flex flex-col justify-between p-4 flex-1">
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <h2 class="text-xl font-semibold text-gray-800">{{ event.title }}</h2>
+                <mat-chip color="primary" selected>{{ event.category }}</mat-chip>
+              </div>
+              <p class="text-sm text-gray-500 mb-2">
+                <mat-icon class="text-sm align-middle mr-1">event</mat-icon>
+                {{ event.date | date:'mediumDate' }}
+                &nbsp;|&nbsp;
+                <mat-icon class="text-sm align-middle mr-1">location_on</mat-icon>
+                {{ event.location }}
+              </p>
+              <p class="text-gray-700 text-sm leading-relaxed line-clamp-3">
+                {{ event.description }}
+              </p>
+            </div>
+
+            <div class="flex items-center justify-between mt-4">
+              <span class="text-sm text-gray-500">
+                <mat-icon class="text-sm align-middle mr-1">group</mat-icon>
+                {{ event.participants }} participants
+              </span>
+              <button mat-flat-button color="primary" class="font-medium flex items-center gap-1">
+                <mat-icon>person_add</mat-icon> Participer
+              </button>
+            </div>
+          </div>
+        </mat-card>
+      }
+    </div>
+  } @else {
+    <div class="flex flex-col items-center justify-center h-[50vh] text-gray-300">
+      <mat-icon class="text-[64px] mb-2">event_busy</mat-icon>
+      <p class="text-lg font-medium">Aucun événement disponible 😔</p>
+    </div>
+  }
+</div>
