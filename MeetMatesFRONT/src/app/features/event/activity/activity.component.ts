@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { NgFor, NgIf } from '@angular/common';
+import { NgFor } from '@angular/common';
 import { environment } from '../../../../environments/environment';
 
 export interface Activity {
@@ -14,22 +14,22 @@ export interface Activity {
   updatedAt?: string;
 }
 
-
 @Component({
   selector: 'app-activity',
   standalone: true,
   imports: [MatCardModule, MatIconModule, NgFor],
-
   templateUrl: './activity.component.html',
-  styleUrls: ['./activity.component.scss']
+  styleUrls: ['./activity.component.scss'],
 })
 export class ActivityComponent implements OnInit {
-
   activities: Activity[] = [];
-  categoryId!: string;
   private baseUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient, private route: ActivatedRoute) { }
+  constructor(
+    private http: HttpClient,
+    private route: ActivatedRoute,
+    private router: Router // 👈 ajouté
+  ) {}
 
   ngOnInit(): void {
     const categoryId = this.route.snapshot.paramMap.get('categoryId');
@@ -41,10 +41,13 @@ export class ActivityComponent implements OnInit {
   }
 
   loadActivities(categoryId: string): void {
-    this.http.get<Activity[]>(`${this.baseUrl}/activity/category/${categoryId}`)
-      .subscribe({
-        next: data => this.activities = data,
-        error: err => console.error('Erreur API activities', err)
-      });
+    this.http.get<Activity[]>(`${this.baseUrl}/activity/category/${categoryId}`).subscribe({
+      next: (data) => (this.activities = data),
+      error: (err) => console.error('Erreur API activities', err),
+    });
+  }
+
+  goToEvents(activityId: string): void {
+    this.router.navigate(['/events', activityId]); // 👈 redirection dynamique
   }
 }

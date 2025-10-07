@@ -10,22 +10,25 @@ import { HomeComponent } from './features/home/home.component';
 import { CategoryComponent } from './features/event/category/category.component';
 import { ActivityComponent } from './features/event/activity/activity.component';
 import { PostEventComponent } from './features/post-event/post-event.component';
+import { EventListComponent } from './features/event/event-list/event-list.component';
 
 // import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
-  { path: 'home', component: HomeComponent },
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
-  { path: 'verify', component: VerifyComponent },
-  { path: 'reset-password', component: ResetPasswordComponent },
-  { path: 'forgot-password', component: ForgotPasswordComponent },
-  { path: 'profile', component: ProfileComponent },
-  { path: 'category', component: CategoryComponent },
-  { path: 'activity', component: ActivityComponent },
-  { path: 'activity/:categoryId', component: ActivityComponent },
-  { path: 'post-event', component: PostEventComponent },
+  { path: 'home', component: HomeComponent, data: { title: 'Accueil' } },
+  { path: 'login', component: LoginComponent, data: { title: 'Inscription' } },
+  { path: 'register', component: RegisterComponent, data: { title: 'Se connecter' } },
+  { path: 'verify', component: VerifyComponent, data: { title: 'Validation du compte' } },
+  { path: 'reset-password', component: ResetPasswordComponent, data: { title: 'Reinisaliser le mot de passe' } },
+  { path: 'forgot-password', component: ForgotPasswordComponent, data: { title: 'Mot de passe oublié' } },
+  { path: 'profile', component: ProfileComponent, data: { title: 'Mon profil' }},
+  { path: 'category', component: CategoryComponent, data: { title: 'Catégories' } },
+  { path: 'activity', component: ActivityComponent, data: { title: 'Acitivitées' } },
+  { path: 'activity/:categoryId', component: ActivityComponent, data: { title: 'Acitivitées' } },
+  { path: 'post-event', component: PostEventComponent, data: { title: 'Poster une évenement' } },
+  { path: 'event-list', component: EventListComponent, data: { title: 'Evenements' } },
+  { path: 'events/:activityId', component: EventListComponent, data: { title: '' } },
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: '**', redirectTo: 'home' }
 ];

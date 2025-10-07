@@ -66,7 +66,7 @@ export class PostEventComponent implements OnInit {
   private buildForm(): void {
     this.form = this.fb.group({
       titre: ['', Validators.required],
-      description: ['', [Validators.required, Validators.minLength(10)]],
+      description: ['', [Validators.required, Validators.minLength(1)]],
       date: ['', Validators.required],
       heureDebut: ['', Validators.required],
       heureFin: ['', Validators.required],

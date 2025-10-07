@@ -1,15 +1,34 @@
-import { Component} from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { FooterComponent } from './layout/footer/footer.component'; // 🔹 Chemin à adapter selon ton projet
-import { HeaderComponent } from './layout/header/header.component'; // 🔹 Chemin à adapter selon ton projet
+import { Component, inject } from '@angular/core';
+import { RouterOutlet, ActivatedRoute, Router, NavigationEnd } from '@angular/router';
+import { FooterComponent } from './layout/footer/footer.component';
+import { HeaderComponent } from './layout/header/header.component';
+import { filter } from 'rxjs/operators';
+import { SignalsService } from './core/services/signals/signals.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet,FooterComponent,HeaderComponent],
+  standalone: true,
+  imports: [RouterOutlet, HeaderComponent, FooterComponent],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+  styleUrls: ['./app.component.scss']
 })
+export class AppComponent {
+  private signals = inject(SignalsService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
-export class AppComponent  {
-  title = 'MeetMates'
+  constructor() {
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe(() => this.updatePageTitle());
+  }
+
+  private updatePageTitle() {
+    let currentRoute = this.route.root;
+    while (currentRoute.firstChild) {
+      currentRoute = currentRoute.firstChild;
+    }
+    const title = currentRoute.snapshot.data['title'] ?? 'MeetMates';
+    this.signals.setPageTitle(title); // met à jour le signal global
+  }
 }
