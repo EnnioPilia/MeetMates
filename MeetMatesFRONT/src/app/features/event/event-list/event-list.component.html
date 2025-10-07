@@ -12,20 +12,24 @@
   @else if (events.length > 0) {
   <div class="flex flex-col items-center gap-10 w-full max-w-3xl">
     @for (event of events; track event.id) {
-      
+
     <mat-card class="w-full flex flex-col items-center p-6 shadow-md hover:shadow-xl transition-all duration-300">
+
+      <mat-chip class="flex items-center justify-center">
+        {{ getStatusLabel(event.status) }}
+      </mat-chip>
 
       <!-- <mat-chip color="primary" selected>{{ event.activityName }}</mat-chip> -->
 
-      <div class="text-center">
+      <div class="text-center w-full">
         <h2 class="text-xl font-semibold text-gray-800">{{ event.title }}</h2>
-        <p class="text-gray-700 text-sm leading-relaxed">
+        <p class="text-gray-700 text-sm leading-relaxed w-full break-words">
           {{ event.description }}
         </p>
       </div>
 
       <img [src]="'https://source.unsplash.com/featured/?' + event.activityName" alt="{{ event.title }}"
-        class="w-full h-40 object-cover my-4" style="border: solid 1px black;" />
+        class="w-full h-40 object-cover my-3" style="border: solid 1px black;" />
 
       <div class="text-sm text-gray-600 w-full">
         <p class="flex items-center justify-start gap-1">
@@ -36,10 +40,20 @@
           <mat-icon class="text-base">location_on</mat-icon>
           {{ event.addressLabel }}
         </p>
-        <span class="flex items-center justify-start gap-2 text-gray-500">
-          <mat-icon>group</mat-icon>
-          {{ event.participantNames.length }} / {{ event.maxParticipants }} participants
-        </span>
+        <p class="flex items-center justify-start gap-1">
+          <mat-icon class="text-base">school</mat-icon>
+          Niveau : {{ getLevelLabel(event.level) }}
+        </p>
+
+        <p class="flex items-center justify-start gap-1">
+          <mat-icon class="text-base">build</mat-icon>
+          Matériel : {{ getMaterialLabel(event.material) }}
+        </p>
+
+        <!-- <p class="flex items-center justify-start gap-1">
+          <mat-icon class="text-base">info</mat-icon>
+          Statut : {{ getStatusLabel(event.status) }}
+        </p> -->
       </div>
 
       <mat-card-actions class="flex justify-center w-full mt-2">

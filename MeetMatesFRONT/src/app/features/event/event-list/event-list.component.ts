@@ -1,16 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { environment } from '../../../../environments/environment';
 import { SignalsService } from '../../../core/services/signals/signals.service';
 
-// Angular Material
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
 
 interface EventItem {
   id: string;
@@ -20,8 +20,16 @@ interface EventItem {
   addressLabel: string;
   activityName: string;
   organizerName: string;
+  level: string;     
+  material: string;
+  status: string;         
   maxParticipants: number;
   participantNames: string[];
+}
+
+interface Activity {
+  id: string;
+  name: string;
 }
 
 @Component({
@@ -42,13 +50,18 @@ interface EventItem {
 export class EventListComponent implements OnInit {
   loading = true;
   events: EventItem[] = [];
+  activityName: string = 'Toutes les activités';
   private baseUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient, private route: ActivatedRoute,  private signals: SignalsService) {}
+  private http = inject(HttpClient);
+  private route = inject(ActivatedRoute);
+  private signals = inject(SignalsService); 
 
   ngOnInit(): void {
     const activityId = this.route.snapshot.paramMap.get('activityId');
+
     if (activityId) {
+      this.fetchActivityName(activityId);
       this.fetchEventsByActivity(activityId);
     } else {
       this.fetchAllEvents();
@@ -60,34 +73,73 @@ export class EventListComponent implements OnInit {
       next: (data) => {
         this.events = data;
         this.loading = false;
+        this.updatePageTitle('Toutes les activités');
       },
       error: (err) => {
         console.error('Erreur chargement événements :', err);
+        this.loading = false;
+        this.updatePageTitle('Toutes les activités');
+      },
+    });
+  }
+
+  fetchEventsByActivity(activityId: string): void {
+    this.http.get<EventItem[]>(`${this.baseUrl}/event/activity/${activityId}`).subscribe({
+      next: (data) => {
+        this.events = data;
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Erreur chargement événements par activité :', err);
         this.loading = false;
       },
     });
   }
 
-fetchEventsByActivity(activityId: string): void {
-  this.http.get<EventItem[]>(`${this.baseUrl}/event/activity/${activityId}`).subscribe({
-    next: (data) => {
-      this.events = data;
-      this.loading = false;
+  fetchActivityName(activityId: string): void {
+    this.http.get<Activity>(`${this.baseUrl}/activity/${activityId}`).subscribe({
+      next: (activity) => {
+        this.activityName = activity.name;
+        this.updatePageTitle(activity.name);
+      },
+      error: (err) => {
+        console.error('Erreur récupération nom activité :', err);
+        this.activityName = 'Activité inconnue';
+        this.updatePageTitle('Activité inconnue');
+      },
+    });
+  }
 
-      // Mettre à jour le titre du header avec le nom de l'activité
-      if (data.length > 0) {
-        const activityName = data[0].activityName; // on prend le nom depuis le premier event
-        this.signals.setPageTitle(`${activityName}`);
-      } else {
-        this.signals.setPageTitle('Aucune activité trouvée');
-      }
-    },
-    error: (err) => {
-      console.error('Erreur chargement événements par activité :', err);
-      this.loading = false;
-      this.signals.setPageTitle('Erreur chargement activité');
-    },
-  });
+  private updatePageTitle(title: string) {
+    this.signals.setPageTitle(title);
+  }
+  getLevelLabel(level: string): string {
+  switch(level) {
+    case 'BEGINNER': return 'Débutant';
+    case 'INTERMEDIATE': return 'Intermédiaire';
+    case 'EXPERT': return 'Expert';
+    case 'ALL_LEVELS': return 'Tous niveaux';
+    default: return level;
+  }
+}
+
+getMaterialLabel(material: string): string {
+  switch(material) {
+    case 'YOUR_OWN': return 'Apporter votre matériel';
+    case 'PROVIDED': return 'Matériel fourni';
+    case 'NOT_REQUIRED': return 'Pas de matériel requis';
+    default: return material;
+  }
+}
+
+getStatusLabel(status: string): string {
+  switch(status) {
+    case 'OPEN': return 'Ouvert';
+    case 'FULL': return 'Complet';
+    case 'CANCELLED': return 'Annulé';
+    case 'FINISHED': return 'Terminé';
+    default: return status;
+  }
 }
 
 }
