@@ -31,8 +31,8 @@ public class User {
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(
-            name = "UUID",
-            strategy = "org.hibernate.id.UUIDGenerator"
+        name = "UUID",
+        strategy = "org.hibernate.id.UUIDGenerator"
     )
     @JdbcTypeCode(SqlTypes.CHAR)
     @Column(name = "user_id", length = 36, unique = true, nullable = false)
@@ -52,7 +52,6 @@ public class User {
     private String password;
 
     private Integer age;
-
     private String city;
 
     @Column(nullable = false)
@@ -62,8 +61,9 @@ public class User {
     @Column(nullable = false)
     private UserStatus status = UserStatus.ACTIVE;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String role = "USER";
+    private UserRole role = UserRole.USER;
 
     @Column(name = "accepted_cgu_at")
     private LocalDateTime acceptedCguAt;
@@ -74,10 +74,14 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // Relation avec Token
+    // === Relations ===
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Token> tokens;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<EventUser> eventUsers;
 
     // === Getters & Setters ===
     public UUID getId() {
@@ -152,12 +156,12 @@ public class User {
         this.status = status;
     }
 
-    public String getRole() {
+    public UserRole getRole() {
         return role;
     }
 
-    public void setRole(String role) {
-        this.role = role.toUpperCase();
+    public void setRole(UserRole role) {
+        this.role = role;
     }
 
     public LocalDateTime getAcceptedCguAt() {
@@ -190,6 +194,14 @@ public class User {
 
     public void setTokens(List<Token> tokens) {
         this.tokens = tokens;
+    }
+
+    public List<EventUser> getEventUsers() {
+        return eventUsers;
+    }
+
+    public void setEventUsers(List<EventUser> eventUsers) {
+        this.eventUsers = eventUsers;
     }
 
     public String getUsername() {

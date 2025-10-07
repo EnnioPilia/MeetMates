@@ -3,11 +3,14 @@ package com.example.meetmates.model.core;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -17,6 +20,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -25,7 +29,8 @@ public class Event {
 
     @Id
     @GeneratedValue
-    @Column(name = "event_id", columnDefinition = "CHAR(36)", updatable = false, nullable = false)
+    @JdbcTypeCode(SqlTypes.CHAR)
+    @Column(name = "event_user_id", length = 36, updatable = false, nullable = false)
     private UUID id;
 
     @Column(nullable = false)
@@ -68,14 +73,17 @@ public class Event {
     @JdbcTypeCode(SqlTypes.CHAR)
     private Activity activity;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    @JdbcTypeCode(SqlTypes.CHAR)
-    private User organizer;
+    @OneToMany(mappedBy = "event", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<EventUser> participants = new ArrayList<>();
 
-    /**
-     * 🕓 Audit
-     */
+    public List<EventUser> getParticipants() {
+        return participants;
+    }
+
+    public void setParticipants(List<EventUser> participants) {
+        this.participants = participants;
+    }
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -86,7 +94,7 @@ public class Event {
     private LocalDateTime deletedAt;
 
     // ==============================
-    // ENUMS
+    // ENUMS internes
     // ==============================
     public enum EventStatus {
         OPEN, FULL, CANCELLED, FINISHED
@@ -101,7 +109,7 @@ public class Event {
     }
 
     // ==============================
-    // GETTERS & SETTERS
+    // GETTERS / SETTERS
     // ==============================
     public UUID getId() {
         return id;
@@ -197,14 +205,6 @@ public class Event {
 
     public void setActivity(Activity activity) {
         this.activity = activity;
-    }
-
-    public User getOrganizer() {
-        return organizer;
-    }
-
-    public void setOrganizer(User organizer) {
-        this.organizer = organizer;
     }
 
     public LocalDateTime getCreatedAt() {

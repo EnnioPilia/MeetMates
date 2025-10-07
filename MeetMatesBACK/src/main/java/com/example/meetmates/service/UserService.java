@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.meetmates.model.core.User;
+import com.example.meetmates.model.core.UserRole;
 import com.example.meetmates.model.core.UserStatus;
 import com.example.meetmates.model.security.TokenType;
 import com.example.meetmates.repository.TokenRepository;
@@ -44,18 +45,22 @@ public class UserService implements UserDetailsService {
         if (userRepository.findByEmail(user.getEmail().toLowerCase()).isPresent()) {
             throw new RuntimeException("Email déjà utilisé");
         }
+
         user.setEmail(user.getEmail().toLowerCase());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setEnabled(false); // par défaut non activé
-        user.setStatus(UserStatus.ACTIVE); // par défaut actif
-        user.setRole(user.getRole() == null ? "USER" : user.getRole().toUpperCase());
+        user.setEnabled(false); // non activé par défaut
+        user.setStatus(UserStatus.ACTIVE);
+        if (user.getRole() == null) {
+            user.setRole(UserRole.USER);
+        }
+
         return userRepository.save(user);
     }
 
     public User createUser(User user) {
         user.setEmail(user.getEmail().toLowerCase());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole("USER");
+        user.setRole(UserRole.USER);
         user.setEnabled(true);
         user.setStatus(UserStatus.ACTIVE);
         return userRepository.save(user);
@@ -64,7 +69,7 @@ public class UserService implements UserDetailsService {
     public User registerAdmin(User user) {
         user.setEmail(user.getEmail().toLowerCase());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole("ADMIN");
+        user.setRole(UserRole.ADMIN);
         user.setEnabled(true);
         user.setStatus(UserStatus.ACTIVE);
         return userRepository.save(user);
@@ -97,10 +102,11 @@ public class UserService implements UserDetailsService {
             throw new UsernameNotFoundException("Utilisateur désactivé ou banni");
         }
 
+        // ✅ On convertit l’enum UserRole en String pour Spring Security
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getEmail())
                 .password(user.getPassword())
-                .roles(user.getRole())
+                .roles(user.getRole().name()) // <-- ICI : on met .name()
                 .build();
     }
 
@@ -108,13 +114,9 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public boolean deleteUserById(UUID userId) {
-        // Supprimer les refresh tokens liés à l'utilisateur
+        // Supprimer les tokens liés à l'utilisateur
         tokenRepository.deleteByUser_IdAndType(userId, TokenType.REFRESH);
-
-        // Supprimer les tokens de vérification
         tokenRepository.deleteByUser_IdAndType(userId, TokenType.VERIFICATION);
-
-        // Supprimer les tokens de reset
         tokenRepository.deleteByUser_IdAndType(userId, TokenType.PASSWORD_RESET);
 
         if (userRepository.existsById(userId)) {

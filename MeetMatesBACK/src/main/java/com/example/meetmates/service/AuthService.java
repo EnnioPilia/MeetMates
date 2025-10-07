@@ -13,6 +13,7 @@ import com.example.meetmates.dto.LoginRequest;
 import com.example.meetmates.dto.LoginResponse;
 import com.example.meetmates.dto.RegisterRequest;
 import com.example.meetmates.model.core.User;
+import com.example.meetmates.model.core.UserRole;
 import com.example.meetmates.model.security.Token;
 import com.example.meetmates.repository.UserRepository;
 
@@ -62,7 +63,11 @@ public class AuthService {
         user.setEmail(request.getEmail().toLowerCase());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setAge(request.getAge());
-        user.setRole(request.getRole() == null ? "USER" : request.getRole().toUpperCase());
+        user.setRole(
+                request.getRole() == null
+                ? UserRole.USER
+                : UserRole.valueOf(request.getRole().toUpperCase())
+        );
         user.setEnabled(false);
 
         User savedUser = userRepository.save(user);
@@ -79,7 +84,7 @@ public class AuthService {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            request.getEmail().toLowerCase(), 
+                            request.getEmail().toLowerCase(),
                             request.getPassword()
                     )
             );
@@ -94,7 +99,7 @@ public class AuthService {
             throw new RuntimeException("Compte non vérifié");
         }
 
-        String role = user.getRole().toLowerCase();
+        String role = user.getRole().name().toLowerCase();
 
         // Générer JWT authToken
         String token = jwtUtils.generateToken(user.getEmail(), role);

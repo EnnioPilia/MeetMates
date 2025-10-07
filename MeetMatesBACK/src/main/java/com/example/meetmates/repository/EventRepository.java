@@ -10,13 +10,9 @@ import org.springframework.stereotype.Repository;
 import com.example.meetmates.model.core.Activity;
 import com.example.meetmates.model.core.Address;
 import com.example.meetmates.model.core.Event;
-import com.example.meetmates.model.core.User;
 
 @Repository
 public interface EventRepository extends JpaRepository<Event, UUID> {
-
-    // Trouver tous les événements créés par un organisateur
-    List<Event> findByOrganizer(User organizer);
 
     // Trouver tous les événements d’une activité donnée
     List<Event> findByActivity(Activity activity);
@@ -29,4 +25,7 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
 
     // Trouver tous les événements par statut (OPEN, FULL, CANCELLED, FINISHED)
     List<Event> findByStatus(Event.EventStatus status);
+
+    List<Event> findByActivityId(UUID activityId);
+
 }

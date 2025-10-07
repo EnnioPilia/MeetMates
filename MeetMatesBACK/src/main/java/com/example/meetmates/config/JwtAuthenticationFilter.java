@@ -45,8 +45,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain)
+            HttpServletResponse response,
+            FilterChain filterChain)
             throws ServletException, IOException {
 
         String authToken = null;
@@ -81,7 +81,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if (refreshToken != null && !refreshTokenService.isRefreshTokenExpired(refreshToken)) {
                 User user = refreshToken.getUser();
-                String newAuthToken = jwtUtils.generateToken(user.getEmail(), user.getRole());
+                String newAuthToken = jwtUtils.generateToken(user.getEmail(), user.getRole().name());
 
                 // Regénération du cookie authToken
                 ResponseCookie newAuthCookie = ResponseCookie.from("authToken", newAuthToken)
@@ -114,5 +114,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authToken);
         }
     }
-    
+
 }

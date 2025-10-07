@@ -8,9 +8,9 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import com.example.meetmates.config.JWTUtils;
+import com.example.meetmates.model.core.User;
 import com.example.meetmates.model.security.Token;
 import com.example.meetmates.model.security.TokenType;
-import com.example.meetmates.model.core.User;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -52,7 +52,7 @@ public class RefreshTokenService {
         }
 
         User user = refreshToken.getUser();
-        String newAccessToken = jwtUtils.generateToken(user.getEmail(), user.getRole());
+        String newAccessToken = jwtUtils.generateToken(user.getEmail(), user.getRole().name());
 
         return Map.of(
                 "accessToken", newAccessToken,

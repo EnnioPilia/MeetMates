@@ -12,10 +12,12 @@ import com.example.meetmates.dto.EventRequest;
 import com.example.meetmates.dto.EventResponse;
 import com.example.meetmates.model.core.Address;
 import com.example.meetmates.model.core.Event;
+import com.example.meetmates.model.core.EventUser;
 import com.example.meetmates.model.core.User;
 import com.example.meetmates.repository.ActivityRepository;
 import com.example.meetmates.repository.AddressRepository;
 import com.example.meetmates.repository.EventRepository;
+import com.example.meetmates.repository.EventUserRepository;
 import com.example.meetmates.repository.UserRepository;
 
 @Service
@@ -25,19 +27,35 @@ public class EventService {
     private final ActivityRepository activityRepository;
     private final AddressRepository addressRepository;
     private final UserRepository userRepository;
+    private final EventUserRepository eventUserRepository;
 
     public EventService(EventRepository eventRepository,
-                        ActivityRepository activityRepository,
-                        AddressRepository addressRepository,
-                        UserRepository userRepository) {
+            ActivityRepository activityRepository,
+            AddressRepository addressRepository,
+            UserRepository userRepository,
+            EventUserRepository eventUserRepository) {
         this.eventRepository = eventRepository;
         this.activityRepository = activityRepository;
         this.addressRepository = addressRepository;
         this.userRepository = userRepository;
+        this.eventUserRepository = eventUserRepository;
     }
 
-    // ✅ Conversion entité -> DTO
+    // 🔹 Conversion Event -> EventResponse
     private EventResponse toResponse(Event e) {
+        // Récupérer le nom de l’organisateur
+        String organizerName = e.getParticipants().stream()
+                .filter(p -> p.getRole() == EventUser.ParticipantRole.ORGANIZER)
+                .findFirst()
+                .map(p -> p.getUser().getFirstName() + " " + p.getUser().getLastName())
+                .orElse("Inconnu");
+
+        // Liste des participants (hors organisateur)
+        List<String> participantNames = e.getParticipants().stream()
+                .filter(p -> p.getRole() == EventUser.ParticipantRole.PARTICIPANT)
+                .map(p -> p.getUser().getFirstName() + " " + p.getUser().getLastName())
+                .collect(Collectors.toList());
+
         return new EventResponse(
                 e.getId(),
                 e.getTitle(),
@@ -51,7 +69,8 @@ public class EventService {
                 e.getLevel(),
                 e.getActivity() != null ? e.getActivity().getName() : null,
                 e.getAddress() != null ? e.getAddress().getFullAddress() : null,
-                e.getOrganizer() != null ? e.getOrganizer().getFirstName() + " " + e.getOrganizer().getLastName() : null
+                organizerName,
+                participantNames
         );
     }
 
@@ -74,27 +93,29 @@ public class EventService {
         eventRepository.deleteById(id);
     }
 
+    public List<Event> getEventsByActivity(UUID activityId) {
+        return eventRepository.findByActivityId(activityId);
+    }
+
     // 🔹 Créer un événement
     public EventResponse createEvent(EventRequest req) {
-        // Récupération du user connecté
+        // 1️⃣ Récupération du user connecté
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
         User organizer = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
 
-        // Vérification activité
+        // 2️⃣ Vérification activité
         var activity = activityRepository.findById(req.getActivityId())
                 .orElseThrow(() -> new RuntimeException("Activité introuvable"));
 
-        // Adresse
-        Address address;
+        // 3️⃣ Vérification adresse
         if (req.getAddress() == null) {
             throw new IllegalArgumentException("Adresse requise");
-        } else {
-            address = addressRepository.save(req.getAddress());
         }
+        Address address = addressRepository.save(req.getAddress());
 
-        // Création de l'événement
+        // 4️⃣ Création de l'événement
         Event event = new Event();
         event.setTitle(req.getTitle());
         event.setDescription(req.getDescription());
@@ -107,9 +128,20 @@ public class EventService {
         event.setLevel(req.getLevel());
         event.setActivity(activity);
         event.setAddress(address);
-        event.setOrganizer(organizer);
 
-        Event saved = eventRepository.save(event);
-        return toResponse(saved);
+        Event savedEvent = eventRepository.save(event);
+
+        // 5️⃣ Création de la relation EventUser (organisateur)
+        EventUser organizerLink = new EventUser();
+        organizerLink.setEvent(savedEvent);
+        organizerLink.setUser(organizer);
+        organizerLink.setRole(EventUser.ParticipantRole.ORGANIZER);
+
+        eventUserRepository.save(organizerLink);
+
+        // 6️⃣ Rafraîchir les participants de l’événement (pour la réponse)
+        savedEvent.getParticipants().add(organizerLink);
+
+        return toResponse(savedEvent);
     }
 }
