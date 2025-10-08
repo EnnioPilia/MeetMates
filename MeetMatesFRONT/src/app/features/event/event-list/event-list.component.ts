@@ -4,6 +4,7 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { environment } from '../../../../environments/environment';
 import { SignalsService } from '../../../core/services/signals/signals.service';
+import { ApiService } from '../../../core/services/api/api.service';
 
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -20,11 +21,13 @@ interface EventItem {
   addressLabel: string;
   activityName: string;
   organizerName: string;
-  level: string;     
+  level: string;
   material: string;
-  status: string;         
+  status: string;
   maxParticipants: number;
   participantNames: string[];
+    imageUrl?: string;
+
 }
 
 interface Activity {
@@ -55,7 +58,7 @@ export class EventListComponent implements OnInit {
 
   private http = inject(HttpClient);
   private route = inject(ActivatedRoute);
-  private signals = inject(SignalsService); 
+  private signals = inject(SignalsService);
 
   ngOnInit(): void {
     const activityId = this.route.snapshot.paramMap.get('activityId');
@@ -113,33 +116,43 @@ export class EventListComponent implements OnInit {
   private updatePageTitle(title: string) {
     this.signals.setPageTitle(title);
   }
+
+  getFullImageUrl(relativePath: string): string {
+    return relativePath.startsWith('http')
+      ? relativePath
+      : `${this.baseUrl}${relativePath}`;
+  }
+
+  isEventOpen(event: any): boolean {
+    return (event?.status ?? '').toUpperCase() === 'OPEN';
+  }
+
   getLevelLabel(level: string): string {
-  switch(level) {
-    case 'BEGINNER': return 'Débutant';
-    case 'INTERMEDIATE': return 'Intermédiaire';
-    case 'EXPERT': return 'Expert';
-    case 'ALL_LEVELS': return 'Tous niveaux';
-    default: return level;
+    switch (level) {
+      case 'BEGINNER': return 'Débutant';
+      case 'INTERMEDIATE': return 'Intermédiaire';
+      case 'EXPERT': return 'Expert';
+      case 'ALL_LEVELS': return 'Tous niveaux';
+      default: return level;
+    }
   }
-}
 
-getMaterialLabel(material: string): string {
-  switch(material) {
-    case 'YOUR_OWN': return 'Apporter votre matériel';
-    case 'PROVIDED': return 'Matériel fourni';
-    case 'NOT_REQUIRED': return 'Pas de matériel requis';
-    default: return material;
+  getMaterialLabel(material: string): string {
+    switch (material) {
+      case 'YOUR_OWN': return 'Apporter votre matériel';
+      case 'PROVIDED': return 'Matériel fourni';
+      case 'NOT_REQUIRED': return 'Pas de matériel requis';
+      default: return material;
+    }
   }
-}
 
-getStatusLabel(status: string): string {
-  switch(status) {
-    case 'OPEN': return 'Ouvert';
-    case 'FULL': return 'Complet';
-    case 'CANCELLED': return 'Annulé';
-    case 'FINISHED': return 'Terminé';
-    default: return status;
+  getStatusLabel(status: string): string {
+    switch (status) {
+      case 'OPEN': return 'Ouvert';
+      case 'FULL': return 'Complet';
+      case 'CANCELLED': return 'Annulé';
+      case 'FINISHED': return 'Terminé';
+      default: return status;
+    }
   }
-}
-
 }

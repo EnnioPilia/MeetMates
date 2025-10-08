@@ -13,6 +13,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { environment } from '../../../environments/environment';
+import { MatIconModule } from '@angular/material/icon';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-post-event',
@@ -34,6 +36,7 @@ import { environment } from '../../../environments/environment';
     MatButtonModule,
     MatCardModule,
     MatSnackBarModule,
+    MatIconModule
   ],
 })
 export class PostEventComponent implements OnInit {
@@ -41,6 +44,8 @@ export class PostEventComponent implements OnInit {
   activities: any[] = [];
   addressSuggestions: any[] = [];
   isSubmitting = false;
+  previewUrl: string | null = null;
+  selectedFile: File | null = null;
   private baseUrl = environment.apiUrl;
 
   materialOptions = [
@@ -56,7 +61,12 @@ export class PostEventComponent implements OnInit {
     { label: 'Tous niveaux', value: 'ALL_LEVELS' },
   ];
 
-  constructor(private fb: FormBuilder, private http: HttpClient, private snackBar: MatSnackBar) {}
+  constructor(
+    private fb: FormBuilder,
+    private http: HttpClient,
+    private snackBar: MatSnackBar,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.buildForm();
@@ -85,33 +95,49 @@ export class PostEventComponent implements OnInit {
     });
   }
 
-  /** 🌍 Autocomplétion adresse avec Nominatim */
-onAddressInput(): void {
-  const query = this.form.get('adresse')?.value?.trim();
-  if (!query || query.length < 3) {
-    this.addressSuggestions = [];
-    return;
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    this.selectedFile = file; // ✅ garde le fichier pour l’upload
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.previewUrl = reader.result as string;
+      this.cdr.detectChanges();
+    };
+    reader.readAsDataURL(file);
   }
 
-  this.http
-    .get<any>('https://api-adresse.data.gouv.fr/search/', {
-      params: {
-        q: query,
-        limit: 5
-      }
-    })
-    .subscribe({
-      next: (data) => {
-        this.addressSuggestions = data.features.map((f: any) => ({
-          display_name: f.properties.label,
-          city: f.properties.city,
-          postalCode: f.properties.postcode
-        }));
-      },
-      error: () => (this.addressSuggestions = [])
-    });
-}
+  removeImage(): void {
+    this.previewUrl = null;
+    this.selectedFile = null;
+    console.log('Image supprimée');
+  }
 
+  onAddressInput(): void {
+    const query = this.form.get('adresse')?.value?.trim();
+    if (!query || query.length < 3) {
+      this.addressSuggestions = [];
+      return;
+    }
+
+    this.http
+      .get<any>('https://api-adresse.data.gouv.fr/search/', {
+        params: { q: query, limit: 5 },
+      })
+      .subscribe({
+        next: (data) => {
+          this.addressSuggestions = data.features.map((f: any) => ({
+            display_name: f.properties.label,
+            city: f.properties.city,
+            postalCode: f.properties.postcode,
+          }));
+        },
+        error: () => (this.addressSuggestions = []),
+      });
+  }
 
   onAddressSelect(selected: string): void {
     this.form.get('adresse')?.setValue(selected);
@@ -143,22 +169,52 @@ onAddressInput(): void {
 
     console.log('📦 Payload envoyé au backend :', eventPayload);
 
-    this.http.post(`${this.baseUrl}/event`, eventPayload, { withCredentials: true }).subscribe({
+    this.http.post<any>(`${this.baseUrl}/event`, eventPayload, { withCredentials: true }).subscribe({
       next: (res) => {
         console.log('✅ Événement créé :', res);
-        this.showSnack('🎉 Activité créée avec succès !', 'success');
-        this.form.reset();
+
+        if (this.selectedFile && res.id) {
+          const formData = new FormData();
+          formData.append('file', this.selectedFile);
+          formData.append('isMain', 'true');
+
+          this.http
+            .post(`${this.baseUrl}/event/${res.id}/picture`, formData, { withCredentials: true })
+            .subscribe({
+              next: () => {
+                console.log('📸 Image envoyée avec succès !');
+                this.showSnack('🎉 Activité et image enregistrées avec succès !', 'success');
+                this.resetForm();
+              },
+              error: (err) => {
+                console.error('❌ Erreur upload image :', err);
+                this.showSnack('Activité créée, mais échec de l’envoi de la photo.', 'warning');
+                this.resetForm();
+              },
+            });
+        } else {
+          this.showSnack('🎉 Activité créée avec succès !', 'success');
+          this.resetForm();
+        }
       },
       error: (err) => {
         console.error('❌ Erreur backend :', err);
         this.showSnack('Erreur lors de la création de l’activité.', 'error');
+        this.isSubmitting = false;
       },
-      complete: () => (this.isSubmitting = false),
     });
   }
 
   private formatDate(date: Date): string {
     return new Date(date).toISOString().split('T')[0];
+  }
+
+  private resetForm(): void {
+    this.form.reset();
+    this.previewUrl = null;
+    this.selectedFile = null;
+    this.isSubmitting = false;
+    this.cdr.detectChanges();
   }
 
   private showSnack(message: string, type: 'success' | 'error' | 'warning' = 'success'): void {

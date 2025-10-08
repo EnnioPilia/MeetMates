@@ -13,52 +13,47 @@
   <div class="flex flex-col items-center gap-10 w-full max-w-3xl">
     @for (event of events; track event.id) {
 
-    <mat-card class="w-full flex flex-col items-center p-6 shadow-md hover:shadow-xl transition-all duration-300">
+    <mat-card
+      class=" icone-card w-full flex flex-col items-center p-6 shadow-md hover:shadow-xl transition-all duration-300">
 
-      <mat-chip class="flex items-center justify-center">
+      <mat-chip class="flex items-center justify-center"
+        [ngClass]="event.status.toUpperCase() === 'OPEN' ? 'mat-chip-open' : 'mat-chip-closed'">
         {{ getStatusLabel(event.status) }}
       </mat-chip>
 
-      <!-- <mat-chip color="primary" selected>{{ event.activityName }}</mat-chip> -->
-
       <div class="text-center w-full">
-        <h2 class="text-xl font-semibold text-gray-800">{{ event.title }}</h2>
-        <p class="text-gray-700 text-sm leading-relaxed w-full break-words">
+        <h2 class="text-xl font-semibold text-gray-800 mb-2 pb-2 pt-2 border-b border-black">{{ event.title }}</h2>
+        <p class="text-sm leading-relaxed text-gray-800 font-semibold max-h-20 overflow-y-auto">
           {{ event.description }}
         </p>
       </div>
 
-      <img [src]="'https://source.unsplash.com/featured/?' + event.activityName" alt="{{ event.title }}"
-        class="w-full h-40 object-cover my-3" style="border: solid 1px black;" />
+      <img [src]="event.imageUrl" alt="{{ event.title }}" class="w-full h-40 object-cover my-3" />
 
-      <div class="text-sm text-gray-600 w-full">
+      <div class="text-sm text-gray-600 w-full text-sm text-gray-800 leading-relaxed font-semibold">
         <p class="flex items-center justify-start gap-1">
-          <mat-icon class="text-base">event</mat-icon>
+          <!-- <mat-icon class="text-base">event</mat-icon> -->Date :
           {{ event.eventDate | date:'mediumDate' }}
         </p>
         <p class="flex items-center justify-start gap-1">
-          <mat-icon class="text-base">location_on</mat-icon>
+          <!-- <mat-icon class="text-base">location_on</mat-icon> -->Adresses :
           {{ event.addressLabel }}
         </p>
         <p class="flex items-center justify-start gap-1">
-          <mat-icon class="text-base">school</mat-icon>
+          <!-- <mat-icon class="text-base">military_tech</mat-icon> -->
           Niveau : {{ getLevelLabel(event.level) }}
         </p>
 
         <p class="flex items-center justify-start gap-1">
-          <mat-icon class="text-base">build</mat-icon>
+          <!-- <mat-icon class="text-base">fitness_center</mat-icon> -->
           Matériel : {{ getMaterialLabel(event.material) }}
         </p>
-
-        <!-- <p class="flex items-center justify-start gap-1">
-          <mat-icon class="text-base">info</mat-icon>
-          Statut : {{ getStatusLabel(event.status) }}
-        </p> -->
       </div>
 
       <mat-card-actions class="flex justify-center w-full mt-2">
-        <button mat-flat-button color="primary" class="w-1/2 primary-button">
-          PARTICIPER
+        <button mat-flat-button color="primary" class="w-80 primary-button"
+          [disabled]="event.status.toUpperCase() !== 'OPEN'">
+          P A R T I C I P E R
         </button>
       </mat-card-actions>
 
@@ -68,7 +63,8 @@
   }
   @else {
   <div class="flex flex-col items-center justify-center h-[50vh] text-gray-400">
-    <p class="card-text mt-4 mb-4 ml-2 mr-2 p-3 text-center text-base">Aucune activité disponible</p>
+    <p class="card-text mt-4 mb-4 ml-2 mr-2 p-8 text-center text-base">AUCUNE ACITIVITE DISPONIBLE <br> <br> Soyez le
+      premier à postuler un evenement pour cette activité</p>
   </div>
   }
 </div>

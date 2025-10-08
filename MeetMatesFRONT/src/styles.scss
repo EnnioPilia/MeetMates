@@ -3,7 +3,7 @@
 
 html,
 body {
-  @include mat.theme((color: (primary: theme.$primary-palette,tertiary: theme.$tertiary-palette,)));
+  @include mat.theme((color: (primary: theme.$primary-palette, tertiary: theme.$tertiary-palette, )));
   @include mat.theme-overrides((corner-full: 10px));
 
   font-family: 'Poiret One', cursive;
@@ -29,6 +29,8 @@ body {
   // font-weight: bold !important; // material Angular ecrase le style obligé de mettre !important
 }
 
+
+// changer en card ?? 
 .icone-card {
   background-color: #a6d0f7 !important;
   color: #00488b;
@@ -47,7 +49,7 @@ body {
   border: 1px solid var(--mat-sys-on-tertiary);
   border-radius: 5px;
   color: var(--mat-sys-on-tertiary);
-  
+
 }
 
 .title-page {
@@ -71,16 +73,58 @@ body {
   --mdc-dialog-subhead-color: #ffffff;
   --mdc-dialog-supporting-text-color: #ffffff;
   box-shadow: var(--mat-sys-level3);
-    border: 1px solid #00488b;
+  border: 1px solid #00488b;
 }
+
+.cancel-button.mat-mdc-button-base {
+  --mdc-filled-button-container-color: var(--mat-sys-error);
+  --mdc-filled-button-label-text-color: var(--mat-sys-on-error);
+}
+
+.cancel-button.mat-mdc-button-base:hover {
+  --mdc-filled-button-container-color: color-mix(in srgb, var(--mat-sys-error) 85%, black);
+}
+
 
 .mat-mdc-dialog-actions button {
   border: 1px solid #ffffff;
   transition: all 0.2s ease;
 }
 
- .mat-mdc-radio-button {
-  --mdc-radio-selected-icon-color: rgba(50, 98, 156, 0.911); 
-  --mdc-radio-unselected-icon-color:  rgba(50, 98, 156, 0.911);
+.mat-mdc-radio-button {
+  --mdc-radio-selected-icon-color: rgba(50, 98, 156, 0.911);
+  --mdc-radio-unselected-icon-color: rgba(50, 98, 156, 0.911);
 }
 
+.mat-chip-open {
+  background-color: #16a34a !important;
+  color: #fff !important;
+}
+
+.mat-chip-closed {
+  background-color: #dc2626 !important;
+  color: #fff !important;
+}
+
+
+.mat-mdc-form-field .mdc-floating-label  {
+  font-weight: 700 !important;
+  color: #374151 !important;
+}
+.mat-mdc-input-element {
+  font-weight: 700 !important;
+  color: #374151 !important;   
+}
+
+.upload-box {
+  border: 2px dashed var(--mat-sys-outline);
+  color: var(--mat-sys-on-surface-variant);
+  transition: all 0.3s ease;
+  background-color: var(--mat-sys-surface-container-low);
+
+  // &:hover {
+  //   border-color: var(--mat-sys-primary);
+  //   color: var(--mat-sys-primary);
+  //   background-color: var(--mat-sys-surface-container);
+  // }
+}
