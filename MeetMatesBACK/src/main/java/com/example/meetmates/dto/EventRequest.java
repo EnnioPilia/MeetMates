@@ -22,7 +22,7 @@ public class EventRequest {
     private Level level;
 
     private UUID activityId;
-    private Address address; // objet complet pour création si nécessaire
+    private Address address; 
 
     // ✅ Getters / Setters
     public String getTitle() { return title; }

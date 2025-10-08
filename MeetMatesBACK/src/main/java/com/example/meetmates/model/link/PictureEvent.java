@@ -12,6 +12,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 @Entity
@@ -19,7 +20,7 @@ import jakarta.persistence.Table;
 public class PictureEvent {
 
     @EmbeddedId
-    private PictureEventID id;
+    private PictureEventID id = new PictureEventID();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("pictureId")
@@ -43,6 +44,16 @@ public class PictureEvent {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    // === Constructeurs ===
+    public PictureEvent() {}
+
+    public PictureEvent(Picture picture, Event event, boolean isMain) {
+        this.picture = picture;
+        this.event = event;
+        this.id = new PictureEventID(picture.getId(), event.getId());
+        this.isMain = isMain;
+    }
+
     // === Getters & Setters ===
     public PictureEventID getId() {
         return id;
@@ -58,6 +69,9 @@ public class PictureEvent {
 
     public void setPicture(Picture picture) {
         this.picture = picture;
+        if (picture != null && event != null) {
+            this.id = new PictureEventID(picture.getId(), event.getId());
+        }
     }
 
     public Event getEvent() {
@@ -66,6 +80,9 @@ public class PictureEvent {
 
     public void setEvent(Event event) {
         this.event = event;
+        if (picture != null && event != null) {
+            this.id = new PictureEventID(picture.getId(), event.getId());
+        }
     }
 
     public boolean isMain() {
@@ -98,5 +115,11 @@ public class PictureEvent {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    // === Callbacks automatiques ===
+    @PreUpdate
+    public void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
     }
 }

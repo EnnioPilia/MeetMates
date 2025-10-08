@@ -10,6 +10,8 @@ import java.util.UUID;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import com.example.meetmates.model.link.PictureEvent;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -30,7 +32,7 @@ public class Event {
     @Id
     @GeneratedValue
     @JdbcTypeCode(SqlTypes.CHAR)
-    @Column(name = "event_user_id", length = 36, updatable = false, nullable = false)
+    @Column(name = "event_id", length = 36, updatable = false, nullable = false)
     private UUID id;
 
     @Column(nullable = false)
@@ -92,6 +94,17 @@ public class Event {
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
+
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<PictureEvent> pictures = new ArrayList<>();
+
+    public List<PictureEvent> getPictures() {
+        return pictures;
+    }
+
+    public void setPictures(List<PictureEvent> pictures) {
+        this.pictures = pictures;
+    }
 
     // ==============================
     // ENUMS internes

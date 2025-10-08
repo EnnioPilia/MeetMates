@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.meetmates.dto.EventRequest;
 import com.example.meetmates.dto.EventResponse;
@@ -49,11 +51,7 @@ public class EventController {
     // ✅ Récupérer les événements d’une activité
     @GetMapping("/activity/{activityId}")
     public ResponseEntity<List<EventResponse>> getEventsByActivity(@PathVariable UUID activityId) {
-        List<EventResponse> events = eventService.getEventsByActivity(activityId)
-                                                 .stream()
-                                                 .map(EventResponse::from)
-                                                 .toList();
-        return ResponseEntity.ok(events);
+        return ResponseEntity.ok(eventService.getEventResponsesByActivity(activityId));
     }
 
     // ✅ Supprimer un événement
@@ -62,4 +60,15 @@ public class EventController {
         eventService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{id}/picture")
+    public ResponseEntity<EventResponse> uploadEventPicture(
+            @PathVariable UUID id,
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "isMain", defaultValue = "false") boolean isMain) {
+
+        EventResponse updatedEvent = eventService.addPictureToEvent(id, file, isMain);
+        return ResponseEntity.ok(updatedEvent);
+    }
+
 }

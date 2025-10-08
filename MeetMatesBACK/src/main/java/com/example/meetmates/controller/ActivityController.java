@@ -47,13 +47,10 @@ public class ActivityController {
         return activityService.findByCategoryId(categoryId);
     }
 
-    // ✅ Récupérer tous les événements liés à une activité
+// ✅ Récupérer tous les événements liés à une activité
     @GetMapping("/{activityId}/events")
     public ResponseEntity<List<EventResponse>> getEventsByActivity(@PathVariable UUID activityId) {
-        List<EventResponse> events = eventService.getEventsByActivity(activityId)
-                                                 .stream()
-                                                 .map(EventResponse::from)
-                                                 .toList();
+        List<EventResponse> events = eventService.getEventResponsesByActivity(activityId);
         return ResponseEntity.ok(events);
     }
 

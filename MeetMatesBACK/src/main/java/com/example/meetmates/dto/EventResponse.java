@@ -10,8 +10,8 @@ import com.example.meetmates.model.core.Event;
 import com.example.meetmates.model.core.Event.EventStatus;
 import com.example.meetmates.model.core.Event.Level;
 import com.example.meetmates.model.core.Event.MaterialOption;
-import com.example.meetmates.model.core.EventUser;
 import com.example.meetmates.model.core.EventUser.ParticipantRole;
+import com.example.meetmates.model.link.PictureEvent;
 
 public record EventResponse(
     UUID id,
@@ -27,7 +27,8 @@ public record EventResponse(
     String activityName,
     String addressLabel,
     String organizerName,
-    List<String> participantNames
+    List<String> participantNames,
+    String imageUrl
 ) {
 
     public static EventResponse from(Event e) {
@@ -44,6 +45,13 @@ public record EventResponse(
                 .map(p -> p.getUser().getFirstName() + " " + p.getUser().getLastName())
                 .collect(Collectors.toList());
 
+        // ✅ Récupérer l’URL de la photo principale
+        String imageUrl = e.getPictures().stream()              // 🟢 utiliser le bon getter
+                .filter(PictureEvent::isMain)                   // ne garder que la principale
+                .findFirst()
+                .map(pe -> pe.getPicture().getUrl())            // accéder à l’URL réelle
+                .orElse(null);
+
         return new EventResponse(
                 e.getId(),
                 e.getTitle(),
@@ -58,7 +66,8 @@ public record EventResponse(
                 e.getActivity() != null ? e.getActivity().getName() : null,
                 e.getAddress() != null ? e.getAddress().getFullAddress() : null,
                 organizerName,
-                participantNames
+                participantNames,
+                imageUrl
         );
     }
 }

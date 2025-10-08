@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.meetmates.dto.EventRequest;
 import com.example.meetmates.dto.EventResponse;
@@ -14,11 +16,16 @@ import com.example.meetmates.model.core.Address;
 import com.example.meetmates.model.core.Event;
 import com.example.meetmates.model.core.EventUser;
 import com.example.meetmates.model.core.User;
+import com.example.meetmates.model.link.PictureEvent;
+import com.example.meetmates.model.media.Picture;
 import com.example.meetmates.repository.ActivityRepository;
 import com.example.meetmates.repository.AddressRepository;
 import com.example.meetmates.repository.EventRepository;
 import com.example.meetmates.repository.EventUserRepository;
+import com.example.meetmates.repository.PictureEventRepository;
+import com.example.meetmates.repository.PictureRepository;
 import com.example.meetmates.repository.UserRepository;
+import java.util.ArrayList;
 
 @Service
 public class EventService {
@@ -28,33 +35,47 @@ public class EventService {
     private final AddressRepository addressRepository;
     private final UserRepository userRepository;
     private final EventUserRepository eventUserRepository;
+    private final PictureRepository pictureRepository;
+    private final PictureEventRepository pictureEventRepository;
 
-    public EventService(EventRepository eventRepository,
+    public EventService(
+            EventRepository eventRepository,
             ActivityRepository activityRepository,
             AddressRepository addressRepository,
             UserRepository userRepository,
-            EventUserRepository eventUserRepository) {
+            EventUserRepository eventUserRepository,
+            PictureRepository pictureRepository,
+            PictureEventRepository pictureEventRepository
+    ) {
         this.eventRepository = eventRepository;
         this.activityRepository = activityRepository;
         this.addressRepository = addressRepository;
         this.userRepository = userRepository;
         this.eventUserRepository = eventUserRepository;
+        this.pictureRepository = pictureRepository;
+        this.pictureEventRepository = pictureEventRepository;
     }
 
     // 🔹 Conversion Event -> EventResponse
     private EventResponse toResponse(Event e) {
-        // Récupérer le nom de l’organisateur
         String organizerName = e.getParticipants().stream()
                 .filter(p -> p.getRole() == EventUser.ParticipantRole.ORGANIZER)
                 .findFirst()
                 .map(p -> p.getUser().getFirstName() + " " + p.getUser().getLastName())
                 .orElse("Inconnu");
 
-        // Liste des participants (hors organisateur)
         List<String> participantNames = e.getParticipants().stream()
                 .filter(p -> p.getRole() == EventUser.ParticipantRole.PARTICIPANT)
                 .map(p -> p.getUser().getFirstName() + " " + p.getUser().getLastName())
                 .collect(Collectors.toList());
+
+        String imageUrl = (e.getPictures() != null && !e.getPictures().isEmpty())
+                ? e.getPictures().stream()
+                        .filter(PictureEvent::isMain)
+                        .findFirst()
+                        .map(pe -> pe.getPicture().getUrl())
+                        .orElse(e.getPictures().get(0).getPicture().getUrl())
+                : null;
 
         return new EventResponse(
                 e.getId(),
@@ -70,52 +91,47 @@ public class EventService {
                 e.getActivity() != null ? e.getActivity().getName() : null,
                 e.getAddress() != null ? e.getAddress().getFullAddress() : null,
                 organizerName,
-                participantNames
+                participantNames,
+                imageUrl
         );
     }
 
-    // 🔹 Retourne tous les événements au format DTO
+    // ✅ Liste complète (avec images)
     public List<EventResponse> findAllResponses() {
-        return eventRepository.findAll().stream()
+        return eventRepository.findAllWithPictures()
+                .stream()
                 .map(this::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
-    // 🔹 Retourne un événement unique au format DTO
+    // ✅ Détail d’un événement (avec images)
     public EventResponse findResponseById(UUID id) {
-        return eventRepository.findById(id)
+        return eventRepository.findByIdWithPictures(id)
                 .map(this::toResponse)
                 .orElse(null);
     }
 
-    // 🔹 Supprimer un événement
-    public void delete(UUID id) {
-        eventRepository.deleteById(id);
+    // ✅ Événements d’une activité (avec images)
+    public List<EventResponse> getEventResponsesByActivity(UUID activityId) {
+        return eventRepository.findByActivityIdWithPictures(activityId)
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
-    public List<Event> getEventsByActivity(UUID activityId) {
-        return eventRepository.findByActivityId(activityId);
-    }
-
-    // 🔹 Créer un événement
+    // ✅ Création d’un événement
     public EventResponse createEvent(EventRequest req) {
-        // 1️⃣ Récupération du user connecté
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
         User organizer = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
 
-        // 2️⃣ Vérification activité
         var activity = activityRepository.findById(req.getActivityId())
                 .orElseThrow(() -> new RuntimeException("Activité introuvable"));
 
-        // 3️⃣ Vérification adresse
-        if (req.getAddress() == null) {
-            throw new IllegalArgumentException("Adresse requise");
-        }
+        if (req.getAddress() == null) throw new IllegalArgumentException("Adresse requise");
         Address address = addressRepository.save(req.getAddress());
 
-        // 4️⃣ Création de l'événement
         Event event = new Event();
         event.setTitle(req.getTitle());
         event.setDescription(req.getDescription());
@@ -131,17 +147,56 @@ public class EventService {
 
         Event savedEvent = eventRepository.save(event);
 
-        // 5️⃣ Création de la relation EventUser (organisateur)
         EventUser organizerLink = new EventUser();
         organizerLink.setEvent(savedEvent);
         organizerLink.setUser(organizer);
         organizerLink.setRole(EventUser.ParticipantRole.ORGANIZER);
-
         eventUserRepository.save(organizerLink);
 
-        // 6️⃣ Rafraîchir les participants de l’événement (pour la réponse)
+        if (savedEvent.getParticipants() == null) {
+            savedEvent.setParticipants(new ArrayList<>());
+        }
         savedEvent.getParticipants().add(organizerLink);
 
         return toResponse(savedEvent);
+    }
+
+    // ✅ Ajout d’une image à un événement
+    @Transactional
+    public EventResponse addPictureToEvent(UUID eventId, MultipartFile file, boolean isMain) {
+        Event event = eventRepository.findByIdWithPictures(eventId)
+                .orElseThrow(() -> new RuntimeException("Événement introuvable"));
+
+        try {
+            String imageUrl = "https://cdn.meetmates.com/uploads/" + file.getOriginalFilename();
+
+            Picture picture = new Picture();
+            picture.setName(file.getOriginalFilename());
+            picture.setUrl(imageUrl);
+            picture.setType(Picture.PictureType.EVENT);
+            pictureRepository.save(picture);
+
+            PictureEvent link = new PictureEvent();
+            link.setEvent(event);
+            link.setPicture(picture);
+            link.setMain(isMain);
+            pictureEventRepository.save(link);
+
+            event.getPictures().add(link);
+            eventRepository.save(event);
+
+            Event refreshed = eventRepository.findByIdWithPictures(event.getId())
+                    .orElseThrow(() -> new RuntimeException("Erreur lors du rechargement de l’événement"));
+
+            return toResponse(refreshed);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors de l’ajout de la photo à l’événement", e);
+        }
+    }
+
+    // ✅ Suppression
+    public void delete(UUID id) {
+        eventRepository.deleteById(id);
     }
 }
