@@ -56,10 +56,10 @@
         </div>
 
         <mat-radio-group class="w-80 mb-2" formControlName="materiel">
-            <label class="block mb-2 font-bold text-gray-700">Matériel :</label>
-            <div class="flex flex-col gap-2 font-bold">
+            <label class="block mb-2 text-gray-700 ">Matériel :</label>
+            <div class="flex flex-col gap-2">
                 @for (option of materialOptions; track option.value) {
-                <mat-radio-button class="materiel-radio" [value]="option.value">{{ option.label }}</mat-radio-button>
+                <mat-radio-button class="materiel-radio " [value]="option.value">{{ option.label }}</mat-radio-button>
                 }
             </div>
         </mat-radio-group>
@@ -101,22 +101,22 @@
 
 
         <div class="w-80 mt-2 flex flex-col items-start">
-            <label class="block mb-2 font-bold text-gray-700 items-center justify-center">Photo de l’activité :</label>
+            <label class="block mb-2 items-center justify-center">Photo de l’activité :</label>
 
-            <mat-card class=" icone-card  w-full h-48 justify-center items-center" *ngIf="!previewUrl">
+            <mat-card class=" icone-card w-full h-48 justify-center items-center" *ngIf="!previewUrl">
                 <input type="file" accept="image/*" (change)="onFileSelected($event)"
                     class="absolute inset-0 opacity-0 cursor-pointer z-10" />
                 <mat-icon >cloud_upload</mat-icon>
-                <p class="text-center text-sm mt-8">Cliquez ou glissez une image ici</p>
+                <p class="text-sm mt-8">Cliquez ou glissez une image ici</p>
             </mat-card>
 
-            <div class="relative w-full" *ngIf="previewUrl">
+            <div class="relative w-full " *ngIf="previewUrl">
                 <img [src]="previewUrl" alt="Prévisualisation"
-                    class="w-full h-48 object-cover border border-gray-300" />
+                    class="w-full h-48 object-cover border border-gray-300 " />
             </div>
         </div>
 
-        <button *ngIf="previewUrl" mat-flat-button class="cancel-button w-full mt-3" (click)="removeImage()"
+        <button *ngIf="previewUrl" mat-flat-button class="cancel-button w-full mt-3 " (click)="removeImage()"
             type="button">
             Supprimer la photo
         </button>

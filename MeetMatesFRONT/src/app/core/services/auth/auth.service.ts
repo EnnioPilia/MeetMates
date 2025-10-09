@@ -93,4 +93,8 @@ export class AuthService {
       { withCredentials: true }
     );
   }
+  getCurrentUser() {
+  return this.http.get(`${this.baseUrl}/user/me`, { withCredentials: true });
+}
+
 }

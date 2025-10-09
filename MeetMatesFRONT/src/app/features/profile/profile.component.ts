@@ -1,16 +1,26 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormControl } from '@angular/forms';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { UserService } from '../../core/services/user/user.service';
 import { User } from '../../core/models/user.model';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule,FormControl  } from '@angular/forms';
-import { SharedInputComponent } from '../../shared/components/input/shared-input.component';
-import { SharedButtonComponent } from '../../shared/components/button/shared-button.component';
-import { SharedTitleComponent } from '../../shared/components/title/shared-title.component';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, SharedInputComponent, SharedButtonComponent,SharedTitleComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatCardModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    MatTabsModule
+  ],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss']
 })
@@ -21,7 +31,17 @@ export class ProfileComponent implements OnInit {
   loading = false;
   error: string | null = null;
 
-  constructor(private fb: FormBuilder, private UserService: UserService) {
+  selectedIndex = 0;
+  eventsParticipating: any[] = [];
+  eventsOrganized: any[] = [];
+
+  private baseUrl = environment.apiUrl;
+
+  constructor(
+    private fb: FormBuilder,
+    private userService: UserService,
+    private http: HttpClient
+  ) {
     this.profileForm = this.fb.group({
       nom: ['', Validators.required],
       prenom: ['', Validators.required],
@@ -30,7 +50,10 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  // Les getters pour éviter l'erreur de null
+  ngOnInit(): void {
+    this.loadProfile();
+  }
+
   get nomControl(): FormControl {
     return this.profileForm.get('nom') as FormControl;
   }
@@ -47,15 +70,11 @@ export class ProfileComponent implements OnInit {
     return this.profileForm.get('age') as FormControl;
   }
 
-  ngOnInit(): void {
-    this.loadProfile();
-  }
-
   loadProfile(): void {
     this.loading = true;
     this.error = null;
 
-    this.UserService.getCurrentUser().subscribe({
+    this.userService.getCurrentUser().subscribe({
       next: (data) => {
         this.user = data;
         this.profileForm.patchValue({
@@ -64,14 +83,41 @@ export class ProfileComponent implements OnInit {
           email: data.email,
           age: data.age,
         });
+
+        this.fetchEvents();
         this.loading = false;
       },
       error: (err) => {
         this.error = 'Erreur lors du chargement du profil';
         this.loading = false;
-        console.error('Erreur dans subscribe:', err);
+        console.error('Erreur profil :', err);
       }
     });
   }
-  
+
+  fetchEvents(): void {
+    if (!this.user) return;
+
+    // Événements auxquels il participe
+    this.http.get<any[]>(`${this.baseUrl}/event-user/participating/${this.user.id}`, { withCredentials: true })
+      .subscribe({
+        next: (data) => this.eventsParticipating = data,
+        error: (err) => console.error('Erreur chargement événements participant :', err)
+      });
+
+    // Événements organisés
+    this.http.get<any[]>(`${this.baseUrl}/event/organized/${this.user.id}`, { withCredentials: true })
+      .subscribe({
+        next: (data) => this.eventsOrganized = data,
+        error: (err) => console.error('Erreur chargement événements organisés :', err)
+      });
+  }
+
+  onTabChange(event: any): void {
+    this.selectedIndex = event.index;
+  }
+
+  onFocusChange(event: any): void {
+    this.selectedIndex = event.index;
+  }
 }

@@ -1,14 +1,78 @@
-  <app-shared-title 
-    level="h4">
-  </app-shared-title>
+<div class="flex flex-col items-center min-h-screen px-6 py-10 mat-mdc-typography">
 
-  <div *ngIf="loading">Chargement...</div>
-  <div *ngIf="error" class="error">{{ error }}</div>
+  @if (loading) {
+    <p class="text-gray-500 mt-6">Chargement du profil...</p>
+  } @else if (error) {
+    <p class="text-red-600 mt-6">{{ error }}</p>
+  } @else {
+    <mat-card class="w-full max-w-3xl p-6 shadow-md hover:shadow-lg transition-all duration-300 flex flex-col items-center">
+      <img [src]="'assets/default-avatar.png'"
+           alt="Photo de profil"
+           class="w-32 h-32 rounded-full object-cover border-4 border-primary shadow-md mb-4" />
 
-  <div *ngIf="user">
-    <p><strong>Nom :</strong> {{ user.nom }}</p>
-    <p><strong>prenom :</strong> {{ user.prenom }}</p>
-    <p><strong>Email :</strong> {{ user.email }}</p>
-    <p><strong>Âge :</strong> {{ user.age || 'Non renseigné' }}</p>
-    <p><strong>Date de création du compte :</strong> {{ user.dateCreation | date:'medium' }}</p>
-  </div>
+      <p><strong>Nom :</strong> {{ user?.nom }}</p>
+      <p><strong>Prénom :</strong> {{ user?.prenom }}</p>
+      <p><strong>Email :</strong> {{ user?.email }}</p>
+      <p *ngIf="user?.age"><strong>Âge :</strong> {{ user?.age }} ans</p>
+    </mat-card>
+
+    <mat-tab-group
+      class="w-full max-w-4xl mt-10"
+      [selectedIndex]="selectedIndex"
+      (selectedTabChange)="onTabChange($event)"
+      dynamicHeight
+      animationDuration="300ms"
+      mat-align-tabs="center">
+
+      <!-- Événements auxquels je participe -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>group</mat-icon>
+          Événements auxquels je participe
+        </ng-template>
+        <div class="p-6 grid md:grid-cols-2 gap-4">
+          @if (eventsParticipating.length === 0) {
+            <p class="text-gray-500">Vous ne participez à aucun événement pour le moment.</p>
+          } @else {
+            @for (event of eventsParticipating; track event.id) {
+              <mat-card class="flex flex-col items-center shadow-sm hover:shadow-md transition p-4">
+                <img [src]="event.imageUrl || 'assets/default-event.jpg'"
+                     alt="{{ event.title }}"
+                     class="w-full h-40 object-cover rounded mb-3" />
+                <h4 class="font-semibold text-lg mb-1">{{ event.title }}</h4>
+                <p class="text-sm text-gray-500">
+                  {{ event.eventDate | date:'mediumDate' }} — {{ event.addressLabel }}
+                </p>
+              </mat-card>
+            }
+          }
+        </div>
+      </mat-tab>
+
+      <!-- Événements organisés -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>event</mat-icon>
+          Événements organisés
+        </ng-template>
+        <div class="p-6 grid md:grid-cols-2 gap-4">
+          @if (eventsOrganized.length === 0) {
+            <p class="text-gray-500">Vous n'organisez aucun événement actuellement.</p>
+          } @else {
+            @for (event of eventsOrganized; track event.id) {
+              <mat-card class="flex flex-col items-center shadow-sm hover:shadow-md transition p-4">
+                <img [src]="event.imageUrl || 'assets/default-event.jpg'"
+                     alt="{{ event.title }}"
+                     class="w-full h-40 object-cover rounded mb-3" />
+                <h4 class="font-semibold text-lg mb-1">{{ event.title }}</h4>
+                <p class="text-sm text-gray-500">
+                  {{ event.eventDate | date:'mediumDate' }} — {{ event.addressLabel }}
+                </p>
+              </mat-card>
+            }
+          }
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  }
+</div>

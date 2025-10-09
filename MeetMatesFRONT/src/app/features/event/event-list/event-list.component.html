@@ -13,24 +13,24 @@
   <div class="flex flex-col items-center gap-10 w-full max-w-3xl">
     @for (event of events; track event.id) {
 
-    <mat-card
-      class=" icone-card w-full flex flex-col items-center p-6 shadow-md hover:shadow-xl transition-all duration-300">
+    <mat-card class="icone-card w-full flex flex-col items-end p-6 
+                      shadow-md hover:shadow-xl transition-all duration-300">  <!--mettre dans le scss? -->
 
-      <mat-chip class="flex items-center justify-center"
+      <mat-chip class="flex items-center justify-center font-semibold"
         [ngClass]="event.status.toUpperCase() === 'OPEN' ? 'mat-chip-open' : 'mat-chip-closed'">
         {{ getStatusLabel(event.status) }}
       </mat-chip>
 
       <div class="text-center w-full">
-        <h2 class="text-xl font-semibold text-gray-800 mb-2 pb-2 pt-2 border-b border-black">{{ event.title }}</h2>
-        <p class="text-sm leading-relaxed text-gray-800 font-semibold max-h-20 overflow-y-auto">
+        <h3 class="text-xl font-semibold mb-2 pb-2 pt-2 border-b border-black">{{ event.title }}</h3>
+        <p class="text-sm leading-relaxed max-h-20 overflow-y-auto">
           {{ event.description }}
         </p>
       </div>
 
-      <img [src]="event.imageUrl" alt="{{ event.title }}" class="w-full h-40 object-cover my-3" />
+      <img [src]="event.imageUrl" alt="{{ event.title }}" class="w-[280px] h-[130px]  object-cover my-3 border border-black" />
 
-      <div class="text-sm text-gray-600 w-full text-sm text-gray-800 leading-relaxed font-semibold">
+      <div class=" w-full text-sm leading-relaxed">
         <p class="flex items-center justify-start gap-1">
           <!-- <mat-icon class="text-base">event</mat-icon> -->Date :
           {{ event.eventDate | date:'mediumDate' }}
@@ -52,7 +52,7 @@
 
       <mat-card-actions class="flex justify-center w-full mt-2">
         <button mat-flat-button color="primary" class="w-80 primary-button"
-          [disabled]="event.status.toUpperCase() !== 'OPEN'">
+          [disabled]="event.status.toUpperCase() !== 'OPEN'" (click)="joinEvent(event.id)">
           P A R T I C I P E R
         </button>
       </mat-card-actions>
@@ -62,8 +62,8 @@
   </div>
   }
   @else {
-  <div class="flex flex-col items-center justify-center h-[50vh] text-gray-400">
-    <p class="card-text mt-4 mb-4 ml-2 mr-2 p-8 text-center text-base">AUCUNE ACITIVITE DISPONIBLE <br> <br> Soyez le
+  <div class="flex flex-col items-center justify-center h-[50vh]">
+    <p class="card-text mt-4 mb-4 ml-2 mr-2 p-8 text-center">AUCUNE ACITIVITE DISPONIBLE <br> <br> Soyez le
       premier à postuler un evenement pour cette activité</p>
   </div>
   }

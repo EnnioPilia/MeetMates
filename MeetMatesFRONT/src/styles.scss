@@ -44,7 +44,12 @@ body {
   //   transform: scale(1.1);
   // }
 }
+p, label, h3{
+  font-weight: 700;
+  color: #1f2937
+  // font-bold 
 
+}
 .card-text {
   border: 1px solid var(--mat-sys-on-tertiary);
   border-radius: 5px;

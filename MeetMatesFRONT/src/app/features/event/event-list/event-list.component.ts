@@ -4,14 +4,12 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { environment } from '../../../../environments/environment';
 import { SignalsService } from '../../../core/services/signals/signals.service';
-import { ApiService } from '../../../core/services/api/api.service';
 
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-
 
 interface EventItem {
   id: string;
@@ -26,8 +24,7 @@ interface EventItem {
   status: string;
   maxParticipants: number;
   participantNames: string[];
-    imageUrl?: string;
-
+  imageUrl?: string;
 }
 
 interface Activity {
@@ -53,7 +50,7 @@ interface Activity {
 export class EventListComponent implements OnInit {
   loading = true;
   events: EventItem[] = [];
-  activityName: string = 'Toutes les activités';
+  activityName = 'Toutes les activités';
   private baseUrl = environment.apiUrl;
 
   private http = inject(HttpClient);
@@ -61,14 +58,56 @@ export class EventListComponent implements OnInit {
   private signals = inject(SignalsService);
 
   ngOnInit(): void {
-    const activityId = this.route.snapshot.paramMap.get('activityId');
+    // 🔹 Charger l'utilisateur connecté via le cookie
+    this.http.get(`${this.baseUrl}/user/me`, { withCredentials: true }).subscribe({
+      next: (user: any) => {
+        console.log('Utilisateur connecté:', user);
+        this.signals.setCurrentUser(user);
+      },
+      error: (err) => {
+        console.warn('Aucun utilisateur connecté :', err);
+        this.signals.clearCurrentUser();
+      },
+    });
 
+    const activityId = this.route.snapshot.paramMap.get('activityId');
     if (activityId) {
       this.fetchActivityName(activityId);
       this.fetchEventsByActivity(activityId);
     } else {
       this.fetchAllEvents();
     }
+  }
+
+  joinEvent(eventId: string): void {
+    const user = this.signals.currentUser();
+
+    console.log('Join event payload:', { eventId, userId: user?.id });
+
+    // 🚫 Si pas connecté
+    if (!user) {
+      alert('Vous devez être connecté pour participer à un événement.');
+      return;
+    }
+
+    this.http.post(
+      `${this.baseUrl}/event-user/join`,
+      { eventId, userId: user.id },
+      { withCredentials: true }
+    ).subscribe({
+      next: (res) => {
+        console.log('Participation enregistrée :', res);
+        alert('Vous participez à cet événement 🎉');
+      },
+      error: (err) => {
+        console.error('Erreur participation :', err);
+        if (err.status === 401) {
+          alert('Vous devez être connecté pour participer à un événement.');
+        } else {
+          alert('Une erreur est survenue.');
+        }
+      },
+    });
   }
 
   fetchAllEvents(): void {
