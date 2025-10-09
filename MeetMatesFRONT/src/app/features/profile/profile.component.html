@@ -50,7 +50,7 @@
               </ul>
             </div>
             <mat-action-row>
-              <button mat-flat-button color="primary" [routerLink]="['/event-details', event.id]">
+              <button mat-flat-button color="primary" [routerLink]="['/event-details', event.eventId]">
                 Voir détails
               </button>
             </mat-action-row>
@@ -85,7 +85,7 @@
 
             <div class="flex flex-col gap-2 p-2">
               <p><strong>Organisateur :</strong> {{ event.userFullName }}</p>
-              <p><strong>Identifiant :</strong> </p>
+              <p><strong>Identifiant :</strong>  {{ event.eventId }}</p>
               <p><strong>Date :</strong> {{ event.eventDate || 'Non définie' }}</p>
               <p><strong>Participants :</strong></p>
               <ul>
@@ -95,7 +95,8 @@
               </ul>
             </div>
             <mat-action-row>
-              <button mat-flat-button color="primary" [routerLink]="['/event-details', event.id]">
+              <button mat-flat-button color="primary"   [routerLink]="['/event-details', event.eventId]">
+
                 Voir détails
               </button>
             </mat-action-row>

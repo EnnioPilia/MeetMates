@@ -54,6 +54,8 @@ export class EventDetailsComponent implements OnInit {
       this.http.get<EventDetails>(`${this.baseUrl}/event/${eventId}`).subscribe({
         next: (data) => {
           this.event = data;
+            console.log('✅ Event details loaded:', data);
+
           this.loading = false;
         },
         error: (err) => {
