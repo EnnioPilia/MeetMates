@@ -5,22 +5,25 @@ import java.util.UUID;
 import com.example.meetmates.model.core.EventUser;
 
 public record EventUserDTO(
-    UUID id,
-    UUID eventId,
-    String eventTitle,
-    UUID userId,
-    String userFullName
-) {
+        UUID id,
+        UUID eventId,
+        String eventTitle,
+        UUID userId,
+        String firstName,
+        String lastName
+        // List<String> participantNames 
+        ) {
+
     public static EventUserDTO from(EventUser eventUser) {
         var user = eventUser.getUser();
-        String fullName = user.getFirstName() + " " + user.getLastName();
 
         return new EventUserDTO(
-            eventUser.getId(),
-            eventUser.getEvent().getId(),
-            eventUser.getEvent().getTitle(),
-            user.getId(),
-            fullName
+                eventUser.getId(),
+                eventUser.getEvent().getId(),
+                eventUser.getEvent().getTitle(),
+                user.getId(),
+                user.getFirstName(),
+                user.getLastName()
         );
     }
 }

@@ -63,4 +63,6 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
     LEFT JOIN FETCH e.address addr
     """)
     List<Event> findAllWithPictures();
+
+    
 }

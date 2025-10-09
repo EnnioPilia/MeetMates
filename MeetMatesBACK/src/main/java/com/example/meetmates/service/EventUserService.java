@@ -1,6 +1,7 @@
 package com.example.meetmates.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -9,6 +10,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.example.meetmates.model.core.Event;
 import com.example.meetmates.model.core.EventUser;
+import com.example.meetmates.model.core.EventUser.ParticipantRole;
 import com.example.meetmates.model.core.User;
 import com.example.meetmates.repository.EventRepository;
 import com.example.meetmates.repository.EventUserRepository;
@@ -22,7 +24,7 @@ public class EventUserService {
     private final EventUserRepository eventUserRepository;
 
     public EventUserService(EventRepository eventRepository, UserRepository userRepository,
-                            EventUserRepository eventUserRepository) {
+            EventUserRepository eventUserRepository) {
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
         this.eventUserRepository = eventUserRepository;
@@ -40,8 +42,8 @@ public class EventUserService {
         }
 
         // Vérif si plein
-        if (event.getMaxParticipants() != null &&
-                event.getParticipants().size() >= event.getMaxParticipants()) {
+        if (event.getMaxParticipants() != null
+                && event.getParticipants().size() >= event.getMaxParticipants()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Événement complet");
         }
 
@@ -58,5 +60,13 @@ public class EventUserService {
         EventUser eu = eventUserRepository.findByEventIdAndUserId(eventId, userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Non inscrit à cet événement"));
         eventUserRepository.delete(eu);
+    }
+
+    public List<EventUser> findByUserId(UUID userId) {
+        return eventUserRepository.findAllByUserId(userId);
+    }
+
+    public List<EventUser> findOrganizedByUserId(UUID userId) {
+        return eventUserRepository.findAllByUserIdAndRole(userId, ParticipantRole.ORGANIZER);
     }
 }
