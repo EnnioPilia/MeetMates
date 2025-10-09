@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -9,6 +9,8 @@ import { UserService } from '../../core/services/user/user.service';
 import { User } from '../../core/models/user.model';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-profile',
@@ -19,7 +21,9 @@ import { environment } from '../../../environments/environment';
     MatCardModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatTabsModule
+    MatTabsModule,
+    MatExpansionModule,
+    RouterModule
   ],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss']
@@ -40,11 +44,12 @@ export class ProfileComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private userService: UserService,
-    private http: HttpClient
+    private http: HttpClient,
+
   ) {
     this.profileForm = this.fb.group({
-      nom: ['', Validators.required],
-      prenom: ['', Validators.required],
+      firstName: ['', Validators.required],
+      lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       age: [null, [Validators.min(0)]],
     });
@@ -78,12 +83,13 @@ export class ProfileComponent implements OnInit {
       next: (data) => {
         this.user = data;
         this.profileForm.patchValue({
-          nom: data.nom,
-          prenom: data.prenom,
+          nom: data.lastName,
+          prenom: data.firstName,
           email: data.email,
           age: data.age,
         });
 
+        // Charger les événements après récupération du user
         this.fetchEvents();
         this.loading = false;
       },
@@ -95,23 +101,31 @@ export class ProfileComponent implements OnInit {
     });
   }
 
+
   fetchEvents(): void {
     if (!this.user) return;
 
     // Événements auxquels il participe
-    this.http.get<any[]>(`${this.baseUrl}/event-user/participating/${this.user.id}`, { withCredentials: true })
+    this.http.get<any[]>(`${this.baseUrl}/event-user/participating`, { withCredentials: true })
       .subscribe({
-        next: (data) => this.eventsParticipating = data,
+        next: (data) => {
+          console.log('✅ Participating events:', data);
+          this.eventsParticipating = data;
+        },
         error: (err) => console.error('Erreur chargement événements participant :', err)
       });
 
     // Événements organisés
-    this.http.get<any[]>(`${this.baseUrl}/event/organized/${this.user.id}`, { withCredentials: true })
+    this.http.get<any[]>(`${this.baseUrl}/event-user/organized`, { withCredentials: true })
       .subscribe({
-        next: (data) => this.eventsOrganized = data,
+        next: (data) => {
+          console.log('✅ Organized events:', data);
+          this.eventsOrganized = data;
+        },
         error: (err) => console.error('Erreur chargement événements organisés :', err)
       });
   }
+
 
   onTabChange(event: any): void {
     this.selectedIndex = event.index;
@@ -120,4 +134,5 @@ export class ProfileComponent implements OnInit {
   onFocusChange(event: any): void {
     this.selectedIndex = event.index;
   }
+
 }

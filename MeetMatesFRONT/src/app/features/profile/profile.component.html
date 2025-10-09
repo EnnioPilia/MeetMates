@@ -1,78 +1,112 @@
-<div class="flex flex-col items-center min-h-screen px-6 py-10 mat-mdc-typography">
+<div class="flex flex-col items-center justify-start min-h-screen px-5 py-20 overflow-y-auto">
 
   @if (loading) {
-    <p class="text-gray-500 mt-6">Chargement du profil...</p>
+  <p class="text-gray-500 mt-6">Chargement du profil...</p>
   } @else if (error) {
-    <p class="text-red-600 mt-6">{{ error }}</p>
+  <p class="text-red-600 mt-6">{{ error }}</p>
   } @else {
-    <mat-card class="w-full max-w-3xl p-6 shadow-md hover:shadow-lg transition-all duration-300 flex flex-col items-center">
-      <img [src]="'assets/default-avatar.png'"
-           alt="Photo de profil"
-           class="w-32 h-32 rounded-full object-cover border-4 border-primary shadow-md mb-4" />
 
-      <p><strong>Nom :</strong> {{ user?.nom }}</p>
-      <p><strong>Prénom :</strong> {{ user?.prenom }}</p>
-      <p><strong>Email :</strong> {{ user?.email }}</p>
-      <p *ngIf="user?.age"><strong>Âge :</strong> {{ user?.age }} ans</p>
-    </mat-card>
+  <mat-card class="card-profil w-full p-3 flex flex-col items-center gap-1">
 
-    <mat-tab-group
-      class="w-full max-w-4xl mt-10"
-      [selectedIndex]="selectedIndex"
-      (selectedTabChange)="onTabChange($event)"
-      dynamicHeight
-      animationDuration="300ms"
-      mat-align-tabs="center">
+    <img [src]="'assets/default-avatar.png'" alt="Photo de profil"
+      class="w-32 h-32 rounded-full object-cover border-2 border-primary " />
 
-      <!-- Événements auxquels je participe -->
-      <mat-tab>
-        <ng-template mat-tab-label>
-          <mat-icon>group</mat-icon>
-          Événements auxquels je participe
-        </ng-template>
-        <div class="p-6 grid md:grid-cols-2 gap-4">
-          @if (eventsParticipating.length === 0) {
-            <p class="text-gray-500">Vous ne participez à aucun événement pour le moment.</p>
-          } @else {
-            @for (event of eventsParticipating; track event.id) {
-              <mat-card class="flex flex-col items-center shadow-sm hover:shadow-md transition p-4">
-                <img [src]="event.imageUrl || 'assets/default-event.jpg'"
-                     alt="{{ event.title }}"
-                     class="w-full h-40 object-cover rounded mb-3" />
-                <h4 class="font-semibold text-lg mb-1">{{ event.title }}</h4>
-                <p class="text-sm text-gray-500">
-                  {{ event.eventDate | date:'mediumDate' }} — {{ event.addressLabel }}
-                </p>
-              </mat-card>
-            }
+    <p><strong></strong> {{ user?.lastName }} {{ user?.firstName }}</p>
+    <p><strong></strong> {{ user?.email }}</p>
+  </mat-card>
+
+  <mat-tab-group class="w-full max-w-4xl mt-2" [selectedIndex]="selectedIndex" (selectedTabChange)="onTabChange($event)"
+    dynamicHeight animationDuration="300ms" mat-align-tabs="start">
+
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <p>JE PARTICPIE</p>
+      </ng-template>
+
+      <div class="p-6">
+        @if (eventsParticipating.length === 0) {
+        <p class="text-gray-500">Vous ne participez à aucun événement pour le moment.</p>
+        } @else {
+        <mat-accordion multi="true" class="flex flex-col gap-4">
+          @for (event of eventsParticipating; track event.id) {
+
+          <mat-expansion-panel class="p-2 ">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                {{ event.eventTitle }}
+              </mat-panel-title>
+              <mat-panel-description>
+                Organisé par {{ event.userFullName }}
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+
+            <div class="flex flex-col gap-2 p-2">
+              <p><strong>Organisateur :</strong> {{ event.userFullName }}</p>
+              <p><strong>Participants :</strong></p>
+              <ul>
+                <li *ngFor="let participant of event.participants">
+                  {{ participant }}
+                </li>
+              </ul>
+            </div>
+            <mat-action-row>
+              <button mat-flat-button color="primary" [routerLink]="['/event-details', event.id]">
+                Voir détails
+              </button>
+            </mat-action-row>
+          </mat-expansion-panel>
           }
-        </div>
-      </mat-tab>
+        </mat-accordion>
+        }
+      </div>
+    </mat-tab>
 
-      <!-- Événements organisés -->
-      <mat-tab>
-        <ng-template mat-tab-label>
-          <mat-icon>event</mat-icon>
-          Événements organisés
-        </ng-template>
-        <div class="p-6 grid md:grid-cols-2 gap-4">
-          @if (eventsOrganized.length === 0) {
-            <p class="text-gray-500">Vous n'organisez aucun événement actuellement.</p>
-          } @else {
-            @for (event of eventsOrganized; track event.id) {
-              <mat-card class="flex flex-col items-center shadow-sm hover:shadow-md transition p-4">
-                <img [src]="event.imageUrl || 'assets/default-event.jpg'"
-                     alt="{{ event.title }}"
-                     class="w-full h-40 object-cover rounded mb-3" />
-                <h4 class="font-semibold text-lg mb-1">{{ event.title }}</h4>
-                <p class="text-sm text-gray-500">
-                  {{ event.eventDate | date:'mediumDate' }} — {{ event.addressLabel }}
-                </p>
-              </mat-card>
-            }
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <p>J'ORGANISE</p>
+      </ng-template>
+
+      <div class="p-6">
+        @if (eventsOrganized.length === 0) {
+        <p class="text-gray-500">Vous n'organisez aucun événement actuellement.</p>
+        } @else {
+        <mat-accordion multi="true" class="flex flex-col gap-4">
+          @for (event of eventsOrganized; track event.id) {
+
+          <mat-expansion-panel class="p-2">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                {{ event.eventTitle }}
+              </mat-panel-title>
+              <mat-panel-description>
+                Organisé par {{ event.userFullName }}
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+
+            <div class="flex flex-col gap-2 p-2">
+              <p><strong>Organisateur :</strong> {{ event.userFullName }}</p>
+              <p><strong>Identifiant :</strong> </p>
+              <p><strong>Date :</strong> {{ event.eventDate || 'Non définie' }}</p>
+              <p><strong>Participants :</strong></p>
+              <ul>
+                <li *ngFor="let participant of event.participants">
+                  {{ participant }}
+                </li>
+              </ul>
+            </div>
+            <mat-action-row>
+              <button mat-flat-button color="primary" [routerLink]="['/event-details', event.id]">
+                Voir détails
+              </button>
+            </mat-action-row>
+          </mat-expansion-panel>
           }
-        </div>
-      </mat-tab>
-    </mat-tab-group>
+        </mat-accordion>
+        }
+      </div>
+    </mat-tab>
+
+
+  </mat-tab-group>
   }
 </div>

@@ -1,1 +1,47 @@
-<p>event-details works!</p>
+<div class="flex flex-col items-center justify-start min-h-screen px-6 py-16">
+  @if (loading) {
+    <mat-spinner diameter="50"></mat-spinner>
+  } @else if (event) {
+    <mat-card class="max-w-3xl w-full p-6 shadow-lg">
+      <h2 class="text-2xl font-semibold mb-4 text-center">{{ event.title }}</h2>
+
+      <img [src]="event.imageUrl || 'assets/default-event.jpg'" 
+           alt="{{ event.title }}" 
+           class="w-full h-60 object-cover rounded-lg mb-4 border border-gray-300" />
+
+      <mat-chip [ngClass]="event.status === 'OPEN' ? 'mat-chip-open' : 'mat-chip-closed'">
+        {{ getStatusLabel(event.status) }}
+      </mat-chip>
+
+      <p class="mt-4 text-gray-700 leading-relaxed">{{ event.description }}</p>
+
+      <div class="mt-6 space-y-2 text-sm">
+        <p><strong>Date :</strong> {{ event.eventDate | date:'mediumDate' }}</p>
+        <p><strong>Adresse :</strong> {{ event.addressLabel }}</p>
+        <p><strong>Activité :</strong> {{ event.activityName }}</p>
+        <p><strong>Organisateur :</strong> {{ event.organizerName }}</p>
+        <p><strong>Niveau :</strong> {{ getLevelLabel(event.level) }}</p>
+        <p><strong>Matériel :</strong> {{ getMaterialLabel(event.material) }}</p>
+        <p><strong>Places max :</strong> {{ event.maxParticipants }}</p>
+      </div>
+
+      <div class="mt-6">
+        <h3 class="font-semibold text-lg mb-2">Participants</h3>
+        <ul class="list-disc pl-6">
+          @for (name of event.participantNames; track name) {
+            <li>{{ name }}</li>
+          }
+        </ul>
+        @if (event.participantNames.length === 0) {
+          <p class="text-gray-500">Aucun participant pour le moment.</p>
+        }
+      </div>
+
+      <div class="mt-8 flex justify-center">
+        <button mat-flat-button color="primary" routerLink="/events">Retour à la liste</button>
+      </div>
+    </mat-card>
+  } @else {
+    <p class="text-red-600">Événement introuvable.</p>
+  }
+</div>

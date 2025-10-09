@@ -1,7 +1,7 @@
 export interface User {
   id: number;
-  nom: string;
-  prenom: string;
+  lastName: string;
+  firstName: string;
   email: string;
   role: string;       
   enabled: boolean; //changer en bloquer (corriger le back aussi)

@@ -194,4 +194,8 @@ export class EventListComponent implements OnInit {
       default: return status;
     }
   }
+
+  // navigateTo(eventId: string): void {
+  //   this.router.navigate(['/event-details', eventId]);
+  // }
 }
