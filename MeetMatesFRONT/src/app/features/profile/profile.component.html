@@ -6,7 +6,7 @@
   <p class="text-red-600 mt-6">{{ error }}</p>
   } @else {
 
-  <mat-card class="card-profil w-full p-3 flex flex-col items-center gap-1">
+  <mat-card class="card-profil w-full flex flex-col items-center gap-1">
 
     <img [src]="'assets/default-avatar.png'" alt="Photo de profil"
       class="w-32 h-32 rounded-full object-cover border-2 border-primary " />
@@ -25,24 +25,26 @@
 
       <div class="p-6">
         @if (eventsParticipating.length === 0) {
-        <p class="text-gray-500">Vous ne participez à aucun événement pour le moment.</p>
+        <p class="text-center mt-4">Vous ne participez à aucun événement pour le moment.</p>
         } @else {
         <mat-accordion multi="true" class="flex flex-col gap-4">
           @for (event of eventsParticipating; track event.id) {
 
-          <mat-expansion-panel class="p-2 ">
+          <mat-expansion-panel class="p-2">
             <mat-expansion-panel-header>
               <mat-panel-title>
-                {{ event.eventTitle }}
+                <p>07/08/25</p>
               </mat-panel-title>
               <mat-panel-description>
-                Organisé par {{ event.userFullName }}
+                <p>{{ event.eventTitle }}</p>
               </mat-panel-description>
             </mat-expansion-panel-header>
 
-            <div class="flex flex-col gap-2 p-2">
-              <p><strong>Organisateur :</strong> {{ event.userFullName }}</p>
-              <p><strong>Participants :</strong></p>
+            <div class="flex flex-col gap-2">
+              <p><strong>Acitivté :</strong> </p>
+              <p><strong>Desciption :</strong></p>
+              <p><strong>Adresse :</strong></p>
+              <p><strong>Status :</strong></p>
               <ul>
                 <li *ngFor="let participant of event.participants">
                   {{ participant }}
@@ -51,7 +53,7 @@
             </div>
             <mat-action-row>
               <button mat-flat-button color="primary" [routerLink]="['/event-details', event.eventId]">
-                Voir détails
+               <p>Voir détails</p> 
               </button>
             </mat-action-row>
           </mat-expansion-panel>
@@ -68,7 +70,7 @@
 
       <div class="p-6">
         @if (eventsOrganized.length === 0) {
-        <p class="text-gray-500">Vous n'organisez aucun événement actuellement.</p>
+        <p class="text-center mt-4">Vous n'organisez aucun événement actuellement.</p>
         } @else {
         <mat-accordion multi="true" class="flex flex-col gap-4">
           @for (event of eventsOrganized; track event.id) {
@@ -85,7 +87,7 @@
 
             <div class="flex flex-col gap-2 p-2">
               <p><strong>Organisateur :</strong> {{ event.userFullName }}</p>
-              <p><strong>Identifiant :</strong>  {{ event.eventId }}</p>
+              <p><strong>Identifiant :</strong> {{ event.eventId }}</p>
               <p><strong>Date :</strong> {{ event.eventDate || 'Non définie' }}</p>
               <p><strong>Participants :</strong></p>
               <ul>
@@ -95,8 +97,7 @@
               </ul>
             </div>
             <mat-action-row>
-              <button mat-flat-button color="primary"   [routerLink]="['/event-details', event.eventId]">
-
+              <button mat-flat-button color="primary" [routerLink]="['/event-details', event.eventId]">
                 Voir détails
               </button>
             </mat-action-row>
