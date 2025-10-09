@@ -100,22 +100,22 @@ public class EventService {
     public List<EventResponse> findAllResponses() {
         return eventRepository.findAllWithPictures()
                 .stream()
-            .map(EventResponse::from)
+                .map(EventResponse::from)
                 .toList();
     }
 
-    // ✅ Détail d’un événement (avec images)
+    @Transactional(readOnly = true)
     public EventResponse findResponseById(UUID id) {
-        return eventRepository.findByIdWithPictures(id)
-            .map(EventResponse::from)
-                .orElse(null);
+        Event event = eventRepository.findByIdWithAllRelations(id)
+                .orElseThrow(() -> new RuntimeException("Événement introuvable avec l'id: " + id));
+        return toResponse(event);
     }
 
     // ✅ Événements d’une activité (avec images)
     public List<EventResponse> getEventResponsesByActivity(UUID activityId) {
         return eventRepository.findByActivityIdWithPictures(activityId)
                 .stream()
-            .map(EventResponse::from)
+                .map(EventResponse::from)
                 .toList();
     }
 
@@ -129,7 +129,9 @@ public class EventService {
         var activity = activityRepository.findById(req.getActivityId())
                 .orElseThrow(() -> new RuntimeException("Activité introuvable"));
 
-        if (req.getAddress() == null) throw new IllegalArgumentException("Adresse requise");
+        if (req.getAddress() == null) {
+            throw new IllegalArgumentException("Adresse requise");
+        }
         Address address = addressRepository.save(req.getAddress());
 
         Event event = new Event();
@@ -199,5 +201,5 @@ public class EventService {
     public void delete(UUID id) {
         eventRepository.deleteById(id);
     }
-    
+
 }
