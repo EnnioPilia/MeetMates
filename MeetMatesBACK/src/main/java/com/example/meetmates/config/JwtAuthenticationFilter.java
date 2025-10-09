@@ -86,11 +86,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 // Regénération du cookie authToken
                 ResponseCookie newAuthCookie = ResponseCookie.from("authToken", newAuthToken)
                         .httpOnly(true)
-                        .secure(false) // mettre true en prod avec HTTPS
+                        .secure(false)
                         .path("/")
                         .sameSite("Strict")
                         .maxAge(jwtUtils.getJwtExpirationMs() / 1000)
                         .build();
+
                 response.setHeader("Set-Cookie", newAuthCookie.toString());
 
                 authenticateUser(user.getEmail(), request);

@@ -1,5 +1,6 @@
 package com.example.meetmates.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -25,7 +26,6 @@ import com.example.meetmates.repository.EventUserRepository;
 import com.example.meetmates.repository.PictureEventRepository;
 import com.example.meetmates.repository.PictureRepository;
 import com.example.meetmates.repository.UserRepository;
-import java.util.ArrayList;
 
 @Service
 public class EventService {
@@ -100,14 +100,14 @@ public class EventService {
     public List<EventResponse> findAllResponses() {
         return eventRepository.findAllWithPictures()
                 .stream()
-                .map(this::toResponse)
+            .map(EventResponse::from)
                 .toList();
     }
 
     // ✅ Détail d’un événement (avec images)
     public EventResponse findResponseById(UUID id) {
         return eventRepository.findByIdWithPictures(id)
-                .map(this::toResponse)
+            .map(EventResponse::from)
                 .orElse(null);
     }
 
@@ -115,7 +115,7 @@ public class EventService {
     public List<EventResponse> getEventResponsesByActivity(UUID activityId) {
         return eventRepository.findByActivityIdWithPictures(activityId)
                 .stream()
-                .map(this::toResponse)
+            .map(EventResponse::from)
                 .toList();
     }
 

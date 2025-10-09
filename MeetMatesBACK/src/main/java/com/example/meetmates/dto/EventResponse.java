@@ -14,22 +14,22 @@ import com.example.meetmates.model.core.EventUser.ParticipantRole;
 import com.example.meetmates.model.link.PictureEvent;
 
 public record EventResponse(
-    UUID id,
-    String title,
-    String description,
-    LocalDate eventDate,
-    LocalTime startTime,
-    LocalTime endTime,
-    Integer maxParticipants,
-    EventStatus status,
-    MaterialOption material,
-    Level level,
-    String activityName,
-    String addressLabel,
-    String organizerName,
-    List<String> participantNames,
-    String imageUrl
-) {
+        UUID id,
+        String title,
+        String description,
+        LocalDate eventDate,
+        LocalTime startTime,
+        LocalTime endTime,
+        Integer maxParticipants,
+        EventStatus status,
+        MaterialOption material,
+        Level level,
+        String activityName,
+        String addressLabel,
+        String organizerName,
+        List<String> participantNames,
+        String imageUrl
+        ) {
 
     public static EventResponse from(Event e) {
         // ✅ Trouver l’organisateur
@@ -46,11 +46,16 @@ public record EventResponse(
                 .collect(Collectors.toList());
 
         // ✅ Récupérer l’URL de la photo principale
-        String imageUrl = e.getPictures().stream()              // 🟢 utiliser le bon getter
-                .filter(PictureEvent::isMain)                   // ne garder que la principale
+        String imageUrl = e.getPictures().stream() // 🟢 utiliser le bon getter
+                .filter(PictureEvent::isMain) // ne garder que la principale
                 .findFirst()
-                .map(pe -> pe.getPicture().getUrl())            // accéder à l’URL réelle
+                .map(pe -> pe.getPicture().getUrl()) // accéder à l’URL réelle
                 .orElse(null);
+
+        System.out.println("🖼️ Pictures for event " + e.getTitle() + ": " + e.getPictures().size());
+        e.getPictures().forEach(pe -> {
+            System.out.println("   → " + pe.getPicture().getUrl() + " | isMain=" + pe.isMain());
+        });
 
         return new EventResponse(
                 e.getId(),
