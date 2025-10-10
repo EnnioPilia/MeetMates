@@ -11,6 +11,14 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { RouterModule } from '@angular/router';
+import { ConfirmDialogComponent } from '../../shared/components-material-angular/Snackbar/confirm-dialog.component';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
+import { AuthService } from '../../core/services/auth/auth.service';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
   selector: 'app-profile',
@@ -23,7 +31,13 @@ import { RouterModule } from '@angular/router';
     MatProgressSpinnerModule,
     MatTabsModule,
     MatExpansionModule,
-    RouterModule
+    RouterModule,
+    MatToolbarModule,
+    MatIconModule,
+    MatButtonModule,
+    MatDialogModule,
+    MatMenuModule,
+    MatDividerModule
   ],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss']
@@ -39,6 +53,10 @@ export class ProfileComponent implements OnInit {
   eventsParticipating: any[] = [];
   eventsOrganized: any[] = [];
 
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private dialog = inject(MatDialog);
+
   private baseUrl = environment.apiUrl;
 
   constructor(
@@ -51,7 +69,6 @@ export class ProfileComponent implements OnInit {
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      age: [null, [Validators.min(0)]],
     });
   }
 
@@ -71,10 +88,6 @@ export class ProfileComponent implements OnInit {
     return this.profileForm.get('email') as FormControl;
   }
 
-  get ageControl(): FormControl {
-    return this.profileForm.get('age') as FormControl;
-  }
-
   loadProfile(): void {
     this.loading = true;
     this.error = null;
@@ -85,8 +98,7 @@ export class ProfileComponent implements OnInit {
         this.profileForm.patchValue({
           nom: data.lastName,
           prenom: data.firstName,
-          email: data.email,
-          age: data.age,
+          email: data.email
         });
 
         // Charger les événements après récupération du user
@@ -133,6 +145,31 @@ export class ProfileComponent implements OnInit {
 
   onFocusChange(event: any): void {
     this.selectedIndex = event.index;
+  }
+
+  onLogout(): void {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: { title: 'DECONNEXION', message: 'Voulez-vous vous déconnecter ?' }
+    });
+
+    dialogRef.afterClosed().subscribe(confirmed => {
+      if (confirmed) {
+        this.authService.logout().subscribe({
+          next: () => this.router.navigate(['/login']),
+          error: (err) => console.error(err)
+        });
+      }
+    });
+  }
+
+  getStatusLabel(status: string): string {
+    switch (status) {
+      case 'OPEN': return 'Ouvert';
+      case 'FULL': return 'Complet';
+      case 'CANCELLED': return 'Annulé';
+      case 'FINISHED': return 'Terminé';
+      default: return status;
+    }
   }
 
 }

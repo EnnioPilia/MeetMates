@@ -1,9 +1,4 @@
-<div class="flex flex-col items-center justify-start min-h-screen px-8 py-20 overflow-y-auto">
-
-  <mat-card-title class="title-home">
-    <h2 class="text-2xl mb-4">TOUTES LES ACTIVITÉS</h2>
-  </mat-card-title>
-
+<div class="flex flex-col items-center justify-start min-h-screen px-7 py-10 mt-4">
   @if (loading) {
   <div class="flex justify-center items-center h-[50vh]">
     <mat-spinner diameter="50"></mat-spinner>
@@ -13,44 +8,29 @@
   <div class="flex flex-col items-center gap-10 w-full max-w-3xl">
     @for (event of events; track event.id) {
 
-    <mat-card class="icone-card w-full flex flex-col items-end p-6 
-                      shadow-md hover:shadow-xl transition-all duration-300">  <!--mettre dans le scss? -->
-
-      <mat-chip class="flex items-center justify-center font-semibold"
-        [ngClass]="event.status.toUpperCase() === 'OPEN' ? 'mat-chip-open' : 'mat-chip-closed'">
-        {{ getStatusLabel(event.status) }}
-      </mat-chip>
-
+    <mat-card class="acitivity-card w-full flex flex-col items-end p-6 "> <!--mettre dans le scss? -->
       <div class="text-center w-full">
-        <h3 class="text-xl font-semibold mb-2 pb-2 pt-2 border-b border-black">{{ event.title }}</h3>
+        <h3 class="text-xl font-semibold mb-2">{{ event.title }}</h3>
         <p class="text-sm leading-relaxed max-h-20 overflow-y-auto">
           {{ event.description }}
         </p>
       </div>
 
-      <img [src]="event.imageUrl" alt="{{ event.title }}" class="w-[280px] h-[130px]  object-cover my-3 border border-black" />
+      <img [src]="event.imageUrl" alt="{{ event.title }}"
+        class="w-[280px] h-[130px]  object-cover my-3 border border-black" />
 
-      <div class=" w-full text-sm leading-relaxed">
-        <p class="flex items-center justify-start gap-1">
-          <!-- <mat-icon class="text-base">event</mat-icon> -->Date :
-          {{ event.eventDate | date:'mediumDate' }}
-        </p>
-        <p class="flex items-center justify-start gap-1">
-          <!-- <mat-icon class="text-base">location_on</mat-icon> -->Adresses :
-          {{ event.addressLabel }}
-        </p>
-        <p class="flex items-center justify-start gap-1">
-          <!-- <mat-icon class="text-base">military_tech</mat-icon> -->
-          Niveau : {{ getLevelLabel(event.level) }}
-        </p>
-
-        <p class="flex items-center justify-start gap-1">
-          <!-- <mat-icon class="text-base">fitness_center</mat-icon> -->
-          Matériel : {{ getMaterialLabel(event.material) }}
-        </p>
+      <div class="flex flex-col w-full text-sm leading-relaxed gap-1">
+        <p><strong>STATUS DE L'ACTIVITE :</strong> {{ getStatusLabel(event.status) }}</p>
+        <p><strong>ACITIVITE :</strong> {{ event.activityName }}</p>
+        <p><strong>DATE :</strong> {{ event.eventDate | date:'mediumDate' }}</p>
+        <p><strong>HORAIRE :</strong> {{ event.startTime }} - {{ event.endTime }}</p>
+        <p><strong>ADRESSE :</strong> {{ event.addressLabel }}</p>
+        <p><strong>NIVEAU :</strong> {{ getLevelLabel(event.level) }}</p>
+        <p><strong>MATERIAL :</strong> {{ getMaterialLabel(event.material) }}</p>
+        <p><strong>NOMBRE DE PARTICIPANT :</strong> {{ event.maxParticipants }}</p>
       </div>
 
-      <mat-card-actions class="flex justify-center w-full mt-2">
+      <mat-card-actions class="flex justify-center w-full mt-5">
         <button mat-flat-button color="primary" class="w-80 primary-button"
           [disabled]="event.status.toUpperCase() !== 'OPEN'" (click)="joinEvent(event.id)">
           P A R T I C I P E R

@@ -1,4 +1,4 @@
-<div class="flex flex-col items-center justify-start min-h-screen px-5 py-20 overflow-y-auto">
+<div class="flex fixed flex-col items-center justify-start min-h-screen px-5 py-5 mt-10">
 
   @if (loading) {
   <p class="text-gray-500 mt-6">Chargement du profil...</p>
@@ -6,16 +6,40 @@
   <p class="text-red-600 mt-6">{{ error }}</p>
   } @else {
 
-  <mat-card class="card-profil w-full flex flex-col items-center gap-1">
+  <div class="flex justify-end w-full">
+    <button mat-icon-button [matMenuTriggerFor]="settingsMenu" aria-label="Ouvrir le menu paramètres">
+      <mat-icon>settings</mat-icon>
+    </button>
 
-    <img [src]="'assets/default-avatar.png'" alt="Photo de profil"
-      class="w-32 h-32 rounded-full object-cover border-2 border-primary " />
+    <mat-menu #settingsMenu="matMenu" xPosition="before" yPosition="below">
+      <button mat-menu-item [routerLink]="['/profil']">
+        <mat-icon>edit</mat-icon>
+        <span>Modifier le profil</span>
+      </button>
+
+      <button mat-menu-item routerLink="/mentions-legales">
+        <mat-icon>gavel</mat-icon>
+        <span>Mentions légales</span>
+      </button>
+      <!-- <mat-divider></mat-divider> -->
+      <button mat-menu-item (click)="onLogout()">
+        <mat-icon>logout</mat-icon>
+        <span>Déconnexion</span>
+      </button>
+    </mat-menu>
+  </div>
+
+  <mat-card class="card-profil w-full flex flex-col items-center gap-2">
+
+    <img [src]="'assets/default-avatar.png'" alt=""
+      class="w-32 h-32 rounded-full object-cover border-2 border-black mb-2" />
 
     <p><strong></strong> {{ user?.lastName }} {{ user?.firstName }}</p>
     <p><strong></strong> {{ user?.email }}</p>
+
   </mat-card>
 
-  <mat-tab-group class="w-full max-w-4xl mt-2" [selectedIndex]="selectedIndex" (selectedTabChange)="onTabChange($event)"
+  <mat-tab-group class="w-full max-w-4xl mt-6" [selectedIndex]="selectedIndex" (selectedTabChange)="onTabChange($event)"
     dynamicHeight animationDuration="300ms" mat-align-tabs="start">
 
     <mat-tab>
@@ -23,14 +47,14 @@
         <p>JE PARTICPIE</p>
       </ng-template>
 
-      <div class="p-6">
+      <div class="p-6 max-h-[40vh] overflow-y-auto">
         @if (eventsParticipating.length === 0) {
         <p class="text-center mt-4">Vous ne participez à aucun événement pour le moment.</p>
         } @else {
         <mat-accordion multi="true" class="flex flex-col gap-4">
           @for (event of eventsParticipating; track event.id) {
 
-          <mat-expansion-panel class="p-2">
+          <mat-expansion-panel class="p-1">
             <mat-expansion-panel-header>
               <mat-panel-title>
                 <p>07/08/25</p>
@@ -41,21 +65,19 @@
             </mat-expansion-panel-header>
 
             <div class="flex flex-col gap-2">
-              <p><strong>Acitivté :</strong> </p>
-              <p><strong>Desciption :</strong></p>
-              <p><strong>Adresse :</strong></p>
-              <p><strong>Status :</strong></p>
-              <ul>
-                <li *ngFor="let participant of event.participants">
-                  {{ participant }}
-                </li>
-              </ul>
+              <p><strong>Status de l'activité:</strong> {{ event.eventStatus }}</p>
+              <p><strong>Votre participation :</strong> {{getStatusLabel(event.status) }}</p>
+              <p><strong>Adresse :</strong> {{ event.addressLabel }}</p>
             </div>
-            <mat-action-row>
-              <button mat-flat-button color="primary" [routerLink]="['/event-details', event.eventId]">
-               <p>Voir détails</p> 
+
+            
+            <div class="flex justify-end">
+              <button mat-flat-button class="primary-button-details p-2"
+                [routerLink]="['/event-details', event.eventId]">
+                Voir détails
               </button>
-            </mat-action-row>
+            </div>
+
           </mat-expansion-panel>
           }
         </mat-accordion>
@@ -68,39 +90,34 @@
         <p>J'ORGANISE</p>
       </ng-template>
 
-      <div class="p-6">
+      <div class="p-6 max-h-[40vh] overflow-y-auto">
         @if (eventsOrganized.length === 0) {
         <p class="text-center mt-4">Vous n'organisez aucun événement actuellement.</p>
         } @else {
         <mat-accordion multi="true" class="flex flex-col gap-4">
           @for (event of eventsOrganized; track event.id) {
 
-          <mat-expansion-panel class="p-2">
+          <mat-expansion-panel class="p-1">
             <mat-expansion-panel-header>
               <mat-panel-title>
-                {{ event.eventTitle }}
+                <p>07/08/25</p>
               </mat-panel-title>
               <mat-panel-description>
-                Organisé par {{ event.userFullName }}
+                <p>{{ event.eventTitle }}</p>
               </mat-panel-description>
             </mat-expansion-panel-header>
 
-            <div class="flex flex-col gap-2 p-2">
-              <p><strong>Organisateur :</strong> {{ event.userFullName }}</p>
-              <p><strong>Identifiant :</strong> {{ event.eventId }}</p>
-              <p><strong>Date :</strong> {{ event.eventDate || 'Non définie' }}</p>
+            <div class="flex flex-col gap-2">
+              <p><strong>Organisateur :</strong></p>
+              <p><strong>Identifiant :</strong> </p>
               <p><strong>Participants :</strong></p>
-              <ul>
-                <li *ngFor="let participant of event.participants">
-                  {{ participant }}
-                </li>
-              </ul>
             </div>
-            <mat-action-row>
-              <button mat-flat-button color="primary" [routerLink]="['/event-details', event.eventId]">
+            <div class="flex justify-end">
+              <button mat-flat-button class="primary-button-details p-2"
+                [routerLink]="['/event-organizer', event.eventId]">
                 Voir détails
               </button>
-            </mat-action-row>
+            </div>
           </mat-expansion-panel>
           }
         </mat-accordion>

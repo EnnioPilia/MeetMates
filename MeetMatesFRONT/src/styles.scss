@@ -1,15 +1,6 @@
 @use '@angular/material' as mat;
 @use 'theme-colors' as theme;
 
-html,
-body {
-  @include mat.theme((color: (primary: theme.$primary-palette, tertiary: theme.$tertiary-palette, )));
-  @include mat.theme-overrides((corner-full: 10px));
-
-  font-family: 'Poiret One', cursive;
-  background-color: var(--mat-sys-primary);
-  color-scheme: light;
-}
 
 :root {
   @include mat.toolbar-overrides((container-background-color: var(--mat-sys-tertiary),
@@ -17,32 +8,62 @@ body {
     ));
 }
 
+.header {
+  background-color: white !important;
+  border-bottom: black solid 1px;
+}
+
+.footer {
+  background-color: white !important;
+  border-top: black solid 1px;
+}
+
+
+html,
+body {
+  font-family: 'Poiret One', cursive;
+  font-weight: 700;
+  color: #1f2937
+}
+
+mat-error {
+  color: #ff0000 !important;
+  /* rouge vif */
+  font-weight: 700;
+}
+
+
+.secondary-button,
 .primary-button {
-  @include mat.theme((color: theme.$tertiary-palette));
-  @include mat.theme-overrides((corner-full: 10px));
-  // font-weight: bold !important; // material Angular ecrase le style obligé de mettre !important
+  font-weight: 700;
+  border-radius: 9px !important;
+  box-shadow: 0 6px 8px -6px rgba(0, 0, 0, 0.6);
+  border-bottom: black solid 1px !important;
 }
 
-.secondary-button {
-  @include mat.theme((color: theme.$tertiary-palette));
-  @include mat.theme-overrides((corner-full: 10px));
-  // font-weight: bold !important; // material Angular ecrase le style obligé de mettre !important
+.primary-button-details {
+  font-weight: 700;
+  border-radius: 10px !important;
+  box-shadow: 0 6px 9px -6px rgba(0, 0, 0, 0.6) !important;
+  border-bottom: black solid 1px !important;
 }
 
+.primary-button-cancel {
+  font-weight: 700;
+  border-radius: 9px !important;
+  box-shadow: 0 4px 8px -4px rgb(0, 0, 0);
+  border-bottom: rgb(255, 0, 0) solid 2px !important;
+}
 
-// changer en card ?? 
-.icone-card {
-  background-color: #a6d0f7 !important;
-  color: #00488b;
-  border-radius: 10px;
-  border: 1px solid #012f5a !important;
-  transition: 0.2s ease-in-out;
-  cursor: pointer;
+mat-expansion-panel {
+  box-shadow: 0 6px 8px -6px rgba(0, 0, 0, 0.5) !important;
+  border-bottom: 1px solid black !important;
+}
 
-  // &:hover {
-  //   background-color: #6ab6fd;
-  //   transform: scale(1.1);
-  // }
+.mat-accordion .mat-expansion-panel:not(.mat-expanded),
+.mat-accordion .mat-expansion-panel:not(.mat-expansion-panel-spacing) {
+  border-radius: 8px !important;
+
 }
 
 p,
@@ -61,10 +82,30 @@ h3 {
 }
 
 .card-profil {
-  background-color: #66aadd !important;
-  color: #fff !important;
+  color: black !important;
 }
 
+.icone-card {
+  color: black;
+  border-radius: 5px !important;
+  transition: 0.2s ease-in-out;
+  cursor: pointer;
+  border-bottom: black solid 1px !important;
+  box-shadow: 0 6px 10px -6px rgba(0, 0, 0, 0.6) !important;
+}
+
+.acitivity-card {
+  border-bottom: black solid 1px !important;
+}
+.photo-card{
+  color: black;
+  border-radius: 5px !important;
+  transition: 0.2s ease-in-out;
+  cursor: pointer;
+  border: black solid 1px !important;
+  box-shadow: 0 6px 10px -6px rgba(0, 0, 0, 0.6) !important;
+
+}
 // Neutraliser les styles de base Material
 .card-profil.mat-mdc-card {
   --mdc-elevated-card-container-color: transparent;
@@ -81,20 +122,31 @@ h3 {
   color: var(--mat-sys-on-tertiary);
 }
 
-.mat-mdc-form-field {
-  --mdc-filled-text-field-container-color: rgba(196, 219, 248, 0.911); // fond léger
-  --mdc-filled-text-field-focus-active-indicator-color: #004f99;
-  --mdc-filled-text-field-input-text-color: #004f99;
-  --mdc-filled-text-field-label-text-color: #004f99(41, 41, 41, 0.8);
-  --mdc-filled-text-field-hover-active-indicator-color: var(--mat-sys-on-tertiary);
+.mat-mdc-snack-bar-container {
+  --mdc-snackbar-container-color: #000;
+  /* fond noir */
+  --mdc-snackbar-supporting-text-color: #fff;
+  /* texte blanc */
+  --mdc-snackbar-label-text-color: #fff;
+  /* texte principal blanc */
+  font-weight: 700 !important;
+
 }
 
+// .mat-mdc-form-field {
+//   --mdc-filled-text-field-container-color: rgba(196, 219, 248, 0.911); // fond léger
+//   --mdc-filled-text-field-focus-active-indicator-color: #004f99;
+//   --mdc-filled-text-field-input-text-color: #004f99;
+//   --mdc-filled-text-field-label-text-color: #004f99(41, 41, 41, 0.8);
+//   --mdc-filled-text-field-hover-active-indicator-color: var(--mat-sys-on-tertiary);
+// }
+
 .mat-mdc-dialog-surface {
-  --mdc-dialog-container-color: #1785ec;
+  --mdc-dialog-container-color: black;
   --mdc-dialog-subhead-color: #ffffff;
   --mdc-dialog-supporting-text-color: #ffffff;
   box-shadow: var(--mat-sys-level3);
-  border: 1px solid #00488b;
+
 }
 
 .cancel-button.mat-mdc-button-base {
@@ -113,13 +165,14 @@ h3 {
 }
 
 .mat-mdc-radio-button {
-  --mdc-radio-selected-icon-color: rgba(50, 98, 156, 0.911);
-  --mdc-radio-unselected-icon-color: rgba(50, 98, 156, 0.911);
+  --mdc-radio-selected-icon-color: black(50, 98, 156, 0.911);
+  --mdc-radio-unselected-icon-color: black(50, 98, 156, 0.911);
+
 }
 
 .mat-chip-open {
-  background-color: #16a34a !important;
-  color: #fff !important;
+  color: black !important;
+
 }
 
 .mat-chip-closed {
@@ -155,4 +208,3 @@ h3 {
 .mat-expansion-panel-header {
   border-radius: 0 !important;
 }
-

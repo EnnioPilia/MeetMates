@@ -1,0 +1,90 @@
+<div class="flex flex-col items-center justify-start min-h-screen px-7 py-20 overflow-y-auto">
+    @if (loading) {
+    <mat-spinner diameter="50"></mat-spinner>
+    } @else if (event) {
+
+    <mat-card class="w-full flex flex-col items-center p-6">
+        <div class="text-center w-full mb-4">
+            <h3 class="text-2xl font-semibold mb-2">{{ event.title }}</h3>
+            <p class="text-sm leading-relaxed max-h-20 overflow-y-auto">
+                {{ event.description }}
+            </p>
+        </div>
+
+        <mat-tab-group class="w-full max-w-3xl mb-4" mat-align-tabs="start" animationDuration="300ms">
+
+            <mat-tab>
+                <ng-template mat-tab-label>
+                    <p>Acceptés</p>
+                </ng-template>
+
+                <div class="p-4">
+                    @if (event.acceptedParticipants.length > 0) {
+                    <mat-accordion multi="true" class="flex flex-col gap-3">
+                        @for (p of event.acceptedParticipants; track p) {
+                        <mat-expansion-panel>
+                            <mat-expansion-panel-header>
+                                <mat-panel-title>{{ p }}</mat-panel-title>
+                            </mat-expansion-panel-header>
+                            <div class="p-3 text-sm">
+                                <p><strong>Statut :</strong> Accepté</p>
+                            </div>
+                        </mat-expansion-panel>
+                        }
+                    </mat-accordion>
+                    } @else {
+                    <p class="text-center text-gray-500 mt-4">Aucun participant accepté pour le moment.</p>
+                    }
+                </div>
+            </mat-tab>
+            <mat-tab>
+                <ng-template mat-tab-label>
+                    <p>En attente</p>
+                </ng-template>
+
+                <div class="p-4">
+                    @if (event.pendingParticipants.length > 0) {
+                    <mat-accordion multi="true" class="flex flex-col gap-3">
+                        @for (p of event.pendingParticipants; track p) {
+                        <mat-expansion-panel>
+                            <mat-expansion-panel-header>
+                                <mat-panel-title>{{ p }}</mat-panel-title>
+                            </mat-expansion-panel-header>
+                            <div class="p-3 text-sm">
+                                <p><strong>Statut :</strong>En attente de validation</p>
+                            </div>
+                        </mat-expansion-panel>
+                        }
+                    </mat-accordion>
+                    } @else {
+                    <p class="text-center text-gray-500 mt-4">Aucun participant en attente.</p>
+                    }
+                </div>
+            </mat-tab>
+        </mat-tab-group>
+
+
+        <div class="flex flex-col w-full text-sm leading-relaxed gap-3">
+            <p><strong>STATUS DE L'ACTIVITE :</strong> {{ event.status }}</p>
+            <p><strong>ACITIVITE :</strong>{{ event.activityName }}</p>
+            <p><strong>DATE :</strong> {{ event.eventDate | date:'mediumDate' }}</p>
+            <p><strong>HORAIRE :</strong> {{ event.startTime }} - {{ event.endTime }}</p>
+            <p><strong>ADRESSE :</strong> {{ event.addressLabel }}</p>
+            <p><strong>NIVEAU :</strong> {{ getLevelLabel(event.level) }}</p>
+            <p><strong>MATERIAL :</strong> {{ getMaterialLabel(event.material) }}</p>
+            <p><strong>NOMBRE DE PARTICIPANT :</strong> {{ event.maxParticipants }}</p>
+        </div>
+    </mat-card>
+
+    <img [src]="event.imageUrl" alt="{{ event.title }}"
+        class="w-[280px] h-[130px] object-cover my-3 border border-black " />
+
+    <div class="mt-6">
+        <button mat-flat-button class="primary-button p-2" [routerLink]="['/conversation', event.id]"> Aller à la
+            conversation</button>
+    </div>
+
+    } @else {
+    <p class="text-red-600">Événement introuvable.</p>
+    }
+</div>

@@ -1,0 +1,158 @@
+@use '@angular/material' as mat;
+@use 'theme-colors' as theme;
+
+html,
+body {
+  @include mat.theme((color: (primary: theme.$primary-palette, tertiary: theme.$tertiary-palette, )));
+  @include mat.theme-overrides((corner-full: 10px));
+
+  font-family: 'Poiret One', cursive;
+  background-color: var(--mat-sys-primary);
+  color-scheme: light;
+}
+
+:root {
+  @include mat.toolbar-overrides((container-background-color: var(--mat-sys-tertiary),
+      container-text-color: var(--mat-sys-on-tertiary),
+    ));
+}
+
+.primary-button {
+  @include mat.theme((color: theme.$tertiary-palette));
+  @include mat.theme-overrides((corner-full: 10px));
+  // font-weight: bold !important; // material Angular ecrase le style obligé de mettre !important
+}
+
+.secondary-button {
+  @include mat.theme((color: theme.$tertiary-palette));
+  @include mat.theme-overrides((corner-full: 10px));
+  // font-weight: bold !important; // material Angular ecrase le style obligé de mettre !important
+}
+
+
+// changer en card ?? 
+.icone-card {
+  background-color: #a6d0f7 !important;
+  color: #00488b;
+  border-radius: 10px;
+  border: 1px solid #012f5a !important;
+  transition: 0.2s ease-in-out;
+  cursor: pointer;
+
+  // &:hover {
+  //   background-color: #6ab6fd;
+  //   transform: scale(1.1);
+  // }
+}
+
+p,
+label,
+h3 {
+  font-weight: 700;
+  color: #1f2937 // font-bold 
+
+}
+
+.card-text {
+  border: 1px solid var(--mat-sys-on-tertiary);
+  border-radius: 5px;
+  color: var(--mat-sys-on-tertiary);
+
+}
+
+.card-profil {
+  background-color: #66aadd !important;
+  color: #fff !important;
+}
+
+// Neutraliser les styles de base Material
+.card-profil.mat-mdc-card {
+  --mdc-elevated-card-container-color: transparent;
+  --mdc-outlined-card-outline-color: transparent;
+  --mdc-elevated-card-container-elevation: 0;
+}
+
+
+.title-page {
+  color: var(--mat-sys-surface-container-low);
+}
+
+.title-home {
+  color: var(--mat-sys-on-tertiary);
+}
+
+.mat-mdc-form-field {
+  --mdc-filled-text-field-container-color: rgba(196, 219, 248, 0.911); // fond léger
+  --mdc-filled-text-field-focus-active-indicator-color: #004f99;
+  --mdc-filled-text-field-input-text-color: #004f99;
+  --mdc-filled-text-field-label-text-color: #004f99(41, 41, 41, 0.8);
+  --mdc-filled-text-field-hover-active-indicator-color: var(--mat-sys-on-tertiary);
+}
+
+.mat-mdc-dialog-surface {
+  --mdc-dialog-container-color: #1785ec;
+  --mdc-dialog-subhead-color: #ffffff;
+  --mdc-dialog-supporting-text-color: #ffffff;
+  box-shadow: var(--mat-sys-level3);
+  border: 1px solid #00488b;
+}
+
+.cancel-button.mat-mdc-button-base {
+  --mdc-filled-button-container-color: var(--mat-sys-error);
+  --mdc-filled-button-label-text-color: var(--mat-sys-on-error);
+}
+
+.cancel-button.mat-mdc-button-base:hover {
+  --mdc-filled-button-container-color: color-mix(in srgb, var(--mat-sys-error) 85%, black);
+}
+
+
+.mat-mdc-dialog-actions button {
+  border: 1px solid #ffffff;
+  transition: all 0.2s ease;
+}
+
+.mat-mdc-radio-button {
+  --mdc-radio-selected-icon-color: rgba(50, 98, 156, 0.911);
+  --mdc-radio-unselected-icon-color: rgba(50, 98, 156, 0.911);
+}
+
+.mat-chip-open {
+  background-color: #16a34a !important;
+  color: #fff !important;
+}
+
+.mat-chip-closed {
+  background-color: #dc2626 !important;
+  color: #fff !important;
+}
+
+
+.mat-mdc-form-field .mdc-floating-label {
+  font-weight: 700 !important;
+  color: #374151 !important;
+}
+
+.mat-mdc-input-element {
+  font-weight: 700 !important;
+  color: #374151 !important;
+}
+
+.upload-box {
+  border: 2px dashed var(--mat-sys-outline);
+  color: var(--mat-sys-on-surface-variant);
+  transition: all 0.3s ease;
+  background-color: var(--mat-sys-surface-container-low);
+
+  // &:hover {
+  //   border-color: var(--mat-sys-primary);
+  //   color: var(--mat-sys-primary);
+  //   background-color: var(--mat-sys-surface-container);
+  // }
+}
+
+.mat-expansion-panel,
+.mat-expansion-panel-header {
+  border-radius: 0 !important;
+}
+

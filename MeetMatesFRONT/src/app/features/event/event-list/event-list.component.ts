@@ -10,6 +10,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatBadgeModule } from '@angular/material/badge';
 
 interface EventItem {
   id: string;
@@ -17,6 +18,8 @@ interface EventItem {
   description: string;
   eventDate: string;
   addressLabel: string;
+  startTime: string; 
+  endTime: string; 
   activityName: string;
   organizerName: string;
   level: string;
@@ -45,6 +48,7 @@ interface Activity {
     MatIconModule,
     MatChipsModule,
     MatProgressSpinnerModule,
+    MatBadgeModule
   ],
 })
 export class EventListComponent implements OnInit {

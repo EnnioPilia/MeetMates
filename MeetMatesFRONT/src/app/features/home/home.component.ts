@@ -20,7 +20,6 @@ export class HomeComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.signals.setPageTitle('Accueil');
   }
 
   navigateTo(path: string) {

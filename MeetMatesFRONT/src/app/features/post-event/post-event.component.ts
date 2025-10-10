@@ -15,6 +15,8 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { environment } from '../../../environments/environment';
 import { MatIconModule } from '@angular/material/icon';
 import { ChangeDetectorRef } from '@angular/core';
+import { MatTimepickerModule } from '@angular/material/timepicker';
+import { MatTimepickerToggle } from '@angular/material/timepicker';
 
 @Component({
   selector: 'app-post-event',
@@ -36,7 +38,9 @@ import { ChangeDetectorRef } from '@angular/core';
     MatButtonModule,
     MatCardModule,
     MatSnackBarModule,
-    MatIconModule
+    MatIconModule,
+    MatTimepickerModule,
+    MatTimepickerToggle
   ],
 })
 export class PostEventComponent implements OnInit {
@@ -78,8 +82,8 @@ export class PostEventComponent implements OnInit {
       titre: ['', Validators.required],
       description: ['', [Validators.required, Validators.minLength(1)]],
       date: ['', Validators.required],
-      heureDebut: ['', Validators.required],
-      heureFin: ['', Validators.required],
+      starTime: ['', Validators.required],
+      endTime: ['', Validators.required],
       participants: [1, [Validators.required, Validators.min(1)]],
       materiel: ['', Validators.required],
       niveau: ['', Validators.required],

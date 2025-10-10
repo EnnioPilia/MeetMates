@@ -1,8 +1,4 @@
-<div class="flex flex-col items-center justify-center min-h-[calc(215vh-10px)] px-8">
-
-    <mat-card-title class="title-home">
-        <h2 class="text-2xl mb-4">CRÉER UNE ACTIVITÉ</h2>
-    </mat-card-title>
+<div class="flex flex-col items-center justify-center min-h-[calc(210vh-10px)] px-8">
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col items-center">
 
@@ -28,7 +24,7 @@
 
         <mat-form-field class="w-80">
             <mat-label>Description</mat-label>
-            <textarea matInput rows="4" formControlName="description" placeholder="Décrivez votre activité..."
+            <textarea matInput rows="3" formControlName="description" placeholder="Décrivez votre activité..."
                 required></textarea>
             @if (form.get('description')?.invalid && form.get('description')?.touched) {
             <mat-error>Veuillez entrer une description.</mat-error>
@@ -42,18 +38,27 @@
             <mat-datepicker #picker1></mat-datepicker>
         </mat-form-field>
 
+        <div class="flex flex-col w-80">
+            <div class="flex gap-4">
+                <mat-form-field class="flex-1">
+                    <mat-label>Heure de début</mat-label>
+                    <input matInput type="time" formControlName="starTime" required>
+                </mat-form-field>
 
-        <div class="flex gap-4 w-80">
-            <mat-form-field class="flex-1">
-                <mat-label>Heure de début</mat-label>
-                <input matInput type="time" formControlName="heureDebut" required>
-            </mat-form-field>
+                <mat-form-field class="flex-1">
+                    <mat-label>Heure de fin</mat-label>
+                    <input matInput type="time" formControlName="endTime" required>
+                </mat-form-field>
+            </div>
 
-            <mat-form-field class="flex-1 ">
-                <mat-label>Heure de fin</mat-label>
-                <input matInput type="time" formControlName="heureFin" required>
-            </mat-form-field>
+            <mat-error *ngIf="(form.get('heureDebut')?.hasError('required') || form.get('endTime')?.hasError('required')) 
+           && (form.get('starTime')?.touched || form.get('endTime')?.touched)"class=" mt-[-15px] ">
+
+                Les heures de début et de fin sont obligatoires.
+            </mat-error>
         </div>
+
+
 
         <mat-radio-group class="w-80 mb-2" formControlName="materiel">
             <label class="block mb-2 text-gray-700 ">Matériel :</label>
@@ -103,10 +108,10 @@
         <div class="w-80 mt-2 flex flex-col items-start">
             <label class="block mb-2 items-center justify-center">Photo de l’activité :</label>
 
-            <mat-card class=" icone-card w-full h-48 justify-center items-center" *ngIf="!previewUrl">
+            <mat-card class=" photo-card w-full h-48 justify-center items-center" *ngIf="!previewUrl">
                 <input type="file" accept="image/*" (change)="onFileSelected($event)"
                     class="absolute inset-0 opacity-0 cursor-pointer z-10" />
-                <mat-icon >cloud_upload</mat-icon>
+                <mat-icon>cloud_upload</mat-icon>
                 <p class="text-sm mt-8">Cliquez ou glissez une image ici</p>
             </mat-card>
 
@@ -116,13 +121,13 @@
             </div>
         </div>
 
-        <button *ngIf="previewUrl" mat-flat-button class="cancel-button w-full mt-3 " (click)="removeImage()"
+        <button *ngIf="previewUrl" mat-flat-button class="primary-button-cancel  w-full mt-2 " (click)="removeImage()"
             type="button">
             Supprimer la photo
         </button>
 
 
-        <mat-card-actions class="flex flex-col items-center justify-center gap-4 mt-5 mb-4 w-80">
+        <mat-card-actions class="flex flex-col items-center justify-center gap-4 mt-8 mb-4 w-80">
             <button mat-flat-button color="primary" class="w-full primary-button" type="submit">
                 Créer l’activité
             </button>
