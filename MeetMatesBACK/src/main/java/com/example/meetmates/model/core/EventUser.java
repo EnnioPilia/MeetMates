@@ -52,6 +52,12 @@ public class EventUser {
         ORGANIZER, PARTICIPANT
     }
 
+    public enum ParticipationStatus { // ajouterrr !!!!!
+        PENDING,
+        ACCEPTED, 
+        REJECTED   
+    }
+
     // === GETTERS/SETTERS ===
     public UUID getId() {
         return id;

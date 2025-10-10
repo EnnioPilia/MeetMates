@@ -15,11 +15,11 @@ INSERT INTO category (category_id, name, image_url) VALUES
 -- Sports collectifs
 -- ================================
 INSERT INTO activity (activity_id, name, category_id, created_at) VALUES
-(UUID(), 'Football (five/citystade)', '10ad56ab-9d31-11f0-9a36-047c1653ad92', NOW()),
-(UUID(), 'Rugby touch / flag rugby', '10ad56ab-9d31-11f0-9a36-047c1653ad92', NOW()),
+(UUID(), 'Football', '10ad56ab-9d31-11f0-9a36-047c1653ad92', NOW()),
+(UUID(), 'Rugby touch', '10ad56ab-9d31-11f0-9a36-047c1653ad92', NOW()),
 (UUID(), 'Basketball', '10ad56ab-9d31-11f0-9a36-047c1653ad92', NOW()),
 (UUID(), 'Ultimate frisbee', '10ad56ab-9d31-11f0-9a36-047c1653ad92', NOW()),
-(UUID(), 'Volleyball (beachBall)', '10ad56ab-9d31-11f0-9a36-047c1653ad92', NOW());
+(UUID(), 'Volleyball', '10ad56ab-9d31-11f0-9a36-047c1653ad92', NOW());
 
 -- ================================
 -- Sports de raquette
@@ -72,10 +72,10 @@ INSERT INTO activity (activity_id, name, category_id, created_at) VALUES
 -- Jeux
 -- ================================
 INSERT INTO activity (activity_id, name, category_id, created_at) VALUES
-(UUID(), 'Jeux de carte (belote/tarot/poker)', '20ad5d49-9d31-11f0-9a36-047c1653ad92', NOW()),
-(UUID(), 'Jeux de rôle (Donjons & Dragons)', '20ad5d49-9d31-11f0-9a36-047c1653ad92', NOW()),
-(UUID(), 'Jeux de société (Monopoly/Cluedo/Trivial Pursuit/Uno)', '20ad5d49-9d31-11f0-9a36-047c1653ad92', NOW()),
-(UUID(), 'Jeux musicaux (Blind test musical/Karaoké)', '20ad5d49-9d31-11f0-9a36-047c1653ad92', NOW());
+(UUID(), 'Jeux de carte', '20ad5d49-9d31-11f0-9a36-047c1653ad92', NOW()),
+(UUID(), 'Jeux de rôle', '20ad5d49-9d31-11f0-9a36-047c1653ad92', NOW()),
+(UUID(), 'Jeux de société', '20ad5d49-9d31-11f0-9a36-047c1653ad92', NOW()),
+(UUID(), 'Jeux musicaux', '20ad5d49-9d31-11f0-9a36-047c1653ad92', NOW());
 
 -- ================================
 -- Autres activités
