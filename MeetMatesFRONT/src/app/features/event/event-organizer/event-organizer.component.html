@@ -11,58 +11,66 @@
             </p>
         </div>
 
-        <mat-tab-group class="w-full max-w-3xl mb-4" mat-align-tabs="start" animationDuration="300ms">
+<mat-tab-group class="w-full max-w-3xl mb-4" mat-align-tabs="start" animationDuration="300ms">
 
-            <mat-tab>
-                <ng-template mat-tab-label>
-                    <p>Acceptés</p>
-                </ng-template>
+  <!-- ✅ Onglet Acceptés -->
+  <mat-tab>
+    <ng-template mat-tab-label>
+      <p>Acceptés</p>
+    </ng-template>
 
-                <div class="p-4">
-                    @if (event.acceptedParticipants.length > 0) {
-                    <mat-accordion multi="true" class="flex flex-col gap-3">
-                        @for (p of event.acceptedParticipants; track p) {
-                        <mat-expansion-panel>
-                            <mat-expansion-panel-header>
-                                <mat-panel-title>{{ p }}</mat-panel-title>
-                            </mat-expansion-panel-header>
-                            <div class="p-3 text-sm">
-                                <p><strong>Statut :</strong> Accepté</p>
-                            </div>
-                        </mat-expansion-panel>
-                        }
-                    </mat-accordion>
-                    } @else {
-                    <p class="text-center text-gray-500 mt-4">Aucun participant accepté pour le moment.</p>
-                    }
-                </div>
-            </mat-tab>
-            <mat-tab>
-                <ng-template mat-tab-label>
-                    <p>En attente</p>
-                </ng-template>
+    <div class="p-4">
+      @if (event.acceptedParticipants && event.acceptedParticipants.length > 0) {
+        <div class="flex flex-col gap-4">
+          @for (p of event.acceptedParticipants; track p.id) {
+            <div class="flex justify-between items-center">
+              <span>{{ p.firstName }} {{ p.lastName }}</span>
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="text-center text-gray-500 mt-4">
+          Aucun participant accepté pour le moment.
+        </p>
+      }
+    </div>
+  </mat-tab>
 
-                <div class="p-4">
-                    @if (event.pendingParticipants.length > 0) {
-                    <mat-accordion multi="true" class="flex flex-col gap-3">
-                        @for (p of event.pendingParticipants; track p) {
-                        <mat-expansion-panel>
-                            <mat-expansion-panel-header>
-                                <mat-panel-title>{{ p }}</mat-panel-title>
-                            </mat-expansion-panel-header>
-                            <div class="p-3 text-sm">
-                                <p><strong>Statut :</strong>En attente de validation</p>
-                            </div>
-                        </mat-expansion-panel>
-                        }
-                    </mat-accordion>
-                    } @else {
-                    <p class="text-center text-gray-500 mt-4">Aucun participant en attente.</p>
-                    }
-                </div>
-            </mat-tab>
-        </mat-tab-group>
+  <!-- ✅ Onglet En attente -->
+  <mat-tab>
+    <ng-template mat-tab-label>
+      <p>En attente</p>
+    </ng-template>
 
+    <div class="p-4">
+      @if (event.pendingParticipants && event.pendingParticipants.length > 0) {
+        <div class="flex flex-col gap-2">
+          @for (p of event.pendingParticipants; track p.id) {
+            <div class="flex justify-between items-center">
+              <span>{{ p.firstName }} {{ p.lastName }}</span>
+
+              <div class="flex gap-1">
+                <button mat-icon-button color="primary" (click)="acceptParticipant(p.id)" aria-label="Accepter">
+                  <mat-icon>check_circle</mat-icon>
+                </button>
+                <button mat-icon-button color="warn" (click)="rejectParticipant(p.id)" aria-label="Refuser">
+                  <mat-icon>cancel</mat-icon>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="text-center text-gray-500 mt-4">
+          Aucun participant en attente.
+        </p>
+      }
+    </div>
+  </mat-tab>
+
+</mat-tab-group>
+
+      <mat-divider></mat-divider>
 
         <div class="flex flex-col w-full text-sm leading-relaxed gap-3">
             <p><strong>STATUS DE L'ACTIVITE :</strong> {{ event.status }}</p>

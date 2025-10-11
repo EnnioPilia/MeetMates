@@ -18,7 +18,7 @@ import { EventOrganizerComponent } from './features/event/event-organizer/event-
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
-  { path: 'home', component: HomeComponent, data: { title: 'ACCEUIL' } },
+  { path: 'home', component: HomeComponent, data: { title: 'ACCUEIL' } },
   { path: 'login', component: LoginComponent, data: { title: 'CONNEXION' } },
   { path: 'register', component: RegisterComponent, data: { title: 'INSCRIPTION' } },
   { path: 'verify', component: VerifyComponent, data: { title: 'Validation du compte' } },

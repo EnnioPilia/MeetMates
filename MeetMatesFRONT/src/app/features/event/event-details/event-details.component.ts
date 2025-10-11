@@ -9,23 +9,38 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-interface EventDetails {
+export interface EventUser {
+  id: string;
+  userId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+  participationStatus: string;
+  joinedAt?: string;
+}
+
+export interface EventDetails {
   id: string;
   title: string;
   description: string;
   eventDate: string;
+  startTime: string;
+  endTime: string;
   addressLabel: string;
-  startTime: string; 
-  endTime: string; 
   activityName: string;
   organizerName: string;
   level: string;
   material: string;
   status: string;
   maxParticipants: number;
-  participantNames: string[];
   imageUrl?: string;
+  participationStatus: string | null; // ✅ peut être null si pas connecté
+  acceptedParticipants: EventUser[];
+  pendingParticipants: EventUser[];
+  rejectedParticipants: EventUser[];
 }
+
 
 @Component({
   selector: 'app-event-details',
@@ -56,7 +71,7 @@ export class EventDetailsComponent implements OnInit {
       this.http.get<EventDetails>(`${this.baseUrl}/event/${eventId}`).subscribe({
         next: (data) => {
           this.event = data;
-            console.log('✅ Event details loaded:', data);
+          console.log('✅ Event details loaded:', data);
 
           this.loading = false;
         },
@@ -96,4 +111,19 @@ export class EventDetailsComponent implements OnInit {
       default: return material;
     }
   }
+getParticipationLabel(status: string | null): string {
+  switch (status) {
+    case 'ACCEPTED':
+      return 'Accepté';
+    case 'PENDING':
+      return 'En attente';
+    case 'REJECTED':
+      return 'Refusé';
+    case null:
+    case undefined:
+    default:
+      return 'Non inscrit';
+  }
+}
+
 }

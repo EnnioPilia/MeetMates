@@ -20,6 +20,23 @@ import { AuthService } from '../../core/services/auth/auth.service';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 
+export interface EventUserDTO {
+  id: string;
+  eventId: string;
+  eventTitle: string;
+  eventDescription: string;
+  eventDate: string;       
+  startTime: string;
+  endTime: string;
+  userId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+  participationStatus: string; 
+  joinedAt: string;
+}
+
 @Component({
   selector: 'app-profile',
   standalone: true,
@@ -171,5 +188,32 @@ export class ProfileComponent implements OnInit {
       default: return status;
     }
   }
+
+  getLevelLabel(level: string): string {
+    switch (level) {
+      case 'BEGINNER': return 'Débutant';
+      case 'INTERMEDIATE': return 'Intermédiaire';
+      case 'EXPERT': return 'Expert';
+      case 'ALL_LEVELS': return 'Tous niveaux';
+      default: return level;
+    }
+  }
+
+  getMaterialLabel(material: string): string {
+    switch (material) {
+      case 'YOUR_OWN': return 'Apporter votre matériel';
+      case 'PROVIDED': return 'Matériel fourni';
+      case 'NOT_REQUIRED': return 'Pas de matériel requis';
+      default: return material;
+    }
+  }
+  getParticipationLabel(status: string): string {
+  switch (status) {
+    case 'ACCEPTED': return 'Accepté';
+    case 'PENDING': return 'En attente';
+    case 'REJECTED': return 'Refusé';
+    default: return status;
+  }
+}
 
 }

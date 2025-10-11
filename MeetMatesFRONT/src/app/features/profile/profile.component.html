@@ -1,4 +1,4 @@
-<div class="flex fixed flex-col items-center justify-start min-h-screen px-5 py-5 mt-10">
+<div class="flex flex-col items-center justify-start min-h-screen px-10 py-5 mt-10">
 
   @if (loading) {
   <p class="text-gray-500 mt-6">Chargement du profil...</p>
@@ -6,7 +6,7 @@
   <p class="text-red-600 mt-6">{{ error }}</p>
   } @else {
 
-  <div class="flex justify-end w-full">
+  <div class="flex justify-end w-full ml-8">
     <button mat-icon-button [matMenuTriggerFor]="settingsMenu" aria-label="Ouvrir le menu paramètres">
       <mat-icon>settings</mat-icon>
     </button>
@@ -39,7 +39,7 @@
 
   </mat-card>
 
-  <mat-tab-group class="w-full max-w-4xl mt-6" [selectedIndex]="selectedIndex" (selectedTabChange)="onTabChange($event)"
+  <mat-tab-group class="w-full mt-6" [selectedIndex]="selectedIndex" (selectedTabChange)="onTabChange($event)"
     dynamicHeight animationDuration="300ms" mat-align-tabs="start">
 
     <mat-tab>
@@ -47,17 +47,17 @@
         <p>JE PARTICPIE</p>
       </ng-template>
 
-      <div class="p-6 max-h-[40vh] overflow-y-auto">
+      <div class="p-6 max-h-[40vh] overflow-y-auto ">
         @if (eventsParticipating.length === 0) {
         <p class="text-center mt-4">Vous ne participez à aucun événement pour le moment.</p>
         } @else {
         <mat-accordion multi="true" class="flex flex-col gap-4">
           @for (event of eventsParticipating; track event.id) {
 
-          <mat-expansion-panel class="p-1">
+          <mat-expansion-panel class="p-1 w-full">
             <mat-expansion-panel-header>
               <mat-panel-title>
-                <p>07/08/25</p>
+                <p>{{ event.eventDate | date: 'dd/MM/yyyy' }}</p>
               </mat-panel-title>
               <mat-panel-description>
                 <p>{{ event.eventTitle }}</p>
@@ -66,11 +66,11 @@
 
             <div class="flex flex-col gap-2">
               <p><strong>Status de l'activité:</strong> {{ event.eventStatus }}</p>
-              <p><strong>Votre participation :</strong> {{getStatusLabel(event.status) }}</p>
+              <p><strong>Votre participation :</strong> {{ getParticipationLabel(event.participationStatus) }}</p>
               <p><strong>Adresse :</strong> {{ event.addressLabel }}</p>
             </div>
 
-            
+
             <div class="flex justify-end">
               <button mat-flat-button class="primary-button-details p-2"
                 [routerLink]="['/event-details', event.eventId]">
@@ -90,17 +90,17 @@
         <p>J'ORGANISE</p>
       </ng-template>
 
-      <div class="p-6 max-h-[40vh] overflow-y-auto">
+      <div class="p-6 max-h-[40vh] overflow-y-auto ">
         @if (eventsOrganized.length === 0) {
         <p class="text-center mt-4">Vous n'organisez aucun événement actuellement.</p>
         } @else {
         <mat-accordion multi="true" class="flex flex-col gap-4">
           @for (event of eventsOrganized; track event.id) {
 
-          <mat-expansion-panel class="p-1">
+          <mat-expansion-panel class="p-1 w-full">
             <mat-expansion-panel-header>
               <mat-panel-title>
-                <p>07/08/25</p>
+                <p>{{ event.eventDate | date: 'dd/MM/yyyy' }}</p>
               </mat-panel-title>
               <mat-panel-description>
                 <p>{{ event.eventTitle }}</p>
@@ -108,9 +108,9 @@
             </mat-expansion-panel-header>
 
             <div class="flex flex-col gap-2">
-              <p><strong>Organisateur :</strong></p>
-              <p><strong>Identifiant :</strong> </p>
-              <p><strong>Participants :</strong></p>
+              <p><strong>Status de l'activité:</strong> {{ event.eventStatus }}</p>
+              <p><strong>Adresse :</strong> {{ event.addressLabel }}</p>
+              <p><strong>Activité : </strong> {{ event.activityName }}</p>
             </div>
             <div class="flex justify-end">
               <button mat-flat-button class="primary-button-details p-2"
