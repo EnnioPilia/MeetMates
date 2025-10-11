@@ -44,6 +44,10 @@ public class EventUser {
     @Column(nullable = false)
     private ParticipantRole role = ParticipantRole.PARTICIPANT;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "participation_status", nullable = false)
+    private ParticipationStatus participationStatus = ParticipationStatus.PENDING;
+
     @Column(name = "joined_at", nullable = false)
     private LocalDateTime joinedAt = LocalDateTime.now();
 
@@ -52,10 +56,10 @@ public class EventUser {
         ORGANIZER, PARTICIPANT
     }
 
-    public enum ParticipationStatus { // ajouterrr !!!!!
+    public enum ParticipationStatus {
         PENDING,
-        ACCEPTED, 
-        REJECTED   
+        ACCEPTED,
+        REJECTED
     }
 
     // === GETTERS/SETTERS ===
@@ -97,5 +101,13 @@ public class EventUser {
 
     public void setJoinedAt(LocalDateTime joinedAt) {
         this.joinedAt = joinedAt;
+    }
+
+    public ParticipationStatus getParticipationStatus() {
+        return participationStatus;
+    }
+
+    public void setParticipationStatus(ParticipationStatus participationStatus) {
+        this.participationStatus = participationStatus;
     }
 }

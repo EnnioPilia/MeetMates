@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.meetmates.dto.EventDetailsDTO;
 import com.example.meetmates.dto.EventRequest;
 import com.example.meetmates.dto.EventResponse;
 import com.example.meetmates.service.EventService;
@@ -42,11 +43,12 @@ public class EventController {
     }
 
     // ✅ Récupérer un événement par ID
-    @GetMapping("/{id}")
-    public ResponseEntity<EventResponse> getEventById(@PathVariable UUID id) {
-        EventResponse event = eventService.findResponseById(id);
-        return (event != null) ? ResponseEntity.ok(event) : ResponseEntity.notFound().build();
-    }
+@GetMapping("/{id}")
+public ResponseEntity<EventDetailsDTO> getEventById(@PathVariable UUID id) {
+    return ResponseEntity.ok(eventService.findEventDetailsById(id));
+}
+
+
 
     // ✅ Récupérer les événements d’une activité
     @GetMapping("/activity/{activityId}")

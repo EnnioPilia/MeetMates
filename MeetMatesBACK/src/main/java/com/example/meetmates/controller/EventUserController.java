@@ -7,7 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -47,9 +49,7 @@ public class EventUserController {
         return ResponseEntity.ok(EventUserDTO.from(eventUser));
     }
 
-    /**
-     * ❌ Quitter un événement (utilise l'utilisateur connecté)
-     */
+
     @DeleteMapping("/leave")
     public ResponseEntity<String> leaveEvent(@RequestParam UUID eventId, Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -64,9 +64,32 @@ public class EventUserController {
         return ResponseEntity.ok("Utilisateur retiré de l'événement");
     }
 
-    /**
-     * 📋 Récupérer les événements auxquels l'utilisateur connecté participe
-     */
+
+
+    @PutMapping("/{eventUserId}/accept")
+    public ResponseEntity<EventUserDTO> acceptParticipant(@PathVariable UUID eventUserId, Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).build();
+        }
+
+        EventUser eu = eventUserService.acceptParticipant(eventUserId);
+        return ResponseEntity.ok(EventUserDTO.from(eu));
+    }
+
+
+
+    @PutMapping("/{eventUserId}/reject")
+    public ResponseEntity<EventUserDTO> rejectParticipant(@PathVariable UUID eventUserId, Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).build();
+        }
+
+        EventUser eu = eventUserService.rejectParticipant(eventUserId);
+        return ResponseEntity.ok(EventUserDTO.from(eu));
+    }
+
+
+
     @GetMapping("/participating")
     public ResponseEntity<List<EventUserDTO>> getEventsParticipating(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -85,9 +108,8 @@ public class EventUserController {
         return ResponseEntity.ok(dtos);
     }
 
-    /**
-     * 🧑‍💼 Récupérer les événements organisés par l'utilisateur connecté
-     */
+
+
     @GetMapping("/organized")
     public ResponseEntity<List<EventUserDTO>> getEventsOrganized(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {

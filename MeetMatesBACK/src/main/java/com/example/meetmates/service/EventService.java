@@ -11,8 +11,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.meetmates.dto.EventDetailsDTO;
 import com.example.meetmates.dto.EventRequest;
 import com.example.meetmates.dto.EventResponse;
+import com.example.meetmates.dto.EventUserDTO;
 import com.example.meetmates.model.core.Address;
 import com.example.meetmates.model.core.Event;
 import com.example.meetmates.model.core.EventUser;
@@ -153,6 +155,7 @@ public class EventService {
         organizerLink.setEvent(savedEvent);
         organizerLink.setUser(organizer);
         organizerLink.setRole(EventUser.ParticipantRole.ORGANIZER);
+        organizerLink.setParticipationStatus(EventUser.ParticipationStatus.ACCEPTED);
         eventUserRepository.save(organizerLink);
 
         if (savedEvent.getParticipants() == null) {
@@ -202,4 +205,96 @@ public class EventService {
         eventRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
+    public EventDetailsDTO findEventDetailsById(UUID eventId) {
+        Event event = eventRepository.findByIdWithAllRelations(eventId)
+                .orElseThrow(() -> new RuntimeException("Événement introuvable avec l'id: " + eventId));
+
+        String organizerName = event.getParticipants().stream()
+                .filter(p -> p.getRole() == EventUser.ParticipantRole.ORGANIZER)
+                .findFirst()
+                .map(p -> p.getUser().getFirstName() + " " + p.getUser().getLastName())
+                .orElse("Inconnu");
+
+        List<EventUserDTO> accepted = event.getParticipants().stream()
+                .filter(p -> p.getParticipationStatus() == EventUser.ParticipationStatus.ACCEPTED)
+                .map(this::toEventUserDTO)
+                .toList();
+
+        List<EventUserDTO> pending = event.getParticipants().stream()
+                .filter(p -> p.getParticipationStatus() == EventUser.ParticipationStatus.PENDING)
+                .map(this::toEventUserDTO)
+                .toList();
+
+        List<EventUserDTO> rejected = event.getParticipants().stream()
+                .filter(p -> p.getParticipationStatus() == EventUser.ParticipationStatus.REJECTED)
+                .map(this::toEventUserDTO)
+                .toList();
+
+        String imageUrl = (event.getPictures() != null && !event.getPictures().isEmpty())
+                ? event.getPictures().stream()
+                        .filter(PictureEvent::isMain)
+                        .findFirst()
+                        .map(pe -> pe.getPicture().getUrl())
+                        .orElse(event.getPictures().get(0).getPicture().getUrl())
+                : null;
+
+        String participationStatus = null;
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) {
+            var currentUserOpt = userRepository.findByEmail(auth.getName());
+            if (currentUserOpt.isPresent()) {
+                var currentUser = currentUserOpt.get();
+                for (EventUser eu : event.getParticipants()) {
+                    if (eu.getUser() != null && currentUser.getId().equals(eu.getUser().getId())) {
+                        participationStatus = eu.getParticipationStatus().name();
+                        break;
+                    }
+                }
+            }
+        }
+
+        return new EventDetailsDTO(
+                event.getId(),
+                event.getTitle(),
+                event.getDescription(),
+                event.getEventDate().toString(),
+                event.getStartTime().toString(),
+                event.getEndTime().toString(),
+                event.getAddress() != null ? event.getAddress().getFullAddress() : null,
+                event.getActivity() != null ? event.getActivity().getName() : null,
+                organizerName,
+                event.getLevel().toString(),
+                event.getMaterial().toString(),
+                event.getStatus().toString(),
+                event.getMaxParticipants(),
+                imageUrl,
+                participationStatus,
+                accepted,
+                pending,
+                rejected
+        );
+    }
+
+    private EventUserDTO toEventUserDTO(EventUser eu) {
+        Event event = eu.getEvent();
+        var user = eu.getUser();
+
+        return new EventUserDTO(
+                eu.getId(),
+                event.getId(),
+                event.getTitle(),
+                event.getDescription(),
+                user.getId(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getEmail(),
+                eu.getRole().name(),
+                eu.getParticipationStatus().name(),
+                eu.getJoinedAt() != null ? eu.getJoinedAt().toString() : null,
+                event.getStatus().name(),
+                event.getEventDate().toString(),
+                event.getAddress() != null ? event.getAddress().getFullAddress() : null
+        );
+    }
 }
