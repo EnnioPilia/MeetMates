@@ -11,7 +11,7 @@
       <mat-icon>settings</mat-icon>
     </button>
 
-    <mat-menu #settingsMenu="matMenu" xPosition="before" yPosition="below">
+    <mat-menu class="menu-profile m-4" #settingsMenu="matMenu" xPosition="before" yPosition="below">
       <button mat-menu-item [routerLink]="['/profil']">
         <mat-icon>edit</mat-icon>
         <span>Modifier le profil</span>
@@ -47,7 +47,7 @@
         <p>JE PARTICPIE</p>
       </ng-template>
 
-      <div class="p-6 max-h-[40vh] overflow-y-auto ">
+      <div class="max-h-[35vh] overflow-y-auto p-4">
         @if (eventsParticipating.length === 0) {
         <p class="text-center mt-4">Vous ne participez à aucun événement pour le moment.</p>
         } @else {
@@ -65,7 +65,7 @@
             </mat-expansion-panel-header>
 
             <div class="flex flex-col gap-2">
-              <p><strong>Status de l'activité:</strong> {{ event.eventStatus }}</p>
+              <p><strong>Status de l'activité:</strong> {{ getStatusLabel(event.eventStatus) }}</p>
               <p><strong>Votre participation :</strong> {{ getParticipationLabel(event.participationStatus) }}</p>
               <p><strong>Adresse :</strong> {{ event.addressLabel }}</p>
             </div>
@@ -90,7 +90,7 @@
         <p>J'ORGANISE</p>
       </ng-template>
 
-      <div class="p-6 max-h-[40vh] overflow-y-auto ">
+      <div class="max-h-[35vh] overflow-y-auto p-4">
         @if (eventsOrganized.length === 0) {
         <p class="text-center mt-4">Vous n'organisez aucun événement actuellement.</p>
         } @else {
@@ -108,7 +108,7 @@
             </mat-expansion-panel-header>
 
             <div class="flex flex-col gap-2">
-              <p><strong>Status de l'activité:</strong> {{ event.eventStatus }}</p>
+              <p><strong>Status de l'activité:</strong> {{ getStatusLabel(event.eventStatus) }}</p>
               <p><strong>Adresse :</strong> {{ event.addressLabel }}</p>
               <p><strong>Activité : </strong> {{ event.activityName }}</p>
             </div>

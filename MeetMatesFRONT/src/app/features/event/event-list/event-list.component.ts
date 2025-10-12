@@ -11,29 +11,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatBadgeModule } from '@angular/material/badge';
-
-interface EventItem {
-  id: string;
-  title: string;
-  description: string;
-  eventDate: string;
-  addressLabel: string;
-  startTime: string; 
-  endTime: string; 
-  activityName: string;
-  organizerName: string;
-  level: string;
-  material: string;
-  status: string;
-  maxParticipants: number;
-  participantNames: string[];
-  imageUrl?: string;
-}
-
-interface Activity {
-  id: string;
-  name: string;
-}
+import { EventResponse } from '../../../core/models/event-response.model';
+import { Activity } from '../../../core/models/activity.model';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { NotificationService } from '../../../core/services/notification/notification.service';
+import { EventService } from '../../../core/services/event/event-service.service';
 
 @Component({
   selector: 'app-event-list',
@@ -48,21 +30,24 @@ interface Activity {
     MatIconModule,
     MatChipsModule,
     MatProgressSpinnerModule,
-    MatBadgeModule
+    MatBadgeModule,
+    MatSnackBarModule
   ],
 })
 export class EventListComponent implements OnInit {
-  loading = true;
-  events: EventItem[] = [];
-  activityName = 'Toutes les activités';
-  private baseUrl = environment.apiUrl;
 
+  private baseUrl = environment.apiUrl;
   private http = inject(HttpClient);
   private route = inject(ActivatedRoute);
   private signals = inject(SignalsService);
+  private notification = inject(NotificationService);
+  private eventService = inject(EventService);
+
+  loading = true;
+  events: EventResponse[] = [];
+  activityName = 'Toutes les activités';
 
   ngOnInit(): void {
-    // 🔹 Charger l'utilisateur connecté via le cookie
     this.http.get(`${this.baseUrl}/user/me`, { withCredentials: true }).subscribe({
       next: (user: any) => {
         console.log('Utilisateur connecté:', user);
@@ -86,11 +71,8 @@ export class EventListComponent implements OnInit {
   joinEvent(eventId: string): void {
     const user = this.signals.currentUser();
 
-    console.log('Join event payload:', { eventId, userId: user?.id });
-
-    // 🚫 Si pas connecté
     if (!user) {
-      alert('Vous devez être connecté pour participer à un événement.');
+      this.notification.showError('Vous devez être connecté pour participer à un événement.');
       return;
     }
 
@@ -99,23 +81,27 @@ export class EventListComponent implements OnInit {
       { eventId, userId: user.id },
       { withCredentials: true }
     ).subscribe({
-      next: (res) => {
-        console.log('Participation enregistrée :', res);
-        alert('Vous participez à cet événement 🎉');
+      next: () => {
+        this.notification.showSuccess('Vous avez envoyer une demande de participation ');
       },
       error: (err) => {
-        console.error('Erreur participation :', err);
-        if (err.status === 401) {
-          alert('Vous devez être connecté pour participer à un événement.');
+        console.error('❌ Erreur participation :', err);
+        if (err.status === 409) {
+          this.notification.showWarning('Vous participez déjà à cet événement.');
+        } else if (err.status === 410) {
+          this.notification.showError('Vous avez été retiré de cette activité.');
+        } else if (err.status === 401) {
+          this.notification.showError('Vous devez être connecté pour participer.');
         } else {
-          alert('Une erreur est survenue.');
+          this.notification.showError('Une erreur est survenue.');
         }
       },
     });
   }
 
   fetchAllEvents(): void {
-    this.http.get<EventItem[]>(`${this.baseUrl}/event`).subscribe({
+    this.loading = true;
+    this.eventService.fetchAllEvents().subscribe({
       next: (data) => {
         this.events = data;
         this.loading = false;
@@ -130,7 +116,7 @@ export class EventListComponent implements OnInit {
   }
 
   fetchEventsByActivity(activityId: string): void {
-    this.http.get<EventItem[]>(`${this.baseUrl}/event/activity/${activityId}`).subscribe({
+    this.http.get<EventResponse[]>(`${this.baseUrl}/event/activity/${activityId}`).subscribe({
       next: (data) => {
         this.events = data;
         this.loading = false;
@@ -170,36 +156,19 @@ export class EventListComponent implements OnInit {
     return (event?.status ?? '').toUpperCase() === 'OPEN';
   }
 
+  getStatusLabel(status: string): string {
+    return this.eventService.getStatusLabel(status);
+  }
+
   getLevelLabel(level: string): string {
-    switch (level) {
-      case 'BEGINNER': return 'Débutant';
-      case 'INTERMEDIATE': return 'Intermédiaire';
-      case 'EXPERT': return 'Expert';
-      case 'ALL_LEVELS': return 'Tous niveaux';
-      default: return level;
-    }
+    return this.eventService.getLevelLabel(level);
   }
 
   getMaterialLabel(material: string): string {
-    switch (material) {
-      case 'YOUR_OWN': return 'Apporter votre matériel';
-      case 'PROVIDED': return 'Matériel fourni';
-      case 'NOT_REQUIRED': return 'Pas de matériel requis';
-      default: return material;
-    }
+    return this.eventService.getMaterialLabel(material);
   }
 
-  getStatusLabel(status: string): string {
-    switch (status) {
-      case 'OPEN': return 'Ouvert';
-      case 'FULL': return 'Complet';
-      case 'CANCELLED': return 'Annulé';
-      case 'FINISHED': return 'Terminé';
-      default: return status;
-    }
+  getParticipationLabel(status: string | null | undefined): string {
+    return this.eventService.getParticipationLabel(status);
   }
-
-  // navigateTo(eventId: string): void {
-  //   this.router.navigate(['/event-details', eventId]);
-  // }
 }

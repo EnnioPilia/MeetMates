@@ -4,7 +4,7 @@ export interface User {
   firstName: string;
   email: string;
   role: string;       
-  enabled: boolean; //changer en bloquer (corriger le back aussi)
+  enabled: boolean; 
   age?: number;
   dateCreation: string;   
   dateAcceptationCGU?: string;

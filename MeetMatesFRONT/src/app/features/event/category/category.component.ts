@@ -11,20 +11,20 @@ interface Category {
   name: string;
   imageUrl?: string;
   activities?: any[];
-  icon?: string;  
+  icon?: string;
 }
 
 @Component({
   selector: 'app-category',
   standalone: true,
-  imports: [MatCardModule, MatIconModule,NgFor],
+  imports: [MatCardModule, MatIconModule, NgFor],
   templateUrl: './category.component.html',
   styleUrls: ['./category.component.scss']
 })
 export class CategoryComponent implements OnInit {
 
   categories: Category[] = [];
- 
+
   private readonly baseUrl = environment.apiUrl.replace(/\/+$/, '') + '/category';
 
   constructor(private http: HttpClient, private router: Router) { }
@@ -48,7 +48,6 @@ export class CategoryComponent implements OnInit {
       console.error('Category ID is undefined!');
       return;
     }
-    console.log('Navigating to categoryId:', categoryId);
     this.router.navigate([`/activity/${categoryId}`]);
   }
 }

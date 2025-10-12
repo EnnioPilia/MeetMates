@@ -19,23 +19,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
-
-export interface EventUserDTO {
-  id: string;
-  eventId: string;
-  eventTitle: string;
-  eventDescription: string;
-  eventDate: string;       
-  startTime: string;
-  endTime: string;
-  userId: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: string;
-  participationStatus: string; 
-  joinedAt: string;
-}
+import { EventService } from '../../core/services/event/event-service.service';
 
 @Component({
   selector: 'app-profile',
@@ -61,20 +45,20 @@ export interface EventUserDTO {
 })
 export class ProfileComponent implements OnInit {
 
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private dialog = inject(MatDialog);
+  private eventService = inject(EventService);
+  private baseUrl = environment.apiUrl;
+
   profileForm: FormGroup;
   user: User | null = null;
   loading = false;
   error: string | null = null;
-
   selectedIndex = 0;
   eventsParticipating: any[] = [];
   eventsOrganized: any[] = [];
 
-  private authService = inject(AuthService);
-  private router = inject(Router);
-  private dialog = inject(MatDialog);
-
-  private baseUrl = environment.apiUrl;
 
   constructor(
     private fb: FormBuilder,
@@ -118,7 +102,6 @@ export class ProfileComponent implements OnInit {
           email: data.email
         });
 
-        // Charger les événements après récupération du user
         this.fetchEvents();
         this.loading = false;
       },
@@ -130,31 +113,53 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-
   fetchEvents(): void {
     if (!this.user) return;
 
-    // Événements auxquels il participe
     this.http.get<any[]>(`${this.baseUrl}/event-user/participating`, { withCredentials: true })
       .subscribe({
         next: (data) => {
           console.log('✅ Participating events:', data);
           this.eventsParticipating = data;
+
+          this.eventsParticipating.forEach((eventUser, index) => {
+            this.http.get(`${this.baseUrl}/event/${eventUser.eventId}`, { withCredentials: true })
+              .subscribe({
+                next: (fullEvent) => {
+                  this.eventsParticipating[index] = {
+                    ...eventUser,
+                    ...fullEvent
+                  };
+                },
+                error: (err) => console.error('Erreur chargement détails événement:', err)
+              });
+          });
         },
         error: (err) => console.error('Erreur chargement événements participant :', err)
       });
 
-    // Événements organisés
     this.http.get<any[]>(`${this.baseUrl}/event-user/organized`, { withCredentials: true })
       .subscribe({
         next: (data) => {
           console.log('✅ Organized events:', data);
           this.eventsOrganized = data;
+
+          this.eventsOrganized.forEach((eventUser, index) => {
+            this.http.get(`${this.baseUrl}/event/${eventUser.eventId}`, { withCredentials: true })
+              .subscribe({
+                next: (fullEvent) => {
+                  this.eventsOrganized[index] = {
+                    ...eventUser,
+                    ...fullEvent
+                  };
+                },
+                error: (err) => console.error('Erreur chargement détails événement organisé:', err)
+              });
+          });
         },
         error: (err) => console.error('Erreur chargement événements organisés :', err)
       });
   }
-
 
   onTabChange(event: any): void {
     this.selectedIndex = event.index;
@@ -180,40 +185,10 @@ export class ProfileComponent implements OnInit {
   }
 
   getStatusLabel(status: string): string {
-    switch (status) {
-      case 'OPEN': return 'Ouvert';
-      case 'FULL': return 'Complet';
-      case 'CANCELLED': return 'Annulé';
-      case 'FINISHED': return 'Terminé';
-      default: return status;
-    }
+    return this.eventService.getStatusLabel(status);
   }
 
-  getLevelLabel(level: string): string {
-    switch (level) {
-      case 'BEGINNER': return 'Débutant';
-      case 'INTERMEDIATE': return 'Intermédiaire';
-      case 'EXPERT': return 'Expert';
-      case 'ALL_LEVELS': return 'Tous niveaux';
-      default: return level;
-    }
+  getParticipationLabel(status: string | null | undefined): string {
+    return this.eventService.getParticipationLabel(status);
   }
-
-  getMaterialLabel(material: string): string {
-    switch (material) {
-      case 'YOUR_OWN': return 'Apporter votre matériel';
-      case 'PROVIDED': return 'Matériel fourni';
-      case 'NOT_REQUIRED': return 'Pas de matériel requis';
-      default: return material;
-    }
-  }
-  getParticipationLabel(status: string): string {
-  switch (status) {
-    case 'ACCEPTED': return 'Accepté';
-    case 'PENDING': return 'En attente';
-    case 'REJECTED': return 'Refusé';
-    default: return status;
-  }
-}
-
 }

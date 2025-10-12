@@ -5,14 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { NgFor } from '@angular/common';
 import { environment } from '../../../../environments/environment';
-
-export interface Activity {
-  id: string;
-  name: string;
-  categoryId?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
+import { Activity } from '../../../core/models/activity.model';
 
 @Component({
   selector: 'app-activity',

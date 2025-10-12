@@ -29,7 +29,7 @@ export class HomeComponent implements OnInit {
     this.authService.logout().subscribe({
       next: () => {
         console.log("Utilisateur déconnecté");
-        this.router.navigate(['/login']); // redirige vers la page de login
+        this.router.navigate(['/login']); 
       },
       error: err => {
         console.error("Erreur lors de la déconnexion", err);

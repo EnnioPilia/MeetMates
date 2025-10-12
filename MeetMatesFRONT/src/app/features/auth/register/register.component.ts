@@ -93,6 +93,7 @@ onSubmit(): void {
       }
     });
   }
+  
   navigateTo(path: string): void {
     this.router.navigate([`/${path}`]);
   }

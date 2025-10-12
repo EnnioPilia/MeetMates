@@ -30,7 +30,7 @@
         <p><strong>NOMBRE DE PARTICIPANT :</strong> {{ event.maxParticipants }}</p>
       </div>
 
-      <mat-card-actions class="flex justify-center w-full mt-5">
+      <mat-card-actions class="flex justify-center w-full mt-2">
         <button mat-flat-button color="primary" class="w-80 primary-button"
           [disabled]="event.status.toUpperCase() !== 'OPEN'" (click)="joinEvent(event.id)">
           P A R T I C I P E R
