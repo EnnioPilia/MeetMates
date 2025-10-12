@@ -1,54 +1,41 @@
-<div class="flex flex-col items-center justify-center min-h-[calc(90vh-10px)] px-8">
+<div class="flex flex-col items-center justify-center min-h-[calc(80vh-10px)]">
 
-  <!-- <mat-card-title class="title-home mb-3">
-    <h2 class="text-4xl mb-3">CONNEXION</h2>
-  </mat-card-title> -->
 
-  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col items-center">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col items-center mt-8">
+  <app-back-button class="mb-5" fallbackRoute="/"></app-back-button>
 
-    <!-- Email -->
     <mat-form-field class="w-80">
       <mat-label>Email</mat-label>
       <input matInput formControlName="email" required>
       @if (form.get('email')?.hasError('required') && (form.get('email')?.touched || form.get('email')?.dirty)) {
-        <mat-error>Entrez votre adresse email.</mat-error>
+      <mat-error>Entrez votre adresse email.</mat-error>
       }
       @if (form.get('email')?.hasError('email') && !form.get('email')?.hasError('required')) {
-        <mat-error>Adresse email invalide.</mat-error>
+      <mat-error>Adresse email invalide.</mat-error>
       }
     </mat-form-field>
 
-    <!-- Mot de passe -->
     <mat-form-field class="w-80 mb-4">
       <mat-label>Mot de passe</mat-label>
       <input matInput type="password" formControlName="password" required>
-      @if (form.get('password')?.hasError('required') && (form.get('password')?.touched || form.get('password')?.dirty)) {
-        <mat-error>Entrez votre mot de passe.</mat-error>
+      @if (form.get('password')?.hasError('required') && (form.get('password')?.touched || form.get('password')?.dirty))
+      {
+      <mat-error>Entrez votre mot de passe.</mat-error>
       }
       @if (form.get('password')?.hasError('minlength') && !form.get('password')?.hasError('required')) {
-        <mat-error>Minimum 6 caractères.</mat-error>
+      <mat-error>Minimum 6 caractères.</mat-error>
       }
     </mat-form-field>
 
- 
-    <!-- Boutons -->
+
     <mat-card-actions class="flex flex-col items-center justify-center gap-4 mt-8 w-80">
-      <button
-        mat-flat-button
-        class="primary-button w-80"
-        type="submit"
-        [disabled]="isSubmitting">
+      <button mat-flat-button class="primary-button w-80" type="submit" [disabled]="isSubmitting">
         Se connecter
       </button>
 
-      <button
-        mat-flat-button
-        class="secondary-button w-80"
-        type="button"
-        (click)="navigateTo('forgot-password')">
+      <button mat-flat-button class="secondary-button w-80" type="button" (click)="navigateTo('forgot-password')">
         Mot de passe oulié
       </button>
     </mat-card-actions>
-
   </form>
 </div>

@@ -15,7 +15,8 @@ interface PasswordResetDto {
 }
 
 export interface RegisterRequest {
-  name: string;
+  lastName: string;
+  firstName: string;
   email: string;
   password: string;
   age?: number;
@@ -93,8 +94,9 @@ export class AuthService {
       { withCredentials: true }
     );
   }
+
   getCurrentUser() {
-  return this.http.get(`${this.baseUrl}/user/me`, { withCredentials: true });
-}
+    return this.http.get(`${this.baseUrl}/user/me`, { withCredentials: true });
+  }
 
 }

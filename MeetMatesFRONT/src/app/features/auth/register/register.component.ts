@@ -1,99 +1,73 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService, RegisterRequest } from '../../../core/services/auth/auth.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { CommonModule } from '@angular/common';
+import { NotificationService } from '../../../core/services/notification/notification.service';
+import { AuthService } from '../../../core/services/auth/auth.service';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatCardModule } from '@angular/material/card';
+import { BackButtonComponent } from '../../../shared/components-material-angular/back-button/back-button.component'; // ✅ ici
 
 @Component({
   selector: 'app-register',
   standalone: true,
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatCardModule,
     MatFormFieldModule,
+    ReactiveFormsModule,
     MatInputModule,
     MatButtonModule,
-    MatSnackBarModule
+    MatCardModule,
+    BackButtonComponent
   ]
 })
+
 export class RegisterComponent {
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private notification = inject(NotificationService);
+  private fb = inject(FormBuilder);
 
-  form: FormGroup;
   isSubmitting = false;
-  formSubmitted = false; // 🟡 Pour savoir si l’utilisateur a cliqué sur “S’inscrire”
 
-  constructor(
-    private fb: FormBuilder,
-    private authService: AuthService,
-    private router: Router,
-    private snackBar: MatSnackBar
-  ) {
-    this.form = this.fb.group({
-      name: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
-    });
-  }
+  form: FormGroup = this.fb.group({
+    firstName: ['', [Validators.required]],
+    lastName: ['', [Validators.required]],
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(6)]],
+  });
 
-
-
-onSubmit(): void {
-  this.formSubmitted = true;
-
-  if (this.form.invalid) {
-    this.snackBar.open(
-      'Veuillez remplir correctement tous les champs avant de continuer.',
-      'Fermer',
-      {
-        duration: 4000,
-        horizontalPosition: 'center',
-        verticalPosition: 'top',
-        panelClass: ['snack-error'],
-      }
-    );
-    return;
-  }
-
-    const { name, email, password } = this.form.value;
-    const request: RegisterRequest = {
-      name: name.trim(),
-      email: email.trim().toLowerCase(),
-      password,
-      role: 'USER'
-    };
+  onSubmit(): void {
+    if (this.form.invalid) {
+      this.notification.showWarning('Veuillez remplir tous les champs correctement.');
+      return;
+    }
 
     this.isSubmitting = true;
+
+    const request = this.form.value;
 
     this.authService.register(request).subscribe({
       next: () => {
         this.isSubmitting = false;
-        this.snackBar.open('✅ Inscription réussie ! Vérifiez votre email.', 'Fermer', {
-          panelClass: ['snack-success'],
-          duration: 4000,
-        });
+        this.notification.showSuccess('✅ Inscription réussie ! Vérifiez votre email.');
         this.router.navigate(['/login']);
       },
       error: (err) => {
         this.isSubmitting = false;
         console.error('[Auth] Erreur inscription :', err);
-        this.snackBar.open(err.message || "❌ Erreur lors de l'inscription.", 'Fermer', {
-          duration: 4000,
-          panelClass: ['snack-error']
-        });
-      }
+
+        if (err.status === 409) {
+          this.notification.showWarning('Cet email est déjà utilisé.');
+        } else {
+          this.notification.showError(err.error?.message || "❌ Erreur lors de l'inscription.");
+        }
+      },
     });
   }
-  
+
   navigateTo(path: string): void {
     this.router.navigate([`/${path}`]);
   }

@@ -112,7 +112,6 @@ h3 {
 
 }
 
-
 // Neutraliser les styles de base Material
 .card-profil.mat-mdc-card {
   --mdc-elevated-card-container-color: transparent;
@@ -151,6 +150,7 @@ h3 {
   --mdc-dialog-subhead-color: #000000;
   --mdc-dialog-supporting-text-color: #ffffff;
   box-shadow: var(--mat-sys-level3);
+
 
 }
 

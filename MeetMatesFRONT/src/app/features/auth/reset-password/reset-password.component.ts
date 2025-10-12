@@ -1,14 +1,14 @@
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { finalize } from 'rxjs/operators';
+import { NotificationService } from '../../../core/services/notification/notification.service';
 
 @Component({
   selector: 'app-reset-password',
@@ -23,23 +23,22 @@ import { finalize } from 'rxjs/operators';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    MatSnackBarModule,
   ]
 })
 export class ResetPasswordComponent {
+  private fb = inject(FormBuilder);
+  private authService = inject(AuthService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private notification = inject(NotificationService);
+  private cdr = inject(ChangeDetectorRef);
+
   form: FormGroup;
   isSubmitting = false;
   formSubmitted = false;
   token: string | null = null;
 
-  constructor(
-    private fb: FormBuilder,
-    private authService: AuthService,
-    private route: ActivatedRoute,
-    private router: Router,
-    private snackBar: MatSnackBar,
-    private cdr: ChangeDetectorRef
-  ) {
+  constructor() {
     this.form = this.fb.group({
       newPassword: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]],
@@ -54,16 +53,7 @@ export class ResetPasswordComponent {
     this.formSubmitted = true;
 
     if (this.form.invalid) {
-      this.snackBar.open(
-        'Veuillez remplir correctement tous les champs avant de continuer.',
-        'Fermer',
-        {
-          duration: 4000,
-          horizontalPosition: 'center',
-          verticalPosition: 'top',
-          panelClass: ['snack-error'],
-        }
-      );
+      this.notification.showError('Veuillez remplir correctement tous les champs avant de continuer.');
       this.isSubmitting = false;
       return;
     }
@@ -71,22 +61,12 @@ export class ResetPasswordComponent {
     const { newPassword, confirmPassword } = this.form.value;
 
     if (newPassword !== confirmPassword) {
-      this.snackBar.open('Les mots de passe ne correspondent pas.', 'Fermer', {
-        duration: 4000,
-        horizontalPosition: 'center',
-        verticalPosition: 'top',
-        panelClass: ['snack-error'],
-      });
+      this.notification.showError('Les mots de passe ne correspondent pas.');
       return;
     }
 
     if (!this.token) {
-      this.snackBar.open('Lien de réinitialisation invalide ou expiré.', 'Fermer', {
-        duration: 4000,
-        horizontalPosition: 'center',
-        verticalPosition: 'top',
-        panelClass: ['snack-error'],
-      });
+      this.notification.showError('Lien de réinitialisation invalide ou expiré.');
       return;
     }
 
@@ -102,27 +82,12 @@ export class ResetPasswordComponent {
       )
       .subscribe({
         next: () => {
-          this.snackBar.open('✅ Mot de passe réinitialisé avec succès !', 'Fermer', {
-            duration: 4000,
-            horizontalPosition: 'center',
-            verticalPosition: 'top',
-            panelClass: ['snack-success'],
-          });
+          this.notification.showSuccess('✅ Mot de passe réinitialisé avec succès !');
           this.router.navigate(['/login']);
         },
         error: (err) => {
-          this.isSubmitting = false;
           console.error('[Auth] Erreur reset password :', err);
-          this.snackBar.open(
-            err?.message || '❌ Erreur lors de la réinitialisation du mot de passe.',
-            'Fermer',
-            {
-              duration: 4000,
-              horizontalPosition: 'center',
-              verticalPosition: 'top',
-              panelClass: ['snack-error'],
-            }
-          );
+          this.notification.showError(err?.message || '❌ Erreur lors de la réinitialisation du mot de passe.');
         },
       });
   }

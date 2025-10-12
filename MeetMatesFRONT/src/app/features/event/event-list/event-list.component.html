@@ -1,4 +1,4 @@
-<div class="flex flex-col items-center justify-start min-h-screen px-7 py-10 mt-4">
+<div class="flex flex-col items-center justify-start min-h-screen px-7 py-10 mt-1">
   @if (loading) {
   <div class="flex justify-center items-center h-[50vh]">
     <mat-spinner diameter="50"></mat-spinner>
@@ -8,7 +8,10 @@
   <div class="flex flex-col items-center gap-10 w-full max-w-3xl">
     @for (event of events; track event.id) {
 
-    <mat-card class="acitivity-card w-full flex flex-col items-end p-6 "> <!--mettre dans le scss? -->
+    <mat-card class="acitivity-card w-full flex flex-col items-center p-4 ">
+
+      <app-back-button class="mb-1" fallbackRoute="/"></app-back-button>
+
       <div class="text-center w-full">
         <h3 class="text-xl font-semibold mb-2">{{ event.title }}</h3>
         <p class="text-sm leading-relaxed max-h-20 overflow-y-auto">
@@ -23,7 +26,7 @@
         <p><strong>STATUS DE L'ACTIVITE :</strong> {{ getStatusLabel(event.status) }}</p>
         <p><strong>ACITIVITE :</strong> {{ event.activityName }}</p>
         <p><strong>DATE :</strong> {{ event.eventDate | date:'mediumDate' }}</p>
-        <p><strong>HORAIRE :</strong> {{ event.startTime }} - {{ event.endTime }}</p>
+      <p><strong>HORAIRE :</strong> {{ event.startTime }} - {{ event.endTime }}</p>
         <p><strong>ADRESSE :</strong> {{ event.addressLabel }}</p>
         <p><strong>NIVEAU :</strong> {{ getLevelLabel(event.level) }}</p>
         <p><strong>MATERIAL :</strong> {{ getMaterialLabel(event.material) }}</p>
@@ -43,6 +46,7 @@
   }
   @else {
   <div class="flex flex-col items-center justify-center h-[50vh]">
+    <app-back-button class="" fallbackRoute="/"></app-back-button>
     <p class="card-text mt-4 mb-4 ml-2 mr-2 p-8 text-center">AUCUNE ACITIVITE DISPONIBLE <br> <br> Soyez le
       premier à postuler un evenement pour cette activité</p>
   </div>

@@ -5,6 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { NgFor } from '@angular/common';
 import { environment } from '../../../../environments/environment';
+import { BackButtonComponent } from '../../../shared/components-material-angular/back-button/back-button.component'; 
 
 interface Category {
   categoryId: string;
@@ -17,7 +18,7 @@ interface Category {
 @Component({
   selector: 'app-category',
   standalone: true,
-  imports: [MatCardModule, MatIconModule, NgFor],
+  imports: [MatCardModule, MatIconModule, NgFor,BackButtonComponent],
   templateUrl: './category.component.html',
   styleUrls: ['./category.component.scss']
 })

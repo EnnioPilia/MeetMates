@@ -1,15 +1,16 @@
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '../../../core/services/auth/auth.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { finalize } from 'rxjs/operators';
+import { AuthService } from '../../../core/services/auth/auth.service';
+import { NotificationService } from '../../../core/services/notification/notification.service';
+
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { finalize } from 'rxjs/operators';
+import { BackButtonComponent } from '../../../shared/components-material-angular/back-button/back-button.component'; 
 
 @Component({
   selector: 'app-login',
@@ -24,68 +25,58 @@ import { finalize } from 'rxjs/operators';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    MatSnackBarModule,
-    
+    BackButtonComponent
   ]
 })
 export class LoginComponent {
-  form: FormGroup;
+  private fb = inject(FormBuilder);
+  private authService = inject(AuthService);
+  private notification = inject(NotificationService);
+  private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
+
   isSubmitting = false;
   formSubmitted = false;
 
-  constructor(
-    private fb: FormBuilder,
-    private authService: AuthService,
-    private router: Router,
-    private snackBar: MatSnackBar,
-      private cdr: ChangeDetectorRef // ✅ Ajout
+  form: FormGroup = this.fb.group({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(6)]],
+  });
 
-  ) {
-    this.form = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
-    });
-  }
+  onSubmit(): void {
+    this.formSubmitted = true;
 
-onSubmit(): void {
-  this.formSubmitted = true;
+    if (this.form.invalid) {
+      this.notification.showWarning('Veuillez remplir correctement tous les champs avant de continuer.');
+      return;
+    }
 
-  if (this.form.invalid) {
-    this.snackBar.open(
-      'Veuillez remplir correctement tous les champs avant de continuer.',
-      'Fermer',
-      {
-        duration: 4000,
-        horizontalPosition: 'center',
-        verticalPosition: 'top',
-        panelClass: ['snack-error'],
-      }
-    );
-    this.isSubmitting = false;
-    return;
-  }
+    const { email, password } = this.form.value;
 
-  const { email, password } = this.form.value;
-  this.isSubmitting = true;
+    this.isSubmitting = true;
 
-    this.authService.login({ email: email.trim().toLowerCase(), password }).subscribe({
-      next: (res) => {
-        this.isSubmitting = false;
-        this.snackBar.open('✅ Connexion réussie !', 'Fermer', {
-          panelClass: ['snack-success'],
-          duration: 2000,
-        });
-        this.router.navigate(['/home']);
-      },
-      error: (err) => {
-        this.isSubmitting = false; // ✅ toujours libérer ici aussi
-        console.error('[Auth] Erreur connexion :', err);
-        this.snackBar.open(err.message || '❌ Échec de la connexion.', 'Fermer', {
-          duration: 4000,
-          panelClass: ['snack-error']
-        });
-      }
-    });
+    this.authService
+      .login({
+        email: email.trim().toLowerCase(),
+        password,
+      })
+      .pipe(finalize(() => (this.isSubmitting = false)))
+      .subscribe({
+        next: () => {
+          this.notification.showSuccess('✅ Connexion réussie !');
+          this.router.navigate(['/home']);
+          this.cdr.markForCheck();
+        },
+        error: (err) => {
+          console.error('[Auth] Erreur connexion :', err);
+          if (err.status === 401) {
+            this.notification.showError('Identifiants incorrects.');
+          } else {
+            this.notification.showError(err.error?.message || '❌ Échec de la connexion.');
+          }
+          this.cdr.markForCheck();
+        },
+      });
   }
 
   navigateTo(path: string): void {

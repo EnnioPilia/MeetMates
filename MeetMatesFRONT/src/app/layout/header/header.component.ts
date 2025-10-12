@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth/auth.service';
-import { ConfirmDialogComponent } from '../../shared/components-material-angular/Snackbar/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../shared/components-material-angular/snackbar/confirm-dialog.component';
 
 @Component({
   selector: 'app-header',

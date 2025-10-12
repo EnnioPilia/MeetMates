@@ -16,6 +16,7 @@ import { Activity } from '../../../core/models/activity.model';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NotificationService } from '../../../core/services/notification/notification.service';
 import { EventService } from '../../../core/services/event/event-service.service';
+import { BackButtonComponent } from '../../../shared/components-material-angular/back-button/back-button.component'; 
 
 @Component({
   selector: 'app-event-list',
@@ -31,7 +32,8 @@ import { EventService } from '../../../core/services/event/event-service.service
     MatChipsModule,
     MatProgressSpinnerModule,
     MatBadgeModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    BackButtonComponent
   ],
 })
 export class EventListComponent implements OnInit {

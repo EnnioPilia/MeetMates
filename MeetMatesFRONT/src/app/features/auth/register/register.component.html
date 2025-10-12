@@ -1,17 +1,23 @@
 <div class="flex flex-col items-center justify-center min-h-[calc(100vh-10px)] px-8">
 
-  <!-- <mat-card-title class="title-home">
-    <h2 class="text-4xl mb-3">INSCRIPTION</h2>
-  </mat-card-title> -->
+  <app-back-button class="mb-2" fallbackRoute="/"></app-back-button>
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col items-center">
 
     <!-- Nom -->
     <mat-form-field class="w-80">
       <mat-label>Nom</mat-label>
-      <input matInput formControlName="name" required>
-      @if (form.get('name')?.invalid && (form.get('name')?.touched || form.get('name')?.dirty)) {
+      <input matInput formControlName="lastName" required>
+      @if (form.get('lastName')?.invalid && (form.get('lastName')?.touched || form.get('lastName')?.dirty)) {
       <mat-error>Entrez votre nom.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field class="w-80">
+      <mat-label>Prenom</mat-label>
+      <input matInput formControlName="firstName" required>
+      @if (form.get('firstName')?.invalid && (form.get('firstName')?.touched || form.get('firstName')?.dirty)) {
+      <mat-error>Entrez votre prenom.</mat-error>
       }
     </mat-form-field>
 
@@ -42,7 +48,6 @@
 
 
 
-    <!-- Boutons -->
     <mat-card-actions class="flex flex-col items-center justify-center gap-4 mt-6 w-80" >
       <button mat-flat-button color="primary" class="w-full primary-button" type="submit" [disabled]="isSubmitting">
         S’inscrire
@@ -52,7 +57,6 @@
         Déjà un compte ?
       </button>
     </mat-card-actions>
-    <!-- Message global d'erreur -->
 
   </form>
 </div>

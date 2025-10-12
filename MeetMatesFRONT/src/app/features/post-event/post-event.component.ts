@@ -65,6 +65,8 @@ export class PostEventComponent implements OnInit {
     { label: 'Tous niveaux', value: 'ALL_LEVELS' },
   ];
 
+
+  // refacto inject !!!!!
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
