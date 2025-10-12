@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,7 +35,6 @@ public class EventUserController {
         this.userRepository = userRepository;
     }
 
-
     @PostMapping("/join")
     public ResponseEntity<EventUserDTO> joinEvent(@RequestBody JoinEventRequest request, Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -48,7 +48,6 @@ public class EventUserController {
         EventUser eventUser = eventUserService.joinEvent(request.eventId(), currentUser.getId());
         return ResponseEntity.ok(EventUserDTO.from(eventUser));
     }
-
 
     @DeleteMapping("/leave")
     public ResponseEntity<String> leaveEvent(@RequestParam UUID eventId, Authentication authentication) {
@@ -64,8 +63,6 @@ public class EventUserController {
         return ResponseEntity.ok("Utilisateur retiré de l'événement");
     }
 
-
-
     @PutMapping("/{eventUserId}/accept")
     public ResponseEntity<EventUserDTO> acceptParticipant(@PathVariable UUID eventUserId, Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -76,8 +73,6 @@ public class EventUserController {
         return ResponseEntity.ok(EventUserDTO.from(eu));
     }
 
-
-
     @PutMapping("/{eventUserId}/reject")
     public ResponseEntity<EventUserDTO> rejectParticipant(@PathVariable UUID eventUserId, Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -87,8 +82,6 @@ public class EventUserController {
         EventUser eu = eventUserService.rejectParticipant(eventUserId);
         return ResponseEntity.ok(EventUserDTO.from(eu));
     }
-
-
 
     @GetMapping("/participating")
     public ResponseEntity<List<EventUserDTO>> getEventsParticipating(Authentication authentication) {
@@ -108,8 +101,6 @@ public class EventUserController {
         return ResponseEntity.ok(dtos);
     }
 
-
-
     @GetMapping("/organized")
     public ResponseEntity<List<EventUserDTO>> getEventsOrganized(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -126,5 +117,25 @@ public class EventUserController {
                 .toList();
 
         return ResponseEntity.ok(dtos);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/{eventId}/remove/{userId}")
+    public ResponseEntity<String> removeParticipant(
+            @PathVariable UUID eventId,
+            @PathVariable UUID userId,
+            Authentication authentication) {
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).body("Non connecté");
+        }
+
+        String email = authentication.getName();
+        User currentUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
+
+        eventUserService.removeParticipant(eventId, userId, currentUser.getId());
+
+        return ResponseEntity.ok("Participant retiré avec succès");
     }
 }

@@ -18,9 +18,10 @@ public record EventDetailsDTO(
         String status,
         Integer maxParticipants,
         String imageUrl,
-                String participationStatus, // ✅ AJOUTE CE CHAMP
-
+        String participationStatus,
         List<EventUserDTO> acceptedParticipants,
         List<EventUserDTO> pendingParticipants,
         List<EventUserDTO> rejectedParticipants
-) {}
+        ) {
+
+}

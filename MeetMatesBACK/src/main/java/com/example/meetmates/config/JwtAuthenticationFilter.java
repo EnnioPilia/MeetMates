@@ -81,7 +81,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if (refreshToken != null && !refreshTokenService.isRefreshTokenExpired(refreshToken)) {
                 User user = refreshToken.getUser();
-                String newAuthToken = jwtUtils.generateToken(user.getEmail(), user.getRole().name());
+                User fullUser = userService.findByEmailEager(user.getEmail())
+                        .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
+
+                String newAuthToken = jwtUtils.generateToken(fullUser.getEmail(), fullUser.getRole().name());
 
                 // Regénération du cookie authToken
                 ResponseCookie newAuthCookie = ResponseCookie.from("authToken", newAuthToken)

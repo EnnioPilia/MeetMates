@@ -24,26 +24,19 @@ public class AuthService {
 
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private PasswordEncoder passwordEncoder;
-
     @Autowired
     private JWTUtils jwtUtils;
-
     @Autowired
     private AuthenticationManager authenticationManager;
-
     @Autowired
     private EmailService emailService;
-
     @Autowired
     private VerificationTokenService VerificationTokenService;
-
     @Autowired
     private RefreshTokenService refreshTokenService;
 
-    // ========================= Enregistrement =========================
     public String register(RegisterRequest request) {
         if (userRepository.findByEmail(request.getEmail().toLowerCase()).isPresent()) {
             throw new RuntimeException("Email déjà utilisé");
@@ -79,7 +72,6 @@ public class AuthService {
         return "Utilisateur enregistré avec succès, veuillez vérifier votre email";
     }
 
-    // ========================= Login =========================
     public LoginResponse login(LoginRequest request, HttpServletResponse response) {
         try {
             authenticationManager.authenticate(
@@ -100,14 +92,9 @@ public class AuthService {
         }
 
         String role = user.getRole().name().toLowerCase();
-
-        // Générer JWT authToken
         String token = jwtUtils.generateToken(user.getEmail(), role);
-
-        // Générer refreshToken
         Token refreshToken = refreshTokenService.createRefreshToken(user);
 
-        // Cookie authToken
         ResponseCookie authCookie = ResponseCookie.from("authToken", token)
                 .httpOnly(true)
                 .secure(false) // mettre true en prod avec HTTPS
@@ -131,7 +118,6 @@ public class AuthService {
         return new LoginResponse("Connexion réussie !", token);
     }
 
-    // ========================= Vérification utilisateur =========================
     public String verifyUser(String token) {
         boolean verified = VerificationTokenService.confirmToken(token);
         if (verified) {
@@ -141,9 +127,7 @@ public class AuthService {
         }
     }
 
-    // ========================= Logout =========================
     public void logout(HttpServletResponse response) {
-        // Supprimer authToken
         ResponseCookie authCookie = ResponseCookie.from("authToken", "")
                 .httpOnly(true)
                 .secure(false)
@@ -152,7 +136,6 @@ public class AuthService {
                 .sameSite("Strict")
                 .build();
 
-        // Supprimer refreshToken
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", "")
                 .httpOnly(true)
                 .secure(false)

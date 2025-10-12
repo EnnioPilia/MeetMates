@@ -29,34 +29,27 @@ public class EventController {
         this.eventService = eventService;
     }
 
-    // ✅ Créer un événement
     @PostMapping
     public ResponseEntity<EventResponse> createEvent(@RequestBody EventRequest req) {
         EventResponse event = eventService.createEvent(req);
         return ResponseEntity.ok(event);
     }
 
-    // ✅ Récupérer tous les événements
     @GetMapping
     public ResponseEntity<List<EventResponse>> getAllEvents() {
         return ResponseEntity.ok(eventService.findAllResponses());
     }
 
-    // ✅ Récupérer un événement par ID
-@GetMapping("/{id}")
-public ResponseEntity<EventDetailsDTO> getEventById(@PathVariable UUID id) {
-    return ResponseEntity.ok(eventService.findEventDetailsById(id));
-}
+    @GetMapping("/{id}")
+    public ResponseEntity<EventDetailsDTO> getEventById(@PathVariable UUID id) {
+        return ResponseEntity.ok(eventService.findEventDetailsById(id));
+    }
 
-
-
-    // ✅ Récupérer les événements d’une activité
     @GetMapping("/activity/{activityId}")
     public ResponseEntity<List<EventResponse>> getEventsByActivity(@PathVariable UUID activityId) {
         return ResponseEntity.ok(eventService.getEventResponsesByActivity(activityId));
     }
 
-    // ✅ Supprimer un événement
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEvent(@PathVariable UUID id) {
         eventService.delete(id);

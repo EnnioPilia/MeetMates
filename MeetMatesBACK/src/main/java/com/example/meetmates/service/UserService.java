@@ -28,15 +28,14 @@ public class UserService implements UserDetailsService {
 
     @Autowired
     public UserService(UserRepository userRepository,
-                       PasswordEncoder passwordEncoder,
-                       TokenRepository tokenRepository) {
+            PasswordEncoder passwordEncoder,
+            TokenRepository tokenRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenRepository = tokenRepository;
     }
 
     // =================== CRUD Utilisateur ===================
-
     public User updateUser(User user) {
         return userRepository.save(user);
     }
@@ -91,8 +90,11 @@ public class UserService implements UserDetailsService {
         return userRepository.save(user);
     }
 
-    // =================== Security / UserDetails ===================
+    public Optional<User> findByEmailEager(String email) {
+        return userRepository.findByEmailEager(email);
+    }
 
+    // =================== Security / UserDetails ===================
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email.toLowerCase())
@@ -111,7 +113,6 @@ public class UserService implements UserDetailsService {
     }
 
     // =================== Suppression Utilisateur ===================
-
     @Transactional
     public boolean deleteUserById(UUID userId) {
         // Supprimer les tokens liés à l'utilisateur

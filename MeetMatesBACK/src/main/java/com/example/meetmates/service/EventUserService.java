@@ -2,10 +2,12 @@ package com.example.meetmates.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.meetmates.model.core.Event;
@@ -25,15 +27,15 @@ public class EventUserService {
     private final EventUserRepository eventUserRepository;
 
     public EventUserService(EventRepository eventRepository, UserRepository userRepository,
-                            EventUserRepository eventUserRepository) {
+            EventUserRepository eventUserRepository) {
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
         this.eventUserRepository = eventUserRepository;
     }
 
     /**
-     * Lorsqu’un utilisateur rejoint un événement.
-     * Son statut de participation est PENDING par défaut.
+     * Lorsqu’un utilisateur rejoint un événement. Son statut de participation
+     * est PENDING par défaut.
      */
     public EventUser joinEvent(UUID eventId, UUID userId) {
         Event event = eventRepository.findById(eventId)
@@ -41,11 +43,20 @@ public class EventUserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
 
-        // Vérifier s’il est déjà inscrit
-        if (eventUserRepository.existsByEventIdAndUserId(eventId, userId)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Déjà inscrit à cet événement");
+
+    Optional<EventUser> existingOpt = eventUserRepository.findByEventIdAndUserId(eventId, userId);
+
+    if (existingOpt.isPresent()) {
+        EventUser existing = existingOpt.get();
+
+        if (existing.getParticipationStatus() == EventUser.ParticipationStatus.REJECTED) {
+            // ⚠️ Utilisateur rejeté précédemment
+            throw new ResponseStatusException(HttpStatus.GONE, "Vous avez été retiré de cet événement");
         }
 
+        // 🚫 Déjà inscrit (accepté ou en attente)
+        throw new ResponseStatusException(HttpStatus.CONFLICT, "Déjà inscrit à cet événement");
+    }
         // Vérifier si l’événement est complet
         if (event.getMaxParticipants() != null
                 && event.getParticipants().size() >= event.getMaxParticipants()) {
@@ -62,9 +73,6 @@ public class EventUserService {
         return eventUserRepository.save(eventUser);
     }
 
-    /**
-     * Accepter un participant.
-     */
     public EventUser acceptParticipant(UUID eventUserId) {
         EventUser eu = eventUserRepository.findById(eventUserId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Participant introuvable"));
@@ -72,9 +80,6 @@ public class EventUserService {
         return eventUserRepository.save(eu);
     }
 
-    /**
-     * Rejeter un participant.
-     */
     public EventUser rejectParticipant(UUID eventUserId) {
         EventUser eu = eventUserRepository.findById(eventUserId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Participant introuvable"));
@@ -82,9 +87,6 @@ public class EventUserService {
         return eventUserRepository.save(eu);
     }
 
-    /**
-     * L’utilisateur quitte un événement.
-     */
     public void leaveEvent(UUID eventId, UUID userId) {
         EventUser eu = eventUserRepository.findByEventIdAndUserId(eventId, userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Non inscrit à cet événement"));
@@ -97,5 +99,24 @@ public class EventUserService {
 
     public List<EventUser> findOrganizedByUserId(UUID userId) {
         return eventUserRepository.findAllByUserIdAndRole(userId, ParticipantRole.ORGANIZER);
+    }
+
+    @Transactional
+    public void removeParticipant(UUID eventId, UUID userId, UUID organizerId) {
+        EventUser organizer = eventUserRepository.findByEventIdAndUserId(eventId, organizerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Vous ne participez pas à cet événement"));
+
+        if (organizer.getRole() != EventUser.ParticipantRole.ORGANIZER) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Seul l'organisateur peut retirer un participant");
+        }
+
+        EventUser target = eventUserRepository.findByEventIdAndUserId(eventId, userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Participant introuvable"));
+
+        if (target.getRole() == EventUser.ParticipantRole.ORGANIZER) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Impossible de retirer l'organisateur");
+        }
+
+        eventUserRepository.delete(target);
     }
 }
