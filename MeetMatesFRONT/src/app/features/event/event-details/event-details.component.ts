@@ -13,7 +13,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NotificationService } from '../../../core/services/notification/notification.service';
 import { SignalsService } from '../../../core/services/signals/signals.service';
 import { EventResponse } from '../../../core/models/event-response.model';
-import { ConfirmDialogComponent } from '../../../shared/components-material-angular/snackbar/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../../shared-components/confirm-dialog/confirm-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { EventService } from '../../../core/services/event/event-service.service';
 

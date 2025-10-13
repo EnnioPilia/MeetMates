@@ -16,7 +16,7 @@ import { Activity } from '../../../core/models/activity.model';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NotificationService } from '../../../core/services/notification/notification.service';
 import { EventService } from '../../../core/services/event/event-service.service';
-import { BackButtonComponent } from '../../../shared/components-material-angular/back-button/back-button.component'; 
+import { BackButtonComponent } from '../../../shared-components/back-button/back-button.component';
 
 @Component({
   selector: 'app-event-list',
@@ -146,6 +146,11 @@ export class EventListComponent implements OnInit {
 
   private updatePageTitle(title: string) {
     this.signals.setPageTitle(title);
+  }
+  
+  formatTime(time: string): string {
+    if (!time) return '';
+    return time.substring(0, 5); // "12:00:00" → "12:00"
   }
 
   getFullImageUrl(relativePath: string): string {

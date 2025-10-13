@@ -1,7 +1,10 @@
-import { Component, ChangeDetectionStrategy, OnInit, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
+
+// Angular Material imports
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -11,12 +14,13 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { environment } from '../../../environments/environment';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
-import { ChangeDetectorRef } from '@angular/core';
 import { MatTimepickerModule } from '@angular/material/timepicker';
 import { MatTimepickerToggle } from '@angular/material/timepicker';
+
+import { NotificationService } from '../../core/services/notification/notification.service';
+import { EventService } from '../../core/services/event/event-service.service';
 
 @Component({
   selector: 'app-post-event',
@@ -39,11 +43,15 @@ import { MatTimepickerToggle } from '@angular/material/timepicker';
     MatCardModule,
     MatSnackBarModule,
     MatIconModule,
-    MatTimepickerModule,
-    MatTimepickerToggle
+    MatTimepickerModule
   ],
 })
 export class PostEventComponent implements OnInit {
+  private fb = inject(FormBuilder);
+  private http = inject(HttpClient);
+  private cdr = inject(ChangeDetectorRef);
+  private notification = inject(NotificationService);
+
   form!: FormGroup;
   activities: any[] = [];
   addressSuggestions: any[] = [];
@@ -65,18 +73,9 @@ export class PostEventComponent implements OnInit {
     { label: 'Tous niveaux', value: 'ALL_LEVELS' },
   ];
 
-
-  // refacto inject !!!!!
-  constructor(
-    private fb: FormBuilder,
-    private http: HttpClient,
-    private snackBar: MatSnackBar,
-    private cdr: ChangeDetectorRef
-  ) {}
-
   ngOnInit(): void {
     this.buildForm();
-    this.getAllActivities();
+    this.loadActivities();
   }
 
   private buildForm(): void {
@@ -86,7 +85,7 @@ export class PostEventComponent implements OnInit {
       date: ['', Validators.required],
       starTime: ['', Validators.required],
       endTime: ['', Validators.required],
-      participants: [1, [Validators.required, Validators.min(1)]],
+      participants: [ '',[Validators.required, Validators.min(1)]],
       materiel: ['', Validators.required],
       niveau: ['', Validators.required],
       adresse: ['', Validators.required],
@@ -94,10 +93,13 @@ export class PostEventComponent implements OnInit {
     });
   }
 
-  private getAllActivities(): void {
+  private loadActivities(): void {
     this.http.get<any[]>(`${this.baseUrl}/activity`).subscribe({
       next: (data) => (this.activities = data),
-      error: (err) => console.error('❌ Erreur lors du chargement des activités :', err),
+      error: (err) => {
+        console.error('❌ Erreur lors du chargement des activités :', err);
+        this.notification.showError('Erreur lors du chargement des activités.');
+      },
     });
   }
 
@@ -106,8 +108,7 @@ export class PostEventComponent implements OnInit {
     const file = input.files?.[0];
     if (!file) return;
 
-    this.selectedFile = file; // ✅ garde le fichier pour l’upload
-
+    this.selectedFile = file;
     const reader = new FileReader();
     reader.onload = () => {
       this.previewUrl = reader.result as string;
@@ -119,9 +120,10 @@ export class PostEventComponent implements OnInit {
   removeImage(): void {
     this.previewUrl = null;
     this.selectedFile = null;
-    console.log('Image supprimée');
+    this.cdr.detectChanges();
   }
 
+  // === Adresse ===
   onAddressInput(): void {
     const query = this.form.get('adresse')?.value?.trim();
     if (!query || query.length < 3) {
@@ -151,20 +153,20 @@ export class PostEventComponent implements OnInit {
 
   onSubmit(): void {
     if (this.form.invalid) {
-      this.showSnack('Veuillez remplir tous les champs correctement.', 'error');
+      this.notification.showError('Veuillez remplir tous les champs correctement.');
       return;
     }
 
     this.isSubmitting = true;
-    const { titre, description, date, heureDebut, heureFin, participants, materiel, niveau, adresse, activityId } =
+    const { titre, description, date, starTime, endTime, participants, materiel, niveau, adresse, activityId } =
       this.form.value;
 
     const eventPayload = {
       title: titre,
       description,
       eventDate: this.formatDate(date),
-      startTime: heureDebut,
-      endTime: heureFin,
+      startTime: starTime,
+      endTime,
       maxParticipants: participants,
       material: materiel,
       level: niveau,
@@ -177,38 +179,45 @@ export class PostEventComponent implements OnInit {
 
     this.http.post<any>(`${this.baseUrl}/event`, eventPayload, { withCredentials: true }).subscribe({
       next: (res) => {
-        console.log('✅ Événement créé :', res);
 
-        if (this.selectedFile && res.id) {
-          const formData = new FormData();
-          formData.append('file', this.selectedFile);
-          formData.append('isMain', 'true');
+        const eventId = res?.id || res?.eventId;
+        if (!eventId) {
+          this.notification.showWarning('Activité créée, mais identifiant introuvable.');
+          this.resetForm();
+          return;
+        }
 
-          this.http
-            .post(`${this.baseUrl}/event/${res.id}/picture`, formData, { withCredentials: true })
-            .subscribe({
-              next: () => {
-                console.log('📸 Image envoyée avec succès !');
-                this.showSnack('🎉 Activité et image enregistrées avec succès !', 'success');
-                this.resetForm();
-              },
-              error: (err) => {
-                console.error('❌ Erreur upload image :', err);
-                this.showSnack('Activité créée, mais échec de l’envoi de la photo.', 'warning');
-                this.resetForm();
-              },
-            });
+        if (this.selectedFile) {
+          this.uploadImage(eventId);
         } else {
-          this.showSnack('🎉 Activité créée avec succès !', 'success');
+          this.notification.showSuccess('🎉 Activité créée avec succès !');
           this.resetForm();
         }
       },
       error: (err) => {
-        console.error('❌ Erreur backend :', err);
-        this.showSnack('Erreur lors de la création de l’activité.', 'error');
+        this.notification.showError('Erreur lors de la création de l’activité.');
         this.isSubmitting = false;
       },
     });
+  }
+
+  private uploadImage(eventId: string): void {
+    const formData = new FormData();
+    formData.append('file', this.selectedFile as Blob);
+    formData.append('isMain', 'true');
+
+    this.http
+      .post(`${this.baseUrl}/event/${eventId}/picture`, formData, { withCredentials: true })
+      .subscribe({
+        next: () => {
+          this.notification.showSuccess('Votre activité a été enregistrées avec succès !');
+          this.resetForm();
+        },
+        error: (err) => {
+          this.notification.showWarning('Activité créée, mais échec de l’envoi de la photo.');
+          this.resetForm();
+        },
+      });
   }
 
   private formatDate(date: Date): string {
@@ -221,14 +230,5 @@ export class PostEventComponent implements OnInit {
     this.selectedFile = null;
     this.isSubmitting = false;
     this.cdr.detectChanges();
-  }
-
-  private showSnack(message: string, type: 'success' | 'error' | 'warning' = 'success'): void {
-    this.snackBar.open(message, 'Fermer', {
-      duration: 3000,
-      horizontalPosition: 'center',
-      verticalPosition: 'top',
-      panelClass: [`snack-${type}`],
-    });
   }
 }

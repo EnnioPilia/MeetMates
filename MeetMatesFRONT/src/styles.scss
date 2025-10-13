@@ -32,9 +32,10 @@ mat-error {
   font-weight: 700;
 }
 
-.menu-profile{
+.menu-profile {
   background-color: white !important;
-  border: 1px solid black
+  border-bottom: 2px solid black;
+  border-left: 2px solid black;
 }
 
 .secondary-button,
@@ -102,7 +103,8 @@ h3 {
 .acitivity-card {
   border-bottom: black solid 1px !important;
 }
-.photo-card{
+
+.photo-card {
   color: black;
   border-radius: 5px !important;
   transition: 0.2s ease-in-out;
@@ -134,6 +136,25 @@ h3 {
   --mdc-snackbar-label-text-color: #000000;
   font-weight: 500 !important;
   font-family: 'Poiret One', cursive;
+
+}
+
+.mat-mdc-select-panel,
+.mat-datepicker-content {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border-bottom: 2px solid #000000 !important;
+  font-weight: 600;
+  width: 20rem !important;
+}
+
+
+.mat-mdc-option,
+.mat-calendar-body-cell {
+  color: #000000 !important;
+  background-color: #f3f4f6 !important;
+  font-weight: 600;
+  transition: all 0.2s ease;
 
 }
 
@@ -188,12 +209,12 @@ h3 {
 
 .mat-mdc-form-field .mdc-floating-label {
   font-weight: 700 !important;
-  color: #374151 !important;
+  color: #000000 !important;
 }
 
 .mat-mdc-input-element {
   font-weight: 700 !important;
-  color: #374151 !important;
+  color: #000000 !important;
 }
 
 .upload-box {

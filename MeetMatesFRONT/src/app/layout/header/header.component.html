@@ -1,11 +1,13 @@
 <mat-toolbar class="header fixed top-0 left-0 right-0 flex items-center justify-between z-50">
-  <span class="title-page text-2xl flex-1 text-center pl-7">
+   <app-back-button class="" fallbackRoute="/"></app-back-button>
+
+  <span class="title-page text-2xl flex-1 text-center pr-10">
     {{ signals.pageTitle() }}
   </span>
 
 
-  <!-- A enlever en prod -->
-  <button mat-icon-button (click)="onLogout()" aria-label="Déconnexion" class="ml-auto">
+     
+  <!-- <button mat-icon-button (click)="onLogout()" aria-label="Déconnexion" class="ml-auto">
     <mat-icon class="text-white hover:scale-110 transition-transform duration-200">logout</mat-icon>
-  </button>
+  </button> -->
 </mat-toolbar>

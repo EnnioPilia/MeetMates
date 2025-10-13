@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { NgFor } from '@angular/common';
 import { environment } from '../../../../environments/environment';
 import { Activity } from '../../../core/models/activity.model';
-import { BackButtonComponent } from '../../../shared/components-material-angular/back-button/back-button.component'; 
+import { BackButtonComponent } from '../../../shared-components/back-button/back-button.component'; 
 
 @Component({
   selector: 'app-activity',

@@ -7,7 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { BackButtonComponent } from '../../../shared/components-material-angular/back-button/back-button.component'; // ✅ ici
+import { BackButtonComponent } from '../../../shared-components/back-button/back-button.component'; // ✅ ici
 
 @Component({
   selector: 'app-register',

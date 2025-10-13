@@ -11,7 +11,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { RouterModule } from '@angular/router';
-import { ConfirmDialogComponent } from '../../shared/components-material-angular/snackbar/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../shared-components/confirm-dialog/confirm-dialog.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';

@@ -7,11 +7,12 @@
   } @else {
 
   <div class="flex justify-end w-full ml-8">
+    
     <button mat-icon-button [matMenuTriggerFor]="settingsMenu" aria-label="Ouvrir le menu paramètres">
       <mat-icon>settings</mat-icon>
     </button>
 
-    <mat-menu class="menu-profile m-4" #settingsMenu="matMenu" xPosition="before" yPosition="below">
+    <mat-menu class="menu-profile w-50 h-50 mr-2" #settingsMenu="matMenu" xPosition="before" yPosition="below">
       <button mat-menu-item [routerLink]="['/profil']">
         <mat-icon>edit</mat-icon>
         <span>Modifier le profil</span>
@@ -21,27 +22,32 @@
         <mat-icon>gavel</mat-icon>
         <span>Mentions légales</span>
       </button>
-      <!-- <mat-divider></mat-divider> -->
+
       <button mat-menu-item (click)="onLogout()">
         <mat-icon>logout</mat-icon>
         <span>Déconnexion</span>
       </button>
+
     </mat-menu>
   </div>
 
+
+
+
+
   <mat-card class="card-profil w-full flex flex-col items-center gap-2">
+      <img [src]="'assets/default-avatar.png'" alt="" class="w-32 h-32 rounded-full object-cover border-2 border-black mb-2" />
 
-    <img [src]="'assets/default-avatar.png'" alt=""
-      class="w-32 h-32 rounded-full object-cover border-2 border-black mb-2" />
-
-    <p><strong></strong> {{ user?.lastName }} {{ user?.firstName }}</p>
-    <p><strong></strong> {{ user?.email }}</p>
-
+      <p><strong></strong> {{ user?.lastName }} {{ user?.firstName }}</p>
+      <p><strong></strong> {{ user?.email }}</p>
   </mat-card>
 
-  <mat-tab-group class="w-full mt-6" [selectedIndex]="selectedIndex" (selectedTabChange)="onTabChange($event)"
-    dynamicHeight animationDuration="300ms" mat-align-tabs="start">
 
+
+
+
+
+  <mat-tab-group class="w-full mt-6" [selectedIndex]="selectedIndex" (selectedTabChange)="onTabChange($event)" dynamicHeight animationDuration="300ms" mat-align-tabs="start">
     <mat-tab>
       <ng-template mat-tab-label>
         <p>JE PARTICPIE</p>
@@ -69,7 +75,6 @@
               <p><strong>Votre participation :</strong> {{ getParticipationLabel(event.participationStatus) }}</p>
               <p><strong>Adresse :</strong> {{ event.addressLabel }}</p>
             </div>
-
 
             <div class="flex justify-end">
               <button mat-flat-button class="primary-button-details p-2"
@@ -124,8 +129,6 @@
         }
       </div>
     </mat-tab>
-
-
   </mat-tab-group>
   }
 </div>

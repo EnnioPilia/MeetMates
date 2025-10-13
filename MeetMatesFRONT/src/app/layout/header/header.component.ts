@@ -6,12 +6,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth/auth.service';
-import { ConfirmDialogComponent } from '../../shared/components-material-angular/snackbar/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../shared-components/confirm-dialog/confirm-dialog.component';
+import { BackButtonComponent } from '../../shared-components/back-button/back-button.component';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [MatToolbarModule, MatIconModule, MatButtonModule, MatDialogModule],
+  imports: [MatToolbarModule, MatIconModule, MatButtonModule, MatDialogModule,BackButtonComponent],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
 })

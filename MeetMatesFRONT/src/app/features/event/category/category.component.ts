@@ -5,7 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { NgFor } from '@angular/common';
 import { environment } from '../../../../environments/environment';
-import { BackButtonComponent } from '../../../shared/components-material-angular/back-button/back-button.component'; 
+import { BackButtonComponent } from '../../../shared-components/back-button/back-button.component'; 
 
 interface Category {
   categoryId: string;

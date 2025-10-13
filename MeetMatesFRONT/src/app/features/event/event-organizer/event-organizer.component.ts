@@ -16,7 +16,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { EventDetails } from '../../../core/models/event-details.model';
 import { EventService } from '../../../core/services/event/event-service.service';
 import { NotificationService } from '../../../core/services/notification/notification.service';
-import { ConfirmDialogComponent } from '../../../shared/components-material-angular/snackbar/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../../shared-components/confirm-dialog/confirm-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 
 @Component({
