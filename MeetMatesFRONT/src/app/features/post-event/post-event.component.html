@@ -18,7 +18,7 @@
             <mat-label>Titre</mat-label>
             <input matInput formControlName="titre" placeholder="Ex: tournois de basket" required>
             @if (form.get('titre')?.invalid && form.get('titre')?.touched) {
-            <mat-error>Veuillez entrer un titre valide.</mat-error>
+            <mat-error>Veuillez entrer un titre (max 20).</mat-error>
             }
         </mat-form-field>
 

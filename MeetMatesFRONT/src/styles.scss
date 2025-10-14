@@ -8,22 +8,37 @@
     ));
 }
 
+// .header {
+//   background-color: white !important;
+//   border-bottom: black solid 1px;
+// }
+
+// .footer {
+//   background-color: white !important;
+//   border-top: black solid 1px;
+// }
+
+
 .header {
-  background-color: white !important;
-  border-bottom: black solid 1px;
+  background-color: #acdbff !important;
+  border-bottom: 1px solid #000000;
+  color: rgb(0, 0, 0) !important;
+  font-family: 'Poiret One', cursive !important;
+  font-weight: 600 !important;
 }
 
 .footer {
-  background-color: white !important;
-  border-top: black solid 1px;
+  background-color: #b8e0ff !important;
+  border-top: 1px solid #000000;
+  color: rgb(32, 32, 32) !important;
 }
-
 
 html,
 body {
   font-family: 'Poiret One', cursive;
   font-weight: 700;
-  color: #1f2937
+  color: #000000;
+  background-color: #f0f8ff;
 }
 
 mat-error {
@@ -61,13 +76,15 @@ mat-error {
 }
 
 mat-expansion-panel {
-  box-shadow: 0 6px 8px -6px rgba(0, 0, 0, 0.5) !important;
+  box-shadow: 0 6px 8px -6px rgba(0, 0, 0, 0.8) !important;
   border-bottom: 1px solid black !important;
+  border-left: 1px solid black !important;
+  border-right: 1px solid black !important;
 }
 
 .mat-accordion .mat-expansion-panel:not(.mat-expanded),
 .mat-accordion .mat-expansion-panel:not(.mat-expansion-panel-spacing) {
-  border-radius: 8px !important;
+  border-radius: 3px !important;
 
 }
 
