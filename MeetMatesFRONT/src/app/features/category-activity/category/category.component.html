@@ -1,11 +1,7 @@
-
 <div class="pt-[70px] pb-[80px] min-h-screen overflow-y-auto ">
   <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-6 p-6 justify-items-center">
-    <mat-card
-      *ngFor="let category of categories"
-      (click)="navigateTo(category.categoryId)"
-      class="icone-card w-40 h-40 flex flex-col items-center justify-center"
-    >
+    <mat-card *ngFor="let category of categories" (click)="navigateTo(category.categoryId)"
+      class="icone-card w-40 h-40 flex flex-col items-center justify-center">
       <mat-icon class="mb-2">sports</mat-icon>
       <mat-card-title class="text-center text-base">
         {{ category.name }}

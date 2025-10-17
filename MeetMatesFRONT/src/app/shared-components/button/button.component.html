@@ -1,0 +1,15 @@
+<mat-card-actions>
+  <button 
+    mat-raised-button
+    class="w-full primary-button"     
+    style="width: 20rem;"
+    [type]="type"
+    [disabled]="disabled"
+    [class.full-width]="fullWidth"
+    [routerLink]="routerLink"
+    (click)="onClick()"
+  >
+    <mat-icon *ngIf="icon" class="icon">{{ icon }}</mat-icon>
+    {{ label }}
+  </button>
+</mat-card-actions>

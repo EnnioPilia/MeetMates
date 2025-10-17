@@ -19,6 +19,10 @@
       <input matInput type="password" formControlName="password" required>
       @if (form.get('password')?.hasError('required') && (form.get('password')?.touched || form.get('password')?.dirty))
       {
+
+
+      <!-- le snack bar n'affiche pas mot de pas incorrecte -->
+
       <mat-error>Entrez votre mot de passe.</mat-error>
       }
       @if (form.get('password')?.hasError('minlength') && !form.get('password')?.hasError('required')) {
@@ -28,13 +32,14 @@
 
 
     <mat-card-actions class="flex flex-col items-center justify-center gap-4 mt-8 w-80">
-      <button mat-flat-button class="primary-button w-80" type="submit" [disabled]="isSubmitting">
-        Se connecter
-      </button>
 
-      <button mat-flat-button class="secondary-button w-80" type="button" (click)="navigateTo('forgot-password')">
-        Mot de passe oulié
-      </button>
+      <app-button label="Se connecter" type="submit"  [disabled]="isSubmitting">
+      </app-button>
+
+      <app-button label="Mot de passe oublié" (clicked)="navigateTo('forgot-password')">
+      </app-button>
+
     </mat-card-actions>
+
   </form>
 </div>

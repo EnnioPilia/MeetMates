@@ -61,7 +61,7 @@ export class PostEventComponent implements OnInit {
   private baseUrl = environment.apiUrl;
 
   materialOptions = [
-    { label: 'Fournis', value: 'PROVIDED' },
+    { label: 'Fournis',value: 'PROVIDED' },
     { label: 'Amener son matériel', value: 'YOUR_OWN' },
     { label: 'Pas de matériel requis', value: 'NOT_REQUIRED' },
   ];

@@ -1,8 +1,5 @@
-<div class="flex flex-col items-center justify-center min-h-[calc(90vh-10px)] px-8 ">
-  
-  <app-back-button fallbackRoute="/"></app-back-button>
-
-  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col items-center">
-    ...
-  </form>
-</div>
+<mat-card-actions>
+  <button mat-icon-button class="w-full primary-button" style="border:none!important; box-shadow:none;" (click)="goBack()">
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+</mat-card-actions>

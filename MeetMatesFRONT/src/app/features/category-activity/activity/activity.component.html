@@ -1,11 +1,8 @@
 <div class="pt-[70px] pb-[80px] min-h-screen overflow-y-auto bg-[var(--mat-sys-primary)]">
-
   <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-6 p-6 justify-items-center">
-    <mat-card
-      *ngFor="let activity of activities"
+    <mat-card *ngFor="let activity of activities"
       class="icone-card w-40 h-40 flex flex-col items-center justify-center cursor-pointer transition-transform duration-200 hover:scale-105"
-      (click)="goToEvents(activity.id)"
-    >
+      (click)="goToEvents(activity.id)">
       <mat-icon class="mb-2">sports</mat-icon>
       <mat-card-title class="text-center text-base font-bold">
         {{ activity.name }}

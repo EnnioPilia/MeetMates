@@ -7,8 +7,8 @@ import { ResetPasswordComponent } from './features/auth/reset-password/reset-pas
 import { ForgotPasswordComponent } from './features/auth/forgot-password/forgot-password.component';
 import { ProfileComponent } from './features/profile/profile.component';
 import { HomeComponent } from './features/home/home.component';
-import { CategoryComponent } from './features/event/category/category.component';
-import { ActivityComponent } from './features/event/activity/activity.component';
+import { CategoryComponent } from './features/category-activity/category/category.component';
+import { ActivityComponent } from './features/category-activity/activity/activity.component';
 import { PostEventComponent } from './features/post-event/post-event.component';
 import { EventListComponent } from './features/event/event-list/event-list.component';
 import { EventDetailsComponent } from './features/event/event-details/event-details.component';
