@@ -1,21 +1,29 @@
 package com.example.meetmates.dto;
 
 public class RegisterRequest {
-    private String name;      // pour nom complet, ou nom + prénom en 1 champ
+    private String firstName;
+    private String lastName;
     private String email;
-    private String passWord;  // correspond à passWord côté Angular (sensible à la casse)
+    private String password;
     private Integer age;
     private String role;
 
-    // getters/setters
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    // Getters & Setters
+    public String getFirstName() { return firstName; }
+    public void setFirstName(String firstName) { this.firstName = firstName; }
+
+    public String getLastName() { return lastName; }
+    public void setLastName(String lastName) { this.lastName = lastName; }
+
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
-    public String getPassword() { return passWord; }
-    public void setPassword(String passWord) { this.passWord = passWord; }
+
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+
     public Integer getAge() { return age; }
     public void setAge(Integer age) { this.age = age; }
+
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
 }

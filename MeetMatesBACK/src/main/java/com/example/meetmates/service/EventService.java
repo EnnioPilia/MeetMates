@@ -200,11 +200,6 @@ public class EventService {
         }
     }
 
-    // ✅ Suppression
-    public void delete(UUID id) {
-        eventRepository.deleteById(id);
-    }
-
     @Transactional(readOnly = true)
     public EventDetailsDTO findEventDetailsById(UUID eventId) {
         Event event = eventRepository.findByIdWithAllRelations(eventId)
@@ -296,5 +291,9 @@ public class EventService {
                 event.getEventDate().toString(),
                 event.getAddress() != null ? event.getAddress().getFullAddress() : null
         );
+    }
+        
+    public void delete(UUID id) {
+        eventRepository.deleteById(id);
     }
 }

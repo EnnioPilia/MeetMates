@@ -43,16 +43,8 @@ public class AuthService {
         }
 
         User user = new User();
-
-        if (request.getName() != null && !request.getName().isBlank()) {
-            String[] parts = request.getName().trim().split(" ", 2);
-            user.setFirstName(parts[0]);
-            user.setLastName(parts.length > 1 ? parts[1] : "");
-        } else {
-            user.setFirstName("");
-            user.setLastName("");
-        }
-
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
         user.setEmail(request.getEmail().toLowerCase());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setAge(request.getAge());
@@ -65,11 +57,10 @@ public class AuthService {
 
         User savedUser = userRepository.save(user);
 
-        // Créer et envoyer le token de vérification
         String verificationToken = VerificationTokenService.createVerificationToken(savedUser);
         emailService.sendVerificationEmail(savedUser.getEmail(), verificationToken);
 
-        return "Utilisateur enregistré avec succès, veuillez vérifier votre email";
+        return "Utilisateur enregistré avec succès, veuillez vérifier votre email.";
     }
 
     public LoginResponse login(LoginRequest request, HttpServletResponse response) {
