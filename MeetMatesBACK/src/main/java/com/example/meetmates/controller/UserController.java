@@ -46,7 +46,6 @@ public class UserController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // === SOFT DELETE ===
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable UUID id) {
         boolean deleted = userService.deleteUserById(id);

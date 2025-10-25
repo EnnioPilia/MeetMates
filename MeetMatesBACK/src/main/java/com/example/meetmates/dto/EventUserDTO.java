@@ -21,7 +21,8 @@ public record EventUserDTO(
         String joinedAt,
         String eventStatus,
         String eventDate,
-        String addressLabel
+        String addressLabel,
+        String activityName
 )
  {
 
@@ -42,9 +43,10 @@ public record EventUserDTO(
                 eu.getRole().name(),
                 eu.getParticipationStatus().name(),
                 eu.getJoinedAt() != null ? eu.getJoinedAt().format(fmt) : null,
-                e.getStatus().name(), // ✅ ajouté
-                e.getEventDate().toString(), // ✅ ajouté
-                e.getAddress() != null ? e.getAddress().getFullAddress() : null // ✅ ici la correction
+                e.getStatus().name(), 
+                e.getEventDate().toString(), 
+                e.getAddress() != null ? e.getAddress().getFullAddress() : null,
+                e.getActivity() != null ? e.getActivity().getName() : null   
         );
     }
 }

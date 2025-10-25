@@ -40,6 +40,9 @@ public class UserService implements UserDetailsService {
         return userRepository.save(user);
     }
 
+
+
+//refacto BACK !!!
     public User register(User user) {
         if (userRepository.findByEmail(user.getEmail().toLowerCase()).isPresent()) {
             throw new RuntimeException("Email déjà utilisé");

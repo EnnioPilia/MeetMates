@@ -289,7 +289,8 @@ public class EventService {
                 eu.getJoinedAt() != null ? eu.getJoinedAt().toString() : null,
                 event.getStatus().name(),
                 event.getEventDate().toString(),
-                event.getAddress() != null ? event.getAddress().getFullAddress() : null
+                event.getAddress() != null ? event.getAddress().getFullAddress() : null,
+                event.getActivity() != null ? event.getActivity().getName() : null
         );
     }
         
