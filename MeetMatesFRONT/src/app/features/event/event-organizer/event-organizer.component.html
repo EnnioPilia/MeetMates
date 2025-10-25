@@ -4,8 +4,8 @@
   } @else if (event) {
 
   <mat-card class="w-full flex flex-col items-center p-6">
-    <button mat-flat-button class="primary-button-cancel mb-8" (click)="confirmDeleteEvent(event?.id)">
 
+    <button mat-flat-button class="primary-button-cancel mb-8" (click)="confirmDeleteEvent(event?.id)">
       SUPPRIMER L'ACTIVITE </button>
 
     <div class="text-center w-full mb-4">
@@ -29,7 +29,7 @@
             <div class="flex justify-between items-center">
               <span>{{ p.firstName }} {{ p.lastName }}</span>
 
-              <button mat-icon-button style="background-color: white; color: black;" (click)="rejectParticipant(p.id)"aria-label="Refuser">
+              <button *ngIf="(p.firstName + ' ' + p.lastName) !== event.organizerName" mat-icon-button  (click)="rejectParticipant(p.id)" aria-label="Refuser">
                 <mat-icon>highlight_off</mat-icon>
               </button>
 
@@ -44,7 +44,6 @@
         </div>
       </mat-tab>
 
-      <!-- ✅ Onglet En attente -->
       <mat-tab>
         <ng-template mat-tab-label>
           <p>En attente</p>

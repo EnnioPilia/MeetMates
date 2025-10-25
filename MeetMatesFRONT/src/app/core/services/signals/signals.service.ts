@@ -12,8 +12,6 @@ export class SignalsService {
   readonly pageTitle = signal<string>('Accueil');
   readonly darkMode = signal<boolean>(false);
   readonly isMenuOpen = signal<boolean>(false);
-
-  // 👇 ajout du signal utilisateur
   readonly currentUser = signal<CurrentUser | null>(null);
 
   setPageTitle(title: string) {

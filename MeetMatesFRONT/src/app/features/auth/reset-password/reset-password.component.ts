@@ -1,14 +1,19 @@
 import { Component, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AuthService } from '../../../core/services/auth/auth.service';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { finalize } from 'rxjs/operators';
+
+import { AuthService } from '../../../core/services/auth/auth.service';
+import { NotificationService } from '../../../core/services/notification/notification.service';
+
+// Material & Shared
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { finalize } from 'rxjs/operators';
-import { NotificationService } from '../../../core/services/notification/notification.service';
+import { AppInputComponent } from '../../../shared-components/input/input.component';
+import { AppButtonComponent } from '../../../shared-components/button/button.component';
 
 @Component({
   selector: 'app-reset-password',
@@ -23,42 +28,37 @@ import { NotificationService } from '../../../core/services/notification/notific
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-  ]
+    AppInputComponent,
+    AppButtonComponent,
+  ],
 })
 export class ResetPasswordComponent {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
   private notification = inject(NotificationService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private cdr = inject(ChangeDetectorRef);
 
-  form: FormGroup;
   isSubmitting = false;
-  formSubmitted = false;
   token: string | null = null;
 
-  constructor() {
-    this.form = this.fb.group({
-      newPassword: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', [Validators.required]],
-    });
-  }
+  form = this.fb.nonNullable.group({
+    newPassword: ['', [Validators.required, Validators.minLength(6)]],
+    confirmPassword: ['', [Validators.required]],
+  });
 
   ngOnInit(): void {
     this.token = this.route.snapshot.queryParamMap.get('token');
   }
 
   onSubmit(): void {
-    this.formSubmitted = true;
-
     if (this.form.invalid) {
-      this.notification.showError('Veuillez remplir correctement tous les champs avant de continuer.');
-      this.isSubmitting = false;
+      this.notification.showWarning('Veuillez remplir correctement tous les champs.');
       return;
     }
 
-    const { newPassword, confirmPassword } = this.form.value;
+    const { newPassword, confirmPassword } = this.form.getRawValue();
 
     if (newPassword !== confirmPassword) {
       this.notification.showError('Les mots de passe ne correspondent pas.');
@@ -87,7 +87,9 @@ export class ResetPasswordComponent {
         },
         error: (err) => {
           console.error('[Auth] Erreur reset password :', err);
-          this.notification.showError(err?.message || '❌ Erreur lors de la réinitialisation du mot de passe.');
+          this.notification.showError(
+            err?.error?.message || '❌ Une erreur est survenue lors de la réinitialisation.'
+          );
         },
       });
   }

@@ -73,8 +73,8 @@ export class EventOrganizerComponent implements OnInit {
         this.event = {
           ...this.event,
           ...data,
-          pendingParticipants: data.pendingParticipants || [],
-          acceptedParticipants: data.acceptedParticipants || [],
+
+          
         };
         this.loading = false;
       },

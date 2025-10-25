@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
-import {HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpErrorResponse} 
-from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpErrorResponse }
+  from '@angular/common/http';
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, filter, switchMap, take } from 'rxjs/operators';
 import { AuthService } from './../../core/services/auth/auth.service';
@@ -9,8 +9,7 @@ import { AuthService } from './../../core/services/auth/auth.service';
 export class AuthInterceptor implements HttpInterceptor {
   private isRefreshing = false;
   private refreshTokenSubject = new BehaviorSubject<string | null>(null);
-
-  constructor(private authService: AuthService) { }
+ private authService = inject(AuthService);
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const accessToken = localStorage.getItem('accessToken');
@@ -23,7 +22,6 @@ export class AuthInterceptor implements HttpInterceptor {
     return next.handle(authReq).pipe(
       catchError(error => {
         if (error instanceof HttpErrorResponse && error.status === 401) {
-          // Token expiré ou non valide
           return this.handle401Error(authReq, next);
         }
         return throwError(() => error);

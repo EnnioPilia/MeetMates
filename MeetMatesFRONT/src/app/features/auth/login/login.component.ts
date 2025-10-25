@@ -1,16 +1,13 @@
 import { Component, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Validators, NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { NotificationService } from '../../../core/services/notification/notification.service';
-
 import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { AppButtonComponent } from '../../../shared-components/button/button.component'; 
+import { AppButtonComponent } from '../../../shared-components/button/button.component';
+import { AppInputComponent } from '../../../shared-components/input/input.component';
 
 @Component({
   selector: 'app-login',
@@ -22,44 +19,36 @@ import { AppButtonComponent } from '../../../shared-components/button/button.com
     CommonModule,
     ReactiveFormsModule,
     MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    AppButtonComponent
-  ]
+    AppButtonComponent,
+    AppInputComponent,
+  ],
 })
 export class LoginComponent {
-  private fb = inject(FormBuilder);
+  private fb = inject(NonNullableFormBuilder); 
   private authService = inject(AuthService);
   private notification = inject(NotificationService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
 
   isSubmitting = false;
-  formSubmitted = false;
 
-  form: FormGroup = this.fb.group({
+  // ✅ Plus de null possible avec `nonNullable`
+  form = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
   });
 
   onSubmit(): void {
-    this.formSubmitted = true;
-
     if (this.form.invalid) {
-      this.notification.showWarning('Veuillez remplir correctement tous les champs avant de continuer.');
+      this.notification.showWarning('Veuillez remplir correctement tous les champs.');
       return;
     }
 
-    const { email, password } = this.form.value;
-
+    const { email, password } = this.form.getRawValue();
     this.isSubmitting = true;
 
     this.authService
-      .login({
-        email: email.trim().toLowerCase(),
-        password,
-      })
+      .login({ email: email.trim().toLowerCase(), password })
       .pipe(finalize(() => (this.isSubmitting = false)))
       .subscribe({
         next: () => {

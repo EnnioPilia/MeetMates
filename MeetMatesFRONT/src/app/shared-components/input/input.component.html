@@ -1,0 +1,19 @@
+<mat-form-field class="w-80">
+  <mat-label>{{ label }}</mat-label>
+
+  <input matInput [formControl]="control" [type]="type" [required]="required" />
+
+  @if (control.hasError('required') && (control.touched || control.dirty)) {
+  <mat-error>{{ label }} est requis.</mat-error>
+  }
+
+  @if (control.hasError('email') && !control.hasError('required')) {
+  <mat-error>Adresse email invalide.</mat-error>
+  }
+
+  @if (control.hasError('minlength') && !control.hasError('required')) {
+  <mat-error>
+    Minimum {{ control.getError('minlength')?.requiredLength }} caractères.
+  </mat-error>
+  }
+</mat-form-field>

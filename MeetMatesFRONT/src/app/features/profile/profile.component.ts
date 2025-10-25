@@ -113,53 +113,62 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  fetchEvents(): void {
-    if (!this.user) return;
+fetchEvents(): void {
+  if (!this.user) return;
 
-    this.http.get<any[]>(`${this.baseUrl}/event-user/participating`, { withCredentials: true })
-      .subscribe({
-        next: (data) => {
-          console.log('✅ Participating events:', data);
-          this.eventsParticipating = data;
+  // --- 1️⃣ Charger les événements organisés ---
+  this.http.get<any[]>(`${this.baseUrl}/event-user/organized`, { withCredentials: true })
+    .subscribe({
+      next: (organizedData) => {
+        console.log('✅ Organized events:', organizedData);
+        this.eventsOrganized = organizedData;
 
-          this.eventsParticipating.forEach((eventUser, index) => {
-            this.http.get(`${this.baseUrl}/event/${eventUser.eventId}`, { withCredentials: true })
-              .subscribe({
-                next: (fullEvent) => {
-                  this.eventsParticipating[index] = {
-                    ...eventUser,
-                    ...fullEvent
-                  };
-                },
-                error: (err) => console.error('Erreur chargement détails événement:', err)
+        // Charger les détails complets des événements organisés
+        this.eventsOrganized.forEach((eventUser, index) => {
+          this.http.get(`${this.baseUrl}/event/${eventUser.eventId}`, { withCredentials: true })
+            .subscribe({
+              next: (fullEvent) => {
+                this.eventsOrganized[index] = {
+                  ...eventUser,
+                  ...fullEvent
+                };
+              },
+              error: (err) => console.error('Erreur chargement détails événement organisé:', err)
+            });
+        });
+
+        // --- 2️⃣ Une fois qu'on connaît les événements organisés, on charge les participations ---
+        this.http.get<any[]>(`${this.baseUrl}/event-user/participating`, { withCredentials: true })
+          .subscribe({
+            next: (participatingData) => {
+              console.log('✅ Participating events:', participatingData);
+
+              // 🔥 Filtrage : on enlève les événements où il est organisateur
+              const organizedIds = new Set(this.eventsOrganized.map(e => e.eventId));
+              this.eventsParticipating = participatingData.filter(
+                event => !organizedIds.has(event.eventId)
+              );
+
+              // Charger les détails complets des événements où il participe
+              this.eventsParticipating.forEach((eventUser, index) => {
+                this.http.get(`${this.baseUrl}/event/${eventUser.eventId}`, { withCredentials: true })
+                  .subscribe({
+                    next: (fullEvent) => {
+                      this.eventsParticipating[index] = {
+                        ...eventUser,
+                        ...fullEvent
+                      };
+                    },
+                    error: (err) => console.error('Erreur chargement détails événement:', err)
+                  });
               });
+            },
+            error: (err) => console.error('Erreur chargement événements participant :', err)
           });
-        },
-        error: (err) => console.error('Erreur chargement événements participant :', err)
-      });
-
-    this.http.get<any[]>(`${this.baseUrl}/event-user/organized`, { withCredentials: true })
-      .subscribe({
-        next: (data) => {
-          console.log('✅ Organized events:', data);
-          this.eventsOrganized = data;
-
-          this.eventsOrganized.forEach((eventUser, index) => {
-            this.http.get(`${this.baseUrl}/event/${eventUser.eventId}`, { withCredentials: true })
-              .subscribe({
-                next: (fullEvent) => {
-                  this.eventsOrganized[index] = {
-                    ...eventUser,
-                    ...fullEvent
-                  };
-                },
-                error: (err) => console.error('Erreur chargement détails événement organisé:', err)
-              });
-          });
-        },
-        error: (err) => console.error('Erreur chargement événements organisés :', err)
-      });
-  }
+      },
+      error: (err) => console.error('Erreur chargement événements organisés :', err)
+    });
+}
 
   onTabChange(event: any): void {
     this.selectedIndex = event.index;

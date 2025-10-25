@@ -1,18 +1,9 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { User } from '../../models/user.model';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
-
-interface PasswordResetRequestDto {
-  email: string;
-}
-
-interface PasswordResetDto {
-  token: string;
-  newPassword: string;
-}
 
 export interface RegisterRequest {
   lastName: string;
@@ -28,9 +19,8 @@ export interface RegisterRequest {
 })
 export class AuthService {
   private readonly baseUrl = environment.apiUrl.replace(/\/+$/, '') + '/auth';
+  private http = inject(HttpClient);
   private currentUser: User | null = null;
-
-  constructor(private http: HttpClient) { }
 
   login(credentials: { email: string; password: string }): Observable<{ message: string; token: string }> {
     return this.http.post<{ message: string; token: string }>(`${this.baseUrl}/login`, credentials, {
@@ -53,7 +43,7 @@ export class AuthService {
   requestPasswordReset(email: string): Observable<string> {
     const body = { email };
     return this.http.post(`${this.baseUrl}/request-reset`, body, {
-      responseType: 'text' // ✅ Le serveur renvoie du texte
+      responseType: 'text' 
     }).pipe(
       catchError(err => {
         return throwError(() => new Error(err?.error || "Erreur lors de la demande de réinitialisation."));
@@ -63,7 +53,7 @@ export class AuthService {
 
   resetPassword(data: { token: string; newPassword: string }): Observable<string> {
     return this.http.post(`${this.baseUrl}/reset-password`, data, {
-      responseType: 'text' // ✅ On veut recevoir une chaîne, pas du JSON
+      responseType: 'text' 
     }).pipe(
       catchError(err => {
         return throwError(() => new Error(err?.error || "Erreur lors de la réinitialisation du mot de passe."));

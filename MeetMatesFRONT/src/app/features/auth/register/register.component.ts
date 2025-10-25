@@ -1,40 +1,46 @@
-import { Component, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { NotificationService } from '../../../core/services/notification/notification.service';
 import { AuthService } from '../../../core/services/auth/auth.service';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { finalize } from 'rxjs/operators';
+import { CommonModule } from '@angular/common';
+import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { BackButtonComponent } from '../../../shared-components/back-button/back-button.component'; // ✅ ici
+import { AppInputComponent } from '../../../shared-components/input/input.component';
+import { AppButtonComponent } from '../../../shared-components/button/button.component';
 
 @Component({
   selector: 'app-register',
   standalone: true,
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatFormFieldModule,
+    CommonModule,
     ReactiveFormsModule,
+    MatCardModule,
+    MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    MatCardModule,
-    BackButtonComponent
-  ]
+    AppInputComponent,
+    AppButtonComponent,
+  ],
 })
-
 export class RegisterComponent {
+  private fb = inject(NonNullableFormBuilder);
   private authService = inject(AuthService);
-  private router = inject(Router);
   private notification = inject(NotificationService);
-  private fb = inject(FormBuilder);
+  private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
   isSubmitting = false;
 
-  form: FormGroup = this.fb.group({
-    firstName: ['', [Validators.required]],
-    lastName: ['', [Validators.required]],
+  form = this.fb.group({
+    firstName: ['', Validators.required],
+    lastName: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
   });
@@ -47,25 +53,26 @@ export class RegisterComponent {
 
     this.isSubmitting = true;
 
-    const request = this.form.value;
-
-    this.authService.register(request).subscribe({
-      next: () => {
+    this.authService
+      .register(this.form.getRawValue())
+      .pipe(finalize(() => {
         this.isSubmitting = false;
-        this.notification.showSuccess('✅ Inscription réussie ! Vérifiez votre email.');
-        this.router.navigate(['/login']);
-      },
-      error: (err) => {
-        this.isSubmitting = false;
-        console.error('[Auth] Erreur inscription :', err);
-
-        if (err.status === 409) {
-          this.notification.showWarning('Cet email est déjà utilisé.');
-        } else {
-          this.notification.showError(err.error?.message || "❌ Erreur lors de l'inscription.");
-        }
-      },
-    });
+        this.cdr.markForCheck();
+      }))
+      .subscribe({
+        next: () => {
+          this.notification.showSuccess('✅ Inscription réussie ! Vérifiez votre email.');
+          this.router.navigate(['/login']);
+        },
+        error: (err) => {
+          console.error('[Auth] Erreur inscription :', err);
+          if (err.status === 409) {
+            this.notification.showWarning('Cet email est déjà utilisé.');
+          } else {
+            this.notification.showError(err.error?.message || "❌ Erreur lors de l'inscription.");
+          }
+        },
+      });
   }
 
   navigateTo(path: string): void {

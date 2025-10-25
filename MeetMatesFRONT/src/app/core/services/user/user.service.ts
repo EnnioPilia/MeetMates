@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { User } from '../../models/user.model'; // ajuste le chemin si besoin
+import { User } from '../../models/user.model';
 import { environment } from '../../../../environments/environment';
 
 @Injectable({
@@ -9,13 +9,10 @@ import { environment } from '../../../../environments/environment';
 })
 export class UserService {
 
-  private baseUrl = environment.apiUrl + '/user'; // construction URL complète
-
-  constructor(private http: HttpClient) { }
+  private baseUrl = environment.apiUrl + '/user'; 
+  private http = inject(HttpClient);
 
   getAllUsers(): Observable<User[]> {
-    console.log('Base URL:', this.baseUrl);
-
     return this.http.get<User[]>(this.baseUrl, { withCredentials: true });
   }
 
@@ -29,7 +26,6 @@ export class UserService {
   
   deleteUser(id: number): Observable<void> {
     const url = `${this.baseUrl}/${id}`;
-    console.log('DELETE url:', url);
     return this.http.delete<void>(url, { withCredentials: true });
   }
 }

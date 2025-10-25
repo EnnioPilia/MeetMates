@@ -22,18 +22,14 @@ export class AppButtonComponent {
   @Input() routerLink?: any[] | string;
   @Input() disabled = false;
 
-  // --- Output ---
   @Output() clicked = new EventEmitter<void>();
 
-  // --- Injection moderne ---
   private location = inject(Location);
   private router = inject(Router);
 
-  // --- Méthodes ---
   onClick() {
     if (!this.disabled) {
       this.clicked.emit();
     }
   }
-
 }

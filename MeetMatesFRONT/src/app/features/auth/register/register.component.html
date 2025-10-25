@@ -1,59 +1,14 @@
 <div class="flex flex-col items-center justify-center min-h-[calc(100vh-10px)] px-8">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col items-center mt-4">
 
-  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col items-center">
+    <app-input label="Nom" [control]="form.controls.lastName" type="text" [required]="true"></app-input>
+    <app-input label="Prénom" [control]="form.controls.firstName" type="text" [required]="true"></app-input>
+    <app-input label="Email" [control]="form.controls.email" type="email" [required]="true"></app-input>
+    <app-input label="Mot de passe" [control]="form.controls.password" type="password" [required]="true"></app-input>
 
-    <!-- Nom -->
-    <mat-form-field class="w-80">
-      <mat-label>Nom</mat-label>
-      <input matInput formControlName="lastName" required>
-      @if (form.get('lastName')?.invalid && (form.get('lastName')?.touched || form.get('lastName')?.dirty)) {
-      <mat-error>Entrez votre nom.</mat-error>
-      }
-    </mat-form-field>
-
-    <mat-form-field class="w-80">
-      <mat-label>Prenom</mat-label>
-      <input matInput formControlName="firstName" required>
-      @if (form.get('firstName')?.invalid && (form.get('firstName')?.touched || form.get('firstName')?.dirty)) {
-      <mat-error>Entrez votre prenom.</mat-error>
-      }
-    </mat-form-field>
-
-    <!-- Email -->
-    <mat-form-field class="w-80">
-      <mat-label>Email</mat-label>
-      <input matInput formControlName="email" required>
-      @if (form.get('email')?.hasError('required') && (form.get('email')?.touched || form.get('email')?.dirty)) {
-      <mat-error>Entrez votre adresse email.</mat-error>
-      }
-      @if (form.get('email')?.hasError('email') && !form.get('email')?.hasError('required')) {
-      <mat-error>Adresse email invalide.</mat-error>
-      }
-    </mat-form-field>
-
-    <!-- Mot de passe -->
-    <mat-form-field class="w-80">
-      <mat-label>Mot de passe</mat-label>
-      <input matInput type="password" formControlName="password" required>
-      @if (form.get('password')?.hasError('required') && (form.get('password')?.touched || form.get('password')?.dirty))
-      {
-      <mat-error>Entrez votre mot de passe.</mat-error>
-      }
-      @if (form.get('password')?.hasError('minlength') && !form.get('password')?.hasError('required')) {
-      <mat-error>Minimum 6 caractères.</mat-error>
-      }
-    </mat-form-field>
-
-
-
-    <mat-card-actions class="flex flex-col items-center justify-center gap-4 mt-6 w-80" >
-      <button mat-flat-button color="primary" class="w-full primary-button" type="submit" [disabled]="isSubmitting">
-        S’inscrire
-      </button>
-
-      <button mat-flat-button class="secondary-button w-80 " type="button" (click)="navigateTo('login')">
-        Déjà un compte ?
-      </button>
+    <mat-card-actions class="flex flex-col items-center justify-center gap-4 mt-6 w-80">
+      <app-button label="S’inscrire" class="w-full primary-button" type="submit" [disabled]="isSubmitting"></app-button>
+      <app-button label="Déjà un compte ?" class="secondary-button w-80" (clicked)="navigateTo('login')"></app-button>
     </mat-card-actions>
 
   </form>
