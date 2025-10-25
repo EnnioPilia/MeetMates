@@ -30,10 +30,10 @@ import { EventService } from '../../../core/services/event/event-service.service
     MatProgressSpinnerModule,
     MatSnackBarModule
   ],
-  templateUrl: './event-details.component.html',
-  styleUrls: ['./event-details.component.scss']
+  templateUrl: './event-participant.component.html',
+  styleUrls: ['./event-participant.component.scss']
 })
-export class EventDetailsComponent implements OnInit {
+export class EventParticipantComponent implements OnInit {
 
   private http = inject(HttpClient);
   private route = inject(ActivatedRoute);

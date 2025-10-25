@@ -61,7 +61,7 @@ export class RegisterComponent {
       }))
       .subscribe({
         next: () => {
-          this.notification.showSuccess('✅ Inscription réussie ! Vérifiez votre email.');
+          this.notification.showSuccess('✅ Inscription réussie ! Vérifiez votre email pour activer votre compte.');
           this.router.navigate(['/login']);
         },
         error: (err) => {

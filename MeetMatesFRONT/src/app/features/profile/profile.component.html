@@ -1,133 +1,20 @@
-<div class="flex fixed flex-col items-center justify-start min-h-screen px-10 py-5 mt-10">
-
-  @if (loading) {
-  <p class="text-gray-500 mt-6">Chargement du profil...</p>
-  } @else if (error) {
-  <p class="text-red-600 mt-6 ml-8">{{ error }}</p>
+<div class="flex fixed flex-col items-center min-h-screen px-10 py-6 mt-10">
+  @if (loading()) {
+  <mat-spinner diameter="50"></mat-spinner>
+  } @else if (error()) {
+  <p class="text-red-600 mt-8">{{ error() }}</p>
   } @else {
+    
+  <app-settings-menu (logout)="onLogout()"></app-settings-menu>
+  <app-profile-card [user]="user()"></app-profile-card>
 
-  <div class="flex justify-end w-full ml-8">
-
-    <button mat-icon-button [matMenuTriggerFor]="settingsMenu" aria-label="Ouvrir le menu paramètres">
-      <mat-icon>settings</mat-icon>
-    </button>
-
-    <mat-menu class="menu-profile w-50 h-50 mr-2" #settingsMenu="matMenu" xPosition="before" yPosition="below">
-      <button mat-menu-item [routerLink]="['/profil']">
-        <mat-icon>edit</mat-icon>
-        <span>Modifier le profil</span>
-      </button>
-
-      <button mat-menu-item routerLink="/mentions-legales">
-        <mat-icon>gavel</mat-icon>
-        <span>Mentions légales</span>
-      </button>
-
-      <button mat-menu-item (click)="onLogout()">
-        <mat-icon>logout</mat-icon>
-        <span>Déconnexion</span>
-      </button>
-
-    </mat-menu>
-  </div>
-
-
-
-  <mat-card class="card-profil w-full flex flex-col items-center gap-2">
-    <img [src]="'assets/default-avatar.png'" alt=""
-      class="w-32 h-32 rounded-full object-cover border-2 border-black mb-1" />
-
-    <p><strong></strong> {{ user?.lastName }} {{ user?.firstName }}</p>
-    <p><strong></strong> {{ user?.email }}</p>
-  </mat-card>
-
-
- 
-
-  <mat-tab-group class="w-full mt-4" [selectedIndex]="selectedIndex" (selectedTabChange)="onTabChange($event)"
-    dynamicHeight animationDuration="300ms" mat-align-tabs="start">
-    <mat-tab>
-      <ng-template mat-tab-label>
-        <p>JE PARTICPIE</p>
-      </ng-template>
-
-      <div class="max-h-[37vh] overflow-y-auto p-3">
-        @if (eventsParticipating.length === 0) {
-        <p class="text-center mt-4">Vous ne participez à aucun événement pour le moment.</p>
-        } @else {
-        <mat-accordion multi="true" class="flex flex-col gap-4 mt-1">
-          @for (event of eventsParticipating; track event.id) {
-
-          <mat-expansion-panel class="p-1 w-full">
-            <mat-expansion-panel-header>
-              <mat-panel-description>
-                <p>{{ event.eventTitle }}</p>
-              </mat-panel-description>
-
-              <mat-panel-description>
-                <p>{{ event.eventDate | date: 'dd/MM/yy' }}</p>
-              </mat-panel-description>
-            </mat-expansion-panel-header>
-
-            <div class="flex flex-col gap-2">
-              <p><strong>Status de l'activité:</strong> {{ getStatusLabel(event.eventStatus) }}</p>
-              <p><strong>Votre participation :</strong> {{ getParticipationLabel(event.participationStatus) }}</p>
-              <p><strong></strong> {{ event.addressLabel }}</p>
-            </div>
-
-            <div class="flex justify-end">
-              <button mat-flat-button class="primary-button-details p-2"
-                [routerLink]="['/event-details', event.eventId]">
-                Voir détails
-              </button>
-            </div>
-
-          </mat-expansion-panel>
-          }
-        </mat-accordion>
-        }
-      </div>
+  <mat-tab-group class="w-full mt-4" mat-align-tabs="start" animationDuration="300ms">
+    <mat-tab label="Je participe">
+      <app-participation-tab [events]="eventsParticipating()"></app-participation-tab>
     </mat-tab>
 
-    <mat-tab>
-      <ng-template mat-tab-label>
-        <p>J'ORGANISE</p>
-      </ng-template>
-
-      <div class="max-h-[38vh] overflow-y-auto p-4">
-        @if (eventsOrganized.length === 0) {
-        <p class="text-center mt-4">Vous n'organisez aucun événement actuellement.</p>
-        } @else {
-        <mat-accordion multi="true" class="flex flex-col gap-4">
-          @for (event of eventsOrganized; track event.id) {
-
-          <mat-expansion-panel class="p-1 w-full">
-            <mat-expansion-panel-header>
-              <mat-panel-description>
-                <p>{{ event.eventTitle }}</p>
-              </mat-panel-description>
-              <mat-panel-description>
-                <p>{{ event.eventDate | date: 'dd/MM/yy' }}</p>
-              </mat-panel-description>
-
-            </mat-expansion-panel-header>
-
-            <div class="flex flex-col gap-2">
-              <p><strong>Status de l'activité:</strong> {{ getStatusLabel(event.eventStatus) }}</p>
-              <p><strong></strong> {{ event.addressLabel }}</p>
-              <p><strong>Activité : </strong> {{ event.activityName }}</p>
-            </div>
-            <div class="flex justify-end">
-              <button mat-flat-button class="primary-button-details p-2"
-                [routerLink]="['/event-organizer', event.eventId]">
-                Voir détails
-              </button>
-            </div>
-          </mat-expansion-panel>
-          }
-        </mat-accordion>
-        }
-      </div>
+    <mat-tab label="J’organise">
+      <app-organization-tab [events]="eventsOrganized()"></app-organization-tab>
     </mat-tab>
   </mat-tab-group>
   }

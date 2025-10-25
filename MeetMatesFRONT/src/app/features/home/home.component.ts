@@ -1,39 +1,21 @@
-
-import { Component, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { SignalsService } from '../../core/services/signals/signals.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { AuthService } from '../../core/services/auth/auth.service';
+import { AppButtonComponent } from '../../../app/shared-components/button/button.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [MatButtonModule, MatCardModule],
-  templateUrl: './home.component.html'
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [MatButtonModule, MatCardModule, AppButtonComponent],
 })
-export class HomeComponent implements OnInit {
-  constructor(
-    private router: Router,
-    private signals: SignalsService,
-    private authService: AuthService
-  ) {}
+export class HomeComponent {
+  private router = inject(Router);
 
-  ngOnInit() {
-  }
-
-  navigateTo(path: string) {
+  navigateTo(path: string): void {
     this.router.navigate([path]);
-  }
-    onLogout(): void {
-    this.authService.logout().subscribe({
-      next: () => {
-        console.log("Utilisateur déconnecté");
-        this.router.navigate(['/login']); 
-      },
-      error: err => {
-        console.error("Erreur lors de la déconnexion", err);
-      }
-    });
   }
 }

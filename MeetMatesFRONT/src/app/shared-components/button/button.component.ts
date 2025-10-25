@@ -9,7 +9,6 @@ import { MatCardModule } from '@angular/material/card';
   selector: 'app-button',
   standalone: true,
   templateUrl: './button.component.html',
-  styleUrls: ['./button.component.scss'],
   imports: [CommonModule, MatButtonModule, MatIconModule, MatCardModule,RouterModule],
 })
 export class AppButtonComponent {

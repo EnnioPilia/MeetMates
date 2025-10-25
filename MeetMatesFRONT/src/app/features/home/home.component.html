@@ -1,26 +1,18 @@
-
- <div class="flex flex-col items-center justify-center min-h-[calc(95vh-10px)] px-5">
+<div class="flex flex-col items-center justify-center min-h-[calc(95vh-10px)] px-5">
 
   <mat-card-title class="title-home">
     <h2 class="text-4xl mb-3">MEET MATES</h2>
   </mat-card-title>
 
-
   <mat-card-content class="card-text mt-4 mb-8 p-5 text-center text-base">
-      <p class="text pb-4">Meet Mates est une application qui permet de participer à des activités en tout genre,
+    <p class="text pb-4">Meet Mates est une application qui permet de participer à des activités en tout genre,
       rencontrer de nouvelles personnes, partager des moments
       de convivialité. Publier vos propres annonces afin d’inviter la
       communauté à vous rejoindre et partager vos passions.</p>
   </mat-card-content>
 
   <mat-card-actions class="flex flex-col items-center justify-center gap-3 justify-center text-2xl">
-    <button mat-flat-button class="primary-button w-80" (click)="navigateTo('register')">
-       I N S C R I P T I O N 
-    </button>
-
-    <button mat-flat-button class="secondary-button w-80" (click)="navigateTo('login')">
-        C O N N E X I O N 
-    </button>
+    <app-button label="I N S C R I P T I O N" class="primary-button w-80" (clicked)="navigateTo('register')"></app-button>
+    <app-button label="C O N N E X I O N" class="secondary-button w-80" (clicked)="navigateTo('login')"></app-button>
   </mat-card-actions>
-
-</div> 
+</div>

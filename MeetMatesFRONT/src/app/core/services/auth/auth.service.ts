@@ -32,6 +32,14 @@ export class AuthService {
     );
   }
 
+  register(data: RegisterRequest): Observable<string> {
+    return this.http.post(`${this.baseUrl}/register`, data, { responseType: 'text' }).pipe(
+      catchError(err => {
+        return throwError(() => new Error(err?.error?.error || "Erreur lors de l'inscription."));
+      })
+    );
+  }
+
   logout(): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/logout`, {}, {
       withCredentials: true
@@ -61,14 +69,6 @@ export class AuthService {
     );
   }
 
-  register(data: RegisterRequest): Observable<string> {
-    return this.http.post(`${this.baseUrl}/register`, data, { responseType: 'text' }).pipe(
-      catchError(err => {
-        return throwError(() => new Error(err?.error?.error || "Erreur lors de l'inscription."));
-      })
-    );
-  }
-
   verifyEmail(token: string): Observable<string> {
     return this.http.get<string>(`${this.baseUrl}/verify`, { params: { token } }).pipe(
       catchError(err => {
@@ -83,10 +83,6 @@ export class AuthService {
       {},
       { withCredentials: true }
     );
-  }
-
-  getCurrentUser() {
-    return this.http.get(`${this.baseUrl}/user/me`, { withCredentials: true });
   }
 
 }

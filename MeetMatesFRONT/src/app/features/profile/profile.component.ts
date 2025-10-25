@@ -1,203 +1,119 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, signal, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormControl } from '@angular/forms';
+import { Router } from '@angular/router';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { UserService } from '../../core/services/user/user.service';
-import { User } from '../../core/models/user.model';
+import { MatDialog } from '@angular/material/dialog';
 import { HttpClient } from '@angular/common/http';
+import { forkJoin } from 'rxjs';
+
 import { environment } from '../../../environments/environment';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { RouterModule } from '@angular/router';
-import { ConfirmDialogComponent } from '../../shared-components/confirm-dialog/confirm-dialog.component';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth/auth.service';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatDividerModule } from '@angular/material/divider';
+import { UserService } from '../../core/services/user/user.service';
 import { EventService } from '../../core/services/event/event-service.service';
+import { ConfirmDialogComponent } from '../../shared-components/confirm-dialog/confirm-dialog.component';
+
+import { ProfileCardComponent } from '../profile/components/profile-card.component';
+import { ParticipationTabComponent } from '../profile/components/participation-tab.component';
+import { OrganizationTabComponent } from '../profile/components/organization-tab.component';
+import { SettingsMenuComponent } from '../profile/components/settings-menu.component';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
-    MatCardModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
     MatTabsModule,
-    MatExpansionModule,
-    RouterModule,
-    MatToolbarModule,
-    MatIconModule,
-    MatButtonModule,
-    MatDialogModule,
-    MatMenuModule,
-    MatDividerModule
+    MatCardModule,
+    MatProgressSpinnerModule,
+    ProfileCardComponent,
+    ParticipationTabComponent,
+    OrganizationTabComponent,
+    SettingsMenuComponent
   ],
   templateUrl: './profile.component.html',
-  styleUrls: ['./profile.component.scss']
+  styleUrls: ['./profile.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ProfileComponent implements OnInit {
-
-  private authService = inject(AuthService);
+export class ProfileComponent {
+  private http = inject(HttpClient);
   private router = inject(Router);
   private dialog = inject(MatDialog);
+  private authService = inject(AuthService);
+  private userService = inject(UserService);
   private eventService = inject(EventService);
   private baseUrl = environment.apiUrl;
 
-  profileForm: FormGroup;
-  user: User | null = null;
-  loading = false;
-  error: string | null = null;
-  selectedIndex = 0;
-  eventsParticipating: any[] = [];
-  eventsOrganized: any[] = [];
+  // --- Signals réactifs
+  readonly user = signal<any>(null);
+  readonly eventsParticipating = signal<any[]>([]);
+  readonly eventsOrganized = signal<any[]>([]);
+  readonly loading = signal(true);
+  readonly error = signal<string | null>(null);
 
-
-  constructor(
-    private fb: FormBuilder,
-    private userService: UserService,
-    private http: HttpClient,
-
-  ) {
-    this.profileForm = this.fb.group({
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-    });
+  constructor() {
+    this.loadProfileData();
   }
 
-  ngOnInit(): void {
-    this.loadProfile();
-  }
-
-  get nomControl(): FormControl {
-    return this.profileForm.get('nom') as FormControl;
-  }
-
-  get prenomControl(): FormControl {
-    return this.profileForm.get('prenom') as FormControl;
-  }
-
-  get emailControl(): FormControl {
-    return this.profileForm.get('email') as FormControl;
-  }
-
-  loadProfile(): void {
-    this.loading = true;
-    this.error = null;
-
+  /** 🔹 Charger le profil utilisateur */
+  private loadProfileData(): void {
+    this.loading.set(true);
     this.userService.getCurrentUser().subscribe({
-      next: (data) => {
-        this.user = data;
-        this.profileForm.patchValue({
-          nom: data.lastName,
-          prenom: data.firstName,
-          email: data.email
-        });
-
-        this.fetchEvents();
-        this.loading = false;
+      next: (user) => {
+        this.user.set(user);
+        this.fetchEvents(); // charge les events après le user
       },
       error: (err) => {
-        this.error = 'Erreur lors du chargement du profil';
-        this.loading = false;
         console.error('Erreur profil :', err);
+        this.error.set('Erreur lors du chargement du profil.');
+        this.loading.set(false);
       }
     });
   }
 
-fetchEvents(): void {
-  if (!this.user) return;
+  private fetchEvents(): void {
+    forkJoin({
+      organized: this.getOrganizedEvents(),
+      participating: this.getParticipatingEvents()
+    }).subscribe({
+      next: ({ organized, participating }) => {
 
-  // --- 1️⃣ Charger les événements organisés ---
-  this.http.get<any[]>(`${this.baseUrl}/event-user/organized`, { withCredentials: true })
-    .subscribe({
-      next: (organizedData) => {
-        console.log('✅ Organized events:', organizedData);
-        this.eventsOrganized = organizedData;
+        const organizedIds = new Set(organized.map(e => e.eventId || e.id));
+        const filteredParticipating = participating.filter(e => !organizedIds.has(e.eventId || e.id));
 
-        // Charger les détails complets des événements organisés
-        this.eventsOrganized.forEach((eventUser, index) => {
-          this.http.get(`${this.baseUrl}/event/${eventUser.eventId}`, { withCredentials: true })
-            .subscribe({
-              next: (fullEvent) => {
-                this.eventsOrganized[index] = {
-                  ...eventUser,
-                  ...fullEvent
-                };
-              },
-              error: (err) => console.error('Erreur chargement détails événement organisé:', err)
-            });
-        });
-
-        // --- 2️⃣ Une fois qu'on connaît les événements organisés, on charge les participations ---
-        this.http.get<any[]>(`${this.baseUrl}/event-user/participating`, { withCredentials: true })
-          .subscribe({
-            next: (participatingData) => {
-              console.log('✅ Participating events:', participatingData);
-
-              // 🔥 Filtrage : on enlève les événements où il est organisateur
-              const organizedIds = new Set(this.eventsOrganized.map(e => e.eventId));
-              this.eventsParticipating = participatingData.filter(
-                event => !organizedIds.has(event.eventId)
-              );
-
-              // Charger les détails complets des événements où il participe
-              this.eventsParticipating.forEach((eventUser, index) => {
-                this.http.get(`${this.baseUrl}/event/${eventUser.eventId}`, { withCredentials: true })
-                  .subscribe({
-                    next: (fullEvent) => {
-                      this.eventsParticipating[index] = {
-                        ...eventUser,
-                        ...fullEvent
-                      };
-                    },
-                    error: (err) => console.error('Erreur chargement détails événement:', err)
-                  });
-              });
-            },
-            error: (err) => console.error('Erreur chargement événements participant :', err)
-          });
+        this.eventsOrganized.set(organized);
+        this.eventsParticipating.set(filteredParticipating);
+        this.loading.set(false);
       },
-      error: (err) => console.error('Erreur chargement événements organisés :', err)
+      error: (err) => {
+        console.error('Erreur chargement événements :', err);
+        this.error.set('Erreur lors du chargement des événements.');
+        this.loading.set(false);
+      }
     });
-}
-
-  onTabChange(event: any): void {
-    this.selectedIndex = event.index;
   }
 
-  onFocusChange(event: any): void {
-    this.selectedIndex = event.index;
+  private getOrganizedEvents() {
+    return this.http.get<any[]>(`${this.baseUrl}/event-user/organized`, { withCredentials: true });
+  }
+
+  private getParticipatingEvents() {
+    return this.http.get<any[]>(`${this.baseUrl}/event-user/participating`, { withCredentials: true });
   }
 
   onLogout(): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: { title: 'DECONNEXION', message: 'Voulez-vous vous déconnecter ?' }
+      data: { title: 'Déconnexion', message: 'Voulez-vous vraiment vous déconnecter ?' }
     });
 
-    dialogRef.afterClosed().subscribe(confirmed => {
+    dialogRef.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
         this.authService.logout().subscribe({
           next: () => this.router.navigate(['/login']),
-          error: (err) => console.error(err)
+          error: (err) => console.error('Erreur de déconnexion :', err)
         });
       }
     });
-  }
-
-  getStatusLabel(status: string): string {
-    return this.eventService.getStatusLabel(status);
-  }
-
-  getParticipationLabel(status: string | null | undefined): string {
-    return this.eventService.getParticipationLabel(status);
   }
 }

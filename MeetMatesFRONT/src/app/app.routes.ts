@@ -11,7 +11,7 @@ import { CategoryComponent } from './features/category-activity/category/categor
 import { ActivityComponent } from './features/category-activity/activity/activity.component';
 import { PostEventComponent } from './features/post-event/post-event.component';
 import { EventListComponent } from './features/event/event-list/event-list.component';
-import { EventDetailsComponent } from './features/event/event-details/event-details.component';
+import { EventParticipantComponent } from './features/event/event-participant/event-participant.component';
 import { EventOrganizerComponent } from './features/event/event-organizer/event-organizer.component';
 
 // import { authGuard } from './core/guards/auth.guard';
@@ -31,7 +31,7 @@ export const routes: Routes = [
   { path: 'post-event', component: PostEventComponent, data: { title: 'CRÉER UNE ACTIVITÉ' } },
   { path: 'event-list', component: EventListComponent, data: { title: 'Evenements' } },
   { path: 'events/:activityId', component: EventListComponent, data: { title: '' } },
-  { path: 'event-details/:id', component: EventDetailsComponent, data: { title: 'Détails de l\'événement' } },
+  { path: 'event-details/:id', component: EventParticipantComponent, data: { title: 'Détails de l\'événement' } },
   { path: 'event-organizer/:eventId', component: EventOrganizerComponent, data: { title: 'Evénement Organisateur' } },
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: '**', redirectTo: 'home' }
