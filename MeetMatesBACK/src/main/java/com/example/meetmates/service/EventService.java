@@ -205,6 +205,9 @@ public class EventService {
         Event event = eventRepository.findByIdWithAllRelations(eventId)
                 .orElseThrow(() -> new RuntimeException("Événement introuvable avec l'id: " + eventId));
 
+        // ✅ Force le chargement lazy des images avant la fermeture de la transaction
+        event.getPictures().size();
+
         String organizerName = event.getParticipants().stream()
                 .filter(p -> p.getRole() == EventUser.ParticipantRole.ORGANIZER)
                 .findFirst()
@@ -293,7 +296,7 @@ public class EventService {
                 event.getActivity() != null ? event.getActivity().getName() : null
         );
     }
-        
+
     public void delete(UUID id) {
         eventRepository.deleteById(id);
     }
