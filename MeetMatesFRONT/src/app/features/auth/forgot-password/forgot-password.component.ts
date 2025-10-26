@@ -49,7 +49,6 @@ export class ForgotPasswordComponent {
     }
 
     this.isSubmitting = true;
-
     const { email } = this.form.getRawValue();
 
     this.authService
@@ -73,7 +72,7 @@ export class ForgotPasswordComponent {
             this.notification.showWarning('Aucun compte associé à cet e-mail.');
           } else {
             this.notification.showError(
-              err.error?.message || '❌ Une erreur est survenue. Veuillez réessayer.'
+              err.error?.message || '❌ Une erreur est survenue. Veuillez réessayer. Avez vous un compte?'
             );
           }
           this.cdr.markForCheck();

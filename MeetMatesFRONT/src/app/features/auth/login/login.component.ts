@@ -32,7 +32,6 @@ export class LoginComponent {
 
   isSubmitting = false;
 
-  // ✅ Plus de null possible avec `nonNullable`
   form = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],

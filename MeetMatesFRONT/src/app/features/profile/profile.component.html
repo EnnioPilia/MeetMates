@@ -4,7 +4,7 @@
   } @else if (error()) {
   <p class="text-red-600 mt-8">{{ error() }}</p>
   } @else {
-    
+
   <app-settings-menu (logout)="onLogout()"></app-settings-menu>
   <app-profile-card [user]="user()"></app-profile-card>
 

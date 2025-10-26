@@ -3,11 +3,8 @@
 
     <app-input label="Email" [control]="form.controls.email" type="email" [required]="true"></app-input>
     <app-input label="Mot de passe" [control]="form.controls.password" type="password" [required]="true"></app-input>
-
-    <mat-card-actions class="flex flex-col items-center justify-center gap-4 mt-8 w-80">
-      <app-button label="Se connecter" class="w-full primary-button" type="submit" [disabled]="isSubmitting"></app-button>
-      <app-button label="Mot de passe oublié" class="secondary-button w-80" (clicked)="navigateTo('forgot-password')"></app-button>
-    </mat-card-actions>
+    <app-button label="Se connecter" class="w-full primary-button" type="submit" [disabled]="isSubmitting"></app-button>
+    <app-button label="Mot de passe oublié" class="secondary-button w-80" (clicked)="navigateTo('forgot-password')"></app-button>
     
   </form>
 </div>
