@@ -1,42 +1,54 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { environment } from '../../../../environments/environment';
+import { HttpClient } from '@angular/common/http';
+import { MatDialog } from '@angular/material/dialog';
 
-// ✅ Import Angular Material
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { MatDividerModule } from '@angular/material/divider';
+import { environment } from '../../../../environments/environment';
 import { EventDetails } from '../../../core/models/event-details.model';
 import { EventService } from '../../../core/services/event/event-service.service';
 import { NotificationService } from '../../../core/services/notification/notification.service';
 import { ConfirmDialogComponent } from '../../../shared-components/confirm-dialog/confirm-dialog.component';
-import { MatDialog } from '@angular/material/dialog';
+
+// ✅ Shared components
+import { EventHeaderComponent } from '../../../shared-components/event-header/event-header.component';
+import { EventInfoComponent } from '../../../shared-components/event-info/event-info.component';
+import { EventPictureComponent } from '../../../shared-components/event-picture/event-picture.component';
+import { AppButtonComponent } from '../../../shared-components/button/button.component';
+
+// ✅ Organizer-specific component
+import { EventParticipantsTabsComponent } from '../../../features/event/event-organizer/components/event-participants-tabs.component';
+
+// ✅ Angular Material
+import { MatCardModule } from '@angular/material/card';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-event-organizer',
   standalone: true,
   imports: [
-    CommonModule, RouterModule, MatCardModule, MatButtonModule, MatIconModule, MatChipsModule,
-    MatProgressSpinnerModule, MatTabsModule, MatExpansionModule, MatDividerModule],
+    CommonModule,
+    RouterModule,
+    MatCardModule,
+    MatProgressSpinnerModule,
+    EventHeaderComponent,
+    EventInfoComponent,
+    EventPictureComponent,
+    AppButtonComponent,
+    EventParticipantsTabsComponent
+  ],
   templateUrl: './event-organizer.component.html',
   styleUrls: ['./event-organizer.component.scss']
 })
 export class EventOrganizerComponent implements OnInit {
+
   private http = inject(HttpClient);
   private route = inject(ActivatedRoute);
-  private eventService = inject(EventService);
-  private notification = inject(NotificationService);
   private dialog = inject(MatDialog);
+  private notification = inject(NotificationService);
+  private eventService = inject(EventService);
 
-  private baseUrl = environment.apiUrl;
-
+  baseUrl = environment.apiUrl;
   loading = true;
 
   event: EventDetails = {
@@ -68,14 +80,10 @@ export class EventOrganizerComponent implements OnInit {
   }
 
   private loadEvent(eventId: string): void {
-    this.http.get<EventDetails>(`${this.baseUrl}/event/${eventId}`).subscribe({
+    this.loading = true;
+    this.http.get<EventDetails>(`${this.baseUrl}/event/${eventId}`, { withCredentials: true }).subscribe({
       next: (data) => {
-        this.event = {
-          ...this.event,
-          ...data,
-
-          
-        };
+        this.event = { ...this.event, ...data };
         this.loading = false;
       },
       error: (err) => {
@@ -85,16 +93,18 @@ export class EventOrganizerComponent implements OnInit {
     });
   }
 
-  acceptParticipant(eventUserId: string) {
+  /** ✅ Acceptation d’un participant */
+  acceptParticipant(eventUserId: string): void {
     this.http.put(`${this.baseUrl}/event-user/${eventUserId}/accept`, {}, { withCredentials: true }).subscribe({
       next: () => {
-        console.log('✅ Participant accepté');
+        this.notification.showSuccess('Participant accepté avec succès.');
         this.refreshEvent();
       },
-      error: (err) => console.error('❌ Erreur acceptation:', err)
+      error: (err) => console.error('❌ Erreur acceptation participant:', err)
     });
   }
 
+  /** ✅ Refus d’un participant */
   rejectParticipant(eventUserId: string): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
@@ -106,20 +116,17 @@ export class EventOrganizerComponent implements OnInit {
     dialogRef.afterClosed().subscribe((confirmed: boolean) => {
       if (!confirmed) return;
 
-      this.http.put(
-        `${this.baseUrl}/event-user/${eventUserId}/reject`,
-        {},
-        { withCredentials: true }
-      ).subscribe({
+      this.http.put(`${this.baseUrl}/event-user/${eventUserId}/reject`, {}, { withCredentials: true }).subscribe({
         next: () => {
           this.notification.showSuccess('Participant refusé avec succès.');
           this.refreshEvent();
         },
-        error: (err) => console.error('❌ Erreur rejet:', err)
+        error: (err) => console.error('❌ Erreur refus participant:', err)
       });
     });
   }
 
+  /** ✅ Retrait d’un participant */
   removeParticipant(eventId: string, userId: string): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
@@ -131,46 +138,22 @@ export class EventOrganizerComponent implements OnInit {
     dialogRef.afterClosed().subscribe((confirmed: boolean) => {
       if (!confirmed) return;
 
-      this.http.delete(
-        `${this.baseUrl}/event-user/${eventId}/remove/${userId}`,
-        { withCredentials: true, responseType: 'text' }
-      ).subscribe({
+      this.http.delete(`${this.baseUrl}/event-user/${eventId}/remove/${userId}`, { withCredentials: true }).subscribe({
         next: () => {
-          this.notification.showSuccess('✅ Le participant a été retiré avec succès.');
-          this.refreshEvent(); // 🔄 Recharge les données après suppression
+          this.notification.showSuccess('Participant retiré avec succès.');
+          this.refreshEvent();
         },
-        error: (err) => {
-          console.error('❌ Erreur lors du retrait du participant :', err);
-
-          if (err.status === 401) {
-            this.notification.showError('Vous devez être connecté pour effectuer cette action.');
-          } else if (err.status === 403) {
-            this.notification.showWarning('Seul l’organisateur peut retirer un participant.');
-          } else if (err.status === 404) {
-            this.notification.showWarning('Le participant n’a pas été trouvé dans cet événement.');
-          } else if (err.status === 409) {
-            this.notification.showWarning('Impossible de retirer l’organisateur.');
-          } else {
-            this.notification.showError('Une erreur est survenue lors du retrait du participant.');
-          }
-        }
+        error: (err) => console.error('❌ Erreur retrait participant:', err)
       });
     });
   }
 
-  refreshEvent() {
-    const eventId = this.route.snapshot.paramMap.get('eventId');
-    if (eventId) {
-      this.loadEvent(eventId);
-    }
-  }
-
-  confirmDeleteEvent(eventId?: string): void {
+  confirmDeleteEvent(eventId: string): void {
     if (!eventId) return;
 
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
-        title: 'Confirmation de suppression',
+        title: 'Supprimer l’activité',
         message: 'Êtes-vous sûr de vouloir supprimer cette activité ? Cette action est irréversible.'
       }
     });
@@ -178,24 +161,28 @@ export class EventOrganizerComponent implements OnInit {
     dialogRef.afterClosed().subscribe((confirmed: boolean) => {
       if (!confirmed) return;
 
-      this.http.delete(`${this.baseUrl}/event/${eventId}`, { withCredentials: true })
-        .subscribe({
-          next: () => {
-            this.notification.showSuccess('Activité supprimée avec succès.');
-            window.location.href = '/events';
-          },
-          error: (err) => {
-            console.error('Erreur suppression activité :', err);
-            if (err.status === 403) {
-              this.notification.showError('Vous n’êtes pas autorisé à supprimer cette activité.');
-            } else {
-              this.notification.showError('Une erreur est survenue lors de la suppression.');
-            }
-          }
-        });
+      this.http.delete(`${this.baseUrl}/event/${eventId}`, { withCredentials: true }).subscribe({
+        next: () => {
+          this.notification.showSuccess('Activité supprimée avec succès.');
+          window.location.href = '/events';
+        },
+        error: (err) => {
+          console.error('❌ Erreur suppression activité:', err);
+          this.notification.showError('Impossible de supprimer cette activité.');
+        }
+      });
     });
   }
 
+  /** 🔄 Recharge les données */
+  refreshEvent(): void {
+    const eventId = this.route.snapshot.paramMap.get('eventId');
+    if (eventId) {
+      this.loadEvent(eventId);
+    }
+  }
+
+  /** ✅ Helpers de labels (traductions) */
   getStatusLabel(status: string): string {
     return this.eventService.getStatusLabel(status);
   }

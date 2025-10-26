@@ -1,108 +1,29 @@
 <div class="flex flex-col items-center justify-start min-h-screen px-7 py-20 overflow-y-auto">
   @if (loading) {
   <mat-spinner diameter="50"></mat-spinner>
-  } @else if (event) {
+  }
+  @else if (event) {
+    <mat-card class="activity-card w-full flex flex-col items-center p-6">
 
-  <mat-card class="w-full flex flex-col items-center p-6">
+      <app-button label="SUPPRIMER L'ACTIVITÉ" class="w-full primary-button-cancel mb-8"(clicked)="confirmDeleteEvent(event.id)"></app-button>
 
-    <button mat-flat-button class="primary-button-cancel mb-8" (click)="confirmDeleteEvent(event?.id)">
-      SUPPRIMER L'ACTIVITE </button>   
+      <app-event-header [title]="event.title" [description]="event.description"></app-event-header>
 
-    <div class="text-center w-full mb-4">
-      <h3 class="text-2xl font-semibold mb-2">{{ event.title }}</h3>
-      <p class="text-sm leading-relaxed max-h-20 overflow-y-auto">
-        {{ event.description }}
-      </p>
-    </div>
+      <app-event-participants-tabs [acceptedParticipants]="event.acceptedParticipants"
+        [pendingParticipants]="event.pendingParticipants" [organizerName]="event.organizerName"
+        (accept)="acceptParticipant($event)" (reject)="rejectParticipant($event)"
+        (remove)="removeParticipant(event.id, $event)">
+      </app-event-participants-tabs>
 
-    <mat-tab-group class="w-full max-w-3xl mb-4" mat-align-tabs="start" animationDuration="300ms">
+      <app-event-info [event]="event" [showStatus]="true" [showOrganizer]="true"></app-event-info>
 
-      <mat-tab>
-        <ng-template mat-tab-label>
-          <p>Acceptés</p>
-        </ng-template>
+      <app-event-picture [imageUrl]="event.imageUrl" [title]="event.title" [width]="280" [height]="130"></app-event-picture>
 
-        <div class="max-h-[40vh] overflow-y-auto p-4">
-          @if (event.acceptedParticipants && event.acceptedParticipants.length > 0) {
-          <div class="flex flex-col gap-4">
-            @for (p of event.acceptedParticipants; track p.id) {
-            <div class="flex justify-between items-center">
-              <span>{{ p.firstName }} {{ p.lastName }}</span>
+      <app-button label="ALLER À LA CONVERSATION" class="mt-6" [routerLink]="['/conversation', event.id]"></app-button>
 
-              <button *ngIf="(p.firstName + ' ' + p.lastName) !== event.organizerName" mat-icon-button  (click)="rejectParticipant(p.id)" aria-label="Refuser">
-                <mat-icon>highlight_off</mat-icon>
-              </button>
-
-            </div>
-            }
-          </div>
-          } @else {
-          <p class="text-center text-gray-500 mt-4">
-            Aucun participant accepté pour le moment.
-          </p>
-          }
-        </div>
-      </mat-tab>
-
-      <mat-tab>
-        <ng-template mat-tab-label>
-          <p>En attente</p>
-        </ng-template>
-
-        <div class="p-4">
-          @if (event.pendingParticipants && event.pendingParticipants.length > 0) {
-          <div class="flex flex-col gap-2">
-            @for (p of event.pendingParticipants; track p.id) {
-            <div class="flex justify-between items-center">
-              <span>{{ p.firstName }} {{ p.lastName }}</span>
-
-              <div class="flex gap-1">
-                <button mat-icon-button style="background-color: white; color: black;" (click)="acceptParticipant(p.id)"
-                  aria-label="Accepter">
-                  <mat-icon>check</mat-icon>
-                </button>
-                <button mat-icon-button style="background-color: white; color: black;" (click)="rejectParticipant(p.id)"
-                  aria-label="Refuser">
-                  <mat-icon>highlight_off</mat-icon>
-                  <!-- <mat-icon>disabled_by_default</mat-icon> -->
-                </button>
-              </div>
-            </div>
-            }
-          </div>
-          } @else {
-          <p class="text-center text-gray-500 mt-4">
-            Aucun participant en attente.
-          </p>
-          }
-        </div>
-      </mat-tab>
-
-    </mat-tab-group>
-
-    <mat-divider></mat-divider>
-
-    <div class="flex flex-col w-full text-sm leading-relaxed gap-3">
-      <p><strong>STATUS DE L'ACTIVITE :</strong> {{ event.status }}</p>
-      <p><strong>ACITIVITE :</strong>{{ event.activityName }}</p>
-      <p><strong>DATE :</strong> {{ event.eventDate | date:'mediumDate' }}</p>
-      <p><strong>HORAIRE :</strong> {{ event.startTime }} - {{ event.endTime }}</p>
-      <p><strong>ADRESSE :</strong> {{ event.addressLabel }}</p>
-      <p><strong>NIVEAU :</strong> {{ getLevelLabel(event.level) }}</p>
-      <p><strong>MATERIAL :</strong> {{ getMaterialLabel(event.material) }}</p>
-      <p><strong>NOMBRE DE PARTICIPANT :</strong> {{ event.maxParticipants }}</p>
-    </div>
   </mat-card>
-
-  <img [src]="event.imageUrl" alt="{{ event.title }}"
-    class="w-[280px] h-[130px] object-cover my-3 border border-black " />
-
-  <div class="mt-6">
-    <button mat-flat-button class="primary-button p-2" [routerLink]="['/conversation', event.id]"> Aller à la
-      conversation</button>
-  </div>
-
-  } @else {
+  }
+  @else {
   <p class="text-red-600">Événement introuvable.</p>
   }
 </div>

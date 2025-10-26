@@ -2,33 +2,42 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../../environments/environment';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialog } from '@angular/material/dialog';
+
+import { environment } from '../../../../environments/environment';
 import { EventDetails } from '../../../core/models/event-details.model';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { EventResponse } from '../../../core/models/event-response.model';
+import { EventService } from '../../../core/services/event/event-service.service';
 import { NotificationService } from '../../../core/services/notification/notification.service';
 import { SignalsService } from '../../../core/services/signals/signals.service';
-import { EventResponse } from '../../../core/models/event-response.model';
 import { ConfirmDialogComponent } from '../../../shared-components/confirm-dialog/confirm-dialog.component';
-import { MatDialog } from '@angular/material/dialog';
-import { EventService } from '../../../core/services/event/event-service.service';
+
+import { EventStatusComponent } from './components/event-status';
+import { ParticipantListComponent } from './components/participant-list';
+
+import { EventHeaderComponent } from '../../../shared-components/event-header/event-header.component';
+import { EventInfoComponent } from '../../../shared-components/event-info/event-info.component';
+import { EventPictureComponent } from '../../../shared-components/event-picture/event-picture.component';
+import { AppButtonComponent } from '../../../shared-components/button/button.component';
 
 @Component({
-  selector: 'app-event-details',
+  selector: 'app-event-participant',
   standalone: true,
   imports: [
     CommonModule,
     RouterModule,
     MatCardModule,
     MatButtonModule,
-    MatIconModule,
-    MatChipsModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule
+    EventStatusComponent,
+    ParticipantListComponent,
+    EventHeaderComponent,
+    EventInfoComponent,
+    EventPictureComponent,
+    AppButtonComponent
   ],
   templateUrl: './event-participant.component.html',
   styleUrls: ['./event-participant.component.scss']
@@ -65,25 +74,9 @@ export class EventParticipantComponent implements OnInit {
     }
   }
 
-  fetchAllEvents(): void {
-    this.loading = true;
-    this.eventService.fetchAllEvents().subscribe({
-      next: (data) => {
-        this.events = data;
-        this.loading = false;
-        this.updatePageTitle('Toutes les activités');
-      },
-      error: (err) => {
-        console.error('Erreur chargement événements :', err);
-        this.loading = false;
-        this.updatePageTitle('Toutes les activités');
-      },
-    });
-  }
-
   cancelParticipation(eventId: string): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: { title: 'Confirmer l’annulation', message: "Êtes-vous sûr de vouloir annuler votre participation ? Si vous êtes l'organisateur votre annonce sera supprimé" }
+      data: { title: 'Confirmer l’annulation', message: "Êtes-vous sûr de vouloir annuler votre participation ? Si vous êtes l'organisateur, votre annonce sera supprimée." }
     });
 
     dialogRef.afterClosed().subscribe((confirmed: boolean) => {
@@ -113,6 +106,22 @@ export class EventParticipantComponent implements OnInit {
     });
   }
 
+  fetchAllEvents(): void {
+    this.loading = true;
+    this.eventService.fetchAllEvents().subscribe({
+      next: (data) => {
+        this.events = data;
+        this.loading = false;
+        this.updatePageTitle('Toutes les activités');
+      },
+      error: (err) => {
+        console.error('Erreur chargement événements :', err);
+        this.loading = false;
+        this.updatePageTitle('Toutes les activités');
+      },
+    });
+  }
+
   private updatePageTitle(title: string) {
     this.signals.setPageTitle(title);
   }
@@ -128,8 +137,8 @@ export class EventParticipantComponent implements OnInit {
   getMaterialLabel(material: string): string {
     return this.eventService.getMaterialLabel(material);
   }
-  
+
   getParticipationLabel(status: string | null | undefined): string {
-    return this.eventService.getParticipationLabel(status);
+    return this.eventService.getParticipationLabel(status ?? null);
   }
 }

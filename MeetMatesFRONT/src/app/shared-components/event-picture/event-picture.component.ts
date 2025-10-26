@@ -10,7 +10,7 @@ import { MatCardModule } from '@angular/material/card';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EventPictureComponent {
-  @Input() imageUrl: string | null = null;
+@Input() imageUrl: string | null | undefined;
   @Input() title = '';
   @Input() width = 280;
   @Input() height = 130;

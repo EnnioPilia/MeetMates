@@ -4,19 +4,22 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { environment } from '../../../../environments/environment';
 import { SignalsService } from '../../../core/services/signals/signals.service';
-
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatBadgeModule } from '@angular/material/badge';
-import { EventResponse } from '../../../core/models/event-response.model';
-import { Activity } from '../../../core/models/activity.model';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NotificationService } from '../../../core/services/notification/notification.service';
 import { EventService } from '../../../core/services/event/event-service.service';
+import { EventResponse } from '../../../core/models/event-response.model';
+import { Activity } from '../../../core/models/activity.model';
+
+// Angular Material
+import { MatCardModule } from '@angular/material/card';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+
+// Shared components
 import { BackButtonComponent } from '../../../shared-components/back-button/back-button.component';
+import { AppButtonComponent    } from '../../../shared-components/button/button.component';
+import { EventHeaderComponent } from '../../../shared-components/event-header/event-header.component';
+import { EventPictureComponent } from '../../../shared-components/event-picture/event-picture.component';
+import { EventInfoComponent } from '../../../shared-components/event-info/event-info.component';
 
 @Component({
   selector: 'app-event-list',
@@ -25,19 +28,16 @@ import { BackButtonComponent } from '../../../shared-components/back-button/back
   styleUrls: ['./event-list.component.scss'],
   imports: [
     CommonModule,
-    HttpClientModule,
     MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatChipsModule,
     MatProgressSpinnerModule,
-    MatBadgeModule,
     MatSnackBarModule,
-    BackButtonComponent
+    AppButtonComponent,
+    EventHeaderComponent,
+    EventPictureComponent,
+    EventInfoComponent
   ],
 })
 export class EventListComponent implements OnInit {
-
   private baseUrl = environment.apiUrl;
   private http = inject(HttpClient);
   private route = inject(ActivatedRoute);
@@ -50,13 +50,12 @@ export class EventListComponent implements OnInit {
   activityName = 'Toutes les activités';
 
   ngOnInit(): void {
+    // Vérifie si un utilisateur est connecté
     this.http.get(`${this.baseUrl}/user/me`, { withCredentials: true }).subscribe({
       next: (user: any) => {
-        console.log('Utilisateur connecté:', user);
         this.signals.setCurrentUser(user);
       },
-      error: (err) => {
-        console.warn('Aucun utilisateur connecté :', err);
+      error: () => {
         this.signals.clearCurrentUser();
       },
     });
@@ -70,6 +69,7 @@ export class EventListComponent implements OnInit {
     }
   }
 
+  // 🔹 Joindre un événement
   joinEvent(eventId: string): void {
     const user = this.signals.currentUser();
 
@@ -78,16 +78,9 @@ export class EventListComponent implements OnInit {
       return;
     }
 
-    this.http.post(
-      `${this.baseUrl}/event-user/join`,
-      { eventId, userId: user.id },
-      { withCredentials: true }
-    ).subscribe({
-      next: () => {
-        this.notification.showSuccess('Vous avez envoyer une demande de participation ');
-      },
+    this.http.post(`${this.baseUrl}/event-user/join`, { eventId, userId: user.id }, { withCredentials: true }).subscribe({
+      next: () => this.notification.showSuccess('Demande de participation envoyée.'),
       error: (err) => {
-        console.error('❌ Erreur participation :', err);
         if (err.status === 409) {
           this.notification.showWarning('Vous participez déjà à cet événement.');
         } else if (err.status === 410) {
@@ -101,6 +94,7 @@ export class EventListComponent implements OnInit {
     });
   }
 
+  // 🔹 Requêtes API
   fetchAllEvents(): void {
     this.loading = true;
     this.eventService.fetchAllEvents().subscribe({
@@ -109,8 +103,7 @@ export class EventListComponent implements OnInit {
         this.loading = false;
         this.updatePageTitle('Toutes les activités');
       },
-      error: (err) => {
-        console.error('Erreur chargement événements :', err);
+      error: () => {
         this.loading = false;
         this.updatePageTitle('Toutes les activités');
       },
@@ -123,8 +116,7 @@ export class EventListComponent implements OnInit {
         this.events = data;
         this.loading = false;
       },
-      error: (err) => {
-        console.error('Erreur chargement événements par activité :', err);
+      error: () => {
         this.loading = false;
       },
     });
@@ -136,27 +128,24 @@ export class EventListComponent implements OnInit {
         this.activityName = activity.name;
         this.updatePageTitle(activity.name);
       },
-      error: (err) => {
-        console.error('Erreur récupération nom activité :', err);
+      error: () => {
         this.activityName = 'Activité inconnue';
         this.updatePageTitle('Activité inconnue');
       },
     });
   }
 
+  // 🔹 Helpers
   private updatePageTitle(title: string) {
     this.signals.setPageTitle(title);
   }
-  
+
   formatTime(time: string): string {
-    if (!time) return '';
-    return time.substring(0, 5); // "12:00:00" → "12:00"
+    return time ? time.substring(0, 5) : '';
   }
 
   getFullImageUrl(relativePath: string): string {
-    return relativePath.startsWith('http')
-      ? relativePath
-      : `${this.baseUrl}${relativePath}`;
+    return relativePath?.startsWith('http') ? relativePath : `${this.baseUrl}${relativePath}`;
   }
 
   isEventOpen(event: any): boolean {
@@ -173,9 +162,5 @@ export class EventListComponent implements OnInit {
 
   getMaterialLabel(material: string): string {
     return this.eventService.getMaterialLabel(material);
-  }
-
-  getParticipationLabel(status: string | null | undefined): string {
-    return this.eventService.getParticipationLabel(status);
   }
 }
