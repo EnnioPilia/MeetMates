@@ -6,12 +6,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { NgFor } from '@angular/common';
 import { environment } from '../../../../environments/environment';
 import { Activity } from '../../../core/models/activity.model';
-import { BackButtonComponent } from '../../../shared-components/back-button/back-button.component'; 
 
 @Component({
   selector: 'app-activity',
   standalone: true,
-  imports: [MatCardModule, MatIconModule, NgFor,BackButtonComponent],
+  imports: [MatCardModule, MatIconModule, NgFor],
   templateUrl: './activity.component.html',
   styleUrls: ['./activity.component.scss'],
 })

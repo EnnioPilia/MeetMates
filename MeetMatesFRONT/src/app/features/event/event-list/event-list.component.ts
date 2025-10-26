@@ -15,7 +15,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 // Shared components
-import { BackButtonComponent } from '../../../shared-components/back-button/back-button.component';
 import { AppButtonComponent    } from '../../../shared-components/button/button.component';
 import { EventHeaderComponent } from '../../../shared-components/event-header/event-header.component';
 import { EventPictureComponent } from '../../../shared-components/event-picture/event-picture.component';

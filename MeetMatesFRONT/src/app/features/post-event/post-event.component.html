@@ -1,136 +1,23 @@
-<div class="flex flex-col items-center justify-center min-h-[calc(210vh-10px)] px-8">
+<div class="flex flex-col items-center px-8 py-12 min-h-screen overflow-auto bg-gray-50">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col items-center gap-4 w-full max-w-2xl mt-10 mb-10">
 
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col items-center">
+        <app-post-select [form]="form" [activities]="activities"></app-post-select>
 
-        <mat-form-field class="w-80">
-            <mat-label>Activité</mat-label>
-            <mat-select formControlName="activityId" required>
-                @for (activity of activities; track activity.id) {
-                <mat-option [value]="activity.id">{{ activity.name }}</mat-option>
-                }
-            </mat-select>
-            @if (form.get('activityId')?.invalid && form.get('activityId')?.touched) {
-            <mat-error>Veuillez choisir une activité.</mat-error>
-            }
-        </mat-form-field>
+        <app-post-text-fields [form]="form"></app-post-text-fields>
 
-        <mat-form-field class="w-80">
-            <mat-label>Titre</mat-label>
-            <input matInput formControlName="titre" placeholder="Ex: tournois de basket" required>
-            @if (form.get('titre')?.invalid && form.get('titre')?.touched) {
-            <mat-error>Veuillez entrer un titre (max 20).</mat-error>
-            }
-        </mat-form-field>
+        <app-post-date-time [form]="form"></app-post-date-time>
 
-        <mat-form-field class="w-80">
-            <mat-label>Description</mat-label>
-            <textarea matInput rows="3" formControlName="description" placeholder="Décrivez votre activité..."
-                required></textarea>
-            @if (form.get('description')?.invalid && form.get('description')?.touched) {
-            <mat-error>Veuillez entrer une description.</mat-error>
-            }
-        </mat-form-field>
+        <app-post-options [form]="form" [materialOptions]="materialOptions" [levelOptions]="levelOptions"></app-post-options>
 
-        <mat-form-field class="w-80">
-            <mat-label>Date</mat-label>
-            <input matInput [matDatepicker]="picker1" formControlName="date">
-            <mat-datepicker-toggle matIconSuffix [for]="picker1"></mat-datepicker-toggle>
-            <mat-datepicker #picker1></mat-datepicker>
-            @if (form.get('date')?.invalid && form.get('date')?.touched) {
-            <mat-error>Veuillez entrer une date.</mat-error>
-            }
-        </mat-form-field>
+        <app-post-address [form]="form" controlName="adresse" [suggestions]="addressSuggestions"
+            (inputChange)="onAddressInput($event)" (optionSelected)="onAddressSelect($event)">
+        </app-post-address>
 
-        <div class="flex flex-col w-80">
-            <div class="flex gap-4">
-                <mat-form-field class="flex-1">
-                    <mat-label>Heure de début</mat-label>
-                    <input matInput type="time" formControlName="starTime" required>
-                </mat-form-field>
+        <app-picture-uploader [previewUrl]="previewUrl" label="Photo de l’activité" 
+            (fileSelected)="onFileSelected($event)" (remove)="removeImage()">
+        </app-picture-uploader>
 
-                <mat-form-field class="flex-1">
-                    <mat-label>Heure de fin</mat-label>
-                    <input matInput type="time" formControlName="endTime" required>
-                </mat-form-field>
-            </div>
-
-            <mat-error *ngIf="(form.get('heureDebut')?.hasError('required') || form.get('endTime')?.hasError('required')) 
-           && (form.get('starTime')?.touched || form.get('endTime')?.touched)" class=" mt-[-15px] ">
-                Les heures de début et de fin sont obligatoires.
-            </mat-error>
-        </div>
-
-        <mat-radio-group class="w-80 mb-2" formControlName="materiel">
-            <label class="block mb-2 text-gray-700 ">Matériel :</label>
-            <div class="flex flex-col gap-2">
-                @for (option of materialOptions; track option.value) {
-                <mat-radio-button class="materiel-radio " [value]="option.value">{{ option.label }}</mat-radio-button>
-                }
-            </div>
-        </mat-radio-group>
-
-        <mat-form-field class="w-80">
-            <mat-label>Nombre de participants</mat-label>
-            <input matInput type="number" formControlName="participants" min="2">
-            @if (form.get('participants')?.invalid && form.get('participants')?.touched) {
-            <mat-error>Minimum 2 participants.</mat-error>
-            }
-        </mat-form-field>
-
-        <mat-form-field class="w-80">
-            <mat-label>Niveau</mat-label>
-            <mat-select formControlName="niveau">
-                @for (option of levelOptions; track option.value) {
-                <mat-option [value]="option.value">{{ option.label }}</mat-option>
-                }
-            </mat-select>
-        </mat-form-field>
-
-
-
-        <mat-form-field class="w-80">
-            <mat-label>Adresse</mat-label>
-            <input matInput type="text" placeholder="Rechercher une adresse..." formControlName="adresse"
-                [matAutocomplete]="auto" (input)="onAddressInput()" />
-
-            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onAddressSelect($event.option.value)">
-                <mat-option *ngFor="let suggestion of addressSuggestions" [value]="suggestion.display_name">
-                    {{ suggestion.display_name }}
-                </mat-option>
-            </mat-autocomplete>
-
-            <mat-error *ngIf="form.get('adresse')?.invalid && form.get('adresse')?.touched">
-                Veuillez saisir une adresse valide.
-            </mat-error>
-        </mat-form-field>
-
-
-        <div class="w-80 mt-2 flex flex-col items-start">
-            <label class="block mb-2 items-center justify-center">Photo de l’activité :</label>
-
-            <mat-card class=" photo-card w-full h-48 justify-center items-center" *ngIf="!previewUrl">
-                <input type="file" accept="image/*" (change)="onFileSelected($event)"
-                    class="absolute inset-0 opacity-0 cursor-pointer z-10" />
-                <mat-icon>cloud_upload</mat-icon>
-                <p class="text-sm mt-8">Cliquez ou glissez une image ici</p>
-            </mat-card>
-
-            <div class="relative w-full " *ngIf="previewUrl">
-                <img [src]="previewUrl" alt="Prévisualisation"
-                    class="w-full h-48 object-cover border border-gray-300 " />
-            </div>
-        </div>
-
-        <button *ngIf="previewUrl" mat-flat-button class="primary-button-cancel  w-full mt-2 " (click)="removeImage()"
-            type="button">
-            Supprimer la photo
-        </button>
-
-        <mat-card-actions class="flex flex-col items-center justify-center gap-4 mt-8 mb-4 w-80">
-            <button mat-flat-button color="primary" class="w-full primary-button" type="submit">
-                Créer l’activité
-            </button>
-        </mat-card-actions>
+        <app-button label="CRÉER L’ACTIVITÉ" class="w-80 primary-button" type="submit"[disabled]="isSubmitting"></app-button>
 
     </form>
 </div>

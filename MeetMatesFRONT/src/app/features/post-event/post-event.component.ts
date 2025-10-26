@@ -1,113 +1,98 @@
-import { Component, ChangeDetectionStrategy, OnInit, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
-
-// Angular Material imports
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { HttpClient } from '@angular/common/http';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatRadioModule } from '@angular/material/radio';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatRadioModule } from '@angular/material/radio';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTimepickerModule } from '@angular/material/timepicker';
-import { MatTimepickerToggle } from '@angular/material/timepicker';
+import { MatCardModule } from '@angular/material/card';
 
+import { environment } from '../../../environments/environment';
 import { NotificationService } from '../../core/services/notification/notification.service';
-import { EventService } from '../../core/services/event/event-service.service';
+
+import { PostSelectComponent } from './components/post-select.component';
+import { PostTextFieldsComponent } from './components/post-text-fields.component';
+import { PostDateTimeComponent } from './components/post-date-time.component';
+import { PostOptionsComponent } from './components/post-options.component';
+import { PostAddressComponent } from './components/post-address.component';
+import { PictureUploaderComponent } from '../../shared-components/picture-uploader/picture-uploader';
+import { AppButtonComponent } from '../../shared-components/button/button.component';
 
 @Component({
   selector: 'app-post-event',
   standalone: true,
-  templateUrl: './post-event.component.html',
-  styleUrls: ['./post-event.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    HttpClientModule,
-    MatAutocompleteModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatRadioModule,
-    MatButtonModule,
-    MatCardModule,
-    MatSnackBarModule,
-    MatIconModule,
-    MatTimepickerModule
+    CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatRadioModule, MatDatepickerModule,
+    MatNativeDateModule, MatAutocompleteModule, MatIconModule, MatCardModule, PostSelectComponent, PostTextFieldsComponent,
+    PostAddressComponent, PostDateTimeComponent, PostOptionsComponent, PictureUploaderComponent, AppButtonComponent
   ],
+  templateUrl: './post-event.component.html',
+  styleUrls: ['./post-event.component.scss']
 })
 export class PostEventComponent implements OnInit {
   private fb = inject(FormBuilder);
   private http = inject(HttpClient);
-  private cdr = inject(ChangeDetectorRef);
   private notification = inject(NotificationService);
+  private cdr = inject(ChangeDetectorRef);
 
   form!: FormGroup;
   activities: any[] = [];
   addressSuggestions: any[] = [];
-  isSubmitting = false;
-  previewUrl: string | null = null;
+  previewUrl?: string | null = null;
   selectedFile: File | null = null;
-  private baseUrl = environment.apiUrl;
+  selectedAddress?: string;
+  isSubmitting = false;
 
   materialOptions = [
-    { label: 'Fournis',value: 'PROVIDED' },
+    { label: 'Fournis', value: 'PROVIDED' },
     { label: 'Amener son matériel', value: 'YOUR_OWN' },
-    { label: 'Pas de matériel requis', value: 'NOT_REQUIRED' },
+    { label: 'Pas de matériel requis', value: 'NOT_REQUIRED' }
   ];
 
   levelOptions = [
     { label: 'Débutant', value: 'BEGINNER' },
     { label: 'Intermédiaire', value: 'INTERMEDIATE' },
     { label: 'Expert', value: 'EXPERT' },
-    { label: 'Tous niveaux', value: 'ALL_LEVELS' },
+    { label: 'Tous niveaux', value: 'ALL_LEVELS' }
   ];
+
+  private baseUrl = environment.apiUrl;
 
   ngOnInit(): void {
     this.buildForm();
     this.loadActivities();
+    setTimeout(() => this.cdr.detectChanges(), 0);
+
   }
 
   private buildForm(): void {
     this.form = this.fb.group({
       titre: ['', [Validators.required, Validators.maxLength(20)]],
-      description: ['', [Validators.required, Validators.minLength(1)]],
+      description: ['', [Validators.required]],
       date: ['', Validators.required],
-      starTime: ['', Validators.required],
+      startTime: ['', Validators.required],
       endTime: ['', Validators.required],
-      participants: [ '',[Validators.required, Validators.min(1)]],
+      participants: ['', [Validators.required, Validators.min(1)]],
       materiel: ['', Validators.required],
       niveau: ['', Validators.required],
       adresse: ['', Validators.required],
-      activityId: ['', Validators.required],
+      activityId: ['', Validators.required]
     });
   }
 
   private loadActivities(): void {
     this.http.get<any[]>(`${this.baseUrl}/activity`).subscribe({
-      next: (data) => (this.activities = data),
-      error: (err) => {
-        console.error('❌ Erreur lors du chargement des activités :', err);
-        this.notification.showError('Erreur lors du chargement des activités.');
-      },
+      next: data => (this.activities = data),
+      error: () => this.notification.showError('Erreur lors du chargement des activités.')
     });
   }
 
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
-
+  onFileSelected(file: File): void {
     this.selectedFile = file;
     const reader = new FileReader();
     reader.onload = () => {
@@ -123,49 +108,54 @@ export class PostEventComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  // === Adresse ===
-  onAddressInput(): void {
-    const query = this.form.get('adresse')?.value?.trim();
-    if (!query || query.length < 3) {
+  onAddressInput(value: string): void {
+    if (!value || value.trim().length < 3) {
       this.addressSuggestions = [];
       return;
     }
 
     this.http
       .get<any>('https://api-adresse.data.gouv.fr/search/', {
-        params: { q: query, limit: 5 },
+        params: { q: value, limit: 5 }
       })
       .subscribe({
         next: (data) => {
           this.addressSuggestions = data.features.map((f: any) => ({
-            display_name: f.properties.label,
-            city: f.properties.city,
-            postalCode: f.properties.postcode,
+            display_name: f.properties.label
           }));
+          this.cdr.detectChanges();
         },
-        error: () => (this.addressSuggestions = []),
+        error: () => {
+          this.addressSuggestions = [];
+          this.cdr.detectChanges();
+        }
       });
   }
 
-  onAddressSelect(selected: string): void {
-    this.form.get('adresse')?.setValue(selected);
+  onAddressSelect(value: string): void {
+    this.selectedAddress = value;
+    this.form.get('adresse')?.setValue(value);
   }
-
+  
   onSubmit(): void {
+    console.log('Form values:', this.form.value);
+    console.log('Form valid:', this.form.valid);
+    console.log('Form controls:', this.form.controls);
+
     if (this.form.invalid) {
       this.notification.showError('Veuillez remplir tous les champs correctement.');
       return;
     }
 
     this.isSubmitting = true;
-    const { titre, description, date, starTime, endTime, participants, materiel, niveau, adresse, activityId } =
+    const { titre, description, date, startTime, endTime, participants, materiel, niveau, adresse, activityId } =
       this.form.value;
 
     const eventPayload = {
       title: titre,
       description,
       eventDate: this.formatDate(date),
-      startTime: starTime,
+      startTime: startTime,
       endTime,
       maxParticipants: participants,
       material: materiel,
@@ -179,7 +169,6 @@ export class PostEventComponent implements OnInit {
 
     this.http.post<any>(`${this.baseUrl}/event`, eventPayload, { withCredentials: true }).subscribe({
       next: (res) => {
-
         const eventId = res?.id || res?.eventId;
         if (!eventId) {
           this.notification.showWarning('Activité créée, mais identifiant introuvable.');
@@ -194,7 +183,7 @@ export class PostEventComponent implements OnInit {
           this.resetForm();
         }
       },
-      error: (err) => {
+      error: () => {
         this.notification.showError('Erreur lors de la création de l’activité.');
         this.isSubmitting = false;
       },
@@ -210,10 +199,10 @@ export class PostEventComponent implements OnInit {
       .post(`${this.baseUrl}/event/${eventId}/picture`, formData, { withCredentials: true })
       .subscribe({
         next: () => {
-          this.notification.showSuccess('Votre activité a été enregistrées avec succès !');
+          this.notification.showSuccess('Votre activité a été enregistrée avec succès !');
           this.resetForm();
         },
-        error: (err) => {
+        error: () => {
           this.notification.showWarning('Activité créée, mais échec de l’envoi de la photo.');
           this.resetForm();
         },

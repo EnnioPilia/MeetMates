@@ -3,17 +3,12 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
-
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { NotificationService } from '../../../core/services/notification/notification.service';
-
-// Angular Material
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-
-// Shared components
 import { AppInputComponent } from '../../../shared-components/input/input.component';
 import { AppButtonComponent } from '../../../shared-components/button/button.component';
 
@@ -43,7 +38,6 @@ export class ForgotPasswordComponent {
 
   isSubmitting = false;
 
-  // ✅ Plus de "null" grâce à NonNullableFormBuilder
   form = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
   });
