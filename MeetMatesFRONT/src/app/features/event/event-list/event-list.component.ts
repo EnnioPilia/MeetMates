@@ -8,13 +8,9 @@ import { NotificationService } from '../../../core/services/notification/notific
 import { EventService } from '../../../core/services/event/event-service.service';
 import { EventResponse } from '../../../core/models/event-response.model';
 import { Activity } from '../../../core/models/activity.model';
-
-// Angular Material
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-
-// Shared components
 import { AppButtonComponent    } from '../../../shared-components/button/button.component';
 import { EventHeaderComponent } from '../../../shared-components/event-header/event-header.component';
 import { EventPictureComponent } from '../../../shared-components/event-picture/event-picture.component';
@@ -49,7 +45,6 @@ export class EventListComponent implements OnInit {
   activityName = 'Toutes les activités';
 
   ngOnInit(): void {
-    // Vérifie si un utilisateur est connecté
     this.http.get(`${this.baseUrl}/user/me`, { withCredentials: true }).subscribe({
       next: (user: any) => {
         this.signals.setCurrentUser(user);
@@ -68,7 +63,6 @@ export class EventListComponent implements OnInit {
     }
   }
 
-  // 🔹 Joindre un événement
   joinEvent(eventId: string): void {
     const user = this.signals.currentUser();
 
@@ -93,7 +87,6 @@ export class EventListComponent implements OnInit {
     });
   }
 
-  // 🔹 Requêtes API
   fetchAllEvents(): void {
     this.loading = true;
     this.eventService.fetchAllEvents().subscribe({
@@ -134,7 +127,6 @@ export class EventListComponent implements OnInit {
     });
   }
 
-  // 🔹 Helpers
   private updatePageTitle(title: string) {
     this.signals.setPageTitle(title);
   }

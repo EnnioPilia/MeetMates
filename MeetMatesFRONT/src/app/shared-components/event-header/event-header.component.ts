@@ -5,7 +5,10 @@ import { MatButtonModule } from '@angular/material/button';
 @Component({
   selector: 'app-event-header',
   standalone: true,
-  imports: [CommonModule, MatButtonModule],
+  imports: [
+    CommonModule, 
+    MatButtonModule
+  ],
   templateUrl: './event-header.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })

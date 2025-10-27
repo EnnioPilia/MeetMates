@@ -2,7 +2,7 @@
   <p *ngIf="showStatus"><strong>STATUT :</strong> {{ getStatusLabel(event.status) }}</p>
   <p><strong>ACTIVITÉ :</strong> {{ event.activityName }}</p>
   <p><strong>DATE :</strong> {{ event.eventDate | date:'mediumDate' }}</p>
-  <p><strong>HORAIRE :</strong> {{ event.startTime }} - {{ event.endTime }}</p>
+  <p><strong>HORAIRE :</strong> {{ formatTime(event.startTime) }} - {{formatTime(event.endTime)}}</p>
   <p><strong>ADRESSE :</strong> {{ event.addressLabel }}</p>
   <p><strong>NIVEAU :</strong> {{ getLevelLabel(event.level) }}</p>
   <p><strong>MATÉRIEL :</strong> {{ getMaterialLabel(event.material) }}</p>

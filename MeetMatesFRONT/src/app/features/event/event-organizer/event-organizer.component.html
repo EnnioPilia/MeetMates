@@ -9,13 +9,14 @@
 
       <app-event-header [title]="event.title" [description]="event.description"></app-event-header>
 
-      <app-event-participants-tabs [acceptedParticipants]="event.acceptedParticipants"
+      <app-event-participants-tabs 
+        [acceptedParticipants]="event.acceptedParticipants"
         [pendingParticipants]="event.pendingParticipants" [organizerName]="event.organizerName"
         (accept)="acceptParticipant($event)" (reject)="rejectParticipant($event)"
         (remove)="removeParticipant(event.id, $event)">
       </app-event-participants-tabs>
 
-      <app-event-info [event]="event" [showStatus]="true" [showOrganizer]="true"></app-event-info>
+      <app-event-info [event]="event" [showStatus]="true" [showOrganizer]="false"></app-event-info>
 
       <app-event-picture [imageUrl]="event.imageUrl" [title]="event.title" [width]="280" [height]="130"></app-event-picture>
 

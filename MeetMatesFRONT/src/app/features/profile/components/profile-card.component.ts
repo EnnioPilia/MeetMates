@@ -5,8 +5,12 @@ import { MatCardModule } from '@angular/material/card';
 @Component({
   selector: 'app-profile-card',
   standalone: true,
-  imports: [CommonModule, MatCardModule],
+  imports: [
+    CommonModule, 
+    MatCardModule
+  ],
   template: `
+  
     <mat-card class="flex flex-col items-center gap-2 w-full mt-8">
       <img [src]="'assets/default-avatar.png'" class="w-32 h-32 rounded-full object-cover border-2 border-black" />
       <p>{{ user?.lastName }} {{ user?.firstName }}</p>

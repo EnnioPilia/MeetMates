@@ -22,12 +22,11 @@ import { AppInputComponent } from '../../../shared-components/input/input.compon
       <mat-form-field class="w-80">
         <mat-label>Description</mat-label>
         <textarea matInput formControlName="description" rows="4"></textarea>
-        @if (form.get('description')?.hasError('required') && (form.get('description')?.touched || form.get('description')?.dirty)) {
-        <mat-error>Description est requise.</mat-error>
+          @if (form.get('description')?.hasError('required') && (form.get('description')?.touched || form.get('description')?.dirty)) {
+          <mat-error>Description est requise.</mat-error>
         }
       </mat-form-field>
     </div>
-
   `
 })
 export class PostTextFieldsComponent {

@@ -9,10 +9,15 @@ import { MatCardModule } from '@angular/material/card';
   selector: 'app-button',
   standalone: true,
   templateUrl: './button.component.html',
-  imports: [CommonModule, MatButtonModule, MatIconModule, MatCardModule,RouterModule],
+  imports: [
+    CommonModule, 
+    MatButtonModule, 
+    MatIconModule, 
+    MatCardModule,
+    RouterModule
+  ],
 })
 export class AppButtonComponent {
-  // --- Inputs ---
   @Input() label!: string;
   @Input() color: 'primary' | 'warn' | 'accent' | 'default' = 'default';
   @Input() type: 'button' | 'submit' = 'button';

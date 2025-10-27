@@ -6,7 +6,6 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog } from '@angular/material/dialog';
-
 import { environment } from '../../../../environments/environment';
 import { EventDetails } from '../../../core/models/event-details.model';
 import { EventResponse } from '../../../core/models/event-response.model';
@@ -14,10 +13,8 @@ import { EventService } from '../../../core/services/event/event-service.service
 import { NotificationService } from '../../../core/services/notification/notification.service';
 import { SignalsService } from '../../../core/services/signals/signals.service';
 import { ConfirmDialogComponent } from '../../../shared-components/confirm-dialog/confirm-dialog.component';
-
 import { EventStatusComponent } from './components/event-status';
 import { ParticipantListComponent } from './components/participant-list';
-
 import { EventHeaderComponent } from '../../../shared-components/event-header/event-header.component';
 import { EventInfoComponent } from '../../../shared-components/event-info/event-info.component';
 import { EventPictureComponent } from '../../../shared-components/event-picture/event-picture.component';
@@ -50,7 +47,6 @@ export class EventParticipantComponent implements OnInit {
   private notification = inject(NotificationService);
   private dialog = inject(MatDialog);
   private eventService = inject(EventService);
-
   loading = true;
   event?: EventDetails;
   baseUrl = environment.apiUrl;
@@ -76,7 +72,7 @@ export class EventParticipantComponent implements OnInit {
 
   cancelParticipation(eventId: string): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: { title: 'Confirmer l’annulation', message: "Êtes-vous sûr de vouloir annuler votre participation ? Si vous êtes l'organisateur, votre annonce sera supprimée." }
+      data: { title: 'Confirmer l’annulation', message: "Êtes-vous sûr de vouloir annuler votre participation ?" }
     });
 
     dialogRef.afterClosed().subscribe((confirmed: boolean) => {

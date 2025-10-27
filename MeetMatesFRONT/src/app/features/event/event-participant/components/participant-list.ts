@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
+  
     <div class="flex flex-col w-full mt-4">
       <p class="font-semibold text-lg mb-2 border-b border-black">
         LISTE DES PARTICIPANTS :

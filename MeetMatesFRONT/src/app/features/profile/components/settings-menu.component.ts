@@ -8,8 +8,15 @@ import { RouterModule } from '@angular/router';
 @Component({
   selector: 'app-settings-menu',
   standalone: true,
-  imports: [CommonModule, MatMenuModule, MatButtonModule, MatIconModule, RouterModule],
+  imports: [
+    CommonModule, 
+    MatMenuModule, 
+    MatButtonModule, 
+    MatIconModule, 
+    RouterModule
+  ],
   template: `
+  
     <div class="absolute top-15 right-5 z-50 ">
       <button mat-icon-button [matMenuTriggerFor]="settingsMenu" aria-label="Ouvrir le menu paramètres">
         <mat-icon>settings</mat-icon>

@@ -7,13 +7,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog } from '@angular/material/dialog';
 import { HttpClient } from '@angular/common/http';
 import { forkJoin } from 'rxjs';
-
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { UserService } from '../../core/services/user/user.service';
-import { EventService } from '../../core/services/event/event-service.service';
 import { ConfirmDialogComponent } from '../../shared-components/confirm-dialog/confirm-dialog.component';
-
 import { ProfileCardComponent } from '../profile/components/profile-card.component';
 import { ParticipationTabComponent } from '../profile/components/participation-tab.component';
 import { OrganizationTabComponent } from '../profile/components/organization-tab.component';
@@ -42,10 +39,8 @@ export class ProfileComponent {
   private dialog = inject(MatDialog);
   private authService = inject(AuthService);
   private userService = inject(UserService);
-  private eventService = inject(EventService);
   private baseUrl = environment.apiUrl;
 
-  // --- Signals réactifs
   readonly user = signal<any>(null);
   readonly eventsParticipating = signal<any[]>([]);
   readonly eventsOrganized = signal<any[]>([]);
@@ -56,13 +51,12 @@ export class ProfileComponent {
     this.loadProfileData();
   }
 
-  /** 🔹 Charger le profil utilisateur */
   private loadProfileData(): void {
     this.loading.set(true);
     this.userService.getCurrentUser().subscribe({
       next: (user) => {
         this.user.set(user);
-        this.fetchEvents(); // charge les events après le user
+        this.fetchEvents();
       },
       error: (err) => {
         console.error('Erreur profil :', err);

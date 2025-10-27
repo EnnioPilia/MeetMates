@@ -47,7 +47,6 @@ export class EventOrganizerComponent implements OnInit {
   private dialog = inject(MatDialog);
   private notification = inject(NotificationService);
   private eventService = inject(EventService);
-
   baseUrl = environment.apiUrl;
   loading = true;
 
@@ -93,7 +92,6 @@ export class EventOrganizerComponent implements OnInit {
     });
   }
 
-  /** ✅ Acceptation d’un participant */
   acceptParticipant(eventUserId: string): void {
     this.http.put(`${this.baseUrl}/event-user/${eventUserId}/accept`, {}, { withCredentials: true }).subscribe({
       next: () => {
@@ -104,7 +102,6 @@ export class EventOrganizerComponent implements OnInit {
     });
   }
 
-  /** ✅ Refus d’un participant */
   rejectParticipant(eventUserId: string): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
@@ -126,7 +123,6 @@ export class EventOrganizerComponent implements OnInit {
     });
   }
 
-  /** ✅ Retrait d’un participant */
   removeParticipant(eventId: string, userId: string): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
@@ -174,7 +170,6 @@ export class EventOrganizerComponent implements OnInit {
     });
   }
 
-  /** 🔄 Recharge les données */
   refreshEvent(): void {
     const eventId = this.route.snapshot.paramMap.get('eventId');
     if (eventId) {
@@ -182,7 +177,6 @@ export class EventOrganizerComponent implements OnInit {
     }
   }
 
-  /** ✅ Helpers de labels (traductions) */
   getStatusLabel(status: string): string {
     return this.eventService.getStatusLabel(status);
   }

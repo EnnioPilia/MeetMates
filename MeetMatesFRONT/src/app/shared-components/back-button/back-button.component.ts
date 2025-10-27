@@ -9,7 +9,12 @@ import { MatCardModule } from '@angular/material/card';
   selector: 'app-back-button',
   standalone: true,
   templateUrl: './back-button.component.html',
-  imports: [CommonModule, MatButtonModule, MatIconModule, MatCardModule],
+  imports: [
+    CommonModule, 
+    MatButtonModule, 
+    MatIconModule, 
+    MatCardModule
+  ],
 })
 export class BackButtonComponent {
   private location = inject(Location);

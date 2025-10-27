@@ -14,7 +14,7 @@ export class RequestsTabsComponent {
   @Input() acceptedParticipants: { id: string; firstName: string; lastName: string }[] = [];
   @Input() pendingParticipants: { id: string; firstName: string; lastName: string }[] = [];
   @Input() organizerName = '';
-
+  
   @Output() accept = new EventEmitter<string>();
   @Output() reject = new EventEmitter<string>();
   @Output() remove = new EventEmitter<string>();

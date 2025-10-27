@@ -25,7 +25,7 @@ interface EventData {
 export class EventInfoComponent {
   private readonly eventService = inject(EventService);
 
-  @Input() event: EventData = {}; // ✅ valeur par défaut → plus d’erreur undefined
+  @Input() event: EventData = {};
   @Input() showStatus = false;
   @Input() showOrganizer = true;
 
@@ -39,5 +39,9 @@ export class EventInfoComponent {
 
   getMaterialLabel(material?: string): string {
     return material ? this.eventService.getMaterialLabel(material) : '';
+  }
+  
+  formatTime(time?: string): string {
+    return time ? time.slice(0, 5) : '';
   }
 }
