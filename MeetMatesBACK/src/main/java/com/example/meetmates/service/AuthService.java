@@ -94,7 +94,6 @@ public class AuthService {
                 .sameSite("Strict")
                 .build();
 
-        // Cookie refreshToken
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken.getToken())
                 .httpOnly(true)
                 .secure(false) // mettre true en prod avec HTTPS

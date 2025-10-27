@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.meetmates.model.core.User;
-import com.example.meetmates.model.core.UserRole;
 import com.example.meetmates.model.core.UserStatus;
 import com.example.meetmates.model.security.TokenType;
 import com.example.meetmates.repository.TokenRepository;
@@ -23,7 +22,6 @@ import com.example.meetmates.repository.UserRepository;
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
     private final TokenRepository tokenRepository;
 
     @Autowired
@@ -31,49 +29,19 @@ public class UserService implements UserDetailsService {
             PasswordEncoder passwordEncoder,
             TokenRepository tokenRepository) {
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
         this.tokenRepository = tokenRepository;
     }
 
-    // =================== CRUD Utilisateur ===================
+
+// 🔸 Ajouter des exceptions personnalisées (plus clean pour la gestion d’erreurs).
+
+// 🔸 Annoter les méthodes de lecture avec @Transactional(readOnly = true).
+
+// 🔸 Logger les actions sensibles (deleteUserById, register, etc.).
+
+// 🔸 Tester la cohérence entre UserStatus et enabled (par ex., ne pas avoir ACTIVE mais enabled = false sauf au moment de la vérification de mail).
+
     public User updateUser(User user) {
-        return userRepository.save(user);
-    }
-
-
-
-//refacto BACK !!!
-    public User register(User user) {
-        if (userRepository.findByEmail(user.getEmail().toLowerCase()).isPresent()) {
-            throw new RuntimeException("Email déjà utilisé");
-        }
-
-        user.setEmail(user.getEmail().toLowerCase());
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setEnabled(false); // non activé par défaut
-        user.setStatus(UserStatus.ACTIVE);
-        if (user.getRole() == null) {
-            user.setRole(UserRole.USER);
-        }
-
-        return userRepository.save(user);
-    }
-
-    public User createUser(User user) {
-        user.setEmail(user.getEmail().toLowerCase());
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole(UserRole.USER);
-        user.setEnabled(true);
-        user.setStatus(UserStatus.ACTIVE);
-        return userRepository.save(user);
-    }
-
-    public User registerAdmin(User user) {
-        user.setEmail(user.getEmail().toLowerCase());
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole(UserRole.ADMIN);
-        user.setEnabled(true);
-        user.setStatus(UserStatus.ACTIVE);
         return userRepository.save(user);
     }
 
