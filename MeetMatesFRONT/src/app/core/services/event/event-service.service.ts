@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { Observable } from 'rxjs';
 import { EventResponse } from '../../models/event-response.model';
+import { EventDetails } from '../../models/event-details.model';
 
 @Injectable({
   providedIn: 'root'
@@ -14,6 +15,20 @@ export class EventService {
   fetchAllEvents(): Observable<EventResponse[]> {
     return this.http.get<EventResponse[]>(`${this.baseUrl}/event`);
   }
+
+
+  //REFACTO EVENT PARTICPANT
+
+  // getEventById(id: string): Observable<EventDetails> {
+  //   return this.http.get<EventDetails>(`${this.baseUrl}/event/${id}`, { withCredentials: true });
+  // }
+
+  // cancelParticipation(id: string): Observable<void> {
+  //   return this.http.delete<void>(`${this.baseUrl}/event-user/leave`, {
+  //     params: { eventId: id },
+  //     withCredentials: true,
+  //   });
+  // }
 
   getStatusLabel(status: string): string {
     switch (status) {

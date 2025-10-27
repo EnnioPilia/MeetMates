@@ -16,6 +16,7 @@ import { AppButtonComponent } from '../../../shared-components/button/button.com
     MatButtonModule,
     AppButtonComponent
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
 
     <div class="max-h-[37vh] overflow-y-auto p-3">
@@ -44,12 +45,11 @@ import { AppButtonComponent } from '../../../shared-components/button/button.com
       }
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ParticipationTabComponent {
-  @Input() events: any[] = [];
-
   private eventService = inject(EventService);
+
+  @Input() events: any[] = [];
 
   getStatusLabel(status: string): string {
     return this.eventService.getStatusLabel(status);

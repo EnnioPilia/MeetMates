@@ -65,7 +65,6 @@ export class PostEventComponent implements OnInit {
     this.buildForm();
     this.loadActivities();
     setTimeout(() => this.cdr.detectChanges(), 0);
-
   }
 
   private buildForm(): void {
@@ -160,8 +159,6 @@ export class PostEventComponent implements OnInit {
       address: { street: adresse, city: '', postalCode: '' },
     };
 
-    console.log('📦 Payload envoyé au backend :', eventPayload);
-
     this.http.post<any>(`${this.baseUrl}/event`, eventPayload, { withCredentials: true }).subscribe({
       next: (res) => {
         const eventId = res?.id || res?.eventId;
@@ -213,6 +210,6 @@ export class PostEventComponent implements OnInit {
     this.previewUrl = null;
     this.selectedFile = null;
     this.isSubmitting = false;
-    this.cdr.detectChanges();
+    this.cdr.detectChanges();  
   }
 }

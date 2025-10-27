@@ -1,6 +1,7 @@
 import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
+import { User } from '../../../core/models/user.model';
 
 @Component({
   selector: 'app-profile-card',
@@ -9,16 +10,17 @@ import { MatCardModule } from '@angular/material/card';
     CommonModule, 
     MatCardModule
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
   
-    <mat-card class="flex flex-col items-center gap-2 w-full mt-8">
-      <img [src]="'assets/default-avatar.png'" class="w-32 h-32 rounded-full object-cover border-2 border-black" />
-      <p>{{ user?.lastName }} {{ user?.firstName }}</p>
-      <p>{{ user?.email }}</p>
+    <mat-card class="flex flex-col items-center gap-2 w-full mt-8 text-center">
+      <img [src]="'assets/default-avatar.png'" alt="Photo de profil" class="w-32 h-32 rounded-full object-cover border-2 border-black" />
+      <p>{{ user.lastName }} {{ user.firstName }}</p>
+      <p>{{ user.email }}</p>
     </mat-card>
+    
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProfileCardComponent {
-  @Input() user!: any;
+  @Input({ required: true }) user!: User;
 }

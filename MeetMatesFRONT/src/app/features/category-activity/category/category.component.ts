@@ -1,9 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { NgFor } from '@angular/common';
 import { environment } from '../../../../environments/environment';
 
 interface Category {
@@ -17,17 +16,18 @@ interface Category {
 @Component({
   selector: 'app-category',
   standalone: true,
-  imports: [MatCardModule, MatIconModule, NgFor],
+  imports: [MatCardModule, MatIconModule],
   templateUrl: './category.component.html',
   styleUrls: ['./category.component.scss']
 })
 export class CategoryComponent implements OnInit {
 
+private readonly baseUrl = environment.apiUrl.replace(/\/+$/, '') + '/category';
+  readonly error = signal<string | null>(null);
+  private http = inject(HttpClient);
+  private router = inject(Router);
+
   categories: Category[] = [];
-
-  private readonly baseUrl = environment.apiUrl.replace(/\/+$/, '') + '/category';
-
-  constructor(private http: HttpClient, private router: Router) { }
 
   ngOnInit(): void {
     this.loadCategories();
@@ -39,7 +39,10 @@ export class CategoryComponent implements OnInit {
         console.log('Categories loaded: ', data);
         this.categories = data;
       },
-      error: (err) => console.error('Erreur API catégories', err)
+      error: (err) => {
+        console.error('Erreur API catégories', err);
+        this.error.set('Erreur lors du chargement des catégories.');
+      }
     });
   }
 

@@ -15,6 +15,7 @@ import { RouterModule } from '@angular/router';
     MatIconModule, 
     RouterModule
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
   
     <div class="absolute top-15 right-5 z-50 ">
@@ -40,7 +41,6 @@ import { RouterModule } from '@angular/router';
       </mat-menu>
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SettingsMenuComponent {
   @Output() logout = new EventEmitter<void>();

@@ -20,6 +20,20 @@ import { EventInfoComponent } from '../../../shared-components/event-info/event-
 import { EventPictureComponent } from '../../../shared-components/event-picture/event-picture.component';
 import { AppButtonComponent } from '../../../shared-components/button/button.component';
 
+
+
+  //REFACTO DU COMPOSANT
+
+// ✅ Nettoyer les subscribe() → utiliser takeUntilDestroyed()
+
+// ✅ Typage strict (EventDetails, EventResponse)
+
+// ✅ Gérer proprement les undefined (valeurs par défaut ou ?)
+
+// ✅ Séparer la logique métier et l’affichage
+
+// ✅ Alléger le template et renforcer la lisibilité
+
 @Component({
   selector: 'app-event-participant',
   standalone: true,

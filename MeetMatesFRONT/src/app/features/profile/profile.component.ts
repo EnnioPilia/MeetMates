@@ -15,6 +15,7 @@ import { ProfileCardComponent } from '../profile/components/profile-card.compone
 import { ParticipationTabComponent } from '../profile/components/participation-tab.component';
 import { OrganizationTabComponent } from '../profile/components/organization-tab.component';
 import { SettingsMenuComponent } from '../profile/components/settings-menu.component';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-profile',
@@ -27,7 +28,7 @@ import { SettingsMenuComponent } from '../profile/components/settings-menu.compo
     ProfileCardComponent,
     ParticipationTabComponent,
     OrganizationTabComponent,
-    SettingsMenuComponent
+    SettingsMenuComponent 
   ],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],
@@ -51,9 +52,12 @@ export class ProfileComponent {
     this.loadProfileData();
   }
 
-  private loadProfileData(): void {
-    this.loading.set(true);
-    this.userService.getCurrentUser().subscribe({
+private loadProfileData(): void {
+  this.loading.set(true);
+  
+  this.userService.getCurrentUser()
+    .pipe(takeUntilDestroyed()) // auto cleanup quand le composant est détruit
+    .subscribe({
       next: (user) => {
         this.user.set(user);
         this.fetchEvents();
@@ -64,7 +68,7 @@ export class ProfileComponent {
         this.loading.set(false);
       }
     });
-  }
+}
 
   private fetchEvents(): void {
     forkJoin({

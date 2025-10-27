@@ -47,9 +47,9 @@ import { AppButtonComponent } from '../../../shared-components/button/button.com
   `,
 })
 export class OrganizationTabComponent {
-  @Input() events: any[] = [];
-
   private eventService = inject(EventService);
+
+  @Input() events: any[] = [];
 
   getStatusLabel(status: string) {
     return this.eventService.getStatusLabel(status);
