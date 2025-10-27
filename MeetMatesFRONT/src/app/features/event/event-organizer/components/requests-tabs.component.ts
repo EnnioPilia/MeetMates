@@ -8,9 +8,9 @@ import { MatButtonModule } from '@angular/material/button';
   selector: 'app-event-participants-tabs',
   standalone: true,
   imports: [CommonModule, MatTabsModule, MatIconModule, MatButtonModule],
-  templateUrl: './event-participants-tabs.component.html',
+  templateUrl: './requests-tabs.component.html',
 })
-export class EventParticipantsTabsComponent {
+export class RequestsTabsComponent {
   @Input() acceptedParticipants: { id: string; firstName: string; lastName: string }[] = [];
   @Input() pendingParticipants: { id: string; firstName: string; lastName: string }[] = [];
   @Input() organizerName = '';

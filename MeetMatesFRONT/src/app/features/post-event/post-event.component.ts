@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
@@ -11,10 +11,8 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
-
 import { environment } from '../../../environments/environment';
 import { NotificationService } from '../../core/services/notification/notification.service';
-
 import { PostSelectComponent } from './components/post-select.component';
 import { PostTextFieldsComponent } from './components/post-text-fields.component';
 import { PostDateTimeComponent } from './components/post-date-time.component';
@@ -77,7 +75,7 @@ export class PostEventComponent implements OnInit {
       date: ['', Validators.required],
       startTime: ['', Validators.required],
       endTime: ['', Validators.required],
-      participants: ['', [Validators.required, Validators.min(1)]],
+      participants: ['', [Validators.required, Validators.min(2)]],
       materiel: ['', Validators.required],
       niveau: ['', Validators.required],
       adresse: ['', Validators.required],
@@ -136,12 +134,9 @@ export class PostEventComponent implements OnInit {
     this.selectedAddress = value;
     this.form.get('adresse')?.setValue(value);
   }
-  
-  onSubmit(): void {
-    console.log('Form values:', this.form.value);
-    console.log('Form valid:', this.form.valid);
-    console.log('Form controls:', this.form.controls);
 
+  onSubmit(): void {
+    this.form.markAllAsTouched(); // 👈 essentiel
     if (this.form.invalid) {
       this.notification.showError('Veuillez remplir tous les champs correctement.');
       return;
@@ -184,7 +179,7 @@ export class PostEventComponent implements OnInit {
         }
       },
       error: () => {
-        this.notification.showError('Erreur lors de la création de l’activité.');
+        this.notification.showError('Erreur lors de la création de l’activité. Connectez-vous');
         this.isSubmitting = false;
       },
     });

@@ -17,7 +17,7 @@ import { EventPictureComponent } from '../../../shared-components/event-picture/
 import { AppButtonComponent } from '../../../shared-components/button/button.component';
 
 // ✅ Organizer-specific component
-import { EventParticipantsTabsComponent } from '../../../features/event/event-organizer/components/event-participants-tabs.component';
+import { RequestsTabsComponent } from './components/requests-tabs.component';
 
 // ✅ Angular Material
 import { MatCardModule } from '@angular/material/card';
@@ -35,7 +35,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     EventInfoComponent,
     EventPictureComponent,
     AppButtonComponent,
-    EventParticipantsTabsComponent
+    RequestsTabsComponent
   ],
   templateUrl: './event-organizer.component.html',
   styleUrls: ['./event-organizer.component.scss']

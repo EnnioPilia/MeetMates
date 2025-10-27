@@ -28,9 +28,11 @@ import { MatOptionModule } from '@angular/material/core';
             {{ suggestion.display_name }}
           </mat-option>
         </mat-autocomplete>
+        @if (form.get('adresse')?.hasError('required') && (form.get('adresse')?.touched || form.get('adresse')?.dirty)) {
+          <mat-error>L’adresse est requise.</mat-error>
+        }
       </mat-form-field>
     </div>
-
   `
 })
 export class PostAddressComponent {
