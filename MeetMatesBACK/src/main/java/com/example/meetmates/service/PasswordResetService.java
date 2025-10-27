@@ -30,12 +30,10 @@ public class PasswordResetService {
         this.emailService = emailService;
     }
 
-    // Étape 1 - Demande de reset
     public String createPasswordResetToken(String email) {
         User user = userRepository.findByEmail(email.toLowerCase())
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
 
-        // Supprimer anciens tokens de reset
         tokenRepository.deleteByUser_IdAndType(user.getId(), TokenType.PASSWORD_RESET);
 
         String tokenString = UUID.randomUUID().toString();
@@ -45,19 +43,16 @@ public class PasswordResetService {
         Token token = new Token(tokenString, user, now, expiresAt, TokenType.PASSWORD_RESET);
         Token saved = tokenRepository.save(token);
 
-        // === DEBUG LOG ===
         System.out.println(">>> [RESET] Token sauvegardé : " + saved.getToken()
                 + " | type=" + saved.getType()
                 + " | user=" + saved.getUser().getEmail()
                 + " | expire à " + saved.getExpiresAt());
 
-        // Envoyer email avec le token brut (EmailService construit l’URL)
         emailService.sendPasswordResetEmail(user.getEmail(), tokenString);
 
         return "Un lien de réinitialisation a été envoyé à votre adresse email.";
     }
 
-    // Étape 2 - Réinitialisation du mot de passe
     public String resetPassword(String tokenString, String newPassword) {
         Token token = tokenRepository.findByToken(tokenString)
                 .orElseThrow(() -> new RuntimeException("Token invalide"));
@@ -74,7 +69,6 @@ public class PasswordResetService {
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
 
-        // Supprimer le token après utilisation
         tokenRepository.delete(token);
 
         System.out.println(">>> [RESET] Mot de passe réinitialisé pour : " + user.getEmail());

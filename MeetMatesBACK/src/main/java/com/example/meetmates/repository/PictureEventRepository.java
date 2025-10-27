@@ -10,6 +10,8 @@ import org.springframework.data.repository.query.Param;
 import com.example.meetmates.model.core.Event;
 import com.example.meetmates.model.link.PictureEvent;
 import com.example.meetmates.model.link.PictureEventID;
+import com.example.meetmates.model.media.Picture;
+
 
 public interface PictureEventRepository extends JpaRepository<PictureEvent, PictureEventID> {
 
@@ -19,4 +21,7 @@ public interface PictureEventRepository extends JpaRepository<PictureEvent, Pict
     @Modifying
     @Query("DELETE FROM PictureEvent pe WHERE pe.event = :event")
     void deleteByEvent(@Param("event") Event event);
+
+    boolean existsByPictureAndEvent(Picture picture, Event event);
+
 }

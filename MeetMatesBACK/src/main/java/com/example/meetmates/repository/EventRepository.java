@@ -74,7 +74,4 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
 """)
 Optional<Event> findByIdWithAllRelations(@Param("id") UUID id);
 
-
-
-
 }

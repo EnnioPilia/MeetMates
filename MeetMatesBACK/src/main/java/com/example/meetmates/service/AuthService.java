@@ -99,7 +99,7 @@ public class AuthService {
                 .httpOnly(true)
                 .secure(false) // mettre true en prod avec HTTPS
                 .path("/")
-                .maxAge(7 * 24 * 60 * 60) // 7 jours
+                .maxAge(7 * 24 * 60 * 60)
                 .sameSite("Strict")
                 .build();
 

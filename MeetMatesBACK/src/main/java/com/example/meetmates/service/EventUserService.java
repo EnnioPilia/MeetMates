@@ -33,10 +33,6 @@ public class EventUserService {
         this.eventUserRepository = eventUserRepository;
     }
 
-    /**
-     * Lorsqu’un utilisateur rejoint un événement. Son statut de participation
-     * est PENDING par défaut.
-     */
     public EventUser joinEvent(UUID eventId, UUID userId) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Événement introuvable"));
@@ -50,14 +46,10 @@ public class EventUserService {
         EventUser existing = existingOpt.get();
 
         if (existing.getParticipationStatus() == EventUser.ParticipationStatus.REJECTED) {
-            // ⚠️ Utilisateur rejeté précédemment
             throw new ResponseStatusException(HttpStatus.GONE, "Vous avez été retiré de cet événement");
         }
-
-        // 🚫 Déjà inscrit (accepté ou en attente)
         throw new ResponseStatusException(HttpStatus.CONFLICT, "Déjà inscrit à cet événement");
     }
-        // Vérifier si l’événement est complet
         if (event.getMaxParticipants() != null
                 && event.getParticipants().size() >= event.getMaxParticipants()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Événement complet");
