@@ -6,6 +6,7 @@ import { VerifyComponent } from './features/auth/verify/verify.component';
 import { ResetPasswordComponent } from './features/auth/reset-password/reset-password.component';
 import { ForgotPasswordComponent } from './features/auth/forgot-password/forgot-password.component';
 import { ProfileComponent } from './features/profile/profile.component';
+import { EditProfileComponent } from './features/profile/components/edit-profile.component';
 import { HomeComponent } from './features/home/home.component';
 import { CategoryComponent } from './features/category-activity/category/category.component';
 import { ActivityComponent } from './features/category-activity/activity/activity.component';
@@ -25,6 +26,7 @@ export const routes: Routes = [
   { path: 'reset-password', component: ResetPasswordComponent, data: { title: 'Reinisaliser le mot de passe' } },
   { path: 'forgot-password', component: ForgotPasswordComponent, data: { title: 'Mot de passe oublié' } },
   { path: 'profile', component: ProfileComponent, data: { title: 'MON PROFIL' } },
+  { path: 'edit-profile', component: EditProfileComponent, data: { title: 'MODIFIER MON PROFIL' } },
   { path: 'category', component: CategoryComponent, data: { title: 'CATEGORIES' } },
   { path: 'activity', component: ActivityComponent, data: { title: 'ACTIVITEES' } },
   { path: 'activity/:categoryId', component: ActivityComponent, data: { title: 'ACTIVITES' } },

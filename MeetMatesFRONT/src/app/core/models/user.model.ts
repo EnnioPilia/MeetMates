@@ -10,4 +10,6 @@ export interface User {
   dateAcceptationCGU?: string;
   verifiedAt?: string;
   actif: boolean;
+  avatarUrl?: string; 
+  profilePictureUrl?: string;
 }
