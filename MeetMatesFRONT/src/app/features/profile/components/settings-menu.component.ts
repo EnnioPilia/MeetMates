@@ -30,33 +30,29 @@ import { AuthService } from '../../../core/services/auth/auth.service';
       </button>
 
       <mat-menu #settingsMenu="matMenu" xPosition="before" yPosition="below" class="menu-profile">
+
         <button mat-menu-item [routerLink]="['/edit-profile']">
-          <mat-icon>edit</mat-icon>
-          <span>Modifier le profil</span>
+          <span>Modifier le profil</span><mat-icon>edit</mat-icon>
         </button>
 
         <button mat-menu-item (click)="openMentionsDialog()">
-          <mat-icon>gavel</mat-icon>
-          <span>Mentions légales</span>
+          <span>Mentions légales</span><mat-icon>gavel</mat-icon>
         </button>
         
         <button mat-menu-item (click)="openCguDialog()">
-          <mat-icon>description</mat-icon>
-          <span>Conditions d’utilisation</span>
+          <span>Conditions d’utilisation</span><mat-icon>description</mat-icon>
         </button>
 
         <button mat-menu-item (click)="onLogout()">
-          <mat-icon>logout</mat-icon>
-          <span>Déconnexion</span>
+          <span>Déconnexion</span><mat-icon>logout</mat-icon>
         </button>
 
         <button mat-menu-item (click)="onDeleteAccount()">
-          <mat-icon>delete_forever</mat-icon>
-          <span>Supprimer le compte</span>
+          <span>Supprimer le compte</span><mat-icon>delete_forever</mat-icon>
         </button>
-
       </mat-menu>
     </div>
+    
   `,
 })
 export class SettingsMenuComponent {

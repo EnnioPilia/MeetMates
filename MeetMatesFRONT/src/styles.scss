@@ -68,6 +68,13 @@ mat-error {
   border-bottom: black solid 1px !important;
 }
 
+.tertiary-button {
+  background: transparent !important;
+  color: #000000; 
+  border: none !important;
+  font-weight: 700;
+}
+
 .primary-button-cancel {
   font-weight: 700;
   border-radius: 9px !important;
@@ -88,7 +95,18 @@ mat-expansion-panel {
 
 }
 
-
+.tertiary-box {
+  display: inline-block;
+  padding: 3px 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  color: #333;
+  background-color: #f9f9f9;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
 p,
 label,
 h3 {

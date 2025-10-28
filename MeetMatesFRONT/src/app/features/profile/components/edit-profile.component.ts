@@ -21,21 +21,24 @@ import { NotificationService } from '../../../core/services/notification/notific
     AppButtonComponent
   ],
   template: `
-    <div class="flex flex-col items-center justify-center min-h-[calc(80vh-10px)] mt-10">
-      <mat-card class="flex flex-col items-center gap-3" *ngIf="form">
-        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col items-center gap-4">
 
-          <app-input label="Prénom" [control]="form.get('firstName')!" type="text"></app-input>
+    <div class="flex flex-col items-center justify-center min-h-[calc(100vh-10px)]">
+      
+        <img [src]="previewUrl || user.profilePictureUrl || 'assets/images/default-avatar.png'" alt="photo profile" class="w-32 h-32 rounded-full object-cover border-2 border-black"/>
 
-          <app-input label="Nom" [control]="form.get('lastName')!" type="text"></app-input>
+        <app-button *ngIf="user?.profilePictureUrl"label="Supprimer la photo" (click)="removePhoto() "class="w-80 primary-button-cancel mt-2"></app-button>
+        
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col items-center gap-1 w-full mt-5">
+        <app-input label="Prénom" [control]="form.get('firstName')!" type="text"></app-input>
 
-          <app-input label="Email" [control]="form.get('email')!" type="email"></app-input>
+        <app-input label="Nom" [control]="form.get('lastName')!" type="text"></app-input>
 
-          <app-button label="Enregistrer les modifications" class="primary-button w-80" type="submit"[disabled]="loading || form.invalid"></app-button>
+        <app-input label="Email" [control]="form.get('email')!" type="email"></app-input>
 
-        </form>
-      </mat-card>
+        <app-button label="Enregistrer les modifications"class="primary-button w-80"type="submit"[disabled]="loading || form.invalid"></app-button>
+      </form>
     </div>
+    
   `,
 })
 export class EditProfileComponent implements OnInit {
@@ -47,6 +50,7 @@ export class EditProfileComponent implements OnInit {
   form!: FormGroup;
   user!: User;
   loading = false;
+  previewUrl: string | null = null;
 
   ngOnInit() {
     this.userService.getCurrentUser().pipe(take(1)).subscribe({
@@ -65,6 +69,20 @@ export class EditProfileComponent implements OnInit {
     });
   }
 
+  removePhoto(): void {
+    this.userService.deleteProfilePicture().subscribe({
+      next: () => {
+        this.user.profilePictureUrl = undefined;
+        this.previewUrl = null;
+        this.notification.showSuccess('🗑️ Photo supprimée avec succès.');
+      },
+      error: (err) => {
+        console.error(err);
+        this.notification.showError('Erreur lors de la suppression de la photo.');
+      },
+    });
+  }
+
   onSubmit(): void {
     if (this.form.invalid) {
       this.notification.showWarning('Veuillez corriger les erreurs du formulaire.');
@@ -78,14 +96,13 @@ export class EditProfileComponent implements OnInit {
       next: () => {
         this.loading = false;
         this.notification.showSuccess('✅ Profil enregistré avec succès !');
-
         setTimeout(() => this.router.navigate(['/profile']), 1000);
       },
       error: (err) => {
         this.loading = false;
         console.error('Erreur mise à jour profil :', err);
         this.notification.showError('❌ Erreur lors de la mise à jour du profil.');
-      }
+      },
     });
   }
 }

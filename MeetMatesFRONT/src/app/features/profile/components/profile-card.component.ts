@@ -6,58 +6,66 @@ import { MatButtonModule } from '@angular/material/button';
 import { User } from '../../../core/models/user.model';
 import { UserService } from '../../../core/services/user/user.service';
 import { NotificationService } from '../../../core/services/notification/notification.service';
+import { AppButtonComponent } from '../../../shared-components/button/button.component';
 
 @Component({
   selector: 'app-profile-card',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatIconModule, MatButtonModule],
+  imports: [CommonModule, MatCardModule, MatIconModule, MatButtonModule,AppButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
 
-    <mat-card class="flex flex-col items-center gap-2 w-full mt-8 text-center relative">
-      <div class="relative">
-        <img
-  [src]="user.profilePictureUrl || 'assets/default-avatar.png'"
-  alt="Avatar"
-  class="w-32 h-32 rounded-full object-cover border-2 border-black"
-/>
+    <div class="flex flex-col items-center gap-2 w-full mt-8 text-center relative">
 
-        <button mat-icon-button color="primary"
-          class="absolute bottom-0 right-0 bg-white rounded-full shadow border border-gray-300"
-          style="width: 2rem; height: 2rem;" (click)="fileInput.click()">
-          <mat-icon>add</mat-icon>
-        </button>
+      <img [src]="previewUrl || user.profilePictureUrl || 'assets/images/default-avatar.png'" alt="photo" class="w-32 h-32 rounded-full object-cover border-2 border-black"/>
 
-        <input #fileInput type="file" accept="image/*" hidden (change)="onFileChange($event)" />
-      </div>
+      <!-- <button mat-icon-button color="primary"class="absolute bottom-10 right-0"  [style.left.%]="28" (click)="fileInput.click()"><mat-icon>add</mat-icon></button> -->
+      <!-- <app-button label="Ajouter une photo de profil" class="tertiary-button mb-3" type="button"(click)="fileInput.click()"></app-button> -->
 
-      <p>{{ user.lastName }} {{ user.firstName }}</p>
-      <p>{{ user.email }}</p>
-    </mat-card>
+      <a class="tertiary-box"  (click)="fileInput.click()">Ajouter une photo</a>
+      <input #fileInput type="file" accept="image/*" hidden (change)="onFileSelected($event)" />
+    
+      <p>{{ user.lastName }} {{ user.firstName }}</p><p>{{ user.email }}</p>
+
+    </div>
   `,
 })
 export class ProfileCardComponent {
   @Input({ required: true }) user!: User;
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+  previewUrl: string | null = null;
 
   private userService = inject(UserService);
   private notification = inject(NotificationService);
 
-onFileChange(event: Event): void {
-  const input = event.target as HTMLInputElement;
-  if (!input.files?.length) return;
+  ngOnInit(): void {
+    this.userService.getCurrentUser().subscribe({
+      next: (user) => (this.user = user),
+      error: (err) => {
+        console.error(err);
+        this.notification.showError('Erreur de chargement du profil.');
+      },
+    });
+  }
 
-  const file = input.files[0];
-  this.userService.uploadProfilePicture(file).subscribe({
-    next: (updatedUser) => {
-      this.user.profilePictureUrl = updatedUser.profilePictureUrl; // ✅ mise à jour instantanée
-      this.notification.showSuccess('✅ Photo de profil mise à jour !');
-    },
-    error: (err) => {
-      console.error('Erreur upload image :', err);
-      this.notification.showError('❌ Impossible de mettre à jour la photo.');
-    },
-  });
-}
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
+
+    const file = input.files[0];
+    this.previewUrl = URL.createObjectURL(file);
+
+    this.userService.uploadProfilePicture(file).subscribe({
+      next: (updatedUser) => {
+        this.user = updatedUser; 
+        this.previewUrl = null;
+        this.notification.showSuccess('Photo mise à jour avec succès !');
+      },
+      error: (err) => {
+        console.error(err);
+        this.notification.showError('Erreur lors du téléversement de la photo.');
+      },
+    });
+  }
 
 }
