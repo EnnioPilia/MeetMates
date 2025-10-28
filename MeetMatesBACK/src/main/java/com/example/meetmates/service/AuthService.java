@@ -55,6 +55,8 @@ public class AuthService {
         );
         user.setEnabled(false);
 
+        user.setAcceptedCguAt(request.getDateAcceptationCGU());
+
         User savedUser = userRepository.save(user);
 
         String verificationToken = VerificationTokenService.createVerificationToken(savedUser);
