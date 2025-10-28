@@ -11,6 +11,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { AppInputComponent } from '../../../shared-components/input/input.component';
 import { AppButtonComponent } from '../../../shared-components/button/button.component';
+import { CguDialogComponent } from '../../../shared-components/cgu-dialog/cgu-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-register',
@@ -27,6 +30,7 @@ import { AppButtonComponent } from '../../../shared-components/button/button.com
     MatButtonModule,
     AppInputComponent,
     AppButtonComponent,
+    MatCheckboxModule
   ],
 })
 export class RegisterComponent {
@@ -35,6 +39,7 @@ export class RegisterComponent {
   private notification = inject(NotificationService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
+  private dialog = inject(MatDialog);
 
   isSubmitting = false;
 
@@ -43,6 +48,8 @@ export class RegisterComponent {
     lastName: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
+    confirmPassword: ['', [Validators.required]],
+    acceptCgu: [false, Validators.requiredTrue],
   });
 
   onSubmit(): void {
@@ -51,10 +58,25 @@ export class RegisterComponent {
       return;
     }
 
+    const { password, confirmPassword } = this.form.getRawValue();
+
+    if (password !== confirmPassword) {
+      this.notification.showError('Les mots de passe ne correspondent pas.');
+      return;
+    }
+    
+    const payload = {
+      firstName: this.form.getRawValue().firstName,
+      lastName: this.form.getRawValue().lastName,
+      email: this.form.getRawValue().email,
+      password: this.form.getRawValue().password,
+      dateAcceptationCGU: new Date().toISOString(),
+    };
+
     this.isSubmitting = true;
 
     this.authService
-      .register(this.form.getRawValue())
+      .register(payload)
       .pipe(finalize(() => {
         this.isSubmitting = false;
         this.cdr.markForCheck();
@@ -73,6 +95,11 @@ export class RegisterComponent {
           }
         },
       });
+  }
+
+  openCguDialog(event: Event) {
+    event.preventDefault();
+    this.dialog.open(CguDialogComponent, { width: '600px', autoFocus: false });
   }
 
   navigateTo(path: string): void {

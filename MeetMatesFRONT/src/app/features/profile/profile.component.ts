@@ -28,7 +28,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     ProfileCardComponent,
     ParticipationTabComponent,
     OrganizationTabComponent,
-    SettingsMenuComponent 
+    SettingsMenuComponent
   ],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],
@@ -52,23 +52,23 @@ export class ProfileComponent {
     this.loadProfileData();
   }
 
-private loadProfileData(): void {
-  this.loading.set(true);
-  
-  this.userService.getCurrentUser()
-    .pipe(takeUntilDestroyed()) // auto cleanup quand le composant est détruit
-    .subscribe({
-      next: (user) => {
-        this.user.set(user);
-        this.fetchEvents();
-      },
-      error: (err) => {
-        console.error('Erreur profil :', err);
-        this.error.set('Erreur lors du chargement du profil.');
-        this.loading.set(false);
-      }
-    });
-}
+  private loadProfileData(): void {
+    this.loading.set(true);
+
+    this.userService.getCurrentUser()
+      .pipe(takeUntilDestroyed()) // auto cleanup quand le composant est détruit
+      .subscribe({
+        next: (user) => {
+          this.user.set(user);
+          this.fetchEvents();
+        },
+        error: (err) => {
+          console.error('Erreur profil :', err);
+          this.error.set('Erreur lors du chargement du profil.');
+          this.loading.set(false);
+        }
+      });
+  }
 
   private fetchEvents(): void {
     forkJoin({

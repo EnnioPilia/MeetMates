@@ -11,9 +11,7 @@
     <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-6 p-6 justify-items-center">
       @for (activity of activities; track activity.id) {
         <mat-card
-          class="icone-card w-40 h-40 flex flex-col items-center justify-center cursor-pointer transition-transform duration-200 hover:scale-105 hover:shadow-lg"
-          (click)="goToEvents(activity.id)"
-        >
+          class="icone-card w-40 h-40 flex flex-col items-center justify-center"(click)="goToEvents(activity.id)">
           <mat-icon class="mb-2 text-3xl">sports</mat-icon>
           <mat-card-title class="text-center text-base font-bold">
             {{ activity.name }}

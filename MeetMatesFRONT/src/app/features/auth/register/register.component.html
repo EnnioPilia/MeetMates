@@ -5,8 +5,9 @@
     <app-input label="Prénom" [control]="form.controls.firstName" type="text" [required]="true"></app-input>
     <app-input label="Email" [control]="form.controls.email" type="email" [required]="true"></app-input>
     <app-input label="Mot de passe" [control]="form.controls.password" type="password" [required]="true"></app-input>
+    <app-input label="Confirmez le mot de passe" [control]="form.controls.confirmPassword" type="password"[required]="true"></app-input>
+    <mat-checkbox formControlName="acceptCgu">J’accepte les <a href="#" (click)="openCguDialog($event)">Conditions Générales d’Utilisation</a></mat-checkbox>
     <app-button label="S’inscrire" class="w-full primary-button" type="submit" [disabled]="isSubmitting"></app-button>
-    <app-button label="Déjà un compte ?" class="secondary-button w-80" (clicked)="navigateTo('login')"></app-button>
-
+   
   </form>
 </div>
