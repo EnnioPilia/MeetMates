@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.example.meetmates.model.core.User;
-import com.example.meetmates.model.link.PictureUser;
+import com.example.meetmates.model.media.PictureUser;
 
 public interface PictureUserRepository extends JpaRepository<PictureUser, java.util.UUID> {
     Optional<PictureUser> findByUser(User user);

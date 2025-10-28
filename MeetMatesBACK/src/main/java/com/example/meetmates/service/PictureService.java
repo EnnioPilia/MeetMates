@@ -14,8 +14,8 @@ import com.example.meetmates.model.core.Event;
 import com.example.meetmates.model.core.User;
 import com.example.meetmates.model.link.PictureEvent;
 import com.example.meetmates.model.link.PictureEventID;
-import com.example.meetmates.model.link.PictureUser;
 import com.example.meetmates.model.media.Picture;
+import com.example.meetmates.model.media.PictureUser;
 import com.example.meetmates.repository.PictureEventRepository;
 import com.example.meetmates.repository.PictureRepository;
 import com.example.meetmates.repository.PictureUserRepository;
@@ -142,4 +142,25 @@ public class PictureService {
         user.setProfilePictureUrl(imageUrl);
         return userRepository.save(user);
     }
+
+    @Transactional
+    public void deleteUserProfilePicture(User user) {
+        try {
+            Optional<PictureUser> existing = pictureUserRepository.findByUser(user);
+
+            if (existing.isEmpty()) {
+                return;
+            }
+
+            PictureUser pictureUser = existing.get();
+
+            pictureUserRepository.delete(pictureUser);
+
+            user.setProfilePictureUrl(null);
+            userRepository.save(user);
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors de la suppression de la photo de profil", e);
+        }
+    }
+
 }

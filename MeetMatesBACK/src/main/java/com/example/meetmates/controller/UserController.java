@@ -31,10 +31,12 @@ public class UserController {
 
     private final UserService userService;
     private final UserRepository userRepository;
+    private final PictureService pictureService;
 
     public UserController(UserService userService, PictureService pictureService, UserRepository userRepository) {
         this.userService = userService;
         this.userRepository = userRepository;
+        this.pictureService = pictureService;
 
     }
 
@@ -89,6 +91,12 @@ public class UserController {
         userRepository.save(user);
 
         return ResponseEntity.ok(user);
+    }
+
+    @DeleteMapping("/me/photo")
+    public ResponseEntity<Void> deleteProfilePhoto(@AuthenticationPrincipal User currentUser) {
+        pictureService.deleteUserProfilePicture(currentUser);
+        return ResponseEntity.noContent().build(); // 204
     }
 
     @DeleteMapping("/{id}")

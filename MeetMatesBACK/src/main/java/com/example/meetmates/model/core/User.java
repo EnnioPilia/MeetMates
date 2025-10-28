@@ -8,7 +8,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-import com.example.meetmates.model.link.PictureUser;
+import com.example.meetmates.model.media.PictureUser;
 import com.example.meetmates.model.security.Token;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
