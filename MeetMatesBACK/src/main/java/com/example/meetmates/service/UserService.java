@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -32,15 +33,10 @@ public class UserService implements UserDetailsService {
         this.tokenRepository = tokenRepository;
     }
 
-
 // 🔸 Ajouter des exceptions personnalisées (plus clean pour la gestion d’erreurs).
-
 // 🔸 Annoter les méthodes de lecture avec @Transactional(readOnly = true).
-
 // 🔸 Logger les actions sensibles (deleteUserById, register, etc.).
-
 // 🔸 Tester la cohérence entre UserStatus et enabled (par ex., ne pas avoir ACTIVE mais enabled = false sauf au moment de la vérification de mail).
-
     public User updateUser(User user) {
         return userRepository.save(user);
     }
@@ -83,6 +79,17 @@ public class UserService implements UserDetailsService {
                 .build();
     }
 
+    public User updateUser(UUID id, User updatedUser) {
+        return userRepository.findById(id)
+                .map(user -> {
+                    user.setFirstName(updatedUser.getFirstName());
+                    user.setLastName(updatedUser.getLastName());
+                    user.setEmail(updatedUser.getEmail());
+                    user.setAge(updatedUser.getAge());
+                    return userRepository.save(user);
+                })
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
     // =================== Suppression Utilisateur ===================
     @Transactional
     public boolean deleteUserById(UUID userId) {
@@ -97,4 +104,15 @@ public class UserService implements UserDetailsService {
         }
         return false;
     }
+
+    @Transactional
+    public boolean deleteMyAccount(Authentication authentication) {
+        String email = authentication.getName();
+
+        return userRepository.findByEmail(email).map(user -> {
+            userRepository.delete(user); // Hard delete
+            return true;
+        }).orElse(false);
+    }
+
 }

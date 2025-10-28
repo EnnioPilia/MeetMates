@@ -83,7 +83,6 @@ public class Activity {
         this.updatedAt = updatedAt;
     }
 
-    // === Callbacks pour timestamps automatiques ===
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();

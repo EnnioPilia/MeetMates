@@ -61,6 +61,7 @@ public class SecurityConfig {
                 .requestMatchers("/error/**").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/user/me").hasAnyRole("USER", "ADMIN")
+                .requestMatchers("/user/me/picture").hasAnyRole("USER", "ADMIN")
                 .requestMatchers("/user/**").hasRole("ADMIN") // <------ avec hasAnyAuthority ca ne marche pas 
 
                 // .requestMatchers("/auth/registerAdmin/**").permitAll()

@@ -1,38 +1,35 @@
 package com.example.meetmates.model.link;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import com.example.meetmates.model.core.User;
-import com.example.meetmates.model.media.Picture;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "picture_user")
 public class PictureUser {
 
-    @EmbeddedId
-    private PictureUserID id;
+    @Id
+    @GeneratedValue
+    private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("pictureId")
-    @JoinColumn(name = "picture_id", nullable = false)
-    private Picture picture;
+    @Column(nullable = false)
+    private String url; // Lien ou chemin de l’image (Cloudinary, S3, etc.)
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("userId")
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(name = "public_id")
+    private String publicId; // Si tu utilises Cloudinary, optionnel
 
     @Column(name = "is_main", nullable = false)
-    private boolean isMain = false;
+    private boolean isMain = true; // Pour marquer la photo de profil principale
 
     @Column(nullable = false)
     private String status = "ACTIVE";
@@ -43,28 +40,34 @@ public class PictureUser {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public PictureUserID getId() {
+    // 🔹 Lien direct vers l'utilisateur
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    private User user;
+
+    // --- Getters / Setters ---
+    public UUID getId() {
         return id;
     }
 
-    public void setId(PictureUserID id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
-    public Picture getPicture() {
-        return picture;
+    public String getUrl() {
+        return url;
     }
 
-    public void setPicture(Picture picture) {
-        this.picture = picture;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
-    public User getUser() {
-        return user;
+    public String getPublicId() {
+        return publicId;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setPublicId(String publicId) {
+        this.publicId = publicId;
     }
 
     public boolean isMain() {
@@ -97,5 +100,13 @@ public class PictureUser {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

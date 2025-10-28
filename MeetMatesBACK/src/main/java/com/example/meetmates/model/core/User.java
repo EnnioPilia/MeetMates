@@ -8,6 +8,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import com.example.meetmates.model.link.PictureUser;
 import com.example.meetmates.model.security.Token;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -21,6 +22,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
@@ -31,8 +33,8 @@ public class User {
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(
-        name = "UUID",
-        strategy = "org.hibernate.id.UUIDGenerator"
+            name = "UUID",
+            strategy = "org.hibernate.id.UUIDGenerator"
     )
     @JdbcTypeCode(SqlTypes.CHAR)
     @Column(name = "user_id", length = 36, unique = true, nullable = false)
@@ -74,7 +76,9 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // === Relations ===
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private PictureUser pictureUser;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Token> tokens;
@@ -83,7 +87,18 @@ public class User {
     @JsonIgnore
     private List<EventUser> eventUsers;
 
-    // === Getters & Setters ===
+    @Column(name = "profile_picture_url")
+    private String profilePictureUrl;
+
+    public String getProfilePictureUrl() {
+        return profilePictureUrl;
+    }
+
+    public void setProfilePictureUrl(String profilePictureUrl) {
+        this.profilePictureUrl = profilePictureUrl;
+    }
+
+    // === GETTERS/SETTERS ===
     public UUID getId() {
         return id;
     }
@@ -206,5 +221,13 @@ public class User {
 
     public String getUsername() {
         return this.email;
+    }
+
+    public PictureUser getPictureUser() {
+        return pictureUser;
+    }
+
+    public void setPictureUser(PictureUser pictureUser) {
+        this.pictureUser = pictureUser;
     }
 }
