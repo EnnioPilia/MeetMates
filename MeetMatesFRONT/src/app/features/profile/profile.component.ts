@@ -56,7 +56,7 @@ export class ProfileComponent {
     this.loading.set(true);
 
     this.userService.getCurrentUser()
-      .pipe(takeUntilDestroyed()) // auto cleanup quand le composant est détruit
+      .pipe(takeUntilDestroyed())
       .subscribe({
         next: (user) => {
           this.user.set(user);

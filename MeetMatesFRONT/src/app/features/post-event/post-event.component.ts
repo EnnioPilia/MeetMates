@@ -64,12 +64,11 @@ export class PostEventComponent implements OnInit {
   ngOnInit(): void {
     this.buildForm();
     this.loadActivities();
-    setTimeout(() => this.cdr.detectChanges(), 0);
   }
 
   private buildForm(): void {
     this.form = this.fb.group({
-      titre: ['', [Validators.required, Validators.maxLength(20)]],
+      titre: ['', [Validators.required, Validators.maxLength(50)]],
       description: ['', [Validators.required]],
       date: ['', Validators.required],
       startTime: ['', Validators.required],
@@ -94,7 +93,6 @@ export class PostEventComponent implements OnInit {
     const reader = new FileReader();
     reader.onload = () => {
       this.previewUrl = reader.result as string;
-      this.cdr.detectChanges();
     };
     reader.readAsDataURL(file);
   }
@@ -102,7 +100,6 @@ export class PostEventComponent implements OnInit {
   removeImage(): void {
     this.previewUrl = null;
     this.selectedFile = null;
-    this.cdr.detectChanges();
   }
 
   onAddressInput(value: string): void {
@@ -120,11 +117,9 @@ export class PostEventComponent implements OnInit {
           this.addressSuggestions = data.features.map((f: any) => ({
             display_name: f.properties.label
           }));
-          this.cdr.detectChanges();
         },
         error: () => {
           this.addressSuggestions = [];
-          this.cdr.detectChanges();
         }
       });
   }
@@ -134,16 +129,15 @@ export class PostEventComponent implements OnInit {
     this.form.get('adresse')?.setValue(value);
   }
 
-  onSubmit(): void {
-    this.form.markAllAsTouched(); // 👈 essentiel
+  async onSubmit(){
+    this.form.markAllAsTouched();
     if (this.form.invalid) {
       this.notification.showError('Veuillez remplir tous les champs correctement.');
       return;
     }
 
     this.isSubmitting = true;
-    const { titre, description, date, startTime, endTime, participants, materiel, niveau, adresse, activityId } =
-      this.form.value;
+    const { titre, description, date, startTime, endTime, participants, materiel, niveau, adresse, activityId } = this.form.value;
 
     const eventPayload = {
       title: titre,
@@ -210,6 +204,5 @@ export class PostEventComponent implements OnInit {
     this.previewUrl = null;
     this.selectedFile = null;
     this.isSubmitting = false;
-    this.cdr.detectChanges();  
-  }
+    }
 }

@@ -1,11 +1,9 @@
-import { Component, Input, ChangeDetectionStrategy, inject, ElementRef, ViewChild } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { User } from '../../../core/models/user.model';
-import { UserService } from '../../../core/services/user/user.service';
-import { NotificationService } from '../../../core/services/notification/notification.service';
 
 @Component({
   selector: 'app-profile-card',
@@ -15,28 +13,17 @@ import { NotificationService } from '../../../core/services/notification/notific
   template: `
 
     <div class="flex flex-col items-center gap-3 w-full mt-8 text-center relative">
+      
+      <img [src]="user.profilePictureUrl || 'assets/images/default-avatar.png'"alt="photo"
+        class="w-32 h-32 rounded-full object-cover border-2 border-black"/>
 
-      <img [src]="previewUrl || user.profilePictureUrl || 'assets/images/default-avatar.png'" alt="photo" class="w-32 h-32 rounded-full object-cover border-2 border-black"/>
-      <p>{{ user.lastName }} {{ user.firstName }}</p><p>{{ user.email }}</p>
+      <p>{{ user.lastName }} {{ user.firstName }}</p> 
+      <p>{{ user.email }}</p>
 
     </div>
+
   `,
 })
 export class ProfileCardComponent {
   @Input({ required: true }) user!: User;
-  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
-  previewUrl: string | null = null;
-
-  private userService = inject(UserService);
-  private notification = inject(NotificationService);
-
-  ngOnInit(): void {
-    this.userService.getCurrentUser().subscribe({
-      next: (user) => (this.user = user),
-      error: (err) => {
-        console.error(err);
-        this.notification.showError('Erreur de chargement du profil.');
-      },
-    });
-  }
 }

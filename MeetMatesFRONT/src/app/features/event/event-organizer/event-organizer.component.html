@@ -3,26 +3,22 @@
   <mat-spinner diameter="50"></mat-spinner>
   }
   @else if (event) {
-    <mat-card class="activity-card w-full flex flex-col items-center p-6">
+    
+  <div class="activity-card w-full flex flex-col items-center p-6">
 
-      <app-button label="SUPPRIMER L'ACTIVITÉ" class="w-full primary-button-cancel mb-8"(clicked)="confirmDeleteEvent(event.id)"></app-button>
+    <app-event-organizer-actions [eventId]="event.id"(delete)="onDeleteEvent($event)"></app-event-organizer-actions>
 
-      <app-event-header [title]="event.title" [description]="event.description"></app-event-header>
+    <app-event-header [title]="event.title" [description]="event.description"></app-event-header>
 
-      <app-event-participants-tabs 
-        [acceptedParticipants]="event.acceptedParticipants"
-        [pendingParticipants]="event.pendingParticipants" [organizerName]="event.organizerName"
-        (accept)="acceptParticipant($event)" (reject)="rejectParticipant($event)"
-        (remove)="removeParticipant(event.id, $event)">
-      </app-event-participants-tabs>
+    <app-event-requests-tabs [acceptedParticipants]="event.acceptedParticipants"
+      [pendingParticipants]="event.pendingParticipants" [organizerName]="event.organizerName"
+      (accept)="onAccept($event)" (reject)="onReject($event)" (remove)="onRemove($event)">
+    </app-event-requests-tabs>
 
-      <app-event-info [event]="event" [showStatus]="true" [showOrganizer]="false"></app-event-info>
+    <app-event-organizer-info [event]="event"></app-event-organizer-info>
 
-      <app-event-picture [imageUrl]="event.imageUrl" [title]="event.title" [width]="280" [height]="130"></app-event-picture>
+  </div>
 
-      <app-button label="ALLER À LA CONVERSATION" class="mt-6" [routerLink]="['/conversation', event.id]"></app-button>
-
-  </mat-card>
   }
   @else {
   <p class="text-red-600">Événement introuvable.</p>

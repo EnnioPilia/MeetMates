@@ -13,23 +13,39 @@ export class EventService {
   private baseUrl = environment.apiUrl;
 
   fetchAllEvents(): Observable<EventResponse[]> {
-    return this.http.get<EventResponse[]>(`${this.baseUrl}/event`);
+    return this.http.get<EventResponse[]>(`${this.baseUrl}/event`, { withCredentials: true });
+  }
+
+  getEventById(id: string): Observable<EventDetails> {
+    return this.http.get<EventDetails>(`${this.baseUrl}/event/${id}`, { withCredentials: true });
+  }
+
+  acceptParticipant(eventUserId: string): Observable<void> {
+    return this.http.put<void>(`${this.baseUrl}/event-user/${eventUserId}/accept`, {}, { withCredentials: true });
+  }
+
+  rejectParticipant(eventUserId: string): Observable<void> {
+    return this.http.put<void>(`${this.baseUrl}/event-user/${eventUserId}/reject`, {}, { withCredentials: true });
+  }
+
+  removeParticipant(eventId: string, userId: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/event-user/${eventId}/remove/${userId}`, { withCredentials: true });
+  }
+
+  deleteEvent(eventId: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/event/${eventId}`, { withCredentials: true });
+  }
+
+  cancelParticipation(eventId: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/event-user/leave`, {
+      params: { eventId },
+      withCredentials: true
+    });
   }
 
 
-  //REFACTO EVENT PARTICPANT
-
-  // getEventById(id: string): Observable<EventDetails> {
-  //   return this.http.get<EventDetails>(`${this.baseUrl}/event/${id}`, { withCredentials: true });
-  // }
-
-  // cancelParticipation(id: string): Observable<void> {
-  //   return this.http.delete<void>(`${this.baseUrl}/event-user/leave`, {
-  //     params: { eventId: id },
-  //     withCredentials: true,
-  //   });
-  // }
-
+  //label service ??
+  
   getStatusLabel(status: string): string {
     switch (status) {
       case 'OPEN': return 'Ouvert';
@@ -64,7 +80,7 @@ export class EventService {
       case 'ACCEPTED': return 'Accepté';
       case 'PENDING': return 'En attente';
       case 'REJECTED': return 'Refusé';
-      default: return 'status';
+      default: return 'Statut inconnu';
     }
   }
 }

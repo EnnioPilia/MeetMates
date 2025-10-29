@@ -12,8 +12,8 @@ import { EditProfileFormComponent } from './components/edit-profile-form.compone
   selector: 'app-edit-profile',
   standalone: true,
   imports: [
-    CommonModule, 
-    EditProfilePictureComponent, 
+    CommonModule,
+    EditProfilePictureComponent,
     EditProfileFormComponent
   ],
   templateUrl: './edit-profile.component.html',
@@ -43,6 +43,6 @@ export class EditProfileComponent implements OnInit {
   onUserUpdated(user: User) {
     this.user = user;
     this.notification.showSuccess('✅ Profil enregistré avec succès !');
-    setTimeout(() => this.router.navigate(['/profile']), 1000);
+    this.router.navigate(['/profile']);
   }
 }

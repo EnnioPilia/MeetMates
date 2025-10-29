@@ -1,27 +1,17 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Subject, takeUntil } from 'rxjs';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { MatDialog } from '@angular/material/dialog';
-
-import { environment } from '../../../../environments/environment';
+import { MatCardModule } from '@angular/material/card';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { EventDetails } from '../../../core/models/event-details.model';
 import { EventService } from '../../../core/services/event/event-service.service';
 import { NotificationService } from '../../../core/services/notification/notification.service';
-import { ConfirmDialogComponent } from '../../../shared-components/confirm-dialog/confirm-dialog.component';
-
-// ✅ Shared components
 import { EventHeaderComponent } from '../../../shared-components/event-header/event-header.component';
-import { EventInfoComponent } from '../../../shared-components/event-info/event-info.component';
-import { EventPictureComponent } from '../../../shared-components/event-picture/event-picture.component';
-import { AppButtonComponent } from '../../../shared-components/button/button.component';
-
-// ✅ Organizer-specific component
-import { RequestsTabsComponent } from './components/requests-tabs.component';
-
-// ✅ Angular Material
-import { MatCardModule } from '@angular/material/card';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { EventRequestsTabsComponent } from './components/event-requests-tabs';
+import { EventOrganizerActionsComponent } from './components/event-organizer-actions.component';
+import { EventOrganizerInfoComponent } from './components/event-organizer-info.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-event-organizer',
@@ -32,44 +22,27 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatCardModule,
     MatProgressSpinnerModule,
     EventHeaderComponent,
-    EventInfoComponent,
-    EventPictureComponent,
-    AppButtonComponent,
-    RequestsTabsComponent
+    EventRequestsTabsComponent,
+    EventOrganizerActionsComponent,
+    EventOrganizerInfoComponent,
   ],
   templateUrl: './event-organizer.component.html',
-  styleUrls: ['./event-organizer.component.scss']
+  styleUrls: ['./event-organizer.component.scss'],
 })
-export class EventOrganizerComponent implements OnInit {
-
-  private http = inject(HttpClient);
+export class EventOrganizerComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
-  private dialog = inject(MatDialog);
-  private notification = inject(NotificationService);
   private eventService = inject(EventService);
-  baseUrl = environment.apiUrl;
-  loading = true;
+  private notification = inject(NotificationService);
+  private router = inject(Router);
+  private destroy$ = new Subject<void>();
 
-  event: EventDetails = {
-    id: '',
-    title: '',
-    description: '',
-    eventDate: '',
-    addressLabel: '',
-    startTime: '',
-    endTime: '',
-    activityName: '',
-    organizerName: '',
-    level: '',
-    material: '',
-    status: '',
-    maxParticipants: 0,
-    participationStatus: null,
-    rejectedParticipants: [],
-    pendingParticipants: [],
-    acceptedParticipants: [],
-    imageUrl: ''
-  };
+  loading = true;
+  event!: EventDetails;
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   ngOnInit(): void {
     const eventId = this.route.snapshot.paramMap.get('eventId');
@@ -80,116 +53,80 @@ export class EventOrganizerComponent implements OnInit {
 
   private loadEvent(eventId: string): void {
     this.loading = true;
-    this.http.get<EventDetails>(`${this.baseUrl}/event/${eventId}`, { withCredentials: true }).subscribe({
-      next: (data) => {
-        this.event = { ...this.event, ...data };
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('❌ Erreur chargement événement:', err);
-        this.loading = false;
-      }
-    });
+    this.eventService.getEventById(eventId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.event = data;
+          this.loading = false;
+        },
+        error: () => {
+          this.loading = false;
+        },
+      });
   }
 
-  acceptParticipant(eventUserId: string): void {
-    this.http.put(`${this.baseUrl}/event-user/${eventUserId}/accept`, {}, { withCredentials: true }).subscribe({
-      next: () => {
-        this.notification.showSuccess('Participant accepté avec succès.');
-        this.refreshEvent();
-      },
-      error: (err) => console.error('❌ Erreur acceptation participant:', err)
-    });
+  onAccept(eventUserId: string): void {
+    this.eventService.acceptParticipant(eventUserId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.notification.showSuccess('Participant accepté avec succès.');
+          this.onRefresh();
+        },
+        error: () => {
+          this.notification.showError("Impossible d'accepté ce participant.");
+        },
+      });
   }
 
-  rejectParticipant(eventUserId: string): void {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: {
-        title: 'Confirmer le refus',
-        message: 'Êtes-vous sûr de vouloir refuser ce participant ?'
-      }
-    });
-
-    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
-      if (!confirmed) return;
-
-      this.http.put(`${this.baseUrl}/event-user/${eventUserId}/reject`, {}, { withCredentials: true }).subscribe({
+  onReject(eventUserId: string): void {
+    this.eventService.rejectParticipant(eventUserId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
         next: () => {
           this.notification.showSuccess('Participant refusé avec succès.');
-          this.refreshEvent();
+          this.onRefresh();
         },
-        error: (err) => console.error('❌ Erreur refus participant:', err)
+        error: () => {
+          this.notification.showError('Impossible de refusé ce participant.');
+        },
       });
-    });
   }
 
-  removeParticipant(eventId: string, userId: string): void {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: {
-        title: 'Retirer le participant',
-        message: 'Êtes-vous sûr de vouloir retirer cette personne de l’événement ?'
-      }
-    });
+  onRemove(eventUserId: string): void {
+    const eventId = this.event.id;
+    if (!eventId || !eventUserId) return;
 
-    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
-      if (!confirmed) return;
-
-      this.http.delete(`${this.baseUrl}/event-user/${eventId}/remove/${userId}`, { withCredentials: true }).subscribe({
+    this.eventService.removeParticipant(eventId, eventUserId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
         next: () => {
           this.notification.showSuccess('Participant retiré avec succès.');
-          this.refreshEvent();
+          this.onRefresh();
         },
-        error: (err) => console.error('❌ Erreur retrait participant:', err)
+        error: () => {
+          this.notification.showError('Impossible de retiré ce participant.');
+        },
       });
-    });
   }
 
-  confirmDeleteEvent(eventId: string): void {
-    if (!eventId) return;
-
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: {
-        title: 'Supprimer l’activité',
-        message: 'Êtes-vous sûr de vouloir supprimer cette activité ? Cette action est irréversible.'
-      }
-    });
-
-    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
-      if (!confirmed) return;
-
-      this.http.delete(`${this.baseUrl}/event/${eventId}`, { withCredentials: true }).subscribe({
+  onDeleteEvent(eventId: string): void {
+    this.eventService.deleteEvent(eventId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
         next: () => {
           this.notification.showSuccess('Activité supprimée avec succès.');
-          window.location.href = '/events';
+          this.router.navigate(['/profile']);
         },
-        error: (err) => {
-          console.error('❌ Erreur suppression activité:', err);
+        error: () => {
           this.notification.showError('Impossible de supprimer cette activité.');
-        }
+        },
       });
-    });
   }
 
-  refreshEvent(): void {
+  onRefresh(): void {
     const eventId = this.route.snapshot.paramMap.get('eventId');
-    if (eventId) {
-      this.loadEvent(eventId);
-    }
-  }
-
-  getStatusLabel(status: string): string {
-    return this.eventService.getStatusLabel(status);
-  }
-
-  getLevelLabel(level: string): string {
-    return this.eventService.getLevelLabel(level);
-  }
-
-  getMaterialLabel(material: string): string {
-    return this.eventService.getMaterialLabel(material);
-  }
-
-  getParticipationLabel(status: string | null | undefined): string {
-    return this.eventService.getParticipationLabel(status);
+    if (eventId) this.loadEvent(eventId);
   }
 }
