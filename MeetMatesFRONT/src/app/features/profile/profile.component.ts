@@ -62,8 +62,7 @@ export class ProfileComponent {
           this.user.set(user);
           this.fetchEvents();
         },
-        error: (err) => {
-          console.error('Erreur profil :', err);
+        error: () => {
           this.error.set('Erreur lors du chargement du profil.');
           this.loading.set(false);
         }

@@ -176,7 +176,7 @@ export class PostEventComponent implements OnInit {
         }
       },
       error: () => {
-        this.notification.showError('Erreur lors de la création de l’activité. Connectez-vous');
+        this.notification.showError('Erreur lors de la création de l’activité. Etez-vous connecté ?');
         this.isSubmitting = false;
       },
     });

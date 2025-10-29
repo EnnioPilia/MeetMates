@@ -6,7 +6,7 @@ import { VerifyComponent } from './features/auth/verify/verify.component';
 import { ResetPasswordComponent } from './features/auth/reset-password/reset-password.component';
 import { ForgotPasswordComponent } from './features/auth/forgot-password/forgot-password.component';
 import { ProfileComponent } from './features/profile/profile.component';
-import { EditProfileComponent } from './features/profile/components/edit-profile.component';
+import { EditProfileComponent } from './features/edit-profile/edit-profile.component';
 import { HomeComponent } from './features/home/home.component';
 import { CategoryComponent } from './features/category-activity/category/category.component';
 import { ActivityComponent } from './features/category-activity/activity/activity.component';
