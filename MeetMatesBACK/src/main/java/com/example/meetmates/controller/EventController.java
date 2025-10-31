@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -48,6 +49,14 @@ public class EventController {
     @GetMapping("/activity/{activityId}")
     public ResponseEntity<List<EventResponse>> getEventsByActivity(@PathVariable UUID activityId) {
         return ResponseEntity.ok(eventService.getEventResponsesByActivity(activityId));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<EventResponse> updateEvent(
+            @PathVariable UUID id,
+            @RequestBody EventRequest updatedEvent) {
+        EventResponse updated = eventService.updateEvent(id, updatedEvent);
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")

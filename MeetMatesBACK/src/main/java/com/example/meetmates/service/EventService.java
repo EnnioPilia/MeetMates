@@ -193,4 +193,37 @@ public class EventService {
         }
         event.getParticipants().add(link);
     }
+    
+  public EventResponse updateEvent(UUID id, EventRequest updatedEvent) {
+    return eventRepository.findById(id)
+            .map(event -> {
+                // 📝 Champs simples
+                event.setTitle(updatedEvent.getTitle());
+                event.setDescription(updatedEvent.getDescription());
+                event.setEventDate(updatedEvent.getEventDate());
+                event.setStartTime(updatedEvent.getStartTime());
+                event.setEndTime(updatedEvent.getEndTime());
+                event.setMaxParticipants(updatedEvent.getMaxParticipants());
+                event.setStatus(updatedEvent.getStatus());
+                event.setMaterial(updatedEvent.getMaterial());
+                event.setLevel(updatedEvent.getLevel());
+
+                // 🏠 Mise à jour de l’adresse si fournie
+                if (updatedEvent.getAddress() != null) {
+                    event.setAddress(updatedEvent.getAddress());
+                }
+
+                // 🔗 Activité associée (facultatif selon ton modèle)
+                if (updatedEvent.getActivityId() != null) {
+                    event.setActivity(activityRepository.findById(updatedEvent.getActivityId())
+                            .orElseThrow(() -> new RuntimeException("Activity not found")));
+                }
+
+                // 💾 Sauvegarde
+                Event saved = eventRepository.save(event);
+                return eventMapper.toResponse(saved);
+            })
+            .orElseThrow(() -> new RuntimeException("Event not found"));
+}
+
 }
