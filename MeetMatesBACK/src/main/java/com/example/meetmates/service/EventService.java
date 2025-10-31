@@ -194,7 +194,7 @@ public class EventService {
         event.getParticipants().add(link);
     }
     
-  public EventResponse updateEvent(UUID id, EventRequest updatedEvent) {
+public EventResponse updateEvent(UUID id, EventRequest updatedEvent) {
     return eventRepository.findById(id)
             .map(event -> {
                 // 📝 Champs simples
@@ -208,12 +208,23 @@ public class EventService {
                 event.setMaterial(updatedEvent.getMaterial());
                 event.setLevel(updatedEvent.getLevel());
 
-                // 🏠 Mise à jour de l’adresse si fournie
+                // 🏠 Mise à jour correcte de l’adresse
                 if (updatedEvent.getAddress() != null) {
-                    event.setAddress(updatedEvent.getAddress());
+                    Address newAddress = updatedEvent.getAddress();
+                    Address existingAddress = event.getAddress();
+
+                    if (existingAddress == null) {
+                        existingAddress = new Address();
+                    }
+
+                    existingAddress.setStreet(newAddress.getStreet());
+                    existingAddress.setPostalCode(newAddress.getPostalCode());
+                    existingAddress.setCity(newAddress.getCity());
+
+                    event.setAddress(existingAddress);
                 }
 
-                // 🔗 Activité associée (facultatif selon ton modèle)
+                // 🔗 Activité associée
                 if (updatedEvent.getActivityId() != null) {
                     event.setActivity(activityRepository.findById(updatedEvent.getActivityId())
                             .orElseThrow(() -> new RuntimeException("Activity not found")));
@@ -225,5 +236,6 @@ public class EventService {
             })
             .orElseThrow(() -> new RuntimeException("Event not found"));
 }
+
 
 }

@@ -24,38 +24,38 @@ public record EventResponse(
         EventStatus status,
         MaterialOption material,
         Level level,
+        UUID activityId,
         String activityName,
         String addressLabel,
         String organizerName,
         List<String> participantNames,
         String imageUrl
-        ) {
+) {
 
     public static EventResponse from(Event e) {
-        // ✅ Trouver l’organisateur
+        if (e == null) return null;
+
         String organizerName = e.getParticipants().stream()
                 .filter(p -> p.getRole() == ParticipantRole.ORGANIZER)
                 .findFirst()
                 .map(p -> p.getUser().getFirstName() + " " + p.getUser().getLastName())
                 .orElse("Inconnu");
 
-        // ✅ Récupérer tous les participants (hors organisateur)
         List<String> participantNames = e.getParticipants().stream()
                 .filter(p -> p.getRole() == ParticipantRole.PARTICIPANT)
                 .map(p -> p.getUser().getFirstName() + " " + p.getUser().getLastName())
                 .collect(Collectors.toList());
 
-        // ✅ Récupérer l’URL de la photo principale
-        String imageUrl = e.getPictures().stream() // 🟢 utiliser le bon getter
-                .filter(PictureEvent::isMain) // ne garder que la principale
+        String imageUrl = e.getPictures().stream()
+                .filter(PictureEvent::isMain)
                 .findFirst()
-                .map(pe -> pe.getPicture().getUrl()) // accéder à l’URL réelle
+                .map(pe -> pe.getPicture().getUrl())
                 .orElse(null);
 
-        System.out.println("🖼️ Pictures for event " + e.getTitle() + ": " + e.getPictures().size());
-        e.getPictures().forEach(pe -> {
-            System.out.println("   → " + pe.getPicture().getUrl() + " | isMain=" + pe.isMain());
-        });
+        UUID activityId = e.getActivity() != null ? e.getActivity().getId() : null;
+        String activityName = e.getActivity() != null ? e.getActivity().getName() : null;
+
+        String addressLabel = e.getAddress() != null ? e.getAddress().getFullAddress() : null;
 
         return new EventResponse(
                 e.getId(),
@@ -68,8 +68,9 @@ public record EventResponse(
                 e.getStatus(),
                 e.getMaterial(),
                 e.getLevel(),
-                e.getActivity() != null ? e.getActivity().getName() : null,
-                e.getAddress() != null ? e.getAddress().getFullAddress() : null,
+                activityId,
+                activityName,
+                addressLabel,
                 organizerName,
                 participantNames,
                 imageUrl

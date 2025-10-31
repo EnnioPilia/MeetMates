@@ -46,7 +46,8 @@ public class EventMapper {
                 e.getStatus(),
                 e.getMaterial(),
                 e.getLevel(),
-                e.getActivity() != null ? e.getActivity().getName() : null,
+                e.getActivity() != null ? e.getActivity().getId() : null,   // ✅ ajouté (activityId)
+                e.getActivity() != null ? e.getActivity().getName() : null, // ✅ ajouté (activityName)
                 e.getAddress() != null ? e.getAddress().getFullAddress() : null,
                 organizerName,
                 participantNames,
