@@ -1,6 +1,6 @@
-import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
-import { Router,RouterModule } from '@angular/router';
-import { Location, CommonModule } from '@angular/common';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
@@ -25,11 +25,7 @@ export class AppButtonComponent {
   @Input() icon?: string;
   @Input() routerLink?: any[] | string;
   @Input() disabled = false;
-
   @Output() clicked = new EventEmitter<void>();
-
-  private location = inject(Location);
-  private router = inject(Router);
 
   onClick() {
     if (!this.disabled) {

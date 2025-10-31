@@ -23,7 +23,7 @@ export class AppInputComponent {
   get control(): FormControl<any> {
     return this._control;
   }
-  @Input() type: 'text' | 'email' | 'password' | 'number' = 'text';
+@Input() type: 'text' | 'number' | 'email' | 'password' | 'date' | 'time' = 'text';
   @Input() required = false;
   @Input() placeholder = '';
   @Input() icon?: string;

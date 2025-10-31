@@ -7,7 +7,14 @@
   @else if (event) {
     <mat-card class="activity-card w-full flex flex-col items-center p-6">
 
+
+
+      <!-- mettre en composant enfant ??  -->
       <app-button label="ANNULER VOTRE PARTICIPATION" class="w-full primary-button-cancel mb-6"(clicked)="cancelParticipation(event.id)"></app-button>
+
+
+
+
 
       <app-event-header [title]="event.title" [description]="event.description"></app-event-header>
 

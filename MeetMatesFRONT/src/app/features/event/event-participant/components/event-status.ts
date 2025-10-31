@@ -10,9 +10,17 @@ import { EventService } from '../../../../core/services/event/event-service.serv
   
     <div class="flex flex-col items-center text-sm leading-relaxed mt-4 gap-2">
 
+
+
+    <!-- les mettre dans un shared pour les reutilisé dans profile   -->
       <p><strong>STATUT DE L'ACTIVITÉ :</strong> {{ getStatusLabel(eventStatus || '') }}</p>
       <p><strong>VOTRE PARTICIPATION :</strong> {{ getParticipationLabel(participationStatus || '') }}</p>
       
+
+
+
+
+
     </div>
   `
 })

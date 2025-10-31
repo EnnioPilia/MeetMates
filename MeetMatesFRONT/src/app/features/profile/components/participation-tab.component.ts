@@ -37,7 +37,7 @@ import { AppButtonComponent } from '../../../shared-components/button/button.com
             <p>{{ event.addressLabel }}</p>
           </div>
           <div class="flex justify-end">
-            <app-button label="Voir détails" class="primary-button-details w-20"[routerLink]="['/event-details', event.eventId]"></app-button>
+            <app-button label="Voir détails" class="primary-button-details w-20" [routerLink]="['/edit-event', event.eventId]"></app-button>
           </div>
         </mat-expansion-panel>
         }

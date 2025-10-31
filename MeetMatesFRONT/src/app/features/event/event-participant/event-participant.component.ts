@@ -9,7 +9,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog } from '@angular/material/dialog';
 import { environment } from '../../../../environments/environment';
 import { EventDetails } from '../../../core/models/event-details.model';
-import { EventResponse } from '../../../core/models/event-response.model';
 import { EventService } from '../../../core/services/event/event-service.service';
 import { NotificationService } from '../../../core/services/notification/notification.service';
 import { ConfirmDialogComponent } from '../../../shared-components/confirm-dialog/confirm-dialog.component';

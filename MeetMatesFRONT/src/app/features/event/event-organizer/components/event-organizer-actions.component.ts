@@ -10,13 +10,33 @@ import { ConfirmDialogComponent } from '../../../../shared-components/confirm-di
   imports: [CommonModule, AppButtonComponent],
   template: `
 
+
+
+
+
+
+
+<!-- flex fait buger le style du boutton -->
+<div class="flex flex-col items-center"> 
+<app-button
+  label="MODIFIER L'ACTIVITÉ"
+  class="w-full primary-button-cancel"
+  [routerLink]="['/edit-event', eventId]">
+</app-button>
     <app-button
       label="SUPPRIMER L'ACTIVITÉ"
-      class="w-full primary-button-cancel"
+      class="w-full primary-button"
       (clicked)="confirmDeleteEvent()">
     </app-button>
 
+</div>
   `,
+
+
+
+
+
+
 })
 export class EventOrganizerActionsComponent {
   @Input() eventId!: string;

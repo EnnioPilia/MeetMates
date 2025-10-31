@@ -36,7 +36,6 @@ export class PostEventComponent implements OnInit {
   private fb = inject(FormBuilder);
   private http = inject(HttpClient);
   private notification = inject(NotificationService);
-  private cdr = inject(ChangeDetectorRef);
 
   form!: FormGroup;
   activities: any[] = [];
@@ -68,7 +67,7 @@ export class PostEventComponent implements OnInit {
 
   private buildForm(): void {
     this.form = this.fb.group({
-      titre: ['', [Validators.required, Validators.maxLength(50)]],
+      titre: ['', [Validators.required, Validators.maxLength(20)]],
       description: ['', [Validators.required]],
       date: ['', Validators.required],
       startTime: ['', Validators.required],
@@ -163,7 +162,7 @@ export class PostEventComponent implements OnInit {
         }
 
         if (this.selectedFile) {
-          this.uploadImage(eventId);
+          // this.uploadImage(eventId);
         } else {
           this.notification.showSuccess('🎉 Activité créée avec succès !');
           this.resetForm();
@@ -174,25 +173,6 @@ export class PostEventComponent implements OnInit {
         this.isSubmitting = false;
       },
     });
-  }
-
-  private uploadImage(eventId: string): void {
-    const formData = new FormData();
-    formData.append('file', this.selectedFile as Blob);
-    formData.append('isMain', 'true');
-
-    this.http
-      .post(`${this.baseUrl}/event/${eventId}/picture`, formData, { withCredentials: true })
-      .subscribe({
-        next: () => {
-          this.notification.showSuccess('Votre activité a été enregistrée avec succès !');
-          this.resetForm();
-        },
-        error: () => {
-          this.notification.showWarning('Activité créée, mais échec de l’envoi de la photo.');
-          this.resetForm();
-        },
-      });
   }
 
   private formatDate(date: Date): string {
