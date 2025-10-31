@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, forkJoin } from 'rxjs';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
@@ -15,9 +15,10 @@ import { environment } from '../../../environments/environment';
 import { EditEventInfoComponent } from './components/edit-event-info.component';
 import { EditEventDetailsComponent } from './components/edit-event-details.component';
 import { EditEventAddressComponent } from './components/edit-event-address.component';
-import { EditEventDateTimeComponent } from './components/edit-event-date-time.component.ts';
-import { ConfirmDialogComponent } from '../../shared-components/confirm-dialog/confirm-dialog.component';
+import { EditEventDateTimeComponent } from './components/edit-event-dateTime.component';
+import { AppButtonComponent } from '../../shared-components/button/button.component';
 import { EditEventActivityComponent } from './components/edit-event-activity.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-edit-event',
@@ -32,7 +33,8 @@ import { EditEventActivityComponent } from './components/edit-event-activity.com
     EditEventDetailsComponent,
     EditEventAddressComponent,
     EditEventDateTimeComponent,
-    EditEventActivityComponent
+    EditEventActivityComponent,
+    AppButtonComponent
   ],
   templateUrl: './edit-event.component.html',
   styleUrls: ['./edit-event.component.scss']
@@ -45,6 +47,7 @@ export class EditEventComponent implements OnInit, OnDestroy {
   activities: any[] = [];
   addressSuggestions: any[] = [];
 
+  private router = inject(Router);
   private baseUrl = environment.apiUrl;
   private http = inject(HttpClient);
   private fb = inject(FormBuilder);
@@ -56,18 +59,37 @@ export class EditEventComponent implements OnInit, OnDestroy {
   private cdr = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
-    this.loadActivities();
-
     this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
       const id = params.get('id');
-      if (id) {
-        this.eventId = id;
-        this.loadEvent();
-      } else {
+      if (!id) {
         this.notification.showError('ID de l’événement manquant.');
         this.loading = false;
+        return;
       }
+      this.eventId = id;
+      this.loadActivitiesAndEvent();
     });
+  }
+
+  private loadActivitiesAndEvent(): void {
+    const activities$ = this.http.get<any[]>(`${this.baseUrl}/activity`);
+    const event$ = this.eventService.getEventById(this.eventId);
+
+    forkJoin([activities$, event$])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: ([activities, event]) => {
+          this.activities = activities;
+          this.event = event;
+          this.initForm(event);
+          this.loading = false;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.notification.showError('Erreur lors du chargement des données.');
+          this.loading = false;
+        }
+      });
   }
 
   ngOnDestroy(): void {
@@ -98,8 +120,8 @@ export class EditEventComponent implements OnInit, OnDestroy {
       title: [event.title],
       description: [event.description],
       activityName: [event.activityName || ''],
+      activityId: [null],
       level: [event.level],
-
       maxParticipants: [event.maxParticipants],
       material: [event.material],
       eventDate: [event.eventDate],
@@ -108,41 +130,37 @@ export class EditEventComponent implements OnInit, OnDestroy {
       addressLabel: [event.addressLabel],
       status: [event.status]
     });
+
+    if (this.activities?.length && event.activityName) {
+      const match = this.activities.find(a => a.name === event.activityName);
+      if (match) {
+        this.form.patchValue({ activityId: match.id });
+      } else {
+        console.warn(' Aucune activité trouvée pour', event.activityName);
+      }
+    }
   }
 
   saveChanges(): void {
     if (!this.form.valid || !this.eventId) return;
-
     const updated: EventDetails = {
       ...this.event!,
       ...this.form.value,
-      id: this.eventId
+      id: this.eventId,
+      address: this.parseAddress(this.form.value.addressLabel)
     };
 
     this.eventService.updateEvent(this.eventId, updated)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: () => this.notification.showSuccess('✅ Événement mis à jour avec succès.'),
-        error: () => this.notification.showError('❌ Erreur lors de la mise à jour.')
+        next: () => {
+          this.notification.showSuccess('✅ Événement mis à jour avec succès.');
+          this.router.navigate(['/profile']);
+        },
+        error: () => {
+          this.notification.showError('❌ Erreur lors de la mise à jour.');
+        }
       });
-  }
-
-  cancelEdit(): void {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: { title: 'Annuler les modifications', message: 'Voulez-vous vraiment quitter sans sauvegarder ?' }
-    });
-
-    dialogRef.afterClosed().subscribe((confirmed) => {
-      if (confirmed) {
-        this.loadEvent();
-      }
-    });
-  }
-  private loadActivities(): void {
-    this.http.get<any[]>(`${this.baseUrl}/activity`).subscribe({
-      next: data => (this.activities = data),
-      error: () => this.notification.showError('Erreur lors du chargement des activités.')
-    });
   }
 
   onAddressInput(value: string): void {
@@ -167,7 +185,14 @@ export class EditEventComponent implements OnInit, OnDestroy {
       });
   }
 
-  onAddressSelect(value: string): void {
-    this.form.get('addressLabel')?.setValue(value);
+  private parseAddress(label: string) {
+    const match = label.match(/^(.*)\s(\d{5})\s(.+)$/);
+    if (!match) return { street: label, postalCode: '', city: '' };
+
+    return {
+      street: match[1].trim(),
+      postalCode: match[2],
+      city: match[3].trim()
+    };
   }
 }

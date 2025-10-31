@@ -17,14 +17,14 @@ import { ConfirmDialogComponent } from '../../../../shared-components/confirm-di
 
 
 <!-- flex fait buger le style du boutton -->
-<div class="flex flex-col items-center"> 
+<div class="flex flex-col items-center mb-5 gap-3"> 
 <app-button
-  label="MODIFIER L'ACTIVITÉ"
-  class="w-full primary-button-cancel"
+  label="MODIFIER"
+  class="w-full primary-button"
   [routerLink]="['/edit-event', eventId]">
 </app-button>
     <app-button
-      label="SUPPRIMER L'ACTIVITÉ"
+      label="SUPPRIMER"
       class="w-full primary-button"
       (clicked)="confirmDeleteEvent()">
     </app-button>

@@ -22,7 +22,6 @@ import { AppInputComponent } from '../../../shared-components/input/input.compon
   template: `
 
       <div [formGroup]="form" class="flex flex-col items-center w-full">
-
         <div class="w-80 flex flex-col items-start">
           <label class="font-medium text-gray-700">Statut :</label>
           <mat-button-toggle-group formControlName="status" appearance="standard">
@@ -40,7 +39,6 @@ import { AppInputComponent } from '../../../shared-components/input/input.compon
           <textarea matInput formControlName="description" rows="4">
               </textarea>
         </mat-form-field>
-
       </div>
 
   `
@@ -48,7 +46,8 @@ import { AppInputComponent } from '../../../shared-components/input/input.compon
 export class EditEventInfoComponent {
   @Input() form!: FormGroup;
 
-  /** Options possibles pour le statut */
+
+  //shared ?????
   statusOptions = [
     { value: 'OPEN', label: 'Ouvert' },
     { value: 'FULL', label: 'Complet' },

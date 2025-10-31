@@ -21,14 +21,10 @@ import { MatIconModule } from '@angular/material/icon';
   template: `
 
     <div [formGroup]="form" class="flex flex-col items-center w-full">
-
       <div class="w-80">
         <mat-form-field class="w-full" appearance="fill">
           <mat-label>Adresse</mat-label>
-          <input matInput formControlName="addressLabel" [matAutocomplete]="auto" (input)="onInputChange($event)"
-            placeholder="Saisissez une adresse" />
-          <mat-icon matSuffix>location_on</mat-icon>
-
+          <input matInput formControlName="addressLabel" [matAutocomplete]="auto" (input)="onInputChange($event)"  (keyup)="onInputChange($event)"/>
           <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onOptionSelected($event.option.value)">
             <mat-option *ngFor="let suggestion of suggestions" [value]="suggestion.display_name">
               {{ suggestion.display_name }}
@@ -36,7 +32,6 @@ import { MatIconModule } from '@angular/material/icon';
           </mat-autocomplete>
         </mat-form-field>
       </div>
-
   </div>
 
   `,
@@ -54,7 +49,9 @@ export class EditEventAddressComponent {
   }
 
   onOptionSelected(value: string): void {
-    this.optionSelected.emit(value);
     this.form.get('addressLabel')?.setValue(value);
+    this.form.get('addressLabel')?.updateValueAndValidity();
+    this.optionSelected.emit(value);
   }
+
 }

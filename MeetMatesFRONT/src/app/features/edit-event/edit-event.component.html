@@ -5,32 +5,22 @@
   </div>
   }
   @else if (event && form) {
+
   <div class="w-full max-w-3xl p-6 flex flex-col items-center ">
 
     <app-edit-event-info [form]="form"></app-edit-event-info>
 
     <app-edit-event-activity [form]="form" [activities]="activities"></app-edit-event-activity>
 
-
-    <app-edit-event-address [form]="form" [suggestions]="addressSuggestions" (inputChange)="onAddressInput($event)"
-      (optionSelected)="onAddressSelect($event)">
-    </app-edit-event-address>
+    <app-edit-event-address [form]="form" [suggestions]="addressSuggestions" (inputChange)="onAddressInput($event)"></app-edit-event-address>
+      
+    <app-edit-event-date-time [form]="form"></app-edit-event-date-time>
 
     <app-edit-event-details [form]="form"></app-edit-event-details>
 
-          <app-edit-event-date-time [form]="form"></app-edit-event-date-time>
-
-
-    <div class="flex gap-4 w-full mt-8">
-      <button mat-flat-button color="primary" class="flex-1" (click)="saveChanges()">💾 Sauvegarder</button>
-      <button mat-stroked-button color="warn" class="flex-1" (click)="cancelEdit()">Annuler</button>
-    </div>
+    <app-button label="Sauvegarder" class="primary-button w-80" (click)="saveChanges()"></app-button>
+   
   </div>
-
-  <!-- <div class="flex gap-4 w-full mt-8">
-        <app-button class="primary-button w-80" (click)="saveChanges()">Sauvegarder</app-button>
-        <app-button class="primary-button w-80" (click)="cancelEdit()">Annuler</app-button>
-      </div> -->
   }
   @else {
   <div class="flex flex-col items-center justify-center h-[50vh]">
@@ -38,4 +28,6 @@
   </div>
   }
 </div>
+
+
 

@@ -1,8 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
-
-// 🧩 Angular Material
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -22,7 +20,6 @@ import { MatNativeDateModule } from '@angular/material/core';
   template: `
   
     <div [formGroup]="form" class="flex flex-col items-center w-full">
-
       <mat-form-field class="w-80" appearance="fill">
         <mat-label>Date</mat-label>
         <input matInput [matDatepicker]="picker" formControlName="eventDate" />
@@ -41,7 +38,6 @@ import { MatNativeDateModule } from '@angular/material/core';
           <input matInput type="time" formControlName="endTime" />
         </mat-form-field>
       </div>
-
     </div>
   `,
 })

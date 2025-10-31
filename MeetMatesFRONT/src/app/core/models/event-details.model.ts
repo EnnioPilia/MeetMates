@@ -19,4 +19,5 @@ export interface EventDetails {
   acceptedParticipants: EventUser[];
   pendingParticipants: EventUser[];
   rejectedParticipants: EventUser[];
+  activityId?: string;  // ✅ ajouté
 }
