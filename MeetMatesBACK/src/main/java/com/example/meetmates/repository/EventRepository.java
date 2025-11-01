@@ -64,14 +64,23 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
     """)
     List<Event> findAllWithPictures();
 
-@Query("""
+    @Query("""
     SELECT DISTINCT e FROM Event e
     LEFT JOIN FETCH e.activity
     LEFT JOIN FETCH e.address
     LEFT JOIN FETCH e.participants eu
     LEFT JOIN FETCH eu.user
     WHERE e.id = :id
-""")
-Optional<Event> findByIdWithAllRelations(@Param("id") UUID id);
+    """)
+    Optional<Event> findByIdWithAllRelations(@Param("id") UUID id);
+
+    @Query("""
+    SELECT e FROM Event e
+    WHERE LOWER(e.title) LIKE LOWER(CONCAT('%', :query, '%'))
+    OR LOWER(e.description) LIKE LOWER(CONCAT('%', :query, '%'))
+    OR LOWER(e.address.city) LIKE LOWER(CONCAT('%', :query, '%'))
+    OR LOWER(e.activity.name) LIKE LOWER(CONCAT('%', :query, '%'))
+    """)
+    List<Event> searchEvents(@Param("query") String query);
 
 }

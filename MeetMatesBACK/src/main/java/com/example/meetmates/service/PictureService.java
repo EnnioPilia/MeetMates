@@ -146,21 +146,19 @@ public class PictureService {
     @Transactional
     public void deleteUserProfilePicture(User user) {
         try {
-            Optional<PictureUser> existing = pictureUserRepository.findByUser(user);
+            User existingUser = userRepository.findById(user.getId())
+                    .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
 
-            if (existing.isEmpty()) {
-                return;
+            Optional<PictureUser> existingPicture = pictureUserRepository.findByUser(existingUser);
+            if (existingPicture.isPresent()) {
+                pictureUserRepository.delete(existingPicture.get());
             }
 
-            PictureUser pictureUser = existing.get();
+            existingUser.setProfilePictureUrl(null);
 
-            pictureUserRepository.delete(pictureUser);
-
-            user.setProfilePictureUrl(null);
-            userRepository.save(user);
+            userRepository.saveAndFlush(existingUser);
         } catch (Exception e) {
             throw new RuntimeException("Erreur lors de la suppression de la photo de profil", e);
         }
     }
-
 }

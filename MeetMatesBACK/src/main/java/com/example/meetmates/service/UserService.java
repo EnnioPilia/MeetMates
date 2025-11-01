@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.meetmates.model.core.User;
 import com.example.meetmates.model.core.UserStatus;
 import com.example.meetmates.model.security.TokenType;
+import com.example.meetmates.repository.EventRepository;
 import com.example.meetmates.repository.TokenRepository;
 import com.example.meetmates.repository.UserRepository;
 
@@ -24,13 +25,17 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
+    private final EventRepository eventRepository;
 
     @Autowired
     public UserService(UserRepository userRepository,
             PasswordEncoder passwordEncoder,
-            TokenRepository tokenRepository) {
+            TokenRepository tokenRepository,
+            EventRepository eventRepository) {
         this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
+        this.eventRepository = eventRepository;
+
     }
 
 // 🔸 Ajouter des exceptions personnalisées (plus clean pour la gestion d’erreurs).
@@ -90,10 +95,9 @@ public class UserService implements UserDetailsService {
                 })
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
-    // =================== Suppression Utilisateur ===================
+
     @Transactional
     public boolean deleteUserById(UUID userId) {
-        // Supprimer les tokens liés à l'utilisateur
         tokenRepository.deleteByUser_IdAndType(userId, TokenType.REFRESH);
         tokenRepository.deleteByUser_IdAndType(userId, TokenType.VERIFICATION);
         tokenRepository.deleteByUser_IdAndType(userId, TokenType.PASSWORD_RESET);

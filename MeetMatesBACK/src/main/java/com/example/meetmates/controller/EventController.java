@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.meetmates.dto.EventDetailsDTO;
 import com.example.meetmates.dto.EventRequest;
 import com.example.meetmates.dto.EventResponse;
+import com.example.meetmates.model.core.Event;
 import com.example.meetmates.service.EventService;
 
 @RestController
@@ -73,6 +74,36 @@ public class EventController {
 
         EventResponse updatedEvent = eventService.addPictureToEvent(id, file, isMain);
         return ResponseEntity.ok(updatedEvent);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<EventDetailsDTO>> searchEvents(@RequestParam String query) {
+        List<Event> results = eventService.searchEvents(query);
+
+        List<EventDetailsDTO> dtoList = results.stream().map(e
+                -> new EventDetailsDTO(
+                        e.getId(),
+                        e.getTitle(),
+                        e.getDescription(),
+                        e.getEventDate().toString(),
+                        e.getStartTime().toString(),
+                        e.getEndTime().toString(),
+                        e.getAddress() != null ? e.getAddress().getFullAddress() : null,
+                        e.getActivity() != null ? e.getActivity().getName() : null,
+                        null, // organizerName
+                        e.getLevel().name(),
+                        e.getMaterial().name(),
+                        e.getStatus().name(),
+                        e.getMaxParticipants(),
+                        null, // imageUrl → ici tu le laisses null pour ne pas l’afficher
+                        null, // participationStatus
+                        null, // acceptedParticipants
+                        null, // pendingParticipants
+                        null // rejectedParticipants
+                )
+        ).toList();
+
+        return ResponseEntity.ok(dtoList);
     }
 
 }

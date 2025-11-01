@@ -84,19 +84,12 @@ public class UserController {
         }
 
         User user = userOpt.get();
-
         String imageUrl = "https://cdn.meetmates.com/uploads/" + file.getOriginalFilename();
 
         user.setProfilePictureUrl(imageUrl);
         userRepository.save(user);
 
         return ResponseEntity.ok(user);
-    }
-
-    @DeleteMapping("/me/photo")
-    public ResponseEntity<Void> deleteProfilePhoto(@AuthenticationPrincipal User currentUser) {
-        pictureService.deleteUserProfilePicture(currentUser);
-        return ResponseEntity.noContent().build(); // 204
     }
 
     @DeleteMapping("/{id}")
@@ -109,10 +102,12 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/me")
-    public ResponseEntity<?> deleteMyAccount(Authentication authentication) {
-        boolean deleted = userService.deleteMyAccount(authentication);
-        return deleted ? ResponseEntity.noContent().build()
-                : ResponseEntity.notFound().build();
+    @DeleteMapping("/me/picture")
+    public ResponseEntity<Void> deleteProfilePhoto(@AuthenticationPrincipal org.springframework.security.core.userdetails.User principal) {
+        User user = userService.findByEmail(principal.getUsername())
+                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
+
+        pictureService.deleteUserProfilePicture(user);
+        return ResponseEntity.noContent().build();
     }
 }

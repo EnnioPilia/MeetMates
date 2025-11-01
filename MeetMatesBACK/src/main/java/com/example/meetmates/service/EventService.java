@@ -193,49 +193,52 @@ public class EventService {
         }
         event.getParticipants().add(link);
     }
-    
-public EventResponse updateEvent(UUID id, EventRequest updatedEvent) {
-    return eventRepository.findById(id)
-            .map(event -> {
-                // 📝 Champs simples
-                event.setTitle(updatedEvent.getTitle());
-                event.setDescription(updatedEvent.getDescription());
-                event.setEventDate(updatedEvent.getEventDate());
-                event.setStartTime(updatedEvent.getStartTime());
-                event.setEndTime(updatedEvent.getEndTime());
-                event.setMaxParticipants(updatedEvent.getMaxParticipants());
-                event.setStatus(updatedEvent.getStatus());
-                event.setMaterial(updatedEvent.getMaterial());
-                event.setLevel(updatedEvent.getLevel());
 
-                // 🏠 Mise à jour correcte de l’adresse
-                if (updatedEvent.getAddress() != null) {
-                    Address newAddress = updatedEvent.getAddress();
-                    Address existingAddress = event.getAddress();
+    public EventResponse updateEvent(UUID id, EventRequest updatedEvent) {
+        return eventRepository.findById(id)
+                .map(event -> {
+                    event.setTitle(updatedEvent.getTitle());
+                    event.setDescription(updatedEvent.getDescription());
+                    event.setEventDate(updatedEvent.getEventDate());
+                    event.setStartTime(updatedEvent.getStartTime());
+                    event.setEndTime(updatedEvent.getEndTime());
+                    event.setMaxParticipants(updatedEvent.getMaxParticipants());
+                    event.setStatus(updatedEvent.getStatus());
+                    event.setMaterial(updatedEvent.getMaterial());
+                    event.setLevel(updatedEvent.getLevel());
 
-                    if (existingAddress == null) {
-                        existingAddress = new Address();
+                    if (updatedEvent.getAddress() != null) {
+                        Address newAddress = updatedEvent.getAddress();
+                        Address existingAddress = event.getAddress();
+
+                        if (existingAddress == null) {
+                            existingAddress = new Address();
+                        }
+
+                        existingAddress.setStreet(newAddress.getStreet());
+                        existingAddress.setPostalCode(newAddress.getPostalCode());
+                        existingAddress.setCity(newAddress.getCity());
+
+                        event.setAddress(existingAddress);
                     }
 
-                    existingAddress.setStreet(newAddress.getStreet());
-                    existingAddress.setPostalCode(newAddress.getPostalCode());
-                    existingAddress.setCity(newAddress.getCity());
+                    if (updatedEvent.getActivityId() != null) {
+                        event.setActivity(activityRepository.findById(updatedEvent.getActivityId())
+                                .orElseThrow(() -> new RuntimeException("Activity not found")));
+                    }
 
-                    event.setAddress(existingAddress);
-                }
+                    Event saved = eventRepository.save(event);
+                    return eventMapper.toResponse(saved);
+                })
+                .orElseThrow(() -> new RuntimeException("Event not found"));
+    }
 
-                // 🔗 Activité associée
-                if (updatedEvent.getActivityId() != null) {
-                    event.setActivity(activityRepository.findById(updatedEvent.getActivityId())
-                            .orElseThrow(() -> new RuntimeException("Activity not found")));
-                }
-
-                // 💾 Sauvegarde
-                Event saved = eventRepository.save(event);
-                return eventMapper.toResponse(saved);
-            })
-            .orElseThrow(() -> new RuntimeException("Event not found"));
-}
-
+    @Transactional(readOnly = true)
+    public List<Event> searchEvents(String query) {
+        if (query == null || query.isBlank()) {
+            return List.of();
+        }
+        return eventRepository.searchEvents(query.toLowerCase());
+    }
 
 }
