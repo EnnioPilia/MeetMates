@@ -41,9 +41,15 @@ export class EventService {
   }
 
   updateEvent(eventId: string, updatedEvent: Partial<EventDetails>): Observable<EventDetails> {
-    return this.http.put<EventDetails>(`${this.baseUrl}/event/${eventId}`,updatedEvent,{ withCredentials: true });
+    return this.http.put<EventDetails>(`${this.baseUrl}/event/${eventId}`, updatedEvent, { withCredentials: true });
   }
-  
+
+  searchEvents(query: string): Observable<EventDetails[]> {
+    return this.http.get<EventDetails[]>(`${this.baseUrl}/event/search`, {
+      params: { query }
+    });
+  }
+
   getStatusLabel(status: string): string {
     switch (status) {
       case 'OPEN': return 'Ouvert';

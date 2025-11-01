@@ -15,6 +15,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { AppButtonComponent } from '../../../shared-components/button/button.component';
 import { EventHeaderComponent } from '../../../shared-components/event-header/event-header.component';
 import { EventInfoComponent } from '../../../shared-components/event-info/event-info.component';
+import { EventUserService } from '../../../core/services/event/event-user-service';
 
 @Component({
   selector: 'app-event-list',
@@ -39,6 +40,7 @@ export class EventListComponent implements OnInit, OnDestroy {
   private notification = inject(NotificationService);
   private eventService = inject(EventService);
   private destroy$ = new Subject<void>();
+  private eventUserService = inject(EventUserService);
 
   loading = true;
   events: EventResponse[] = [];
@@ -70,15 +72,14 @@ export class EventListComponent implements OnInit, OnDestroy {
     }
   }
 
-  joinEvent(eventId: string): void {
+  joinEvent(eventId: string) {
     const user = this.signals.currentUser();
-
     if (!user) {
       this.notification.showError('Vous devez être connecté pour participer à un événement.');
       return;
     }
 
-    this.http.post(`${this.baseUrl}/event-user/join`, { eventId, userId: user.id }, { withCredentials: true })
+    this.eventUserService.joinEvent(eventId, user.id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => this.notification.showSuccess('Demande de participation envoyée.'),
@@ -92,7 +93,7 @@ export class EventListComponent implements OnInit, OnDestroy {
           } else {
             this.notification.showError('Une erreur est survenue.');
           }
-        },
+        }
       });
   }
 
