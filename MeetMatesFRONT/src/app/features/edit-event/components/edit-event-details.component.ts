@@ -7,6 +7,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { MatRadioModule } from '@angular/material/radio';
+import { MATERIAL_OPTIONS, LEVEL_OPTIONS } from '../../../shared-components/constants/event-option';
 
 @Component({
   selector: 'app-edit-event-details',
@@ -48,16 +49,6 @@ import { MatRadioModule } from '@angular/material/radio';
 export class EditEventDetailsComponent {
   @Input({ required: true }) form!: FormGroup;
 
-  levelOptions = [
-    { label: 'Débutant', value: 'BEGINNER' },
-    { label: 'Intermédiaire', value: 'INTERMEDIATE' },
-    { label: 'Expert', value: 'EXPERT' },
-    { label: 'Tous niveaux', value: 'ALL_LEVELS' }
-  ];
-
-  materialOptions = [
-    { label: 'Fournis', value: 'PROVIDED' },
-    { label: 'Amener son matériel', value: 'YOUR_OWN' },
-    { label: 'Pas de matériel requis', value: 'NOT_REQUIRED' },
-  ];
+  materialOptions = MATERIAL_OPTIONS;
+  levelOptions = LEVEL_OPTIONS;
 }

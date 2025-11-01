@@ -8,10 +8,14 @@ import { EventDetails } from '../../../core/models/event-details.model';
 import { EventService } from '../../../core/services/event/event-service.service';
 import { NotificationService } from '../../../core/services/notification/notification.service';
 import { EventHeaderComponent } from '../../../shared-components/event-header/event-header.component';
-import { EventRequestsTabsComponent } from './components/event-requests-tabs';
-import { EventOrganizerActionsComponent } from './components/event-organizer-actions.component';
-import { EventOrganizerInfoComponent } from './components/event-organizer-info.component';
+import { EventInfoComponent } from '../../../shared-components/event-info/event-info.component';
 import { Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialogComponent } from '../../../shared-components/confirm-dialog/confirm-dialog.component';
+import { AppButtonComponent } from '../../../shared-components/button/button.component';
+import { EventTabAcceptedComponent } from './components/event-tab-accepted.component';
+import { EventTabPendingComponent } from './components/event-tab-pending.component';
+import { MatTabsModule } from '@angular/material/tabs';
 
 @Component({
   selector: 'app-event-organizer',
@@ -22,10 +26,12 @@ import { Router } from '@angular/router';
     MatCardModule,
     MatProgressSpinnerModule,
     EventHeaderComponent,
-    EventRequestsTabsComponent,
-    EventOrganizerActionsComponent,
-    EventOrganizerInfoComponent,
-  ],
+    EventInfoComponent,
+    AppButtonComponent,
+    EventTabAcceptedComponent,
+    EventTabPendingComponent,
+    MatTabsModule
+    ],
   templateUrl: './event-organizer.component.html',
   styleUrls: ['./event-organizer.component.scss'],
 })
@@ -35,6 +41,7 @@ export class EventOrganizerComponent implements OnInit, OnDestroy {
   private notification = inject(NotificationService);
   private router = inject(Router);
   private destroy$ = new Subject<void>();
+  private dialog = inject(MatDialog);
 
   loading = true;
   event!: EventDetails;
@@ -111,18 +118,29 @@ export class EventOrganizerComponent implements OnInit, OnDestroy {
       });
   }
 
-  onDeleteEvent(eventId: string): void {
-    this.eventService.deleteEvent(eventId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => {
-          this.notification.showSuccess('Activité supprimée avec succès.');
-          this.router.navigate(['/profile']);
-        },
-        error: () => {
-          this.notification.showError('Impossible de supprimer cette activité.');
-        },
-      });
+  deleteEvent(): void {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'Supprimer l’activité',
+        message: 'Êtes-vous sûr de vouloir supprimer cette activité ? Cette action est irréversible.',
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (!confirmed) return;
+
+      this.eventService.deleteEvent(this.event.id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            this.notification.showSuccess('Activité supprimée avec succès.');
+            this.router.navigate(['/profile']);
+          },
+          error: () => {
+            this.notification.showError('Impossible de supprimer cette activité.');
+          },
+        });
+    });
   }
 
   onRefresh(): void {

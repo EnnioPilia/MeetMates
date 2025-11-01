@@ -1,26 +1,47 @@
 <div class="flex flex-col items-center justify-start min-h-screen px-7 py-20 overflow-y-auto">
   @if (loading) {
-  <mat-spinner diameter="50"></mat-spinner>
-  }
-  @else if (event) {
+    <mat-spinner diameter="50"></mat-spinner>
+  } @else if (event) {
+
+    <div class="activity-card w-full flex flex-col items-center">
+
+      <app-button 
+        label="M O D I F I E R" class="w-full primary-button mb-6" 
+        [routerLink]="['/edit-event', event.id]">
+      </app-button>
+
+      <app-event-header 
+        [title]="event.title" 
+        [description]="event.description">
+      </app-event-header>
+
+      <mat-tab-group class="w-60 max-w-none" mat-align-tabs="start" animationDuration="300ms" >
+        <mat-tab label="Acceptés">
+          <app-event-tab-accepted [acceptedParticipants]="event.acceptedParticipants"
+            [organizerName]="event.organizerName" (reject)="onReject($event)">
+          </app-event-tab-accepted>
+        </mat-tab>
+
+        <mat-tab label="En attente">
+          <app-event-tab-pending [pendingParticipants]="event.pendingParticipants"
+            (accept)="onAccept($event)" (reject)="onReject($event)">
+          </app-event-tab-pending>
+        </mat-tab>
+      </mat-tab-group>
+
+      <app-event-info 
+        class="w-72" [event]="event" 
+        [showStatus]="true" [showOrganizer]="false">
+      </app-event-info>
+
+      <app-button 
+        label="S U P P R I M E R" class="w-full primary-button mt-4" 
+        (clicked)="deleteEvent()">
+      </app-button>
+
+    </div>
     
-  <div class="activity-card w-full flex flex-col items-center">
-
-    <app-event-organizer-actions [eventId]="event.id"(delete)="onDeleteEvent($event)"></app-event-organizer-actions>
-
-    <app-event-header [title]="event.title" [description]="event.description"></app-event-header>
-
-    <app-event-requests-tabs [acceptedParticipants]="event.acceptedParticipants"
-      [pendingParticipants]="event.pendingParticipants" [organizerName]="event.organizerName"
-      (accept)="onAccept($event)" (reject)="onReject($event)" (remove)="onRemove($event)">
-    </app-event-requests-tabs>
-
-    <app-event-organizer-info [event]="event"></app-event-organizer-info>
-
-  </div>
-
-  }
-  @else {
+  } @else {
   <p class="text-red-600">Événement introuvable.</p>
   }
 </div>

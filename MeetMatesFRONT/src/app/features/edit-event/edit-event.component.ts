@@ -5,7 +5,7 @@ import { Subject, takeUntil, forkJoin } from 'rxjs';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { EventService } from '../../core/services/event/event-service.service';
 import { NotificationService } from '../../core/services/notification/notification.service';
@@ -18,7 +18,7 @@ import { EditEventAddressComponent } from './components/edit-event-address.compo
 import { EditEventDateTimeComponent } from './components/edit-event-dateTime.component';
 import { AppButtonComponent } from '../../shared-components/button/button.component';
 import { EditEventActivityComponent } from './components/edit-event-activity.component';
-import { Router } from '@angular/router';
+import { AddressService, AddressSuggestion } from '../../core/services/address/address.service';
 
 @Component({
   selector: 'app-edit-event',
@@ -40,23 +40,23 @@ import { Router } from '@angular/router';
   styleUrls: ['./edit-event.component.scss']
 })
 export class EditEventComponent implements OnInit, OnDestroy {
-  eventId!: string;
-  event?: EventDetails;
-  form!: FormGroup;
-  loading = true;
-  activities: any[] = [];
-  addressSuggestions: any[] = [];
-
   private router = inject(Router);
   private baseUrl = environment.apiUrl;
   private http = inject(HttpClient);
   private fb = inject(FormBuilder);
   private eventService = inject(EventService);
   private notification = inject(NotificationService);
-  private dialog = inject(MatDialog);
   private route = inject(ActivatedRoute);
   private destroy$ = new Subject<void>();
   private cdr = inject(ChangeDetectorRef);
+  private readonly addressService = inject(AddressService);
+
+  eventId!: string;
+  event?: EventDetails;
+  form!: FormGroup;
+  loading = true;
+  activities: any[] = [];
+  addressSuggestions: AddressSuggestion[] = [];
 
   ngOnInit(): void {
     this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
@@ -164,25 +164,9 @@ export class EditEventComponent implements OnInit, OnDestroy {
   }
 
   onAddressInput(value: string): void {
-    if (!value || value.trim().length < 3) {
-      this.addressSuggestions = [];
-      return;
-    }
-
-    this.http
-      .get<any>('https://api-adresse.data.gouv.fr/search/', {
-        params: { q: value, limit: 5 },
-      })
-      .subscribe({
-        next: (data) => {
-          this.addressSuggestions = data.features.map((f: any) => ({
-            display_name: f.properties.label,
-          }));
-        },
-        error: () => {
-          this.addressSuggestions = [];
-        },
-      });
+    this.addressService.getAddressSuggestions(value).subscribe({
+      next: (suggestions) => (this.addressSuggestions = suggestions)
+    });
   }
 
   private parseAddress(label: string) {

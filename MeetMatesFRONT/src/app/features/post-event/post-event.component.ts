@@ -18,8 +18,9 @@ import { PostTextFieldsComponent } from './components/post-text-fields.component
 import { PostDateTimeComponent } from './components/post-date-time.component';
 import { PostOptionsComponent } from './components/post-options.component';
 import { PostAddressComponent } from './components/post-address.component';
-import { PictureUploaderComponent } from '../../shared-components/picture-uploader/picture-uploader';
 import { AppButtonComponent } from '../../shared-components/button/button.component';
+import { AddressService, AddressSuggestion } from '../../core/services/address/address.service';
+import { MATERIAL_OPTIONS, LEVEL_OPTIONS } from '../../shared-components/constants/event-option';
 
 @Component({
   selector: 'app-post-event',
@@ -27,7 +28,7 @@ import { AppButtonComponent } from '../../shared-components/button/button.compon
   imports: [
     CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatRadioModule, MatDatepickerModule,
     MatNativeDateModule, MatAutocompleteModule, MatIconModule, MatCardModule, PostSelectComponent, PostTextFieldsComponent,
-    PostAddressComponent, PostDateTimeComponent, PostOptionsComponent, PictureUploaderComponent, AppButtonComponent
+    PostAddressComponent, PostDateTimeComponent, PostOptionsComponent, AppButtonComponent
   ],
   templateUrl: './post-event.component.html',
   styleUrls: ['./post-event.component.scss']
@@ -36,27 +37,17 @@ export class PostEventComponent implements OnInit {
   private fb = inject(FormBuilder);
   private http = inject(HttpClient);
   private notification = inject(NotificationService);
+  private readonly addressService = inject(AddressService);
 
   form!: FormGroup;
   activities: any[] = [];
-  addressSuggestions: any[] = [];
+  addressSuggestions: AddressSuggestion[] = [];
   previewUrl?: string | null = null;
   selectedFile: File | null = null;
   selectedAddress?: string;
   isSubmitting = false;
-
-  materialOptions = [
-    { label: 'Fournis', value: 'PROVIDED' },
-    { label: 'Amener son matériel', value: 'YOUR_OWN' },
-    { label: 'Pas de matériel requis', value: 'NOT_REQUIRED' }
-  ];
-
-  levelOptions = [
-    { label: 'Débutant', value: 'BEGINNER' },
-    { label: 'Intermédiaire', value: 'INTERMEDIATE' },
-    { label: 'Expert', value: 'EXPERT' },
-    { label: 'Tous niveaux', value: 'ALL_LEVELS' }
-  ];
+  materialOptions = MATERIAL_OPTIONS;
+  levelOptions = LEVEL_OPTIONS;
 
   private baseUrl = environment.apiUrl;
 
@@ -102,25 +93,9 @@ export class PostEventComponent implements OnInit {
   }
 
   onAddressInput(value: string): void {
-    if (!value || value.trim().length < 3) {
-      this.addressSuggestions = [];
-      return;
-    }
-
-    this.http
-      .get<any>('https://api-adresse.data.gouv.fr/search/', {
-        params: { q: value, limit: 5 }
-      })
-      .subscribe({
-        next: (data) => {
-          this.addressSuggestions = data.features.map((f: any) => ({
-            display_name: f.properties.label
-          }));
-        },
-        error: () => {
-          this.addressSuggestions = [];
-        }
-      });
+    this.addressService.getAddressSuggestions(value).subscribe({
+      next: (suggestions) => (this.addressSuggestions = suggestions)
+    });
   }
 
   onAddressSelect(value: string): void {
@@ -128,7 +103,7 @@ export class PostEventComponent implements OnInit {
     this.form.get('adresse')?.setValue(value);
   }
 
-  async onSubmit(){
+  async onSubmit() {
     this.form.markAllAsTouched();
     if (this.form.invalid) {
       this.notification.showError('Veuillez remplir tous les champs correctement.');
@@ -159,10 +134,7 @@ export class PostEventComponent implements OnInit {
           this.notification.showWarning('Activité créée, mais identifiant introuvable.');
           this.resetForm();
           return;
-        }
 
-        if (this.selectedFile) {
-          // this.uploadImage(eventId);
         } else {
           this.notification.showSuccess('🎉 Activité créée avec succès !');
           this.resetForm();
@@ -184,5 +156,5 @@ export class PostEventComponent implements OnInit {
     this.previewUrl = null;
     this.selectedFile = null;
     this.isSubmitting = false;
-    }
+  }
 }

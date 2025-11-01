@@ -53,5 +53,4 @@ export class EditEventAddressComponent {
     this.form.get('addressLabel')?.updateValueAndValidity();
     this.optionSelected.emit(value);
   }
-
 }

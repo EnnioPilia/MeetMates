@@ -16,6 +16,7 @@ import { ParticipationTabComponent } from '../profile/components/participation-t
 import { OrganizationTabComponent } from '../profile/components/organization-tab.component';
 import { SettingsMenuComponent } from '../profile/components/settings-menu.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CguDialogComponent } from '../../shared-components/cgu-dialog/cgu-dialog.component';
 
 @Component({
   selector: 'app-profile',
@@ -99,18 +100,59 @@ export class ProfileComponent {
     return this.http.get<any[]>(`${this.baseUrl}/event-user/participating`, { withCredentials: true });
   }
 
+  onEditProfile(): void {
+    this.router.navigate(['/edit-profile']);
+  }
+
+  openCguDialog(): void {
+    this.dialog.open(CguDialogComponent, { width: '600px', autoFocus: false, data: { type: 'cgu' } });
+  }
+
+  openMentionsDialog(): void {
+    this.dialog.open(CguDialogComponent, { width: '600px', autoFocus: false, data: { type: 'mentions' } });
+  }
+
   onLogout(): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: { title: 'Déconnexion', message: 'Voulez-vous vraiment vous déconnecter ?' }
     });
 
-    dialogRef.afterClosed().subscribe((confirmed) => {
+    dialogRef.afterClosed().pipe(takeUntilDestroyed()).subscribe((confirmed) => {
       if (confirmed) {
-        this.authService.logout().subscribe({
+        this.authService.logout().pipe(takeUntilDestroyed()).subscribe({
           next: () => this.router.navigate(['/login']),
-          error: (err) => console.error('Erreur de déconnexion :', err)
+          error: (err) => {
+            console.error('Erreur de déconnexion :', err);
+          }
         });
       }
     });
   }
+
+  onDeleteAccount(): void {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'Suppression du compte',
+        message: 'Voulez-vous vraiment supprimer définitivement votre compte ? Cette action est irréversible.'
+      }
+    });
+
+    dialogRef.afterClosed().pipe(takeUntilDestroyed()).subscribe((confirmed) => {
+      if (!confirmed) return;
+
+      this.userService.deleteMyAccount().pipe(takeUntilDestroyed()).subscribe({
+        next: () => {
+          this.router.navigate(['/login']);
+        },
+        error: (err) => {
+          this.error.set('Impossible de supprimer le compte pour le moment.');
+        }
+      });
+    });
+  }
+
+  refreshData(): void {
+    this.fetchEvents();
+  }
 }
+

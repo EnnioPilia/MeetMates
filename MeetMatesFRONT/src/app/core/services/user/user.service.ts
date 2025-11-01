@@ -42,6 +42,6 @@ export class UserService {
   }
 
   deleteProfilePicture(): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/me/photo`);
+    return this.http.delete<void>(`${this.baseUrl}/me/picture`, { withCredentials: true });
   }
 }

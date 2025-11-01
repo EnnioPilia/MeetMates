@@ -13,7 +13,7 @@ import { CommonModule } from '@angular/common';
       </p>
 
       @if (participants.length) {
-        <ul class="list-disc pl-6 flex flex-col gap-1">
+        <ul class="list-disc pl-6 flex flex-start flex-col gap-1">
           @for (p of participants; track p.id) {
             <li>{{ p.firstName }} {{ p.lastName }}</li>
           }

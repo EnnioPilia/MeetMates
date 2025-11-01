@@ -37,26 +37,13 @@ export class EventService {
   }
 
   cancelParticipation(eventId: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/event-user/leave`, {params: { eventId },withCredentials: true});
+    return this.http.delete<void>(`${this.baseUrl}/event-user/leave`, { params: { eventId }, withCredentials: true });
+  }
+
+  updateEvent(eventId: string, updatedEvent: Partial<EventDetails>): Observable<EventDetails> {
+    return this.http.put<EventDetails>(`${this.baseUrl}/event/${eventId}`,updatedEvent,{ withCredentials: true });
   }
   
-  
-updateEvent(eventId: string, updatedEvent: Partial<EventDetails>): Observable<EventDetails> {
-  return this.http.put<EventDetails>(
-    `${this.baseUrl}/event/${eventId}`,
-    updatedEvent,
-    { withCredentials: true }
-  );
-}
-
-
-
-
-  //label service ??
-
-
-
-
   getStatusLabel(status: string): string {
     switch (status) {
       case 'OPEN': return 'Ouvert';

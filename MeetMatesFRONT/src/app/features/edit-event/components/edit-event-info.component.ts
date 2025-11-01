@@ -45,9 +45,7 @@ import { AppInputComponent } from '../../../shared-components/input/input.compon
 })
 export class EditEventInfoComponent {
   @Input() form!: FormGroup;
-
-
-  //shared ?????
+  
   statusOptions = [
     { value: 'OPEN', label: 'Ouvert' },
     { value: 'FULL', label: 'Complet' },

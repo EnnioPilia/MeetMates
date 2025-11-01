@@ -1,22 +1,26 @@
 <div class="flex flex-col items-center justify-start min-h-screen px-7 py-10 mt-3">
   @if (loading) {
-  <div class="flex justify-center items-center h-[60vh]">
     <mat-spinner diameter="50"></mat-spinner>
-  </div>
-  }
-  @else if (events.length > 0) {
-    <div class="flex flex-col items-center gap-4 w-full max-w-3xl">
+  } @else if (events.length > 0) {
+
+    <div class="flex flex-col items-center gap-4 w-full max-w-3xl ">
       @for (event of events; track event.id) {
 
       <div class="activity-card w-full flex flex-col items-center p-6">
-        <app-event-card-info [event]="event"></app-event-card-info>
-        <app-event-card-join-button [event]="event" (join)="joinEvent($event)">></app-event-card-join-button>
-      </div>
 
+        <app-event-header [title]="event.title" [description]="event.description"></app-event-header>
+
+        <app-event-info [event]="event" [showStatus]="true"></app-event-info>
+
+        <app-button label="P A R T I C I P E R" class="w-80 primary-button mt-4"
+          [disabled]="(event.status).toUpperCase() !== 'OPEN'" (clicked)="joinEvent(event.id)">
+        </app-button>
+
+      </div>
       }
     </div>
-  }
-  @else {
+
+  } @else {
   <div class="flex flex-col items-center justify-center h-[60vh] text-center">
     <p class="card-text mt-4 mb-4 ml-2 mr-2 p-8 text-center">
       AUCUNE ACTIVITÉ DISPONIBLE <br><br>Soyez le premier à proposer un événement pour cette activité.

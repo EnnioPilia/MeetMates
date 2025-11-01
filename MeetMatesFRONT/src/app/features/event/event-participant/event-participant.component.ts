@@ -16,7 +16,6 @@ import { EventStatusComponent } from './components/event-status';
 import { ParticipantListComponent } from './components/participant-list';
 import { EventHeaderComponent } from '../../../shared-components/event-header/event-header.component';
 import { EventInfoComponent } from '../../../shared-components/event-info/event-info.component';
-import { EventPictureComponent } from '../../../shared-components/event-picture/event-picture.component';
 import { AppButtonComponent } from '../../../shared-components/button/button.component';
 
 @Component({
@@ -32,7 +31,6 @@ import { AppButtonComponent } from '../../../shared-components/button/button.com
     ParticipantListComponent,
     EventHeaderComponent,
     EventInfoComponent,
-    EventPictureComponent,
     AppButtonComponent
   ],
   templateUrl: './event-participant.component.html',
@@ -109,11 +107,19 @@ export class EventParticipantComponent implements OnInit, OnDestroy {
     });
   }
 
-  getStatusLabel(status: string): string { return this.eventService.getStatusLabel(status); }
+  getStatusLabel(status: string): string {
+    return this.eventService.getStatusLabel(status);
+  }
 
-  getLevelLabel(level: string): string { return this.eventService.getLevelLabel(level); }
+  getLevelLabel(level: string): string {
+    return this.eventService.getLevelLabel(level);
+  }
 
-  getMaterialLabel(material: string): string { return this.eventService.getMaterialLabel(material); }
+  getMaterialLabel(material: string): string {
+    return this.eventService.getMaterialLabel(material);
+  }
 
-  getParticipationLabel(status: string | null | undefined): string { return this.eventService.getParticipationLabel(status ?? null); }
+  getParticipationLabel(status: string | null | undefined): string {
+    return this.eventService.getParticipationLabel(status ?? null);
+  }
 }

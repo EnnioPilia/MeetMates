@@ -13,10 +13,6 @@
             (inputChange)="onAddressInput($event)" (optionSelected)="onAddressSelect($event)">
         </app-post-address>
 
-        <app-picture-uploader [previewUrl]="previewUrl" label="Photo de l’activité" 
-            (fileSelected)="onFileSelected($event)" (remove)="removeImage()">
-        </app-picture-uploader>
-
         <app-button label="CRÉER L’ACTIVITÉ"  class="primary-button w-80"  type="submit"[disabled]="isSubmitting"></app-button>
 
     </form>

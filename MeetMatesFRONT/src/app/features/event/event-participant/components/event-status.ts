@@ -8,13 +8,14 @@ import { EventService } from '../../../../core/services/event/event-service.serv
   imports: [CommonModule],
   template: `
   
-    <div class="flex flex-col items-center text-sm leading-relaxed mt-4 gap-2">
+    <div class="flex flex-col items-center gap-2 border-b border-black mb-3 p-3">
 
 
 
     <!-- les mettre dans un shared pour les reutilisé dans profile   -->
+           <p><strong>VOTRE PARTICIPATION :</strong> {{ getParticipationLabel(participationStatus || '') }}</p>
+
       <p><strong>STATUT DE L'ACTIVITÉ :</strong> {{ getStatusLabel(eventStatus || '') }}</p>
-      <p><strong>VOTRE PARTICIPATION :</strong> {{ getParticipationLabel(participationStatus || '') }}</p>
       
 
 

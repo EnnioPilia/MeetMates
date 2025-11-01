@@ -1,20 +1,26 @@
-<div class="flex fixed flex-col items-center min-h-screen px-10 py-6 mt-10">
+<div class="flex flex-col items-center justify-start h-[calc(100vh-64px)] pt-16 px-8 overflow-hidden">
   @if (loading()) {
-  <mat-spinner diameter="70"></mat-spinner>
-  } @else if (error()) {
-    <p class="text-red-600 !text-center !text-red-600 font-semibold ml-6 mt-10 pt-10">
-      {{ error() }}</p>
+    <mat-spinner diameter="50"></mat-spinner>
+  } @else if (user()) {
+
+    <div class="activity-card w-full flex flex-col items-center">
+      <app-settings-menu
+        (logout)="onLogout()"
+        (deleteAccount)="onDeleteAccount()"
+        (showCgu)="openCguDialog()"
+        (showMentions)="openMentionsDialog()"
+        (editProfile)="onEditProfile()">
+      </app-settings-menu>
+
+      <app-profile-card [user]="user()"></app-profile-card>
+
+      <mat-tab-group class="w-full mt-4" mat-align-tabs="start" animationDuration="300ms">
+        <mat-tab label="Je participe"><app-participation-tab [events]="eventsParticipating()"></app-participation-tab></mat-tab>
+        <mat-tab label="J’organise"><app-organization-tab [events]="eventsOrganized()"></app-organization-tab></mat-tab>
+      </mat-tab-group>
+    </div>
+
   } @else {
-
-    <app-settings-menu (logout)="onLogout()"></app-settings-menu>
-
-    <app-profile-card [user]="user()"></app-profile-card>
-
-    <mat-tab-group class="w-full mt-4" mat-align-tabs="start" animationDuration="300ms">
-      <mat-tab label="Je participe"><app-participation-tab [events]="eventsParticipating()"></app-participation-tab></mat-tab>
-
-      <mat-tab label="J’organise"><app-organization-tab [events]="eventsOrganized()"></app-organization-tab></mat-tab>
-    </mat-tab-group>
-
+    <p class="text-red-600 mt-10">Profil introuvable.</p>
   }
 </div>

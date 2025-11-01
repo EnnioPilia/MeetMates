@@ -12,8 +12,9 @@ import { Activity } from '../../../core/models/activity.model';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { EventCardInfoComponent } from '../../event/event-list/components/event-card-info.component';
-import { EventCardJoinButtonComponent } from '../../event/event-list/components/event-join-button.component';
+import { AppButtonComponent } from '../../../shared-components/button/button.component';
+import { EventHeaderComponent } from '../../../shared-components/event-header/event-header.component';
+import { EventInfoComponent } from '../../../shared-components/event-info/event-info.component';
 
 @Component({
   selector: 'app-event-list',
@@ -25,8 +26,9 @@ import { EventCardJoinButtonComponent } from '../../event/event-list/components/
     MatCardModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
-    EventCardJoinButtonComponent,
-    EventCardInfoComponent,
+    EventInfoComponent,
+    EventHeaderComponent,
+    AppButtonComponent
   ],
 })
 export class EventListComponent implements OnInit, OnDestroy {
@@ -140,17 +142,27 @@ export class EventListComponent implements OnInit, OnDestroy {
       });
   }
 
-  private updatePageTitle(title: string) { this.signals.setPageTitle(title); }
+  private updatePageTitle(title: string) {
+    this.signals.setPageTitle(title);
+  }
 
-  formatTime(time: string): string { return time ? time.substring(0, 5) : ''; }
+  formatTime(time: string): string {
+    return time ? time.substring(0, 5) : '';
+  }
 
-  getFullImageUrl(relativePath: string): string { return relativePath?.startsWith('http') ? relativePath : `${this.baseUrl}${relativePath}`; }
+  isEventOpen(event: any): boolean {
+    return (event?.status ?? '').toUpperCase() === 'OPEN';
+  }
 
-  isEventOpen(event: any): boolean { return (event?.status ?? '').toUpperCase() === 'OPEN'; }
+  getStatusLabel(status: string): string {
+    return this.eventService.getStatusLabel(status);
+  }
 
-  getStatusLabel(status: string): string { return this.eventService.getStatusLabel(status); }
+  getLevelLabel(level: string): string {
+    return this.eventService.getLevelLabel(level)
+  }
 
-  getLevelLabel(level: string): string { return this.eventService.getLevelLabel(level) }
-
-  getMaterialLabel(material: string): string { return this.eventService.getMaterialLabel(material); }
+  getMaterialLabel(material: string): string {
+    return this.eventService.getMaterialLabel(material);
+  }
 }

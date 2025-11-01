@@ -4,11 +4,12 @@
   } @else if (error()) {
     <p class="text-red-600 font-semibold mt-10">{{ error() }}</p>
   } @else {
-    
-    <div class="flex flex-col items-center justify-center w-full max-w-2xl">
 
-      <app-edit-profile-picture [user]="user" (userChange)="user = $event"></app-edit-profile-picture>
-      <app-edit-profile-form [user]="user" (userUpdated)="onUserUpdated($event)"></app-edit-profile-form>
+    <div class="flex flex-col items-center justify-center w-full max-w-2xl">
+      
+      <app-edit-profile-picture [user]="user" (photoSelected)="onPhotoSelected($event)"(photoDeleted)="onPhotoDeleted()"></app-edit-profile-picture>
+      
+      <app-edit-profile-form [user]="user" (save)="onSave($event)"></app-edit-profile-form>
 
     </div>
   }
