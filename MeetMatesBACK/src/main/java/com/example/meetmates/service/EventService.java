@@ -184,6 +184,7 @@ public class EventService {
         EventUser link = new EventUser();
         link.setEvent(event);
         link.setUser(organizer);
+        link.setUserEmail(organizer.getEmail()); // ✅ AJOUT OBLIGATOIRE
         link.setRole(EventUser.ParticipantRole.ORGANIZER);
         link.setParticipationStatus(EventUser.ParticipationStatus.ACCEPTED);
         eventUserRepository.save(link);

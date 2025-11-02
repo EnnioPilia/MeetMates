@@ -74,13 +74,17 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
     """)
     Optional<Event> findByIdWithAllRelations(@Param("id") UUID id);
 
-    @Query("""
+@Query("""
     SELECT e FROM Event e
     WHERE LOWER(e.title) LIKE LOWER(CONCAT('%', :query, '%'))
-    OR LOWER(e.description) LIKE LOWER(CONCAT('%', :query, '%'))
-    OR LOWER(e.address.city) LIKE LOWER(CONCAT('%', :query, '%'))
-    OR LOWER(e.activity.name) LIKE LOWER(CONCAT('%', :query, '%'))
+       OR LOWER(e.activity.name) LIKE LOWER(CONCAT('%', :query, '%'))
+       OR LOWER(CONCAT(
+           COALESCE(e.address.street, ''), ' ',
+           COALESCE(e.address.postalCode, ''), ' ',
+           COALESCE(e.address.city, '')
+       )) LIKE LOWER(CONCAT('%', :query, '%'))
     """)
-    List<Event> searchEvents(@Param("query") String query);
+List<Event> searchEvents(@Param("query") String query);
+
 
 }

@@ -19,10 +19,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity
-@Table(name = "event_user")
+@Table(
+        name = "event_user",
+        uniqueConstraints = {
+            @UniqueConstraint(columnNames = {"event_id", "user_id"})
+        }
+)
 public class EventUser {
 
     @Id
@@ -51,7 +57,10 @@ public class EventUser {
     @Column(name = "joined_at", nullable = false)
     private LocalDateTime joinedAt = LocalDateTime.now();
 
-    // === ENUM ===
+    @Column(name = "user_email", nullable = false)
+    private String userEmail;
+
+    // === ENUMS ===
     public enum ParticipantRole {
         ORGANIZER, PARTICIPANT
     }
@@ -59,7 +68,8 @@ public class EventUser {
     public enum ParticipationStatus {
         PENDING,
         ACCEPTED,
-        REJECTED
+        REJECTED,
+        LEFT
     }
 
     // === GETTERS/SETTERS ===
@@ -110,4 +120,13 @@ public class EventUser {
     public void setParticipationStatus(ParticipationStatus participationStatus) {
         this.participationStatus = participationStatus;
     }
+
+    public String getUserEmail() {
+        return userEmail;
+    }
+
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
+    }
+
 }

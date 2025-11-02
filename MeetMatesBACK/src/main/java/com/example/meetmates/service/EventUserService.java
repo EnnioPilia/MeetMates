@@ -39,17 +39,29 @@ public class EventUserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
 
+        Optional<EventUser> existingOpt = eventUserRepository.findByEventIdAndUserId(eventId, userId);
 
-    Optional<EventUser> existingOpt = eventUserRepository.findByEventIdAndUserId(eventId, userId);
+        if (existingOpt.isPresent()) {
+            EventUser existing = existingOpt.get();
 
-    if (existingOpt.isPresent()) {
-        EventUser existing = existingOpt.get();
+            switch (existing.getParticipationStatus()) {
+                case REJECTED -> {
+                    throw new ResponseStatusException(HttpStatus.GONE, "Vous avez été retiré de cette activité.");
+                }
+                case ACCEPTED, PENDING -> {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, "Vous participez déjà à cet événement.");
+                }
+                case LEFT -> {
+                    existing.setParticipationStatus(ParticipationStatus.PENDING);
+                    existing.setJoinedAt(LocalDateTime.now());
+                    return eventUserRepository.save(existing);
+                }
+                default ->
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Statut invalide");
+            }
 
-        if (existing.getParticipationStatus() == EventUser.ParticipationStatus.REJECTED) {
-            throw new ResponseStatusException(HttpStatus.GONE, "Vous avez été retiré de cet événement");
         }
-        throw new ResponseStatusException(HttpStatus.CONFLICT, "Déjà inscrit à cet événement");
-    }
+
         if (event.getMaxParticipants() != null
                 && event.getParticipants().size() >= event.getMaxParticipants()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Événement complet");
@@ -58,8 +70,9 @@ public class EventUserService {
         EventUser eventUser = new EventUser();
         eventUser.setEvent(event);
         eventUser.setUser(user);
-        eventUser.setRole(EventUser.ParticipantRole.PARTICIPANT);
-        eventUser.setParticipationStatus(ParticipationStatus.PENDING); // ✅ Nouveau statut
+        eventUser.setUserEmail(user.getEmail());
+        eventUser.setRole(ParticipantRole.PARTICIPANT);
+        eventUser.setParticipationStatus(ParticipationStatus.PENDING);
         eventUser.setJoinedAt(LocalDateTime.now());
 
         return eventUserRepository.save(eventUser);
