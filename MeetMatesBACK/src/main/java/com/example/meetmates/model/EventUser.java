@@ -1,4 +1,4 @@
-package com.example.meetmates.model.core;
+package com.example.meetmates.model;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

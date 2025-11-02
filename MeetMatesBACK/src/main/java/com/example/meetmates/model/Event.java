@@ -1,4 +1,4 @@
-package com.example.meetmates.model.core;
+package com.example.meetmates.model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -10,7 +10,6 @@ import java.util.UUID;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-import com.example.meetmates.model.link.PictureEvent;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
@@ -99,19 +98,8 @@ public class Event {
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
-
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<PictureEvent> pictures = new ArrayList<>();
-
-    public List<PictureEvent> getPictures() {
-        return pictures;
-    }
-
-    public void setPictures(List<PictureEvent> pictures) {
-        this.pictures = pictures;
-    }
     
-    // ENUMS internes
+
     public enum EventStatus {
         OPEN, FULL, CANCELLED, FINISHED
     }

@@ -13,12 +13,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.example.meetmates.dto.EventDetailsDTO;
 import com.example.meetmates.dto.EventRequest;
 import com.example.meetmates.dto.EventResponse;
-import com.example.meetmates.model.core.Event;
+import com.example.meetmates.model.Event;
 import com.example.meetmates.service.EventService;
 
 @RestController
@@ -66,16 +65,6 @@ public class EventController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{id}/picture")
-    public ResponseEntity<EventResponse> uploadEventPicture(
-            @PathVariable UUID id,
-            @RequestParam("file") MultipartFile file,
-            @RequestParam(value = "isMain", defaultValue = "false") boolean isMain) {
-
-        EventResponse updatedEvent = eventService.addPictureToEvent(id, file, isMain);
-        return ResponseEntity.ok(updatedEvent);
-    }
-
     @GetMapping("/search")
     public ResponseEntity<List<EventDetailsDTO>> searchEvents(@RequestParam String query) {
         List<Event> results = eventService.searchEvents(query);
@@ -95,7 +84,6 @@ public class EventController {
                         e.getMaterial().name(),
                         e.getStatus().name(),
                         e.getMaxParticipants(),
-                        null, // imageUrl → ici tu le laisses null pour ne pas l’afficher
                         null, // participationStatus
                         null, // acceptedParticipants
                         null, // pendingParticipants

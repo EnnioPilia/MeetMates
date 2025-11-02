@@ -17,7 +17,6 @@ public record EventDetailsDTO(
         String material,
         String status,
         Integer maxParticipants,
-        String imageUrl,
         String participationStatus,
         List<EventUserDTO> acceptedParticipants,
         List<EventUserDTO> pendingParticipants,

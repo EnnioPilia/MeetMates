@@ -5,10 +5,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
-    
-import com.example.meetmates.model.core.User;
-import com.example.meetmates.model.security.Token;
-import com.example.meetmates.model.security.TokenType;
+
+import com.example.meetmates.model.Token;
+import com.example.meetmates.model.TokenType;
+import com.example.meetmates.model.User;
 import com.example.meetmates.repository.TokenRepository;
 
 @Service
@@ -48,7 +48,7 @@ public String createVerificationToken(User user) {
         }
 
         Token token = optionalToken.get();
-        if (token.getType() != com.example.meetmates.model.security.TokenType.VERIFICATION) {
+        if (token.getType() != com.example.meetmates.model.TokenType.VERIFICATION) {
             return false; // mauvais type
         }
 

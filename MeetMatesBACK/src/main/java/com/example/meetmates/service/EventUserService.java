@@ -10,11 +10,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.example.meetmates.model.core.Event;
-import com.example.meetmates.model.core.EventUser;
-import com.example.meetmates.model.core.EventUser.ParticipantRole;
-import com.example.meetmates.model.core.EventUser.ParticipationStatus;
-import com.example.meetmates.model.core.User;
+import com.example.meetmates.model.Event;
+import com.example.meetmates.model.EventUser;
+import com.example.meetmates.model.EventUser.ParticipantRole;
+import com.example.meetmates.model.EventUser.ParticipationStatus;
+import com.example.meetmates.model.User;
 import com.example.meetmates.repository.EventRepository;
 import com.example.meetmates.repository.EventUserRepository;
 import com.example.meetmates.repository.UserRepository;

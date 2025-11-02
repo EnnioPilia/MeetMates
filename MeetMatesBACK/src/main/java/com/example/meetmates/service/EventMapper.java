@@ -7,10 +7,9 @@ import org.springframework.stereotype.Component;
 
 import com.example.meetmates.dto.EventResponse;
 import com.example.meetmates.dto.EventUserDTO;
-import com.example.meetmates.model.core.Event;
-import com.example.meetmates.model.core.EventUser;
-import com.example.meetmates.model.core.User;
-import com.example.meetmates.model.link.PictureEvent;
+import com.example.meetmates.model.Event;
+import com.example.meetmates.model.EventUser;
+import com.example.meetmates.model.User;
 
 @Component
 public class EventMapper {
@@ -27,14 +26,6 @@ public class EventMapper {
                 .map(p -> p.getUser().getFirstName() + " " + p.getUser().getLastName())
                 .collect(Collectors.toList());
 
-        String imageUrl = (e.getPictures() != null && !e.getPictures().isEmpty())
-                ? e.getPictures().stream()
-                        .filter(PictureEvent::isMain)
-                        .findFirst()
-                        .map(pe -> pe.getPicture().getUrl())
-                        .orElse(e.getPictures().get(0).getPicture().getUrl())
-                : null;
-
         return new EventResponse(
                 e.getId(),
                 e.getTitle(),
@@ -46,12 +37,11 @@ public class EventMapper {
                 e.getStatus(),
                 e.getMaterial(),
                 e.getLevel(),
-                e.getActivity() != null ? e.getActivity().getId() : null,   // ✅ ajouté (activityId)
-                e.getActivity() != null ? e.getActivity().getName() : null, // ✅ ajouté (activityName)
+                e.getActivity() != null ? e.getActivity().getId() : null,  
+                e.getActivity() != null ? e.getActivity().getName() : null, 
                 e.getAddress() != null ? e.getAddress().getFullAddress() : null,
                 organizerName,
-                participantNames,
-                imageUrl
+                participantNames
         );
     }
 

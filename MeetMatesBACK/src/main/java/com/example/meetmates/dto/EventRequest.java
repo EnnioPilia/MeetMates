@@ -4,10 +4,10 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.UUID;
 
-import com.example.meetmates.model.core.Address;
-import com.example.meetmates.model.core.Event.EventStatus;
-import com.example.meetmates.model.core.Event.Level;
-import com.example.meetmates.model.core.Event.MaterialOption;
+import com.example.meetmates.model.Address;
+import com.example.meetmates.model.Event.EventStatus;
+import com.example.meetmates.model.Event.Level;
+import com.example.meetmates.model.Event.MaterialOption;
 
 public class EventRequest {
 
@@ -24,7 +24,6 @@ public class EventRequest {
     private UUID activityId;
     private Address address; 
 
-    // ✅ Getters / Setters
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
 

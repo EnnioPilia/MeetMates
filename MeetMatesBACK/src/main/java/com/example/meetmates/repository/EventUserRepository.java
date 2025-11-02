@@ -6,8 +6,8 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.example.meetmates.model.core.EventUser;
-import com.example.meetmates.model.core.EventUser.ParticipantRole;
+import com.example.meetmates.model.EventUser;
+import com.example.meetmates.model.EventUser.ParticipantRole;
 
 public interface EventUserRepository extends JpaRepository<EventUser, UUID> {
 

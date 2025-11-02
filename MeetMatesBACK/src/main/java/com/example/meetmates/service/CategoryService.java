@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import com.example.meetmates.model.core.Category;
+import com.example.meetmates.model.Category;
 import com.example.meetmates.repository.CategoryRepository;
 
 @Service

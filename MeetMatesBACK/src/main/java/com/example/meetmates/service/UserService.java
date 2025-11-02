@@ -13,9 +13,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.meetmates.model.core.User;
-import com.example.meetmates.model.core.UserStatus;
-import com.example.meetmates.model.security.TokenType;
+import com.example.meetmates.model.TokenType;
+import com.example.meetmates.model.User;
+import com.example.meetmates.model.UserStatus;
 import com.example.meetmates.repository.EventRepository;
 import com.example.meetmates.repository.TokenRepository;
 import com.example.meetmates.repository.UserRepository;

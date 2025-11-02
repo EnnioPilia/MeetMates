@@ -3,9 +3,9 @@ package com.example.meetmates.dto;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
-import com.example.meetmates.model.core.Event;
-import com.example.meetmates.model.core.EventUser;
-import com.example.meetmates.model.core.User;
+import com.example.meetmates.model.Event;
+import com.example.meetmates.model.EventUser;
+import com.example.meetmates.model.User;
 
 public record EventUserDTO(
         UUID id,

@@ -1,9 +1,7 @@
-package com.example.meetmates.model.notification;
+package com.example.meetmates.model;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
-
-import com.example.meetmates.model.core.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

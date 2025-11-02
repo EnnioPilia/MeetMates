@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.meetmates.dto.EventUserDTO;
 import com.example.meetmates.dto.JoinEventRequest;
-import com.example.meetmates.model.core.EventUser;
-import com.example.meetmates.model.core.User;
+import com.example.meetmates.model.EventUser;
+import com.example.meetmates.model.User;
 import com.example.meetmates.repository.UserRepository;
 import com.example.meetmates.service.EventUserService;
 

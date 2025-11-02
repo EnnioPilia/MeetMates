@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.example.meetmates.model.core.Activity;
+import com.example.meetmates.model.Activity;
 
 public interface ActivityRepository extends JpaRepository<Activity, UUID> {
     List<Activity> findByCategory_CategoryId(UUID categoryId);

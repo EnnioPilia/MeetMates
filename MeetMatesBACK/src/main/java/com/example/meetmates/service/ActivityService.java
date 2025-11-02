@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import com.example.meetmates.model.core.Activity;
+import com.example.meetmates.model.Activity;
 import com.example.meetmates.repository.ActivityRepository;
 
 @Service

@@ -1,35 +1,38 @@
-package com.example.meetmates.model.media;
+package com.example.meetmates.model;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.example.meetmates.model.core.User;
-
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "picture_user")
-public class PictureUser {
+@Table(name = "pictures")
+public class Picture {
 
     @Id
     @GeneratedValue
+    @Column(name = "picture_id", updatable = false, nullable = false)
     private UUID id;
 
+    @Column(nullable = true)
+    private String name;
+
     @Column(nullable = false)
-    private String url; // Lien ou chemin de l’image (Cloudinary, S3, etc.)
+    private String url;
 
-    @Column(name = "public_id")
-    private String publicId; // Si tu utilises Cloudinary, optionnel
-
-    @Column(name = "is_main", nullable = false)
-    private boolean isMain = true; // Pour marquer la photo de profil principale
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PictureType type;
 
     @Column(nullable = false)
     private String status = "ACTIVE";
@@ -40,12 +43,21 @@ public class PictureUser {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // 🔹 Lien direct vers l'utilisateur
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    // Relation directe vers User
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id")
     private User user;
 
-    // --- Getters / Setters ---
+    // ========================
+    // ENUM
+    // ========================
+    public enum PictureType {
+        PROFILE, EVENT, ACTIVITY, CATEGORY, MESSAGE
+    }
+
+    // ========================
+    // Getters & Setters
+    // ========================
     public UUID getId() {
         return id;
     }
@@ -62,20 +74,12 @@ public class PictureUser {
         this.url = url;
     }
 
-    public String getPublicId() {
-        return publicId;
+    public PictureType getType() {
+        return type;
     }
 
-    public void setPublicId(String publicId) {
-        this.publicId = publicId;
-    }
-
-    public boolean isMain() {
-        return isMain;
-    }
-
-    public void setMain(boolean main) {
-        isMain = main;
+    public void setType(PictureType type) {
+        this.type = type;
     }
 
     public String getStatus() {
@@ -108,5 +112,13 @@ public class PictureUser {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

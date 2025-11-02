@@ -9,16 +9,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.example.meetmates.dto.EventDetailsDTO;
 import com.example.meetmates.dto.EventRequest;
 import com.example.meetmates.dto.EventResponse;
 import com.example.meetmates.dto.EventUserDTO;
-import com.example.meetmates.model.core.Address;
-import com.example.meetmates.model.core.Event;
-import com.example.meetmates.model.core.EventUser;
-import com.example.meetmates.model.core.User;
+import com.example.meetmates.model.Address;
+import com.example.meetmates.model.Event;
+import com.example.meetmates.model.EventUser;
+import com.example.meetmates.model.User;
 import com.example.meetmates.repository.ActivityRepository;
 import com.example.meetmates.repository.AddressRepository;
 import com.example.meetmates.repository.EventRepository;
@@ -82,15 +81,6 @@ public class EventService {
         return eventMapper.toResponse(saved);
     }
 
-    @Transactional
-    public EventResponse addPictureToEvent(UUID eventId, MultipartFile file, boolean isMain) {
-        Event event = eventRepository.findByIdWithPictures(eventId)
-                .orElseThrow(() -> new RuntimeException("Événement introuvable"));
-        pictureService.addPictureToEvent(event, file, isMain);
-        eventRepository.save(event);
-        return eventMapper.toResponse(event);
-    }
-
     @Transactional(readOnly = true)
     public List<EventResponse> findAllResponses() {
         return eventRepository.findAllWithPictures()
@@ -137,14 +127,6 @@ public class EventService {
                 .map(eventMapper::toEventUserDTO)
                 .collect(Collectors.toList());
 
-        String imageUrl = (event.getPictures() != null && !event.getPictures().isEmpty())
-                ? event.getPictures().stream()
-                        .filter(pe -> pe.isMain())
-                        .findFirst()
-                        .map(pe -> pe.getPicture().getUrl())
-                        .orElse(event.getPictures().get(0).getPicture().getUrl())
-                : "/assets/default-event.jpg";
-
         return new EventDetailsDTO(
                 event.getId(),
                 event.getTitle(),
@@ -159,7 +141,6 @@ public class EventService {
                 event.getMaterial().toString(),
                 event.getStatus().toString(),
                 event.getMaxParticipants(),
-                imageUrl,
                 participationStatus,
                 accepted,
                 pending,
@@ -184,7 +165,7 @@ public class EventService {
         EventUser link = new EventUser();
         link.setEvent(event);
         link.setUser(organizer);
-        link.setUserEmail(organizer.getEmail()); // ✅ AJOUT OBLIGATOIRE
+        link.setUserEmail(organizer.getEmail()); 
         link.setRole(EventUser.ParticipantRole.ORGANIZER);
         link.setParticipationStatus(EventUser.ParticipationStatus.ACCEPTED);
         eventUserRepository.save(link);

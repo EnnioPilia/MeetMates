@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.meetmates.model.core.Address;
+import com.example.meetmates.model.Address;
 import com.example.meetmates.service.AddressService;
 
 @RestController

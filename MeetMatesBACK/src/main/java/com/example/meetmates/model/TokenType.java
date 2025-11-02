@@ -1,4 +1,4 @@
-package com.example.meetmates.model.security;
+package com.example.meetmates.model;
 
 public enum TokenType {
     REFRESH,

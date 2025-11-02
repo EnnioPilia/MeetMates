@@ -1,4 +1,4 @@
-package com.example.meetmates.model.core;
+package com.example.meetmates.model;
 
 import java.util.List;
 import java.util.UUID;

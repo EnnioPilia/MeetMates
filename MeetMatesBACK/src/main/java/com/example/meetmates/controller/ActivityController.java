@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.meetmates.dto.EventResponse;
-import com.example.meetmates.model.core.Activity;
+import com.example.meetmates.model.Activity;
 import com.example.meetmates.service.ActivityService;
 import com.example.meetmates.service.EventService;
 

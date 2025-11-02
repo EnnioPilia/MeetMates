@@ -6,12 +6,11 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import com.example.meetmates.model.core.Event;
-import com.example.meetmates.model.core.Event.EventStatus;
-import com.example.meetmates.model.core.Event.Level;
-import com.example.meetmates.model.core.Event.MaterialOption;
-import com.example.meetmates.model.core.EventUser.ParticipantRole;
-import com.example.meetmates.model.link.PictureEvent;
+import com.example.meetmates.model.Event;
+import com.example.meetmates.model.Event.EventStatus;
+import com.example.meetmates.model.Event.Level;
+import com.example.meetmates.model.Event.MaterialOption;
+import com.example.meetmates.model.EventUser.ParticipantRole;
 
 public record EventResponse(
         UUID id,
@@ -28,8 +27,7 @@ public record EventResponse(
         String activityName,
         String addressLabel,
         String organizerName,
-        List<String> participantNames,
-        String imageUrl
+        List<String> participantNames
 ) {
 
     public static EventResponse from(Event e) {
@@ -46,15 +44,8 @@ public record EventResponse(
                 .map(p -> p.getUser().getFirstName() + " " + p.getUser().getLastName())
                 .collect(Collectors.toList());
 
-        String imageUrl = e.getPictures().stream()
-                .filter(PictureEvent::isMain)
-                .findFirst()
-                .map(pe -> pe.getPicture().getUrl())
-                .orElse(null);
-
         UUID activityId = e.getActivity() != null ? e.getActivity().getId() : null;
         String activityName = e.getActivity() != null ? e.getActivity().getName() : null;
-
         String addressLabel = e.getAddress() != null ? e.getAddress().getFullAddress() : null;
 
         return new EventResponse(
@@ -72,8 +63,7 @@ public record EventResponse(
                 activityName,
                 addressLabel,
                 organizerName,
-                participantNames,
-                imageUrl
+                participantNames
         );
     }
 }

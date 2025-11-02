@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.meetmates.model.core.User;
+import com.example.meetmates.model.User;
 import com.example.meetmates.repository.UserRepository;
 import com.example.meetmates.service.PictureService;
 import com.example.meetmates.service.UserService;

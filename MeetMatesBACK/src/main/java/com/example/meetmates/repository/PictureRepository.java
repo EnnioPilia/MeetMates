@@ -6,8 +6,8 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.example.meetmates.model.core.User;
-import com.example.meetmates.model.media.Picture;
+import com.example.meetmates.model.Picture;
+import com.example.meetmates.model.User;
 
 @Repository
 public interface PictureRepository extends JpaRepository<Picture, UUID> {
