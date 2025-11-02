@@ -45,4 +45,8 @@ export class EventTabAcceptedComponent {
   onReject(id: string) {
     this.reject.emit(id);
   }
+  
+  trackById(_: number, item: any) {
+    return item.id;
+  }
 }

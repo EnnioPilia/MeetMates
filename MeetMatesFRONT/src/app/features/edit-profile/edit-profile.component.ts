@@ -54,7 +54,7 @@ export class EditProfileComponent implements OnInit {
     this.userService.uploadProfilePicture(file).subscribe({
       next: (user) => {
         this.user = user;
-        this.notification.showSuccess('📸 Photo mise à jour avec succès !');
+        this.notification.showSuccess('Photo mise à jour avec succès !');
       },
       error: () => {
         this.notification.showError('Erreur lors du téléversement de la photo.');
@@ -74,7 +74,7 @@ export class EditProfileComponent implements OnInit {
             this.user = updatedUser;
           }
         });
-        this.notification.showSuccess('🗑️ Photo supprimée avec succès.');
+        this.notification.showSuccess('Photo supprimée avec succès.');
       },
       error: () => this.notification.showError('Erreur lors de la suppression de la photo.'),
     });

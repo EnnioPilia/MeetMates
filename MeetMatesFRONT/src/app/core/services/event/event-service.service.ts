@@ -20,34 +20,16 @@ export class EventService {
     return this.http.get<EventDetails>(`${this.baseUrl}/event/${id}`, { withCredentials: true });
   }
 
-  acceptParticipant(eventUserId: string): Observable<void> {
-    return this.http.put<void>(`${this.baseUrl}/event-user/${eventUserId}/accept`, {}, { withCredentials: true });
-  }
-
-  rejectParticipant(eventUserId: string): Observable<void> {
-    return this.http.put<void>(`${this.baseUrl}/event-user/${eventUserId}/reject`, {}, { withCredentials: true });
-  }
-
-  removeParticipant(eventId: string, userId: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/event-user/${eventId}/remove/${userId}`, { withCredentials: true });
-  }
-
   deleteEvent(eventId: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/event/${eventId}`, { withCredentials: true });
-  }
-
-  cancelParticipation(eventId: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/event-user/leave`, { params: { eventId }, withCredentials: true });
   }
 
   updateEvent(eventId: string, updatedEvent: Partial<EventDetails>): Observable<EventDetails> {
     return this.http.put<EventDetails>(`${this.baseUrl}/event/${eventId}`, updatedEvent, { withCredentials: true });
   }
 
-  searchEvents(query: string): Observable<EventDetails[]> {
-    return this.http.get<EventDetails[]>(`${this.baseUrl}/event/search`, {
-      params: { query }
-    });
+  searchEvents(query: string): Observable<EventResponse[]> {
+    return this.http.get<EventResponse[]>(`${this.baseUrl}/event/search`, {params: { query }, withCredentials: true });
   }
 
   getStatusLabel(status: string): string {

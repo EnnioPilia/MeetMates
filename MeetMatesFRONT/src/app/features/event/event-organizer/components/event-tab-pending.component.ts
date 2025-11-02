@@ -42,4 +42,8 @@ export class EventTabPendingComponent {
   @Input() pendingParticipants: { id: string; firstName: string; lastName: string }[] = [];
   @Output() accept = new EventEmitter<string>();
   @Output() reject = new EventEmitter<string>();
+
+  trackById(_: number, item: any) {
+    return item.id;
+  }
 }

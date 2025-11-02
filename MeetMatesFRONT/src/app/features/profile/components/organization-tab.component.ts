@@ -3,8 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-import { EventService } from '../../../core/services/event/event-service.service';
-import { AppButtonComponent } from '../../../shared-components/button/button.component';
+import { EventInfoCardComponent } from '../../../shared-components/event-info-card/event-info-card';
 
 @Component({
   selector: 'app-organization-tab',
@@ -14,7 +13,7 @@ import { AppButtonComponent } from '../../../shared-components/button/button.com
     MatExpansionModule, 
     RouterModule, 
     MatButtonModule,
-    AppButtonComponent
+    EventInfoCardComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -35,14 +34,12 @@ import { AppButtonComponent } from '../../../shared-components/button/button.com
 
           <div class="flex flex-col gap-2">
 
-            <p><strong>Status de l'activité:</strong> {{ getStatusLabel(event.eventStatus) }}</p>
-            <p><strong>{{ event.addressLabel }}</strong> </p>
-            <p><strong>Activité :</strong> {{ event.activityName }}</p>
-       
-            <!-- <app-button label="Voir détails" class="primary-button-details w-20"[routerLink]="['/event-organizer', event.eventId]"></app-button> -->
-             <button class="primary-button h-10" [routerLink]="['/event-organizer', event.eventId]">Voir détails</button>
+            <app-event-info-card [event]="event"></app-event-info-card>
+            
+            <button class="primary-button h-10" [routerLink]="['/event-organizer', event.eventId]">VOIR DÉTAILS</button>
 
           </div>
+          
         </mat-expansion-panel>
         }
       </mat-accordion>
@@ -51,11 +48,5 @@ import { AppButtonComponent } from '../../../shared-components/button/button.com
   `,
 })
 export class OrganizationTabComponent {
-  private eventService = inject(EventService);
-
   @Input() events: any[] = [];
-
-  getStatusLabel(status: string) {
-    return this.eventService.getStatusLabel(status);
-  }
 }

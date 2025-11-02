@@ -4,7 +4,6 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { EventService } from '../../../core/services/event/event-service.service';
-import { AppButtonComponent } from '../../../shared-components/button/button.component';
 
 @Component({
   selector: 'app-participation-tab',
@@ -14,7 +13,6 @@ import { AppButtonComponent } from '../../../shared-components/button/button.com
     MatExpansionModule, 
     RouterModule, 
     MatButtonModule,
-    AppButtonComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `

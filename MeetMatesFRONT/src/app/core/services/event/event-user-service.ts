@@ -13,4 +13,16 @@ export class EventUserService {
   joinEvent(eventId: string, userId: string): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/event-user/join`, { eventId, userId }, { withCredentials: true });
   }
+
+  acceptParticipant(eventUserId: string): Observable<void> {
+    return this.http.put<void>(`${this.baseUrl}/event-user/${eventUserId}/accept`, {}, { withCredentials: true });
+  }
+
+  rejectParticipant(eventUserId: string): Observable<void> {
+    return this.http.put<void>(`${this.baseUrl}/event-user/${eventUserId}/reject`, {}, { withCredentials: true });
+  }
+
+  removeParticipant(eventId: string, userId: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/event-user/${eventId}/remove/${userId}`, { withCredentials: true });
+  }
 }

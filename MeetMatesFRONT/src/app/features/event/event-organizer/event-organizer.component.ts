@@ -6,6 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { EventDetails } from '../../../core/models/event-details.model';
 import { EventService } from '../../../core/services/event/event-service.service';
+import { EventUserService } from '../../../core/services/event/event-user-service';
 import { NotificationService } from '../../../core/services/notification/notification.service';
 import { EventHeaderComponent } from '../../../shared-components/event-header/event-header.component';
 import { EventInfoComponent } from '../../../shared-components/event-info/event-info.component';
@@ -38,6 +39,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 export class EventOrganizerComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private eventService = inject(EventService);
+  private eventUserService = inject(EventUserService);
   private notification = inject(NotificationService);
   private router = inject(Router);
   private destroy$ = new Subject<void>();
@@ -74,7 +76,7 @@ export class EventOrganizerComponent implements OnInit, OnDestroy {
   }
 
   onAccept(eventUserId: string): void {
-    this.eventService.acceptParticipant(eventUserId)
+    this.eventUserService.acceptParticipant(eventUserId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
@@ -88,7 +90,7 @@ export class EventOrganizerComponent implements OnInit, OnDestroy {
   }
 
   onReject(eventUserId: string): void {
-    this.eventService.rejectParticipant(eventUserId)
+    this.eventUserService.rejectParticipant(eventUserId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
@@ -105,7 +107,7 @@ export class EventOrganizerComponent implements OnInit, OnDestroy {
     const eventId = this.event.id;
     if (!eventId || !eventUserId) return;
 
-    this.eventService.removeParticipant(eventId, eventUserId)
+    this.eventUserService.removeParticipant(eventId, eventUserId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {

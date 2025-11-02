@@ -1,0 +1,7 @@
+<div class="p-2 flex flex-col items-start gap-1">
+
+    <p *ngIf="showActivity"><strong>Activité :</strong> {{ event.activityName }}</p>
+    <p *ngIf="getStatus(event)"><strong>Status de l'activité :</strong> {{ getStatusLabel(getStatus(event)) }}</p>
+    <p *ngIf="showAddress"><strong></strong> {{ event.addressLabel }}</p>
+    
+</div>

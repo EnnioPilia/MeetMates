@@ -3,27 +3,24 @@
     <mat-spinner diameter="50"></mat-spinner>
   } @else if (events.length > 0) {
 
-    <div class="flex flex-col items-center gap-4 w-full max-w-3xl ">
-      @for (event of events; track event.id) {
+  <div class="flex flex-col items-center gap-6 w-full max-w-3xl">
+    @for (event of events; track event.id) {
+    <div #eventCard [attr.data-id]="event.id"class="activity-card w-full flex flex-col items-center p-6">
 
-      <div class="activity-card w-full flex flex-col items-center p-6">
-
-        <app-event-header [title]="event.title" [description]="event.description"></app-event-header>
-
-        <app-event-info [event]="event" [showStatus]="true"></app-event-info>
-
-        <app-button label="P A R T I C I P E R" class="w-80 primary-button mt-4"
-          [disabled]="(event.status).toUpperCase() !== 'OPEN'" (clicked)="joinEvent(event.id)">
-        </app-button>
-
-      </div>
-      }
+      <app-event-header [title]="event.title" [description]="event.description" class="mb-2"></app-event-header>
+      <app-event-info [event]="event" [showStatus]="true" class="mb-3"></app-event-info>
+      <app-button label="P A R T I C I P E R" class="w-80 primary-button mt-4"[disabled]="(event.status).toUpperCase() !== 'OPEN'" (clicked)="joinEvent(event.id)"></app-button>
+      
     </div>
-
+    }
+  </div>
   } @else {
   <div class="flex flex-col items-center justify-center h-[60vh] text-center">
-    <p class="card-text mt-4 mb-4 ml-2 mr-2 p-8 text-center">
-      AUCUNE ACTIVITÉ DISPONIBLE <br><br>Soyez le premier à proposer un événement pour cette activité.
+    <p class="card-text mt-4 mb-4 ml-2 mr-2 p-8 text-center text-gray-600">
+      AUCUNE ACTIVITÉ DISPONIBLE <br><br>
+      <span class="text-gray-800 font-medium">
+        Soyez le premier à proposer un événement pour cette activité.
+      </span>
     </p>
   </div>
   }

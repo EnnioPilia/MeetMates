@@ -4,8 +4,6 @@ import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-
-// 🧱 Composant d'entrée partagé
 import { AppInputComponent } from '../../../shared-components/input/input.component';
 
 @Component({

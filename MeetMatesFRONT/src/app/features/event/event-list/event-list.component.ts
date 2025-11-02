@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, OnDestroy } from '@angular/core';
+import { Component, OnInit, inject, OnDestroy, ElementRef, QueryList, ViewChildren } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
@@ -33,6 +33,8 @@ import { EventUserService } from '../../../core/services/event/event-user-servic
   ],
 })
 export class EventListComponent implements OnInit, OnDestroy {
+  @ViewChildren('eventCard') eventCards!: QueryList<ElementRef>;
+
   private baseUrl = environment.apiUrl;
   private http = inject(HttpClient);
   private route = inject(ActivatedRoute);
@@ -45,11 +47,6 @@ export class EventListComponent implements OnInit, OnDestroy {
   loading = true;
   events: EventResponse[] = [];
   activityName = 'Toutes les activités';
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 
   ngOnInit(): void {
     this.http.get(`${this.baseUrl}/user/me`, { withCredentials: true })
@@ -72,6 +69,26 @@ export class EventListComponent implements OnInit, OnDestroy {
     }
   }
 
+  ngAfterViewInit() {
+    this.route.queryParams.subscribe(params => {
+      const eventId = params['eventId'];
+      if (eventId) {
+        setTimeout(() => this.scrollToEvent(eventId), 300);
+      }
+    });
+  }
+
+  scrollToEvent(eventId: string) {
+    const card = this.eventCards.find(el =>
+      el.nativeElement.getAttribute('data-id') === eventId
+    );
+    if (card) {
+      card.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      card.nativeElement.classList.add('highlight');
+      setTimeout(() => card.nativeElement.classList.remove('highlight'), 2000);
+    }
+  }
+
   joinEvent(eventId: string) {
     const user = this.signals.currentUser();
     if (!user) {
@@ -84,18 +101,17 @@ export class EventListComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => this.notification.showSuccess('Demande de participation envoyée.'),
         error: (err) => {
-          if (err.status === 409) {
-            this.notification.showWarning('Vous participez déjà à cet événement.');
-          } else if (err.status === 410) {
-            this.notification.showError('Vous avez été retiré de cette activité.');
-          } else if (err.status === 401) {
-            this.notification.showError('Vous devez être connecté pour participer.');
-          } else {
-            this.notification.showError('Une erreur est survenue.');
-          }
+          const messages: Record<number, string> = {
+            409: 'Vous participez déjà à cet événement.',
+            410: 'Vous avez été retiré de cette activité.',
+            401: 'Vous devez être connecté pour participer.'
+          };
+          const message = messages[err.status] || 'Une erreur est survenue.';
+          this.notification.showError(message);
         }
       });
   }
+
 
   fetchAllEvents(): void {
     this.loading = true;
@@ -143,7 +159,12 @@ export class EventListComponent implements OnInit, OnDestroy {
       });
   }
 
-  private updatePageTitle(title: string) {
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private updatePageTitle(title: string): void {
     this.signals.setPageTitle(title);
   }
 

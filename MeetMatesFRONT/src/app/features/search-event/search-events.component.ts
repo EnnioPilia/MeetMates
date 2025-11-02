@@ -1,18 +1,16 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
-import { Subject } from 'rxjs';
+import { Subject, of } from 'rxjs';
+import { Router, RouterModule } from '@angular/router';
 import { EventService } from '../../core/services/event/event-service.service';
-import { AppInputComponent } from '../../shared-components/input/input.component';
-import { EventHeaderComponent } from '../../shared-components/event-header/event-header.component';
-import { EventInfoComponent } from '../../shared-components/event-info/event-info.component';
+import { EventMapperService } from '../../core/services/event/event-mapper.service';
 import { EventDetails } from '../../core/models/event-details.model';
-import { RouterModule } from '@angular/router';
-import { AppButtonComponent } from '../../shared-components/button/button.component';
-import { EventUserService } from '../../core/services/event/event-user-service';
-import { SignalsService } from '../../core/services/signals/signals.service'; // ton currentUser
-import { NotificationService } from '../../core/services/notification/notification.service';
+import { EventResponse } from '../../core/models/event-response.model';
+import { AppInputComponent } from '../../shared-components/input/input.component';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { EventCardComponent } from '../../features/search-event/components/event-card-component';
 
 @Component({
   selector: 'app-search-events',
@@ -21,19 +19,17 @@ import { NotificationService } from '../../core/services/notification/notificati
     CommonModule,
     ReactiveFormsModule,
     AppInputComponent,
-    EventInfoComponent,
-    EventHeaderComponent,
     RouterModule,
-    AppButtonComponent,
+    EventCardComponent,
+    MatExpansionModule
   ],
   templateUrl: './search-events.component.html',
 })
-export class SearchEventsComponent {
+export class SearchEventsComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private eventService = inject(EventService);
-  private eventUserService = inject(EventUserService);
-  private signals = inject(SignalsService);
-  private notification = inject(NotificationService);
+  private eventMapper = inject(EventMapperService);
+  private router = inject(Router);
   private destroy$ = new Subject<void>();
 
   form: FormGroup = this.fb.group({
@@ -43,56 +39,42 @@ export class SearchEventsComponent {
   results = signal<EventDetails[]>([]);
   loading = signal(false);
 
-  constructor() {
+  ngOnInit() {
     this.form.controls['query'].valueChanges
       .pipe(
         debounceTime(400),
         distinctUntilChanged(),
         switchMap((query: string) => {
-          if (!query || query.trim().length === 0) {
+          if (!query?.trim()) {
             this.results.set([]);
-            return [];
+            return of([] as EventResponse[]);
           }
 
           this.loading.set(true);
           return this.eventService.searchEvents(query.trim());
-        })
+        }),
+        takeUntil(this.destroy$)
       )
       .subscribe({
-        next: (events) => {
-          this.results.set(events);
+        next: (responses: EventResponse[]) => {
+          const mapped = this.eventMapper.toEventDetailsList(responses);
+          this.results.set(mapped);
           this.loading.set(false);
         },
         error: () => this.loading.set(false),
       });
   }
 
-  joinEvent(eventId: string) {
-    const user = this.signals.currentUser();
-    if (!user) {
-      this.notification.showError('Vous devez être connecté pour participer à un événement.');
-      return;
-    }
-
-    this.eventUserService.joinEvent(eventId, user.id)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => this.notification.showSuccess('Demande de participation envoyée.'),
-        error: (err) => {
-          if (err.status === 409) {
-            this.notification.showWarning('Vous participez déjà à cet événement.');
-          } else if (err.status === 410) {
-            this.notification.showError('Vous avez été retiré de cette activité.');
-          } else if (err.status === 401) {
-            this.notification.showError('Vous devez être connecté pour participer.');
-          } else {
-            this.notification.showError('Une erreur est survenue.');
-          }
-        }
-      });
+  goToEventDetails(event: EventDetails) {
+    this.router.navigate(['/event-list'], { queryParams: { eventId: event.id } });
   }
 
   trackById(index: number, item: EventDetails) {
     return item.id;
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

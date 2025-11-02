@@ -9,11 +9,12 @@ import { User } from '../../../core/models/user.model';
   standalone: true,
   imports: [CommonModule, MatIconModule, AppButtonComponent],
   template: `
+
     <div class="flex flex-col items-center">
       <img 
         [src]="previewUrl || user.profilePictureUrl || 'assets/images/default-avatar.png'" 
         alt="photo profil"
-        class="w-32 h-32 rounded-full object-cover border-2 border-black" />
+        class="w-32 h-32 rounded-full object-cover border-2 border-black"/>
       
       <button 
         mat-icon-button 
@@ -26,13 +27,17 @@ import { User } from '../../../core/models/user.model';
 
       <app-button 
         label="Ajouter une photo" 
-        class="tertiary-button mb-3" 
+        class="primary-button w-80 mb-3" 
         type="button"
         (click)="fileInput.click()">
       </app-button>
 
-      <input #fileInput type="file" accept="image/*" hidden (change)="onFileSelected($event)" />
+      <input
+        #fileInput type="file" 
+        accept="image/*"hidden 
+        (change)="onFileSelected($event)"/>
     </div>
+    
   `
 })
 export class EditProfilePictureComponent {

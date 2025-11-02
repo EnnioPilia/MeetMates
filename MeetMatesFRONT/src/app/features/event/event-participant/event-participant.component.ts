@@ -10,6 +10,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { environment } from '../../../../environments/environment';
 import { EventDetails } from '../../../core/models/event-details.model';
 import { EventService } from '../../../core/services/event/event-service.service';
+import { EventUserService } from '../../../core/services/event/event-user-service';
 import { NotificationService } from '../../../core/services/notification/notification.service';
 import { ConfirmDialogComponent } from '../../../shared-components/confirm-dialog/confirm-dialog.component';
 import { EventStatusComponent } from './components/event-status';
@@ -43,6 +44,7 @@ export class EventParticipantComponent implements OnInit, OnDestroy {
   private notification = inject(NotificationService);
   private dialog = inject(MatDialog);
   private eventService = inject(EventService);
+  private eventUserService = inject(EventUserService);
   private destroy$ = new Subject<void>();
 
   loading = true;

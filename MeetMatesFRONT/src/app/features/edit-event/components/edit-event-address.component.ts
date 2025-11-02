@@ -1,7 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
-
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -24,7 +23,9 @@ import { MatIconModule } from '@angular/material/icon';
       <div class="w-80">
         <mat-form-field class="w-full" appearance="fill">
           <mat-label>Adresse</mat-label>
-          <input matInput formControlName="addressLabel" [matAutocomplete]="auto" (input)="onInputChange($event)"  (keyup)="onInputChange($event)"/>
+          <input matInput formControlName="addressLabel"[matAutocomplete]="auto" 
+                (input)="onInputChange($event)"  
+                (keyup)="onInputChange($event)"/>
           <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onOptionSelected($event.option.value)">
             <mat-option *ngFor="let suggestion of suggestions" [value]="suggestion.display_name">
               {{ suggestion.display_name }}

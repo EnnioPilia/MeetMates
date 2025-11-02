@@ -10,17 +10,19 @@ import { User } from '../../../core/models/user.model';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, AppInputComponent, AppButtonComponent],
   template: `
+
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col items-center gap-1 w-full">
       <app-input label="Prénom" [control]="form.get('firstName')!" type="text"></app-input>
       <app-input label="Nom" [control]="form.get('lastName')!" type="text"></app-input>
       <app-input label="Email" [control]="form.get('email')!" type="email"></app-input>
+
       <app-button 
-        label="Enregistrer les modifications"
-        class="primary-button w-80"
-        type="submit"
-        [disabled]="form.invalid || loading">
+        label="Enregistrer les modifications" 
+        class="primary-button w-80" 
+        type="submit" [disabled]="form.invalid || loading">
       </app-button>
     </form>
+
   `
 })
 export class EditProfileFormComponent implements OnInit {
