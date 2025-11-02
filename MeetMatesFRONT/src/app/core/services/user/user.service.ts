@@ -11,10 +11,6 @@ export class UserService {
   private baseUrl = environment.apiUrl + '/user';
   private http = inject(HttpClient);
 
-  getAllUsers(): Observable<User[]> {
-    return this.http.get<User[]>(this.baseUrl, { withCredentials: true });
-  }
-
   getCurrentUser(): Observable<User> {
     return this.http.get<User>(`${this.baseUrl}/me`, { withCredentials: true });
   }
@@ -31,12 +27,7 @@ export class UserService {
       withCredentials: true
     });
   }
-
-  deleteUser(id: number): Observable<void> {
-    const url = `${this.baseUrl}/${id}`;
-    return this.http.delete<void>(url, { withCredentials: true });
-  }
-
+  
   deleteMyAccount() {
     return this.http.delete(`${this.baseUrl}/me`, { withCredentials: true });
   }

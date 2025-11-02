@@ -33,13 +33,9 @@ import { EventInfoCardComponent } from '../../../shared-components/event-info-ca
           </mat-expansion-panel-header>
 
           <div class="flex flex-col gap-2">
-
             <app-event-info-card [event]="event"></app-event-info-card>
-            
             <button class="primary-button h-10" [routerLink]="['/event-organizer', event.eventId]">VOIR DÉTAILS</button>
-
           </div>
-          
         </mat-expansion-panel>
         }
       </mat-accordion>

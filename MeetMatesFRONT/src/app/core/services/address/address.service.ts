@@ -16,7 +16,6 @@ export class AddressService {
 
   getAddressSuggestions(query: string, limit = 5) {
     if (!query || query.trim().length < 3) {
-      // Retourne un observable vide pour éviter les erreurs d’abonnement
       return of<AddressSuggestion[]>([]);
     }
 

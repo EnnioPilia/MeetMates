@@ -5,15 +5,21 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 
-
 @Component({
   selector: 'app-settings-menu',
   standalone: true,
-  imports: [CommonModule, MatMenuModule, MatButtonModule, MatIconModule, RouterModule],
+  imports:
+    [CommonModule,
+      MatMenuModule,
+      MatButtonModule,
+      MatIconModule,
+      RouterModule
+    ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
   
     <div class="absolute top-15 right-5 z-50">
+
       <button mat-icon-button [matMenuTriggerFor]="settingsMenu" aria-label="Ouvrir le menu paramètres">
         <mat-icon>settings</mat-icon>
       </button>
@@ -39,6 +45,7 @@ import { RouterModule } from '@angular/router';
           <span>Supprimer le compte</span><mat-icon>delete_forever</mat-icon>
         </button>
       </mat-menu>
+
     </div>
   `,
 })

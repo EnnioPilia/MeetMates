@@ -144,7 +144,7 @@ export class ProfileComponent {
         next: () => {
           this.router.navigate(['/login']);
         },
-        error: (err) => {
+        error: () => {
           this.error.set('Impossible de supprimer le compte pour le moment.');
         }
       });

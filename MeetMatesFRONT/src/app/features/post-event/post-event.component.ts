@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
@@ -26,14 +26,29 @@ import { MATERIAL_OPTIONS, LEVEL_OPTIONS } from '../../shared-components/constan
   selector: 'app-post-event',
   standalone: true,
   imports: [
-    CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatRadioModule, MatDatepickerModule,
-    MatNativeDateModule, MatAutocompleteModule, MatIconModule, MatCardModule, PostSelectComponent, PostTextFieldsComponent,
-    PostAddressComponent, PostDateTimeComponent, PostOptionsComponent, AppButtonComponent
+    CommonModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatRadioModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatAutocompleteModule,
+    MatIconModule,
+    MatCardModule,
+    PostSelectComponent,
+    PostTextFieldsComponent,
+    PostAddressComponent,
+    PostDateTimeComponent,
+    PostOptionsComponent,
+    AppButtonComponent
   ],
   templateUrl: './post-event.component.html',
   styleUrls: ['./post-event.component.scss']
 })
 export class PostEventComponent implements OnInit {
+  private baseUrl = environment.apiUrl;
   private fb = inject(FormBuilder);
   private http = inject(HttpClient);
   private notification = inject(NotificationService);
@@ -48,8 +63,6 @@ export class PostEventComponent implements OnInit {
   isSubmitting = false;
   materialOptions = MATERIAL_OPTIONS;
   levelOptions = LEVEL_OPTIONS;
-
-  private baseUrl = environment.apiUrl;
 
   ngOnInit(): void {
     this.buildForm();

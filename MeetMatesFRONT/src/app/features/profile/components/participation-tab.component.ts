@@ -32,14 +32,10 @@ import { EventService } from '../../../core/services/event/event-service.service
           </mat-expansion-panel-header>
 
           <div class="flex flex-col gap-2">
-
             <p><strong>Status de l'activité:</strong> {{ getStatusLabel(event.eventStatus) }}</p>
             <p><strong>Votre participation :</strong> {{ getParticipationLabel(event.participationStatus) }}</p>
             <p>{{ event.addressLabel }}</p>
-
-            <!-- <app-button label="Voir détails" class="primary-button" [routerLink]="['/event-details', event.eventId]"></app-button> le button shared fait buger le style  -->
             <button class="primary-button h-10" [routerLink]="['/event-details', event.eventId]">Voir détails</button>
-            
           </div>
         </mat-expansion-panel>
         }

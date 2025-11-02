@@ -33,8 +33,6 @@ import { EventUserService } from '../../../core/services/event/event-user-servic
   ],
 })
 export class EventListComponent implements OnInit, OnDestroy {
-  @ViewChildren('eventCard') eventCards!: QueryList<ElementRef>;
-
   private baseUrl = environment.apiUrl;
   private http = inject(HttpClient);
   private route = inject(ActivatedRoute);
@@ -47,6 +45,8 @@ export class EventListComponent implements OnInit, OnDestroy {
   loading = true;
   events: EventResponse[] = [];
   activityName = 'Toutes les activités';
+
+  @ViewChildren('eventCard') eventCards!: QueryList<ElementRef>;
 
   ngOnInit(): void {
     this.http.get(`${this.baseUrl}/user/me`, { withCredentials: true })
@@ -111,7 +111,6 @@ export class EventListComponent implements OnInit, OnDestroy {
         }
       });
   }
-
 
   fetchAllEvents(): void {
     this.loading = true;

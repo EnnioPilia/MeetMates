@@ -12,11 +12,11 @@ import { AppInputComponent } from '../../../shared-components/input/input.compon
   template: `
 
     <div [formGroup]="form">
+
       <app-input
         label="Titre"
         [control]="form.controls['titre']"
-        [required]="true"
-        type="text">
+        [required]="true" type="text">
       </app-input>
 
       <mat-form-field class="w-80">
@@ -26,6 +26,7 @@ import { AppInputComponent } from '../../../shared-components/input/input.compon
           <mat-error>Description est requise.</mat-error>
         }
       </mat-form-field>
+      
     </div>
   `
 })

@@ -17,8 +17,8 @@ import { User } from '../../../core/models/user.model';
       <img [src]="user.profilePictureUrl || 'assets/images/default-avatar.png'"alt="photo"
         class="w-32 h-32 rounded-full object-cover border-2 border-black"/>
 
-      <p>{{ user.lastName }} {{ user.firstName }}</p> 
-      <p>{{ user.email }}</p>
+        <p>{{ user.lastName }} {{ user.firstName }}</p> 
+        <p>{{ user.email }}</p>
 
     </div>
 

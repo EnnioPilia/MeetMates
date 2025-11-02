@@ -15,11 +15,11 @@ export class NotificationService {
   }
 
   showSuccess(message: string): void {
-    this.show(message, 'success-snackbar', 3000);
+    this.show(message, 'success-snackbar', 4000);
   }
 
   showWarning(message: string): void {
-    this.show(message, 'warning-snackbar', 3500);
+    this.show(message, 'warning-snackbar', 4000);
   }
 
   showError(message: string = 'Une erreur est survenue'): void {

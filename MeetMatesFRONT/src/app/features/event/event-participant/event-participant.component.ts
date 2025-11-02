@@ -44,7 +44,6 @@ export class EventParticipantComponent implements OnInit, OnDestroy {
   private notification = inject(NotificationService);
   private dialog = inject(MatDialog);
   private eventService = inject(EventService);
-  private eventUserService = inject(EventUserService);
   private destroy$ = new Subject<void>();
 
   loading = true;
@@ -95,7 +94,9 @@ export class EventParticipantComponent implements OnInit, OnDestroy {
             this.router.navigate(['/profile']);
           },
           error: (err) => {
-            console.error('Erreur lors de l’annulation :', err);
+
+
+
 
             if (err.status === 401) {
               this.notification.showError('Vous devez être connecté pour annuler votre participation.');
@@ -104,6 +105,10 @@ export class EventParticipantComponent implements OnInit, OnDestroy {
             } else {
               this.notification.showError('Une erreur est survenue lors de l’annulation.');
             }
+
+
+
+
           }
         });
     });

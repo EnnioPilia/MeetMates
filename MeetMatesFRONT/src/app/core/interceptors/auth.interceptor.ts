@@ -1,6 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpErrorResponse }
-  from '@angular/common/http';
+import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpErrorResponse }from '@angular/common/http';
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, filter, switchMap, take } from 'rxjs/operators';
 import { AuthService } from './../../core/services/auth/auth.service';
@@ -9,7 +8,7 @@ import { AuthService } from './../../core/services/auth/auth.service';
 export class AuthInterceptor implements HttpInterceptor {
   private isRefreshing = false;
   private refreshTokenSubject = new BehaviorSubject<string | null>(null);
- private authService = inject(AuthService);
+  private authService = inject(AuthService);
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const accessToken = localStorage.getItem('accessToken');
@@ -51,12 +50,11 @@ export class AuthInterceptor implements HttpInterceptor {
         }),
         catchError((err) => {
           this.isRefreshing = false;
-          this.authService.logout(); // déconnexion en cas d'échec du refresh
+          this.authService.logout();
           return throwError(() => err);
         })
       );
     } else {
-      // Si déjà en train de rafraîchir, on attend le nouveau token
       return this.refreshTokenSubject.pipe(
         filter(token => token != null),
         take(1),
