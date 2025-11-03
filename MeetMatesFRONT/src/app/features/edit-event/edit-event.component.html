@@ -7,12 +7,33 @@
   @else if (event && form) {
   <div class="w-full max-w-3xl p-6 flex flex-col items-center ">
 
-    <app-edit-event-info [form]="form"></app-edit-event-info>
-    <app-edit-event-activity [form]="form" [activities]="activities"></app-edit-event-activity>
-    <app-edit-event-address [form]="form" [suggestions]="addressSuggestions" (inputChange)="onAddressInput($event)"></app-edit-event-address>
-    <app-edit-event-date-time [form]="form"></app-edit-event-date-time>
-    <app-edit-event-details [form]="form"></app-edit-event-details>
-    <app-button label="Sauvegarder" class="primary-button w-80 mb-5" (click)="saveChanges()"></app-button>
+    <app-edit-event-info 
+      [form]="form">
+    </app-edit-event-info>
+
+    <app-edit-event-activity 
+      [form]="form" 
+      [activities]="activities">
+    </app-edit-event-activity>
+    
+    <app-edit-event-address 
+      [form]="form"
+      [suggestions]="addressSuggestions" 
+      (inputChange)="onAddressInput($event)">
+    </app-edit-event-address>
+
+    <app-edit-event-date-time 
+      [form]="form">
+    </app-edit-event-date-time>
+
+    <app-edit-event-details 
+      [form]="form">
+    </app-edit-event-details>
+
+    <app-button label="Sauvegarder" 
+      class="primary-button w-80 mb-5" 
+      (click)="saveChanges()">
+    </app-button>
 
   </div>
   }

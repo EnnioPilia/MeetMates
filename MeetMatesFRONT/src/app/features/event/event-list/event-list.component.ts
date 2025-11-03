@@ -44,7 +44,7 @@ export class EventListComponent implements OnInit, OnDestroy {
 
   loading = true;
   events: EventResponse[] = [];
-  activityName = 'Toutes les activités';
+  activityName = 'TOUT LES ÉVÉNEMENTS';
 
   @ViewChildren('eventCard') eventCards!: QueryList<ElementRef>;
 
@@ -69,14 +69,23 @@ export class EventListComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngAfterViewInit() {
-    this.route.queryParams.subscribe(params => {
+ngAfterViewInit() {
+  this.route.queryParams
+    .pipe(takeUntil(this.destroy$))
+    .subscribe(params => {
       const eventId = params['eventId'];
-      if (eventId) {
-        setTimeout(() => this.scrollToEvent(eventId), 300);
-      }
+      if (!eventId) return;
+
+      // Attendre que les événements soient chargés dans le DOM
+      const checkLoaded = setInterval(() => {
+        if (!this.loading && this.eventCards?.length > 0) {
+          this.scrollToEvent(eventId);
+          clearInterval(checkLoaded);
+        }
+      }, 200);
     });
-  }
+}
+
 
   scrollToEvent(eventId: string) {
     const card = this.eventCards.find(el =>
@@ -120,11 +129,11 @@ export class EventListComponent implements OnInit, OnDestroy {
         next: (data) => {
           this.events = data;
           this.loading = false;
-          this.updatePageTitle('Toutes les activités');
+          this.updatePageTitle('TOUT LES ÉVÉNEMENTS');
         },
         error: () => {
           this.loading = false;
-          this.updatePageTitle('Toutes les activités');
+          this.updatePageTitle('TOUT LES ÉVÉNEMENTS');
         },
       });
   }

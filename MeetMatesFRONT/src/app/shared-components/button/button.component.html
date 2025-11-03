@@ -1,7 +1,7 @@
 <mat-card-actions>
-  <button 
+  <button
     mat-raised-button
-    class="w-full primary-button"     
+    class="w-full primary-button"
     style="width: 20rem;"
     [type]="type"
     [disabled]="disabled"
@@ -9,7 +9,8 @@
     [routerLink]="routerLink"
     (click)="onClick()"
   >
-    <mat-icon *ngIf="icon" class="icon">{{ icon }}</mat-icon>
-    {{ label }}
+    @if (icon) {
+      <mat-icon class="icon">{{ icon }}</mat-icon>}
+        {{ label }}
   </button>
 </mat-card-actions>

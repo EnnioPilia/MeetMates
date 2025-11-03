@@ -7,11 +7,31 @@
   @else if (event) {
     <div class="activity-card w-full flex flex-col items-center p-4">
 
-      <app-event-header [title]="event.title" [description]="event.description"></app-event-header>
-      <app-event-status [eventStatus]="event.status" [participationStatus]="event.participationStatus"></app-event-status>
-      <app-event-info [event]="event" [showStatus]="false"></app-event-info>
-      <app-participant-list [participants]="event.acceptedParticipants" class="w-full"></app-participant-list>
-      <app-button label="ANNULER VOTRE PARTICIPATION" class="primary-button mb-6 mt-6"(clicked)="cancelParticipation(event.id)"></app-button>
+      <app-event-header 
+        [title]="event.title" 
+        [description]="event.description">
+      </app-event-header>
+
+      <app-event-status
+       [eventStatus]="event.status" 
+       [participationStatus]="event.participationStatus">
+      </app-event-status>
+
+      <app-event-info 
+        [event]="event" 
+        [showStatus]="false">
+      </app-event-info>
+
+      <app-participant-list
+       [participants]="event.acceptedParticipants" 
+       class="w-full">
+      </app-participant-list>
+
+      <app-button 
+        label="ANNULER VOTRE PARTICIPATION" 
+        class="primary-button mb-6 mt-6"
+        (clicked)="cancelParticipation(event.id)">
+      </app-button>
 
     </div>
   }@else {

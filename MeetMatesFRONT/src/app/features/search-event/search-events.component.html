@@ -6,20 +6,28 @@
       [control]="form.controls['query']">
     </app-input>
 
-  <div *ngIf="loading()" class="text-gray-500 mt-6 animate-pulse"> Recherche en cours...</div>
-    <div *ngIf="!loading() && results().length > 0">
-      <mat-accordion multi class="w-80 flex flex-col mt-2 p-1 gap-5">
+  @if (loading()) {
+    <div class="text-gray-500 mt-6 animate-pulse"> Recherche en cours...</div>
+  }
 
-        <app-event-card
-          *ngFor="let event of results(); trackBy: trackById"
-          [event]="event"
-          [onViewDetails]="goToEventDetails.bind(this)">
-        </app-event-card>
+  @if (!loading() && results().length > 0) {
+    <mat-accordion multi class="w-80 flex flex-col mt-2 p-1 gap-5">
+      @for (event of results(); track event?.id) {
+        @if (event) {
 
-      </mat-accordion>
+          <app-event-card
+            [event]="event"
+            [onViewDetails]="goToEventDetails.bind(this)">
+          </app-event-card>
+
+        }
+      }
+    </mat-accordion>
+  }
+  @if (!loading() && results().length === 0 && form.controls['query'].value?.length > 0) {
+    <div class="text-gray-400 mt-8 text-center">
+        Aucun événement trouvé pour
+      <span class="font-semibold text-gray-600">"{{ form.controls['query'].value }}"</span>
     </div>
-    
-  <div *ngIf="!loading() && results().length === 0 && form.controls['query'].value?.length > 0" class="text-gray-400 mt-8 text-center">
-    Aucun événement trouvé pour<span class="font-semibold text-gray-600">"{{ form.controls['query'].value }}"</span>
-  </div>
+  }
 </div>

@@ -19,25 +19,28 @@ import { AppInputComponent } from '../../../shared-components/input/input.compon
   ],
   template: `
 
-      <div [formGroup]="form" class="flex flex-col items-center w-full">
-        <div class="w-80 flex flex-col items-start">
-          <label class="font-medium text-gray-700">Statut :</label>
-          <mat-button-toggle-group formControlName="status" appearance="standard">
-            <mat-button-toggle *ngFor="let option of statusOptions" [value]="option.value">
+    <div [formGroup]="form" class="flex flex-col items-center w-full">
+      <div class="w-80 flex flex-col items-start">
+        <label class="font-medium text-gray-700">Statut :</label>
+        <mat-button-toggle-group formControlName="status" appearance="standard">
+          @for (option of statusOptions; track option.value) {
+            <mat-button-toggle [value]="option.value">
               {{ option.label }}
             </mat-button-toggle>
-          </mat-button-toggle-group>
-        </div>
-
-        <app-input label="Titre" [control]="form.get('title')!" type="text">
-        </app-input>
-
-        <mat-form-field appearance="fill" class="w-80">
-          <mat-label>Description</mat-label>
-          <textarea matInput formControlName="description" rows="4">
-              </textarea>
-        </mat-form-field>
+          }
+        </mat-button-toggle-group>
       </div>
+
+      <app-input label="Titre" [control]="form.get('title')!" type="text">
+      </app-input>
+
+      <mat-form-field appearance="fill" class="w-80">
+        <mat-label>Description</mat-label>
+        <textarea matInput formControlName="description" rows="4"></textarea>
+      </mat-form-field>
+    </div>
+
+ 
 
   `
 })

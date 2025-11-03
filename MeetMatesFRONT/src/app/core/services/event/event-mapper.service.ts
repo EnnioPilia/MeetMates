@@ -21,12 +21,11 @@ export class EventMapperService {
       addressLabel: response.addressLabel,
       activityName: response.activityName,
       organizerName: response.organizerName,
-      imageUrl: response.imageUrl,
       participationStatus: null,
       acceptedParticipants: (response.participantNames ?? []).map(name => this.toFakeUser(name)),
       pendingParticipants: [],
       rejectedParticipants: [],
-      activityId: undefined,
+      activityId: response.activityId ?? null,
     };
   }
 

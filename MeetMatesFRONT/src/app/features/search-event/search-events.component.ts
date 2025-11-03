@@ -11,6 +11,7 @@ import { EventResponse } from '../../core/models/event-response.model';
 import { AppInputComponent } from '../../shared-components/input/input.component';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { EventCardComponent } from '../../features/search-event/components/event-card-component';
+import { NotificationService } from '../../core/services/notification/notification.service';
 
 @Component({
   selector: 'app-search-events',
@@ -31,6 +32,7 @@ export class SearchEventsComponent implements OnInit, OnDestroy {
   private eventMapper = inject(EventMapperService);
   private router = inject(Router);
   private destroy$ = new Subject<void>();
+  private notification = inject(NotificationService);
 
   form: FormGroup = this.fb.group({
     query: [''],
@@ -61,12 +63,20 @@ export class SearchEventsComponent implements OnInit, OnDestroy {
           this.results.set(mapped);
           this.loading.set(false);
         },
-        error: () => this.loading.set(false),
+        error: () => {
+          this.loading.set(false);
+          this.notification.showError("Erreur lors de la recherche des événements.");
+        }
       });
   }
 
   goToEventDetails(event: EventDetails) {
-    this.router.navigate(['/event-list'], { queryParams: { eventId: event.id } });
+    if (event.activityId) {
+      this.router.navigate(
+        ['/events', event.activityId],
+        { queryParams: { eventId: event.id } }
+      );
+    }
   }
 
   trackById(index: number, item: EventDetails) {

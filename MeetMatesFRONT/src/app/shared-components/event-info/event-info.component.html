@@ -1,11 +1,16 @@
 <div class="flex flex-col w-full text-sm leading-relaxed gap-3 mt-3">
-  <p *ngIf="showStatus"><strong>STATUT :</strong> {{ getStatusLabel(event.status) }}</p>
-  <p><strong>ACTIVITÉ :</strong> {{ event.activityName }}</p>
-  <p><strong>DATE :</strong> {{ event.eventDate | date:'mediumDate' }}</p>
-  <p><strong>HORAIRE :</strong> {{ formatTime(event.startTime) }} - {{formatTime(event.endTime)}}</p>
-  <p><strong>ADRESSE :</strong> {{ event.addressLabel }}</p>
-  <p><strong>NIVEAU :</strong> {{ getLevelLabel(event.level) }}</p>
-  <p><strong>MATÉRIEL :</strong> {{ getMaterialLabel(event.material) }}</p>
-  <p><strong>NOMBRE DE PARTICIPANTS :</strong> {{ event.maxParticipants }}</p>
-  <p *ngIf="showOrganizer"><strong>ORGANISATEUR :</strong> {{ event.organizerName }}</p>
+  @if (showStatus) {
+    <p><strong>STATUT :</strong> {{ getStatusLabel(event.status) }}</p>
+  }
+    <p><strong>ACTIVITÉ :</strong> {{ event.activityName }}</p>
+    <p><strong>DATE :</strong> {{ event.eventDate | date:'mediumDate' }}</p>
+    <p><strong>HORAIRE :</strong> {{ formatTime(event.startTime) }} - {{ formatTime(event.endTime) }}</p>
+    <p><strong>ADRESSE :</strong> {{ event.addressLabel }}</p>
+    <p><strong>NIVEAU :</strong> {{ getLevelLabel(event.level) }}</p>
+    <p><strong>MATÉRIEL :</strong> {{ getMaterialLabel(event.material) }}</p>
+    <p><strong>NOMBRE DE PARTICIPANTS :</strong> {{ event.maxParticipants }}</p>
+
+  @if (showOrganizer) {
+    <p><strong>ORGANISATEUR :</strong> {{ event.organizerName }}</p>
+  }
 </div>

@@ -17,21 +17,24 @@ import { MatInputModule } from '@angular/material/input';
   ],
   template: `
 
-    <div [formGroup]="form" class="flex flex-col items-center w-full">
-      <mat-form-field class="w-full">
-        <mat-label>Activité</mat-label>
-        <mat-select formControlName="activityId">
-          <mat-option *ngFor="let act of activities" [value]="act.id">
-            {{ act.name }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
+<div [formGroup]="form" class="flex flex-col items-center w-full">
+  <mat-form-field class="w-full">
+    <mat-label>Activité</mat-label>
+    <mat-select formControlName="activityId">
+      @for (act of activities; track act.id) {
+        <mat-option [value]="act.id">
+          {{ act.name }}
+        </mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
 
-      <mat-form-field class="w-80">
-        <mat-label>Nombre de participants</mat-label>
-        <input matInput type="number" formControlName="maxParticipants" min="1" />
-      </mat-form-field>
-    </div>
+  <mat-form-field class="w-80">
+    <mat-label>Nombre de participants</mat-label>
+    <input matInput type="number" formControlName="maxParticipants" min="1" />
+  </mat-form-field>
+</div>
+
 
   `
 })

@@ -34,8 +34,6 @@ export const routes: Routes = [
   { path: 'activity', component: ActivityComponent, data: { title: 'ACTIVITEES' } },
   { path: 'activity/:categoryId', component: ActivityComponent, data: { title: 'ACTIVITES' } },
   { path: 'post-event', component: PostEventComponent, data: { title: 'CRÉER UNE ACTIVITÉ' } },
-  { path: 'event-list', component: EventListComponent, data: { title: 'ÉVÉNEMENTS' } },
-  { path: 'event-list/:id', component: EventListComponent },
   { path: 'events/:activityId', component: EventListComponent, data: { title: '' } },
   { path: 'event-details/:id', component: EventParticipantComponent, data: { title: 'DETAILS DE l\'ÉVÉNEMENT' } },
   { path: 'event-organizer/:eventId', component: EventOrganizerComponent, data: { title: 'ÉVÉNEMENT ORGANISATEUR' } },

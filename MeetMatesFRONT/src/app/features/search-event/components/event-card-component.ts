@@ -24,8 +24,17 @@ import { EventInfoCardComponent } from '../../../shared-components/event-info-ca
         </mat-expansion-panel-header>
 
         <div class="flex flex-col items-center justify-center w-full gap-2">
-          <app-event-info-card [event]="event"></app-event-info-card>
-          <button class="primary-button h-10 w-32" (click)="onViewDetails(event)"> VOIR DÉTAILS </button>
+
+          <app-event-info-card 
+            [event]="event">
+          </app-event-info-card>
+
+          <button 
+            class="primary-button h-10 w-32" 
+            (click)="onViewDetails(event)">
+            VOIR DÉTAILS 
+          </button>
+
         </div>
       </mat-expansion-panel>
 

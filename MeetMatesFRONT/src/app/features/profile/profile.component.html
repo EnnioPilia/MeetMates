@@ -12,7 +12,9 @@
         (editProfile)="onEditProfile()">
       </app-settings-menu>
 
-      <app-profile-card [user]="user()"></app-profile-card>
+      <app-profile-card 
+        [user]="user()">
+      </app-profile-card>
 
       <mat-tab-group class="w-full mt-4" mat-align-tabs="start" animationDuration="300ms">
         <mat-tab label="Je participe"><app-participation-tab [events]="eventsParticipating()"></app-participation-tab></mat-tab>

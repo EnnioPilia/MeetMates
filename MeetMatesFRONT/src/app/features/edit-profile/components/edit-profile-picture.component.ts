@@ -16,14 +16,16 @@ import { User } from '../../../core/models/user.model';
         alt="photo profil"
         class="w-32 h-32 rounded-full object-cover border-2 border-black"/>
       
-      <button 
-        mat-icon-button 
-        *ngIf="user?.profilePictureUrl" 
-        aria-label="Supprimer la photo" 
+      @if (user.profilePictureUrl) {
+      <button
+        mat-icon-button
+        aria-label="Supprimer la photo"
         (click)="onDelete()"
-        class="relative bottom-5 left-20">
+        class="relative bottom-5 left-20"
+      >
         <mat-icon>delete</mat-icon>
       </button>
+    }
 
       <app-button 
         label="Ajouter une photo" 

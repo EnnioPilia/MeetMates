@@ -22,17 +22,31 @@ import { MatOptionModule } from '@angular/material/core';
     <div [formGroup]="form" class="w-80">
       <mat-form-field class="w-full">
         <mat-label>Adresse</mat-label>
-        <input matInput [formControl]="control" [matAutocomplete]="auto" (input)="onInputChange($event)" />
-        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onOptionSelected($event.option.value)">
-          <mat-option *ngFor="let suggestion of suggestions" [value]="suggestion.display_name">
-            {{ suggestion.display_name }}
-          </mat-option>
-        </mat-autocomplete>
-            @if (form.get('adresse')?.hasError('required') && (form.get('adresse')?.touched || form.get('adresse')?.dirty)) {
-            <mat-error>L’adresse est requise.</mat-error>
+        
+        <input
+          matInput
+          [formControl]="control"
+          [matAutocomplete]="auto"
+          (input)="onInputChange($event)"
+        />
+
+        <mat-autocomplete
+          #auto="matAutocomplete"
+          (optionSelected)="onOptionSelected($event.option.value)"
+        >
+          @for (suggestion of suggestions; track suggestion.display_name) {
+            <mat-option [value]="suggestion.display_name">
+              {{ suggestion.display_name }}
+            </mat-option>
           }
+        </mat-autocomplete>
+
+        @if (form.get('adresse')?.hasError('required') && (form.get('adresse')?.touched || form.get('adresse')?.dirty)) {
+          <mat-error>L’adresse est requise.</mat-error>
+        }
       </mat-form-field>
     </div>
+
   `
 })
 export class PostAddressComponent {

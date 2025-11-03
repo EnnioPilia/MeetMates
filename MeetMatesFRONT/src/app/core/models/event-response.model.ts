@@ -10,8 +10,8 @@ export interface EventResponse {
   material: string;
   level: string;
   activityName: string;
+  activityId: string | null;
   addressLabel: string;
   organizerName: string;
   participantNames: string[];
-  imageUrl?: string;
 }
