@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.meetmates.dto.EventDetailsDTO;
 import com.example.meetmates.dto.EventRequest;
 import com.example.meetmates.dto.EventResponse;
-import com.example.meetmates.model.Event;
 import com.example.meetmates.service.EventService;
 
 @RestController
@@ -66,32 +65,9 @@ public class EventController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<EventDetailsDTO>> searchEvents(@RequestParam String query) {
-        List<Event> results = eventService.searchEvents(query);
-
-        List<EventDetailsDTO> dtoList = results.stream().map(e
-                -> new EventDetailsDTO(
-                        e.getId(),
-                        e.getTitle(),
-                        e.getDescription(),
-                        e.getEventDate().toString(),
-                        e.getStartTime().toString(),
-                        e.getEndTime().toString(),
-                        e.getAddress() != null ? e.getAddress().getFullAddress() : null,
-                        e.getActivity() != null ? e.getActivity().getName() : null,
-                        null, // organizerName
-                        e.getLevel().name(),
-                        e.getMaterial().name(),
-                        e.getStatus().name(),
-                        e.getMaxParticipants(),
-                        null, // participationStatus
-                        null, // acceptedParticipants
-                        null, // pendingParticipants
-                        null // rejectedParticipants
-                )
-        ).toList();
-
-        return ResponseEntity.ok(dtoList);
+    public ResponseEntity<List<EventResponse>> searchEvents(@RequestParam String query) {
+        List<EventResponse> results = eventService.searchEvents(query);
+        return ResponseEntity.ok(results);
     }
 
 }

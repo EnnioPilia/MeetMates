@@ -33,7 +33,6 @@ public class EventService {
     private final UserRepository userRepository;
     private final EventUserRepository eventUserRepository;
     private final EventMapper eventMapper;
-    private final PictureService pictureService;
 
     public EventService(EventRepository eventRepository,
             ActivityRepository activityRepository,
@@ -48,7 +47,6 @@ public class EventService {
         this.userRepository = userRepository;
         this.eventUserRepository = eventUserRepository;
         this.eventMapper = eventMapper;
-        this.pictureService = pictureService;
     }
 
     @Transactional
@@ -165,7 +163,7 @@ public class EventService {
         EventUser link = new EventUser();
         link.setEvent(event);
         link.setUser(organizer);
-        link.setUserEmail(organizer.getEmail()); 
+        link.setUserEmail(organizer.getEmail());
         link.setRole(EventUser.ParticipantRole.ORGANIZER);
         link.setParticipationStatus(EventUser.ParticipationStatus.ACCEPTED);
         eventUserRepository.save(link);
@@ -215,12 +213,14 @@ public class EventService {
                 .orElseThrow(() -> new RuntimeException("Event not found"));
     }
 
-    @Transactional(readOnly = true)
-    public List<Event> searchEvents(String query) {
+    public List<EventResponse> searchEvents(String query) {
         if (query == null || query.isBlank()) {
             return List.of();
         }
-        return eventRepository.searchEvents(query.toLowerCase());
+        return eventRepository.searchEvents(query.trim().toLowerCase())
+                .stream()
+                .map(eventMapper::toResponse)
+                .toList();
     }
 
 }
