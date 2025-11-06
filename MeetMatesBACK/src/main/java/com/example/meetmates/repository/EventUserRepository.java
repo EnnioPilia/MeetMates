@@ -19,6 +19,8 @@ public interface EventUserRepository extends JpaRepository<EventUser, UUID> {
 
     List<EventUser> findAllByEventId(UUID eventId);
 
-    // ✅ Nouvelle méthode pour récupérer les événements organisés
     List<EventUser> findAllByUserIdAndRole(UUID userId, ParticipantRole role);
+
+    List<EventUser> findAllByUserIdAndParticipationStatusNotIn(UUID userId, List<EventUser.ParticipationStatus> excludedStatuses);
+
 }

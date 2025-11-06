@@ -47,7 +47,7 @@ public class EventService {
         this.userRepository = userRepository;
         this.eventUserRepository = eventUserRepository;
         this.eventMapper = eventMapper;
-    }
+      }
 
     @Transactional
     public EventResponse createEvent(EventRequest req) {

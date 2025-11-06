@@ -69,7 +69,8 @@ public class EventUser {
         PENDING,
         ACCEPTED,
         REJECTED,
-        LEFT
+        LEFT,
+        LEFT_REJECTED
     }
 
     // === GETTERS/SETTERS ===

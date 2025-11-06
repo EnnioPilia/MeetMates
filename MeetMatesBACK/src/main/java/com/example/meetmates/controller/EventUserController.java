@@ -50,17 +50,20 @@ public class EventUserController {
     }
 
     @DeleteMapping("/leave")
-    public ResponseEntity<String> leaveEvent(@RequestParam UUID eventId, Authentication authentication) {
+    public ResponseEntity<EventUserDTO> leaveEvent(
+            @RequestParam UUID eventId,
+            Authentication authentication) {
+
         if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(401).body("Non connecté");
+            return ResponseEntity.status(401).build();
         }
 
         String email = authentication.getName();
         User currentUser = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
 
-        eventUserService.leaveEvent(eventId, currentUser.getId());
-        return ResponseEntity.ok("Utilisateur retiré de l'événement");
+        EventUser eu = eventUserService.leaveEvent(eventId, currentUser.getId());
+        return ResponseEntity.ok(EventUserDTO.from(eu));
     }
 
     @PutMapping("/{eventUserId}/accept")

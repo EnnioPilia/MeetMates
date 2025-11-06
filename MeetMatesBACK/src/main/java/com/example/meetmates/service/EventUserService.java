@@ -45,13 +45,16 @@ public class EventUserService {
             EventUser existing = existingOpt.get();
 
             switch (existing.getParticipationStatus()) {
-                case REJECTED -> {
-                    throw new ResponseStatusException(HttpStatus.GONE, "Vous avez été retiré de cette activité.");
+                case REJECTED, LEFT_REJECTED -> {
+                    // ❌ Un utilisateur rejeté (ou ayant quitté après rejet) ne peut pas revenir
+                    throw new ResponseStatusException(HttpStatus.GONE, "Vous avez été retiré de cette activité et ne pouvez pas la rejoindre à nouveau.");
                 }
                 case ACCEPTED, PENDING -> {
+                    // 🔁 Déjà participant
                     throw new ResponseStatusException(HttpStatus.CONFLICT, "Vous participez déjà à cet événement.");
                 }
                 case LEFT -> {
+                    // ✅ Peut redemander à participer
                     existing.setParticipationStatus(ParticipationStatus.PENDING);
                     existing.setJoinedAt(LocalDateTime.now());
                     return eventUserRepository.save(existing);
@@ -59,7 +62,6 @@ public class EventUserService {
                 default ->
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Statut invalide");
             }
-
         }
 
         if (event.getMaxParticipants() != null
@@ -92,14 +94,29 @@ public class EventUserService {
         return eventUserRepository.save(eu);
     }
 
-    public void leaveEvent(UUID eventId, UUID userId) {
+    public EventUser leaveEvent(UUID eventId, UUID userId) {
         EventUser eu = eventUserRepository.findByEventIdAndUserId(eventId, userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Non inscrit à cet événement"));
-        eventUserRepository.delete(eu);
+
+        if (eu.getParticipationStatus() == ParticipationStatus.REJECTED) {
+            eu.setParticipationStatus(ParticipationStatus.LEFT_REJECTED);
+            return eventUserRepository.save(eu);
+        }
+
+        if (eu.getParticipationStatus() == ParticipationStatus.ACCEPTED
+                || eu.getParticipationStatus() == ParticipationStatus.PENDING) {
+            eu.setParticipationStatus(ParticipationStatus.LEFT);
+            return eventUserRepository.save(eu);
+        }
+
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Déjà quitté cet événement");
     }
 
     public List<EventUser> findByUserId(UUID userId) {
-        return eventUserRepository.findAllByUserId(userId);
+        return eventUserRepository.findAllByUserIdAndParticipationStatusNotIn(
+                userId,
+                List.of(ParticipationStatus.LEFT, ParticipationStatus.LEFT_REJECTED)
+        );
     }
 
     public List<EventUser> findOrganizedByUserId(UUID userId) {
