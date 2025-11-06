@@ -22,7 +22,6 @@
       <app-button 
         label="P A R T I C I P E R" 
         class="w-80 primary-button mt-4"
-        [disabled]="(event.status).toUpperCase() !== 'OPEN'" 
         (clicked)="joinEvent(event.id)">
       </app-button>
       

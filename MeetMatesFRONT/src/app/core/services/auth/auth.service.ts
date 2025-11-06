@@ -69,13 +69,13 @@ export class AuthService {
     );
   }
 
-  verifyEmail(token: string): Observable<string> {
-    return this.http.get<string>(`${this.baseUrl}/verify`, { params: { token } }).pipe(
-      catchError(err => {
-        return throwError(() => new Error(err?.error?.error || "Erreur lors de la vérification."));
-      })
-    );
-  }
+  // verifyEmail(token: string): Observable<string> {
+  //   return this.http.get<string>(`${this.baseUrl}/verify`, { params: { token } }).pipe(
+  //     catchError(err => {
+  //       return throwError(() => new Error(err?.error?.error || "Erreur lors de la vérification."));
+  //     })
+  //   );
+  // }
 
   refreshToken(): Observable<{ accessToken: string }> {
     return this.http.post<{ accessToken: string }>(

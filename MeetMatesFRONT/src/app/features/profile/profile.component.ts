@@ -1,4 +1,4 @@
-import { Component, signal, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, inject, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -42,6 +42,7 @@ export class ProfileComponent {
   private authService = inject(AuthService);
   private userService = inject(UserService);
   private baseUrl = environment.apiUrl;
+  private destroyRef = inject(DestroyRef);
 
   readonly user = signal<any>(null);
   readonly eventsParticipating = signal<any[]>([]);
@@ -117,16 +118,20 @@ export class ProfileComponent {
       data: { title: 'Déconnexion', message: 'Voulez-vous vraiment vous déconnecter ?' }
     });
 
-    dialogRef.afterClosed().pipe(takeUntilDestroyed()).subscribe((confirmed) => {
-      if (confirmed) {
-        this.authService.logout().pipe(takeUntilDestroyed()).subscribe({
-          next: () => this.router.navigate(['/login']),
-          error: (err) => {
-            console.error('Erreur de déconnexion :', err);
-          }
-        });
-      }
-    });
+    dialogRef.afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((confirmed) => {
+        if (confirmed) {
+          this.authService.logout()
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+              next: () => this.router.navigate(['/login']),
+              error: (err) => {
+                console.error('Erreur de déconnexion :', err);
+              }
+            });
+        }
+      });
   }
 
   onDeleteAccount(): void {

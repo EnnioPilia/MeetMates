@@ -4,4 +4,6 @@ export interface Activity {
   categoryId?: string;
   createdAt?: string;
   updatedAt?: string;
+  icon?: string;
+
 }

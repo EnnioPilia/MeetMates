@@ -1,26 +1,27 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
+import { CommonModule } from '@angular/common';
 import { environment } from '../../../../environments/environment';
+import { IconCardComponent } from '../../../shared-components/icon-card/icon-card.component';
 import { Activity } from '../../../core/models/activity.model';
 
 @Component({
   selector: 'app-activity',
   standalone: true,
-  imports: [MatCardModule, MatIconModule],
+  imports: [CommonModule, IconCardComponent],
   templateUrl: './activity.component.html',
-  styleUrls: ['./activity.component.scss'],
+  styleUrls: ['./activity.component.scss']
 })
+
 export class ActivityComponent implements OnInit {
 
   private baseUrl = environment.apiUrl;
+  private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+
   readonly error = signal<string | null>(null);
-  private http = inject(HttpClient);
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
-  
   activities: Activity[] = [];
 
   ngOnInit(): void {
@@ -28,20 +29,25 @@ export class ActivityComponent implements OnInit {
     if (categoryId) {
       this.loadActivities(categoryId);
     } else {
-      console.error('categoryId est undefined');
+      this.error.set('Catégorie introuvable.');
     }
   }
 
   loadActivities(categoryId: string): void {
     this.http.get<Activity[]>(`${this.baseUrl}/activity/category/${categoryId}`).subscribe({
-      next: (data) => (this.activities = data),
+      next: (data) => {
+        this.activities = data;
+      },
       error: (err) => {
-        console.error('Erreur API activitées', err);
-        this.error.set('Erreur lors du chargement des activitées.');
+        this.error.set('Erreur lors du chargement des activités.');
       }
     });
   }
+
   goToEvents(activityId: string): void {
+    if (!activityId) {
+      return;
+    }
     this.router.navigate(['/events', activityId]);
   }
 }

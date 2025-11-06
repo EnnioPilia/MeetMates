@@ -18,22 +18,4 @@ import { BackButtonComponent } from '../../shared-components/back-button/back-bu
 })
 export class HeaderComponent {
   signals = inject(SignalsService);
-  private authService = inject(AuthService);
-  private router = inject(Router);
-  private dialog = inject(MatDialog);
-
-  onLogout(): void {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: { title: 'DECONNEXION', message: 'Voulez-vous vous déconnecter ?' }
-    });
-
-    dialogRef.afterClosed().subscribe(confirmed => {
-      if (confirmed) {
-        this.authService.logout().subscribe({
-          next: () => this.router.navigate(['/login']),
-          error: (err) => console.error(err)
-        });
-      }
-    });
-  }
 }

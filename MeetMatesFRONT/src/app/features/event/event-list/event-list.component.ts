@@ -69,22 +69,21 @@ export class EventListComponent implements OnInit, OnDestroy {
     }
   }
 
-ngAfterViewInit() {
-  this.route.queryParams
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(params => {
-      const eventId = params['eventId'];
-      if (!eventId) return;
+  ngAfterViewInit() {
+    this.route.queryParams
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(params => {
+        const eventId = params['eventId'];
+        if (!eventId) return;
 
-      // Attendre que les événements soient chargés dans le DOM
-      const checkLoaded = setInterval(() => {
-        if (!this.loading && this.eventCards?.length > 0) {
-          this.scrollToEvent(eventId);
-          clearInterval(checkLoaded);
-        }
-      }, 200);
-    });
-}
+        const checkLoaded = setInterval(() => {
+          if (!this.loading && this.eventCards?.length > 0) {
+            this.scrollToEvent(eventId);
+            clearInterval(checkLoaded);
+          }
+        }, 200);
+      });
+  }
 
 
   scrollToEvent(eventId: string) {
@@ -104,6 +103,13 @@ ngAfterViewInit() {
       this.notification.showError('Vous devez être connecté pour participer à un événement.');
       return;
     }
+
+    const eventFound = this.events.find(e => e.id === eventId)
+      ?? (() => this.notification.showError("L'événement n'a pas été trouvé."))();
+    if (!eventFound) return;
+
+    if (['CANCELLED', 'FULL', 'FINISHED'].includes(eventFound.status?.toUpperCase() || ''))
+      return this.notification.showWarning("Cet événement n’est plus disponible.");
 
     this.eventUserService.joinEvent(eventId, user.id)
       .pipe(takeUntil(this.destroy$))

@@ -1,19 +1,16 @@
-<div class="pt-[40px] pb-[60px] w-full overflow-y-auto">
+<div class="pt-[40px] pb-[60px] w-full overflow-y-auto mt-2">
   @if (error()) {
-  <p class="text-red-600 !text-center !text-red-600 font-semibold mt-10 pt-10">
-    {{ error() }}</p>
+    <p class="text-red-600 text-center font-semibold mt-10 pt-10">{{ error() }}</p>
   } @else {
+    <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-6 p-6 justify-items-center">
+      @for (category of categories; track category.categoryId) {
 
-  <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-6 p-6 justify-items-center">
-    @for (category of categories; track category.categoryId) {
-    <mat-card (click)="navigateTo(category.categoryId)"
-      class="icone-card w-40 h-40 flex flex-col items-center justify-center cursor-pointer hover:shadow-lg transition-shadow">
-      <mat-icon class="mb-2 text-3xl">sports</mat-icon>
-      <mat-card-title class="text-center text-base font-semibold">
-        {{ category.name }}
-      </mat-card-title>
-    </mat-card>
-    }
-  </div>
+        <app-icon-card
+          [title]="category.name"
+          [iconPath]="'/assets/images/icons/' + category.icon"
+          (cardClick)="navigateTo(category.categoryId)">
+        </app-icon-card>
+      }
+    </div>
   }
 </div>
