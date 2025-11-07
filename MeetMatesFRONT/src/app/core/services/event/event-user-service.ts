@@ -25,4 +25,16 @@ export class EventUserService {
   removeParticipant(eventId: string, userId: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/event-user/${eventId}/remove/${userId}`, { withCredentials: true });
   }
+
+  leaveEvent(eventId: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/event-user/leave`, { params: { eventId }, withCredentials: true });
+  }
+
+  getOrganizedEvents(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/event-user/organized`, { withCredentials: true });
+  }
+
+  getParticipatingEvents(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/event-user/participating`, { withCredentials: true });
+  }
 }

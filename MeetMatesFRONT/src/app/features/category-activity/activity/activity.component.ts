@@ -1,10 +1,9 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { environment } from '../../../../environments/environment';
 import { IconCardComponent } from '../../../shared-components/icon-card/icon-card.component';
 import { Activity } from '../../../core/models/activity.model';
+import { ActivityService } from '../../../core/services/activity/activity.service';
 
 @Component({
   selector: 'app-activity',
@@ -16,10 +15,9 @@ import { Activity } from '../../../core/models/activity.model';
 
 export class ActivityComponent implements OnInit {
 
-  private baseUrl = environment.apiUrl;
-  private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private activityService = inject(ActivityService);
 
   readonly error = signal<string | null>(null);
   activities: Activity[] = [];
@@ -34,7 +32,7 @@ export class ActivityComponent implements OnInit {
   }
 
   loadActivities(categoryId: string): void {
-    this.http.get<Activity[]>(`${this.baseUrl}/activity/category/${categoryId}`).subscribe({
+    this.activityService.fetchActivitiesByCategory(categoryId).subscribe({
       next: (data) => {
         this.activities = data;
       },

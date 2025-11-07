@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { map, catchError, of } from 'rxjs';
 
 export interface AddressSuggestion {
-  display_name: string;
+  label: string;
 }
 
 @Injectable({
@@ -22,7 +22,7 @@ export class AddressService {
     return this.http.get<any>(this.apiUrl, { params: { q: query, limit } }).pipe(
       map((data) =>
         data.features.map((f: any) => ({
-          display_name: f.properties.label
+          label: f.properties.label
         }))
       ),
       catchError(() => of<AddressSuggestion[]>([]))

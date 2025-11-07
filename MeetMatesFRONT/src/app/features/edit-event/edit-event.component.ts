@@ -5,13 +5,10 @@ import { Subject, takeUntil, forkJoin } from 'rxjs';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
-import { Router } from '@angular/router';
-import { ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { EventService } from '../../core/services/event/event-service.service';
 import { NotificationService } from '../../core/services/notification/notification.service';
 import { EventDetails } from '../../core/models/event-details.model';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
 import { EditEventInfoComponent } from './components/edit-event-info.component';
 import { EditEventDetailsComponent } from './components/edit-event-details.component';
 import { EditEventAddressComponent } from './components/edit-event-address.component';
@@ -19,6 +16,8 @@ import { EditEventDateTimeComponent } from './components/edit-event-dateTime.com
 import { AppButtonComponent } from '../../shared-components/button/button.component';
 import { EditEventActivityComponent } from './components/edit-event-activity.component';
 import { AddressService, AddressSuggestion } from '../../core/services/address/address.service';
+import { ActivityService } from '../../core/services/activity/activity.service'; // ✅ Ajout
+import { Activity } from '../../core/models/activity.model';
 
 @Component({
   selector: 'app-edit-event',
@@ -41,10 +40,9 @@ import { AddressService, AddressSuggestion } from '../../core/services/address/a
 })
 export class EditEventComponent implements OnInit, OnDestroy {
   private router = inject(Router);
-  private baseUrl = environment.apiUrl;
-  private http = inject(HttpClient);
   private fb = inject(FormBuilder);
   private eventService = inject(EventService);
+  private activityService = inject(ActivityService); // ✅ Nouvelle injection
   private notification = inject(NotificationService);
   private route = inject(ActivatedRoute);
   private destroy$ = new Subject<void>();
@@ -55,7 +53,7 @@ export class EditEventComponent implements OnInit, OnDestroy {
   event?: EventDetails;
   form!: FormGroup;
   loading = true;
-  activities: any[] = [];
+  activities: Activity[] = [];
   addressSuggestions: AddressSuggestion[] = [];
 
   ngOnInit(): void {
@@ -72,8 +70,8 @@ export class EditEventComponent implements OnInit, OnDestroy {
   }
 
   private loadActivitiesAndEvent(): void {
-    const activities$ = this.http.get<any[]>(`${this.baseUrl}/activity`);
-    const event$ = this.eventService.getEventById(this.eventId);
+    const activities$ = this.activityService.fetchAllActivities();
+    const event$ = this.eventService.fetchEventById(this.eventId);
 
     forkJoin([activities$, event$])
       .pipe(takeUntil(this.destroy$))
@@ -99,7 +97,7 @@ export class EditEventComponent implements OnInit, OnDestroy {
 
   loadEvent(): void {
     this.loading = true;
-    this.eventService.getEventById(this.eventId)
+    this.eventService.fetchEventById(this.eventId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
@@ -136,7 +134,7 @@ export class EditEventComponent implements OnInit, OnDestroy {
       if (match) {
         this.form.patchValue({ activityId: match.id });
       } else {
-        console.warn(' Aucune activité trouvée pour', event.activityName);
+        console.warn('Aucune activité trouvée pour', event.activityName);
       }
     }
   }
@@ -170,13 +168,11 @@ export class EditEventComponent implements OnInit, OnDestroy {
   }
 
   private parseAddress(label: string) {
+    if (!label) return { street: '', postalCode: '', city: '' };
     const match = label.match(/^(.*)\s(\d{5})\s(.+)$/);
-    if (!match) return { street: label, postalCode: '', city: '' };
-
-    return {
-      street: match[1].trim(),
-      postalCode: match[2],
-      city: match[3].trim()
-    };
+    return match
+      ? { street: match[1].trim(), postalCode: match[2], city: match[3].trim() }
+      : { street: label, postalCode: '', city: '' };
   }
+
 }

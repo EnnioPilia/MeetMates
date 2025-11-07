@@ -1,16 +1,10 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { environment } from '../../../../environments/environment';
 import { IconCardComponent } from '../../../shared-components/icon-card/icon-card.component';
+import { ActivityService } from '../../../core/services/activity/activity.service';
+import { Category } from '../../../core/models/category.model';
 
-interface Category {
-  categoryId: string;
-  name: string;
-  imageUrl?: string;
-  icon?: string;
-}
 
 @Component({
   selector: 'app-category',
@@ -20,23 +14,23 @@ interface Category {
   styleUrls: ['./category.component.scss']
 })
 export class CategoryComponent implements OnInit {
-  private readonly baseUrl = environment.apiUrl.replace(/\/+$/, '') + '/category';
-  private http = inject(HttpClient);
+
   private router = inject(Router);
+  private activityService = inject(ActivityService);
 
   readonly error = signal<string | null>(null);
-  categories: Category[] = [];
+  categories: Category[] = []; // ✅ plus d’erreur
 
   ngOnInit(): void {
     this.loadCategories();
   }
 
   loadCategories(): void {
-    this.http.get<Category[]>(this.baseUrl).subscribe({
+    this.activityService.fetchAllCategories().subscribe({
       next: (data) => {
         this.categories = data;
       },
-      error: (err) => {
+      error: () => {
         this.error.set('Erreur lors du chargement des catégories.');
       }
     });

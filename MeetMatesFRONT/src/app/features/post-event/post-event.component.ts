@@ -1,7 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -11,7 +10,6 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
-import { environment } from '../../../environments/environment';
 import { NotificationService } from '../../core/services/notification/notification.service';
 import { PostSelectComponent } from './components/post-select.component';
 import { PostTextFieldsComponent } from './components/post-text-fields.component';
@@ -21,6 +19,8 @@ import { PostAddressComponent } from './components/post-address.component';
 import { AppButtonComponent } from '../../shared-components/button/button.component';
 import { AddressService, AddressSuggestion } from '../../core/services/address/address.service';
 import { MATERIAL_OPTIONS, LEVEL_OPTIONS } from '../../shared-components/constants/event-option';
+import { ActivityService } from '../../core/services/activity/activity.service';
+import { EventService } from '../../core/services/event/event-service.service';
 
 @Component({
   selector: 'app-post-event',
@@ -48,11 +48,11 @@ import { MATERIAL_OPTIONS, LEVEL_OPTIONS } from '../../shared-components/constan
   styleUrls: ['./post-event.component.scss']
 })
 export class PostEventComponent implements OnInit {
-  private baseUrl = environment.apiUrl;
   private fb = inject(FormBuilder);
-  private http = inject(HttpClient);
   private notification = inject(NotificationService);
   private readonly addressService = inject(AddressService);
+  private activityService = inject(ActivityService);
+  private eventService = inject(EventService);
 
   form!: FormGroup;
   activities: any[] = [];
@@ -85,8 +85,8 @@ export class PostEventComponent implements OnInit {
   }
 
   private loadActivities(): void {
-    this.http.get<any[]>(`${this.baseUrl}/activity`).subscribe({
-      next: data => (this.activities = data),
+    this.activityService.fetchAllActivities().subscribe({
+      next: (data) => (this.activities = data),
       error: () => this.notification.showError('Erreur lors du chargement des activités.')
     });
   }
@@ -130,7 +130,7 @@ export class PostEventComponent implements OnInit {
       title: titre,
       description,
       eventDate: this.formatDate(date),
-      startTime: startTime,
+      startTime,
       endTime,
       maxParticipants: participants,
       material: materiel,
@@ -140,21 +140,20 @@ export class PostEventComponent implements OnInit {
       address: { street: adresse, city: '', postalCode: '' },
     };
 
-    this.http.post<any>(`${this.baseUrl}/event`, eventPayload, { withCredentials: true }).subscribe({
+    this.eventService.createEvent(eventPayload).subscribe({
       next: (res) => {
         const eventId = res?.id || res?.eventId;
         if (!eventId) {
           this.notification.showWarning('Activité créée, mais identifiant introuvable.');
           this.resetForm();
           return;
-
-        } else {
-          this.notification.showSuccess('🎉 Activité créée avec succès !');
-          this.resetForm();
         }
+
+        this.notification.showSuccess('🎉 Activité créée avec succès !');
+        this.resetForm();
       },
       error: () => {
-        this.notification.showError('Erreur lors de la création de l’activité. Etez-vous connecté ?');
+        this.notification.showError('Erreur lors de la création de l’activité. Êtes-vous connecté ?');
         this.isSubmitting = false;
       },
     });

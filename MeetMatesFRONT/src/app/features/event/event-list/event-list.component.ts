@@ -8,7 +8,6 @@ import { SignalsService } from '../../../core/services/signals/signals.service';
 import { NotificationService } from '../../../core/services/notification/notification.service';
 import { EventService } from '../../../core/services/event/event-service.service';
 import { EventResponse } from '../../../core/models/event-response.model';
-import { Activity } from '../../../core/models/activity.model';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -16,6 +15,8 @@ import { AppButtonComponent } from '../../../shared-components/button/button.com
 import { EventHeaderComponent } from '../../../shared-components/event-header/event-header.component';
 import { EventInfoComponent } from '../../../shared-components/event-info/event-info.component';
 import { EventUserService } from '../../../core/services/event/event-user-service';
+import { ActivityService } from '../../../core/services/activity/activity.service';
+import { UserService } from '../../../core/services/user/user.service';
 
 @Component({
   selector: 'app-event-list',
@@ -33,14 +34,14 @@ import { EventUserService } from '../../../core/services/event/event-user-servic
   ],
 })
 export class EventListComponent implements OnInit, OnDestroy {
-  private baseUrl = environment.apiUrl;
-  private http = inject(HttpClient);
   private route = inject(ActivatedRoute);
   private signals = inject(SignalsService);
   private notification = inject(NotificationService);
   private eventService = inject(EventService);
   private destroy$ = new Subject<void>();
   private eventUserService = inject(EventUserService);
+  private activityService = inject(ActivityService);
+  private userService = inject(UserService);
 
   loading = true;
   events: EventResponse[] = [];
@@ -49,7 +50,7 @@ export class EventListComponent implements OnInit, OnDestroy {
   @ViewChildren('eventCard') eventCards!: QueryList<ElementRef>;
 
   ngOnInit(): void {
-    this.http.get(`${this.baseUrl}/user/me`, { withCredentials: true })
+    this.userService.getCurrentUser()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (user: any) => {
@@ -62,10 +63,10 @@ export class EventListComponent implements OnInit, OnDestroy {
 
     const activityId = this.route.snapshot.paramMap.get('activityId');
     if (activityId) {
-      this.fetchActivityName(activityId);
-      this.fetchEventsByActivity(activityId);
+      this.loadActivityName(activityId);
+      this.loadEventsByActivity(activityId);
     } else {
-      this.fetchAllEvents();
+      this.loadAllEvents();
     }
   }
 
@@ -84,7 +85,6 @@ export class EventListComponent implements OnInit, OnDestroy {
         }, 200);
       });
   }
-
 
   scrollToEvent(eventId: string) {
     const card = this.eventCards.find(el =>
@@ -127,7 +127,7 @@ export class EventListComponent implements OnInit, OnDestroy {
       });
   }
 
-  fetchAllEvents(): void {
+  loadAllEvents(): void {
     this.loading = true;
     this.eventService.fetchAllEvents()
       .pipe(takeUntil(this.destroy$))
@@ -144,8 +144,9 @@ export class EventListComponent implements OnInit, OnDestroy {
       });
   }
 
-  fetchEventsByActivity(activityId: string): void {
-    this.http.get<EventResponse[]>(`${this.baseUrl}/event/activity/${activityId}`)
+  private loadEventsByActivity(activityId: string): void {
+    this.loading = true;
+    this.eventService.fetchEventsByActivity(activityId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
@@ -154,12 +155,12 @@ export class EventListComponent implements OnInit, OnDestroy {
         },
         error: () => {
           this.loading = false;
-        },
+        }
       });
   }
 
-  fetchActivityName(activityId: string): void {
-    this.http.get<Activity>(`${this.baseUrl}/activity/${activityId}`)
+  loadActivityName(activityId: string): void {
+    this.activityService.fetchActivityById(activityId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (activity) => {

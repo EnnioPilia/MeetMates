@@ -62,7 +62,7 @@ export class EventOrganizerComponent implements OnInit, OnDestroy {
 
   private loadEvent(eventId: string): void {
     this.loading = true;
-    this.eventService.getEventById(eventId)
+    this.eventService.fetchEventById(eventId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {

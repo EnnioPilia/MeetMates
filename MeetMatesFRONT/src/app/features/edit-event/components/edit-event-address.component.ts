@@ -36,9 +36,9 @@ import { MatIconModule } from '@angular/material/icon';
         #auto="matAutocomplete"
         (optionSelected)="onOptionSelected($event.option.value)"
       >
-        @for (suggestion of suggestions; track suggestion.display_name) {
-          <mat-option [value]="suggestion.display_name">
-            {{ suggestion.display_name }}
+        @for (suggestion of suggestions; track suggestion.label) {
+          <mat-option [value]="suggestion.label">
+            {{ suggestion.label }}
           </mat-option>
         }
       </mat-autocomplete>

@@ -5,5 +5,5 @@ export interface Activity {
   createdAt?: string;
   updatedAt?: string;
   icon?: string;
-
 }
+

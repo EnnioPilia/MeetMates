@@ -5,11 +5,10 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog } from '@angular/material/dialog';
-import { HttpClient } from '@angular/common/http';
 import { forkJoin } from 'rxjs';
-import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { UserService } from '../../core/services/user/user.service';
+import { EventUserService } from '../../core/services/event/event-user-service';
 import { ConfirmDialogComponent } from '../../shared-components/confirm-dialog/confirm-dialog.component';
 import { ProfileCardComponent } from '../profile/components/profile-card.component';
 import { ParticipationTabComponent } from '../profile/components/participation-tab.component';
@@ -36,13 +35,12 @@ import { CguDialogComponent } from '../../shared-components/cgu-dialog/cgu-dialo
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProfileComponent {
-  private http = inject(HttpClient);
   private router = inject(Router);
   private dialog = inject(MatDialog);
   private authService = inject(AuthService);
   private userService = inject(UserService);
-  private baseUrl = environment.apiUrl;
   private destroyRef = inject(DestroyRef);
+  private eventUserService = inject(EventUserService);
 
   readonly user = signal<any>(null);
   readonly eventsParticipating = signal<any[]>([]);
@@ -94,11 +92,11 @@ export class ProfileComponent {
   }
 
   private getOrganizedEvents() {
-    return this.http.get<any[]>(`${this.baseUrl}/event-user/organized`, { withCredentials: true });
+    return this.eventUserService.getOrganizedEvents();
   }
 
   private getParticipatingEvents() {
-    return this.http.get<any[]>(`${this.baseUrl}/event-user/participating`, { withCredentials: true });
+    return this.eventUserService.getParticipatingEvents();
   }
 
   onEditProfile(): void {

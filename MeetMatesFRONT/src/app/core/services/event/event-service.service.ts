@@ -16,10 +16,18 @@ export class EventService {
     return this.http.get<EventResponse[]>(`${this.baseUrl}/event`, { withCredentials: true });
   }
 
-  getEventById(id: string): Observable<EventDetails> {
+  fetchEventsByActivity(activityId: string): Observable<EventResponse[]> {
+    return this.http.get<EventResponse[]>(`${this.baseUrl}/event/activity/${activityId}`, { withCredentials: true });
+  }
+
+  fetchEventById(id: string): Observable<EventDetails> {
     return this.http.get<EventDetails>(`${this.baseUrl}/event/${id}`, { withCredentials: true });
   }
 
+  createEvent(eventPayload: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/event`, eventPayload, { withCredentials: true });
+  }
+  
   deleteEvent(eventId: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/event/${eventId}`, { withCredentials: true });
   }
@@ -29,7 +37,7 @@ export class EventService {
   }
 
   searchEvents(query: string): Observable<EventResponse[]> {
-    return this.http.get<EventResponse[]>(`${this.baseUrl}/event/search`, {params: { query }, withCredentials: true });
+    return this.http.get<EventResponse[]>(`${this.baseUrl}/event/search`, { params: { query }, withCredentials: true });
   }
 
   getStatusLabel(status: string): string {

@@ -2,12 +2,10 @@ import { Component, OnInit, inject, OnDestroy } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog } from '@angular/material/dialog';
-import { environment } from '../../../../environments/environment';
 import { EventDetails } from '../../../core/models/event-details.model';
 import { EventService } from '../../../core/services/event/event-service.service';
 import { EventUserService } from '../../../core/services/event/event-user-service';
@@ -38,7 +36,7 @@ import { AppButtonComponent } from '../../../shared-components/button/button.com
   styleUrls: ['./event-participant.component.scss']
 })
 export class EventParticipantComponent implements OnInit, OnDestroy {
-  private http = inject(HttpClient);
+  private eventUserService = inject(EventUserService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private notification = inject(NotificationService);
@@ -48,7 +46,6 @@ export class EventParticipantComponent implements OnInit, OnDestroy {
 
   loading = true;
   event?: EventDetails;
-  baseUrl = environment.apiUrl;
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -57,36 +54,33 @@ export class EventParticipantComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     const eventId = this.route.snapshot.paramMap.get('id');
-    if (eventId) {
-      this.http.get<EventDetails>(`${this.baseUrl}/event/${eventId}`, { withCredentials: true })
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (data) => {
-            this.event = data;
-            console.log('✅ Event details loaded:', data);
-            this.loading = false;
-          },
-          error: (err) => {
-            console.error('Erreur chargement événement:', err);
-            this.loading = false;
-          }
-        });
-    }
+    if (!eventId) return;
+
+    this.eventService.fetchEventById(eventId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.event = data;
+          this.loading = false;
+        },
+        error: (err) => {
+          this.loading = false;
+        }
+      });
   }
 
   cancelParticipation(eventId: string): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: { title: 'Confirmer l’annulation', message: "Êtes-vous sûr de vouloir annuler votre participation ?" }
+      data: {
+        title: 'Confirmer l’annulation',
+        message: "Êtes-vous sûr de vouloir annuler votre participation ?"
+      }
     });
 
     dialogRef.afterClosed().subscribe((confirmed: boolean) => {
       if (!confirmed) return;
 
-      this.http.delete(`${this.baseUrl}/event-user/leave`, {
-        params: { eventId },
-        withCredentials: true,
-        responseType: 'text'
-      })
+      this.eventUserService.leaveEvent(eventId)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
@@ -94,21 +88,13 @@ export class EventParticipantComponent implements OnInit, OnDestroy {
             this.router.navigate(['/profile']);
           },
           error: (err) => {
-
-
-
-
-            if (err.status === 401) {
-              this.notification.showError('Vous devez être connecté pour annuler votre participation.');
-            } else if (err.status === 404) {
-              this.notification.showWarning('Vous ne participez pas à cet événement.');
-            } else {
-              this.notification.showError('Une erreur est survenue lors de l’annulation.');
-            }
-
-
-
-
+            const messages: Record<number, string> = {
+              401: 'Vous devez être connecté pour annuler votre participation.',
+              404: 'Vous ne participez pas à cet événement.',
+              410: 'Cet événement n’est plus disponible.'
+            };
+            const message = messages[err.status] || 'Une erreur est survenue lors de l’annulation.';
+            this.notification.showError(message);
           }
         });
     });
