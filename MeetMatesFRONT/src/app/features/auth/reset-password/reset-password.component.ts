@@ -7,7 +7,6 @@ import { finalize } from 'rxjs/operators';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { NotificationService } from '../../../core/services/notification/notification.service';
 
-// Material & Shared
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -86,7 +85,6 @@ export class ResetPasswordComponent {
           this.router.navigate(['/login']);
         },
         error: (err) => {
-          console.error('[Auth] Erreur reset password :', err);
           this.notification.showError(
             err?.error?.message || '❌ Une erreur est survenue lors de la réinitialisation.'
           );

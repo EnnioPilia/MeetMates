@@ -87,7 +87,6 @@ export class RegisterComponent {
           this.router.navigate(['/login']);
         },
         error: (err) => {
-          console.error('[Auth] Erreur inscription :', err);
           if (err.status === 409) {
             this.notification.showWarning('Cet email est déjà utilisé.');
           } else {

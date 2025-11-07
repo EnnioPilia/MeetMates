@@ -23,13 +23,11 @@ export class UserService {
     const formData = new FormData();
     formData.append('file', file);
 
-    return this.http.post<User>(`${this.baseUrl}/me/picture`, formData, {
-      withCredentials: true
-    });
+    return this.http.post<User>(`${this.baseUrl}/me/picture`, formData, { withCredentials: true });
   }
-  
-  deleteMyAccount() {
-    return this.http.delete(`${this.baseUrl}/me`, { withCredentials: true });
+
+  deleteMyAccount(): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/me`, { body: {},withCredentials: true });
   }
 
   deleteProfilePicture(): Observable<void> {

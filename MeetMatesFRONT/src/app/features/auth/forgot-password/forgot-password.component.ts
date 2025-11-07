@@ -67,7 +67,6 @@ export class ForgotPasswordComponent {
           this.router.navigate(['/login']);
         },
         error: (err) => {
-          console.error('[Auth] Erreur reset password :', err);
           if (err.status === 404) {
             this.notification.showWarning('Aucun compte associé à cet e-mail.');
           } else {

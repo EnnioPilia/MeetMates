@@ -16,7 +16,7 @@ import { EditEventDateTimeComponent } from './components/edit-event-dateTime.com
 import { AppButtonComponent } from '../../shared-components/button/button.component';
 import { EditEventActivityComponent } from './components/edit-event-activity.component';
 import { AddressService, AddressSuggestion } from '../../core/services/address/address.service';
-import { ActivityService } from '../../core/services/activity/activity.service'; // ✅ Ajout
+import { ActivityService } from '../../core/services/activity/activity.service'; 
 import { Activity } from '../../core/models/activity.model';
 
 @Component({
@@ -42,7 +42,7 @@ export class EditEventComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private fb = inject(FormBuilder);
   private eventService = inject(EventService);
-  private activityService = inject(ActivityService); // ✅ Nouvelle injection
+  private activityService = inject(ActivityService); 
   private notification = inject(NotificationService);
   private route = inject(ActivatedRoute);
   private destroy$ = new Subject<void>();
@@ -134,7 +134,7 @@ export class EditEventComponent implements OnInit, OnDestroy {
       if (match) {
         this.form.patchValue({ activityId: match.id });
       } else {
-        console.warn('Aucune activité trouvée pour', event.activityName);
+        this.notification.showWarning(`Aucune activité correspondante trouvée pour "${event.activityName}".`);
       }
     }
   }
@@ -174,5 +174,4 @@ export class EditEventComponent implements OnInit, OnDestroy {
       ? { street: match[1].trim(), postalCode: match[2], city: match[3].trim() }
       : { street: label, postalCode: '', city: '' };
   }
-
 }

@@ -17,6 +17,7 @@ import { SettingsMenuComponent } from '../profile/components/settings-menu.compo
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CguDialogComponent } from '../../shared-components/cgu-dialog/cgu-dialog.component';
 import { SignalsService } from '../../core/services/signals/signals.service';
+import { NotificationService } from '../../core/services/notification/notification.service';
 
 @Component({
   selector: 'app-profile',
@@ -43,6 +44,7 @@ export class ProfileComponent {
   private destroyRef = inject(DestroyRef);
   private eventUserService = inject(EventUserService);
   private signals = inject(SignalsService);
+  private notification = inject(NotificationService);
 
   readonly user = signal<any>(null);
   readonly eventsParticipating = signal<any[]>([]);
@@ -62,11 +64,12 @@ export class ProfileComponent {
       .subscribe({
         next: (user) => {
           this.user.set(user);
-          this.signals.updateCurrentUser(user); 
+          this.signals.updateCurrentUser(user);
           this.fetchEvents();
         },
         error: () => {
           this.error.set('Erreur lors du chargement du profil.');
+          this.notification.showError('❌ Impossible de charger le profil utilisateur.');
           this.loading.set(false);
         }
       });
@@ -88,6 +91,7 @@ export class ProfileComponent {
       },
       error: () => {
         this.error.set('Erreur lors du chargement des événements.');
+        this.notification.showError('❌ Impossible de charger vos événements.');
         this.loading.set(false);
       }
     });
@@ -129,7 +133,11 @@ export class ProfileComponent {
                 this.signals.clearCurrentUser();
                 this.router.navigate(['/login']);
               },
-              error: (err) => console.error('Erreur de déconnexion :', err)
+              error: (err) => {
+                this.notification.showError(
+                  err?.error?.message || '❌ Une erreur est survenue lors de la déconnexion.'
+                );
+              }
             });
         }
       });
@@ -143,18 +151,26 @@ export class ProfileComponent {
       }
     });
 
-    dialogRef.afterClosed().pipe(takeUntilDestroyed()).subscribe((confirmed) => {
-      if (!confirmed) return;
+    dialogRef.afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((confirmed) => {
+        if (!confirmed) return;
 
-      this.userService.deleteMyAccount().pipe(takeUntilDestroyed()).subscribe({
-        next: () => {
-          this.router.navigate(['/login']);
-        },
-        error: () => {
-          this.error.set('Impossible de supprimer le compte pour le moment.');
-        }
+        this.userService.deleteMyAccount()
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: () => {
+              this.notification.showSuccess('✅ Votre compte a été supprimé avec succès.');
+              this.signals.clearCurrentUser();
+              this.router.navigate(['/login']);
+            },
+            error: (err) => {
+              this.notification.showError(
+                err?.error?.message || '❌ Une erreur est survenue lors de la suppression du compte.'
+              );
+            }
+          });
       });
-    });
   }
 
   refreshData(): void {
