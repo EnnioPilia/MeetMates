@@ -5,7 +5,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -110,11 +109,13 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public boolean deleteMyAccount(Authentication authentication) {
-        String email = authentication.getName();
+    public boolean deleteMyAccount(String email) {
+        return userRepository.findByEmail(email.toLowerCase()).map(user -> {
+            tokenRepository.deleteByUser_IdAndType(user.getId(), TokenType.REFRESH);
+            tokenRepository.deleteByUser_IdAndType(user.getId(), TokenType.VERIFICATION);
+            tokenRepository.deleteByUser_IdAndType(user.getId(), TokenType.PASSWORD_RESET);
 
-        return userRepository.findByEmail(email).map(user -> {
-            userRepository.delete(user); // Hard delete
+            userRepository.delete(user);
             return true;
         }).orElse(false);
     }
