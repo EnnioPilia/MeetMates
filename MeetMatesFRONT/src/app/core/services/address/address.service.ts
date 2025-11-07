@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, catchError, of } from 'rxjs';
 
@@ -11,8 +11,7 @@ export interface AddressSuggestion {
 })
 export class AddressService {
   private readonly apiUrl = 'https://api-adresse.data.gouv.fr/search/';
-
-  constructor(private http: HttpClient) {}
+  private http = inject(HttpClient);
 
   getAddressSuggestions(query: string, limit = 5) {
     if (!query || query.trim().length < 3) {

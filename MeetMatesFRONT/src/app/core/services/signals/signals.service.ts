@@ -1,4 +1,5 @@
 import { Injectable, signal } from '@angular/core';
+import { User } from '../../models/user.model'; 
 
 export interface CurrentUser {
   id: string;
@@ -18,9 +19,9 @@ export class SignalsService {
     this.pageTitle.set(title);
   }
 
-  setCurrentUser(user: CurrentUser) {
-    this.currentUser.set(user);
-  }
+  // setCurrentUser(user: CurrentUser | null) {
+  //   this.currentUser.set(user);
+  // }
 
   clearCurrentUser() {
     this.currentUser.set(null);
@@ -32,5 +33,14 @@ export class SignalsService {
 
   toggleMenu() {
     this.isMenuOpen.update(v => !v);
+  }
+
+  updateCurrentUser(user: User) {
+    this.currentUser.set({
+      id: String(user.id),
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+    });
   }
 }

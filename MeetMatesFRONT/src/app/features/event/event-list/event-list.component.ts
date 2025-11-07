@@ -54,7 +54,7 @@ export class EventListComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (user: any) => {
-          this.signals.setCurrentUser(user);
+          this.signals.updateCurrentUser(user);
         },
         error: () => {
           this.signals.clearCurrentUser();

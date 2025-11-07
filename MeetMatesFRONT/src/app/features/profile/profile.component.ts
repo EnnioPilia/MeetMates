@@ -16,6 +16,7 @@ import { OrganizationTabComponent } from '../profile/components/organization-tab
 import { SettingsMenuComponent } from '../profile/components/settings-menu.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CguDialogComponent } from '../../shared-components/cgu-dialog/cgu-dialog.component';
+import { SignalsService } from '../../core/services/signals/signals.service';
 
 @Component({
   selector: 'app-profile',
@@ -41,6 +42,7 @@ export class ProfileComponent {
   private userService = inject(UserService);
   private destroyRef = inject(DestroyRef);
   private eventUserService = inject(EventUserService);
+  private signals = inject(SignalsService);
 
   readonly user = signal<any>(null);
   readonly eventsParticipating = signal<any[]>([]);
@@ -48,7 +50,7 @@ export class ProfileComponent {
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
 
-  constructor() {
+  ngOnInit(): void {
     this.loadProfileData();
   }
 
@@ -56,10 +58,11 @@ export class ProfileComponent {
     this.loading.set(true);
 
     this.userService.getCurrentUser()
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (user) => {
           this.user.set(user);
+          this.signals.updateCurrentUser(user); 
           this.fetchEvents();
         },
         error: () => {
@@ -83,8 +86,7 @@ export class ProfileComponent {
         this.eventsParticipating.set(filteredParticipating);
         this.loading.set(false);
       },
-      error: (err) => {
-        console.error('Erreur chargement événements :', err);
+      error: () => {
         this.error.set('Erreur lors du chargement des événements.');
         this.loading.set(false);
       }
@@ -123,10 +125,11 @@ export class ProfileComponent {
           this.authService.logout()
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
-              next: () => this.router.navigate(['/login']),
-              error: (err) => {
-                console.error('Erreur de déconnexion :', err);
-              }
+              next: () => {
+                this.signals.clearCurrentUser();
+                this.router.navigate(['/login']);
+              },
+              error: (err) => console.error('Erreur de déconnexion :', err)
             });
         }
       });

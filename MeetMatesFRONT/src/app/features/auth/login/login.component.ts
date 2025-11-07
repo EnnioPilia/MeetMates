@@ -2,9 +2,11 @@ import { Component, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Validators, NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { finalize } from 'rxjs/operators';
+import { finalize, switchMap } from 'rxjs/operators';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { NotificationService } from '../../../core/services/notification/notification.service';
+import { UserService } from '../../../core/services/user/user.service';
+import { SignalsService } from '../../../core/services/signals/signals.service';
 import { MatCardModule } from '@angular/material/card';
 import { AppButtonComponent } from '../../../shared-components/button/button.component';
 import { AppInputComponent } from '../../../shared-components/input/input.component';
@@ -24,8 +26,10 @@ import { AppInputComponent } from '../../../shared-components/input/input.compon
   ],
 })
 export class LoginComponent {
-  private fb = inject(NonNullableFormBuilder); 
+  private fb = inject(NonNullableFormBuilder);
   private authService = inject(AuthService);
+  private userService = inject(UserService);
+  private signals = inject(SignalsService);
   private notification = inject(NotificationService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
@@ -48,15 +52,18 @@ export class LoginComponent {
 
     this.authService
       .login({ email: email.trim().toLowerCase(), password })
-      .pipe(finalize(() => (this.isSubmitting = false)))
+      .pipe(
+        switchMap(() => this.userService.getCurrentUser()),
+        finalize(() => (this.isSubmitting = false))
+      )
       .subscribe({
-        next: () => {
+        next: (user) => {
+          this.signals.updateCurrentUser(user);
           this.notification.showSuccess('✅ Connexion réussie !');
           this.router.navigate(['/home']);
           this.cdr.markForCheck();
         },
         error: (err) => {
-          console.error('[Auth] Erreur connexion :', err);
           if (err.status === 401) {
             this.notification.showError('Identifiants incorrects.');
           } else {

@@ -21,10 +21,11 @@ export class CguDialogComponent {
 
   private sanitizer = inject(DomSanitizer);
   private legalService = inject(LegalService);
+  private data = inject<{ type: 'cgu' | 'mentions' }>(MAT_DIALOG_DATA);
 
-  constructor(@Inject(MAT_DIALOG_DATA) public data: { type: 'cgu' | 'mentions' }) {
+  constructor() {
     const html =
-      data?.type === 'mentions'
+      this.data?.type === 'mentions'
         ? this.legalService.getMentionsLegales()
         : this.legalService.getCguContent();
 

@@ -17,7 +17,7 @@ export class AppComponent {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
-  constructor() {
+  ngOnInit() {
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe(() => this.updatePageTitle());
@@ -29,6 +29,6 @@ export class AppComponent {
       currentRoute = currentRoute.firstChild;
     }
     const title = currentRoute.snapshot.data['title'] ?? 'MeetMates';
-    this.signals.setPageTitle(title); // met à jour le signal global
+    this.signals.setPageTitle(title);
   }
 }

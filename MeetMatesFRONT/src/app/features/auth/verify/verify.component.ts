@@ -1,24 +1,21 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { Component, OnInit, inject  } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
+import { AuthService } from '../../../core/services/auth/auth.service';
 
 @Component({
   selector: 'app-verify',
   standalone: true,
-   imports: [MatCardModule],
+  imports: [MatCardModule],
   templateUrl: './verify.component.html',
   styleUrls: ['./verify.component.scss']
 })
 export class VerifyComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private authService = inject(AuthService);
+
   message = 'Activation en cours...';
   success = false;
-
-  constructor(
-    private route: ActivatedRoute,
-    private http: HttpClient,
-    private router: Router
-  ) {}
 
   ngOnInit(): void {
     const token = this.route.snapshot.queryParamMap.get('token');
@@ -28,15 +25,13 @@ export class VerifyComponent implements OnInit {
       return;
     }
 
-    // Appel API pour vérifier le token
-    this.http.get<{ message: string }>(`http://localhost:8080/auth/verify?token=${token}`).subscribe({
+    this.authService.verifyEmail(token).subscribe({
       next: (res) => {
-        this.message = res?.message || '✅ Votre compte a été activé avec succès.';
+        this.message = res.message || '✅ Votre compte a été activé avec succès.';
         this.success = true;
       },
       error: (err) => {
-        console.error('[Verify] Erreur :', err);
-        this.message = err?.error?.message || '❌ Erreur lors de la vérification du compte.';
+        this.message = err.message || '❌ Erreur lors de la vérification du compte.';
         this.success = false;
       }
     });
