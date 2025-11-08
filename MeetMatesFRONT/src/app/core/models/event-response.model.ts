@@ -13,5 +13,6 @@ export interface EventResponse {
   activityId: string | null;
   addressLabel: string;
   organizerName: string;
+  organizerId: string | null; 
   participantNames: string[];
 }

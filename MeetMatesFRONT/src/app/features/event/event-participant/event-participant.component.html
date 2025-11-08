@@ -1,40 +1,39 @@
 <div class="flex flex-col items-center justify-start min-h-screen px-7 py-10 mt-8">
-  @if (loading) {
-  <div class="flex justify-center items-center h-[50vh]">
+  @if (loading()) {
     <mat-spinner diameter="50"></mat-spinner>
-  </div>
   }
-  @else if (event) {
+  @else if (error()) {
+    <p class="text-red-600 text-center mt-6">{{ error() }}</p>
+  }
+  @else if (event()) {
     <div class="activity-card w-full flex flex-col items-center p-4">
 
       <app-event-header 
-        [title]="event.title" 
-        [description]="event.description">
+        [title]="event()!.title" 
+        [description]="event()!.description">
       </app-event-header>
 
       <app-event-status
-       [eventStatus]="event.status" 
-       [participationStatus]="event.participationStatus">
+        [eventStatus]="event()!.status" 
+        [participationStatus]="event()!.participationStatus">
       </app-event-status>
 
       <app-event-info 
-        [event]="event" 
+        [event]="event()!" 
         [showStatus]="false">
       </app-event-info>
 
       <app-participant-list
-       [participants]="event.acceptedParticipants" 
-       class="w-full">
+        [participants]="event()!.acceptedParticipants" 
+        class="w-full">
       </app-participant-list>
 
       <app-button 
         label="ANNULER VOTRE PARTICIPATION" 
         class="primary-button mb-6 mt-6"
-        (clicked)="cancelParticipation(event.id)">
+        (clicked)="cancelParticipation(event()!.id)">
       </app-button>
 
     </div>
-  }@else {
-    <p class="text-red-600">Événement introuvable.</p>
   }
 </div>

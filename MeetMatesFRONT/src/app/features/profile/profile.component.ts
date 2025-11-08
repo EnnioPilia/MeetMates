@@ -165,6 +165,7 @@ export class ProfileComponent {
             takeUntilDestroyed(this.destroyRef),
             catchError(err => {
               this.errorHandler.handle(err, '❌ Une erreur est survenue lors de la suppression du compte.');
+              this.authService.logout();
               return EMPTY;
             })
           )

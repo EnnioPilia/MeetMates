@@ -1,21 +1,26 @@
-import { Component, OnInit, inject, OnDestroy } from '@angular/core';
-import { Subject, takeUntil } from 'rxjs';
+import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog } from '@angular/material/dialog';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { catchError, EMPTY } from 'rxjs';
+
 import { EventDetails } from '../../../core/models/event-details.model';
 import { EventService } from '../../../core/services/event/event-service.service';
 import { EventUserService } from '../../../core/services/event/event-user-service';
 import { NotificationService } from '../../../core/services/notification/notification.service';
+import { ErrorHandlerService } from '../../../core/services/error-handler/error-handler.service';
+
 import { ConfirmDialogComponent } from '../../../shared-components/confirm-dialog/confirm-dialog.component';
 import { EventStatusComponent } from './components/event-status';
 import { ParticipantListComponent } from './components/participant-list';
 import { EventHeaderComponent } from '../../../shared-components/event-header/event-header.component';
 import { EventInfoComponent } from '../../../shared-components/event-info/event-info.component';
 import { AppButtonComponent } from '../../../shared-components/button/button.component';
+import { signal } from '@angular/core';
 
 @Component({
   selector: 'app-event-participant',
@@ -35,37 +40,44 @@ import { AppButtonComponent } from '../../../shared-components/button/button.com
   templateUrl: './event-participant.component.html',
   styleUrls: ['./event-participant.component.scss']
 })
-export class EventParticipantComponent implements OnInit, OnDestroy {
+export class EventParticipantComponent implements OnInit {
+  private eventService = inject(EventService);
   private eventUserService = inject(EventUserService);
+  private notification = inject(NotificationService);
+  private errorHandler = inject(ErrorHandlerService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private notification = inject(NotificationService);
   private dialog = inject(MatDialog);
-  private eventService = inject(EventService);
-  private destroy$ = new Subject<void>();
+  private destroyRef = inject(DestroyRef);
 
-  loading = true;
-  event?: EventDetails;
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
+  loading = signal(true);
+  error = signal<string | null>(null);
+  event = signal<EventDetails | null>(null);
 
   ngOnInit(): void {
     const eventId = this.route.snapshot.paramMap.get('id');
     if (!eventId) return;
 
+    this.loadEvent(eventId);
+  }
+
+  private loadEvent(eventId: string): void {
+    this.loading.set(true);
+    this.error.set(null);
+
     this.eventService.fetchEventById(eventId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (data) => {
-          this.event = data;
-          this.loading = false;
-        },
-        error: (err) => {
-          this.loading = false;
-        }
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        catchError(err => {
+          this.errorHandler.handle(err, '❌ Impossible de charger cet événement.');
+          this.error.set("Événement introuvable ou supprimé.");
+          this.loading.set(false);
+          return EMPTY;
+        })
+      )
+      .subscribe(eventData => {
+        this.event.set(eventData);
+        this.loading.set(false);
       });
   }
 
@@ -81,21 +93,13 @@ export class EventParticipantComponent implements OnInit, OnDestroy {
       if (!confirmed) return;
 
       this.eventUserService.leaveEvent(eventId)
-        .pipe(takeUntil(this.destroy$))
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: () => {
-            this.notification.showSuccess('Votre participation a été annulée avec succès.');
+            this.notification.showSuccess('✅ Votre participation a été annulée avec succès.');
             this.router.navigate(['/profile']);
           },
-          error: (err) => {
-            const messages: Record<number, string> = {
-              401: 'Vous devez être connecté pour annuler votre participation.',
-              404: 'Vous ne participez pas à cet événement.',
-              410: 'Cet événement n’est plus disponible.'
-            };
-            const message = messages[err.status] || 'Une erreur est survenue lors de l’annulation.';
-            this.notification.showError(message);
-          }
+          error: (err) =>this.errorHandler.handle(err, '❌ Impossible de charger cet événement.')
         });
     });
   }

@@ -102,9 +102,10 @@ export class EventListComponent implements OnInit {
       return;
     }
 
-    const eventFound = this.events.find(e => e.id === eventId);
-    if (!eventFound) {
-      this.notification.showError("L'événement n'a pas été trouvé.");
+    const eventFound = this.events.find(e => e.id === eventId)!;
+
+    if (eventFound.organizerId === user.id) {
+      this.notification.showWarning('Vous êtes l’organisateur de cet événement.');
       return;
     }
 
@@ -116,15 +117,15 @@ export class EventListComponent implements OnInit {
     this.eventUserService.joinEvent(eventId, user.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => this.notification.showSuccess('Demande de participation envoyée.'),
-            error: err => {
-        if (err?.status === 409) {
-          this.notification.showWarning('Une demande a deja été envoyé .');
-          return;
+        next: () => this.notification.showSuccess('✅ Demande de participation envoyée.'),
+        error: err => {
+          if (err?.status === 409) {
+            this.notification.showWarning('Une demande a deja été envoyé .');
+            return;
+          }
+          this.errorHandler.handle(err, 'Vous avez été retiré de cet événement.');
         }
-        this.errorHandler.handle(err, 'Vous avez été retiré de cet événement.');
-      }
-    });
+      });
   }
 
   loadAllEvents(): void {
