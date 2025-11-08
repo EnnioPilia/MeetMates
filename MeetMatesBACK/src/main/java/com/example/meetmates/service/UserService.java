@@ -24,7 +24,6 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
-    private final EventRepository eventRepository;
 
     @Autowired
     public UserService(UserRepository userRepository,
@@ -33,7 +32,6 @@ public class UserService implements UserDetailsService {
             EventRepository eventRepository) {
         this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
-        this.eventRepository = eventRepository;
 
     }
 
@@ -65,7 +63,6 @@ public class UserService implements UserDetailsService {
         return userRepository.findByEmailEager(email);
     }
 
-    // =================== Security / UserDetails ===================
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email.toLowerCase())
@@ -75,11 +72,10 @@ public class UserService implements UserDetailsService {
             throw new UsernameNotFoundException("Utilisateur désactivé ou banni");
         }
 
-        // ✅ On convertit l’enum UserRole en String pour Spring Security
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getEmail())
                 .password(user.getPassword())
-                .roles(user.getRole().name()) // <-- ICI : on met .name()
+                .roles(user.getRole().name())
                 .build();
     }
 

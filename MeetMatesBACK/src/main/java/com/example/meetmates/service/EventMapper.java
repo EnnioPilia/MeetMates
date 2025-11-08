@@ -1,6 +1,7 @@
 package com.example.meetmates.service;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
@@ -15,17 +16,27 @@ import com.example.meetmates.model.User;
 public class EventMapper {
 
     public EventResponse toResponse(Event e) {
-        String organizerName = e.getParticipants().stream()
+
+        // 🧩 Récupération de l’organisateur
+        var organizerOpt = e.getParticipants().stream()
                 .filter(p -> p.getRole() == EventUser.ParticipantRole.ORGANIZER)
-                .findFirst()
+                .findFirst();
+
+        UUID organizerId = organizerOpt
+                .map(p -> p.getUser().getId())
+                .orElse(null);
+
+        String organizerName = organizerOpt
                 .map(p -> p.getUser().getFirstName() + " " + p.getUser().getLastName())
                 .orElse("Inconnu");
 
+        // 🧩 Liste des participants
         List<String> participantNames = e.getParticipants().stream()
                 .filter(p -> p.getRole() == EventUser.ParticipantRole.PARTICIPANT)
                 .map(p -> p.getUser().getFirstName() + " " + p.getUser().getLastName())
                 .collect(Collectors.toList());
 
+        // ✅ Création du DTO complet
         return new EventResponse(
                 e.getId(),
                 e.getTitle(),
@@ -37,9 +48,10 @@ public class EventMapper {
                 e.getStatus(),
                 e.getMaterial(),
                 e.getLevel(),
-                e.getActivity() != null ? e.getActivity().getId() : null,  
-                e.getActivity() != null ? e.getActivity().getName() : null, 
+                e.getActivity() != null ? e.getActivity().getId() : null,
+                e.getActivity() != null ? e.getActivity().getName() : null,
                 e.getAddress() != null ? e.getAddress().getFullAddress() : null,
+                organizerId,              // ✅ ajouté ici
                 organizerName,
                 participantNames
         );

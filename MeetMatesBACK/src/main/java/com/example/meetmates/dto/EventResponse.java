@@ -26,6 +26,7 @@ public record EventResponse(
         UUID activityId,
         String activityName,
         String addressLabel,
+        UUID organizerId,          // ✅ ajouté ici
         String organizerName,
         List<String> participantNames
 ) {
@@ -33,9 +34,15 @@ public record EventResponse(
     public static EventResponse from(Event e) {
         if (e == null) return null;
 
-        String organizerName = e.getParticipants().stream()
+        var organizerOpt = e.getParticipants().stream()
                 .filter(p -> p.getRole() == ParticipantRole.ORGANIZER)
-                .findFirst()
+                .findFirst();
+
+        UUID organizerId = organizerOpt
+                .map(p -> p.getUser().getId())
+                .orElse(null);
+
+        String organizerName = organizerOpt
                 .map(p -> p.getUser().getFirstName() + " " + p.getUser().getLastName())
                 .orElse("Inconnu");
 
@@ -62,6 +69,7 @@ public record EventResponse(
                 activityId,
                 activityName,
                 addressLabel,
+                organizerId,     
                 organizerName,
                 participantNames
         );

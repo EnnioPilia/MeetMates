@@ -39,22 +39,32 @@ public class EventUserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
 
+        boolean isOrganizer = event.getParticipants().stream()
+                .anyMatch(eu -> eu.getUser().getId().equals(user.getId())
+                && eu.getRole() == EventUser.ParticipantRole.ORGANIZER);
+
+        if (isOrganizer) {
+            return eventUserRepository.findByEventIdAndUserId(eventId, userId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Organisateur non trouvé"));
+        }
+
         Optional<EventUser> existingOpt = eventUserRepository.findByEventIdAndUserId(eventId, userId);
 
-        if (existingOpt.isPresent()) {
-            EventUser existing = existingOpt.get();
+            if (existingOpt.isPresent()) {
+                EventUser existing = existingOpt.get();
+                
+            if (existing.getRole() == EventUser.ParticipantRole.ORGANIZER) {
+                return existing;
+            }
 
             switch (existing.getParticipationStatus()) {
                 case REJECTED, LEFT_REJECTED -> {
-                    // ❌ Un utilisateur rejeté (ou ayant quitté après rejet) ne peut pas revenir
                     throw new ResponseStatusException(HttpStatus.GONE, "Vous avez été retiré de cette activité et ne pouvez pas la rejoindre à nouveau.");
                 }
                 case ACCEPTED, PENDING -> {
-                    // 🔁 Déjà participant
                     throw new ResponseStatusException(HttpStatus.CONFLICT, "Vous participez déjà à cet événement.");
                 }
                 case LEFT -> {
-                    // ✅ Peut redemander à participer
                     existing.setParticipationStatus(ParticipationStatus.PENDING);
                     existing.setJoinedAt(LocalDateTime.now());
                     return eventUserRepository.save(existing);
