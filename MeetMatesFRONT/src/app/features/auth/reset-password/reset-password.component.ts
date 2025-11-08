@@ -2,10 +2,11 @@ import { Component, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { finalize } from 'rxjs/operators';
+import { finalize, catchError, EMPTY } from 'rxjs';
 
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { NotificationService } from '../../../core/services/notification/notification.service';
+import { ErrorHandlerService } from '../../../core/services/error-handler/error-handler.service';
 
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -35,6 +36,7 @@ export class ResetPasswordComponent {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private notification = inject(NotificationService);
+  private errorHandler = inject(ErrorHandlerService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private cdr = inject(ChangeDetectorRef);
@@ -74,21 +76,19 @@ export class ResetPasswordComponent {
     this.authService
       .resetPassword({ token: this.token, newPassword })
       .pipe(
+        catchError((err) => {
+          this.errorHandler.handle(err);
+          this.cdr.markForCheck();
+          return EMPTY;
+        }),
         finalize(() => {
           this.isSubmitting = false;
           this.cdr.markForCheck();
         })
       )
-      .subscribe({
-        next: () => {
-          this.notification.showSuccess('✅ Mot de passe réinitialisé avec succès !');
-          this.router.navigate(['/login']);
-        },
-        error: (err) => {
-          this.notification.showError(
-            err?.error?.message || '❌ Une erreur est survenue lors de la réinitialisation.'
-          );
-        },
+      .subscribe(() => {
+        this.notification.showSuccess('✅ Mot de passe réinitialisé avec succès !');
+        this.router.navigate(['/login']);
       });
   }
 

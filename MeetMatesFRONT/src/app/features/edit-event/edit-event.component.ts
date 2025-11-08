@@ -1,7 +1,8 @@
-import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { Subject, takeUntil, forkJoin } from 'rxjs';
+import { forkJoin, EMPTY } from 'rxjs';
+import { catchError, takeUntil } from 'rxjs/operators';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
@@ -16,8 +17,10 @@ import { EditEventDateTimeComponent } from './components/edit-event-dateTime.com
 import { AppButtonComponent } from '../../shared-components/button/button.component';
 import { EditEventActivityComponent } from './components/edit-event-activity.component';
 import { AddressService, AddressSuggestion } from '../../core/services/address/address.service';
-import { ActivityService } from '../../core/services/activity/activity.service'; 
+import { ActivityService } from '../../core/services/activity/activity.service';
 import { Activity } from '../../core/models/activity.model';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ErrorHandlerService } from '../../core/services/error-handler/error-handler.service';
 
 @Component({
   selector: 'app-edit-event',
@@ -38,30 +41,33 @@ import { Activity } from '../../core/models/activity.model';
   templateUrl: './edit-event.component.html',
   styleUrls: ['./edit-event.component.scss']
 })
-export class EditEventComponent implements OnInit, OnDestroy {
+export class EditEventComponent implements OnInit {
+
   private router = inject(Router);
   private fb = inject(FormBuilder);
   private eventService = inject(EventService);
-  private activityService = inject(ActivityService); 
+  private activityService = inject(ActivityService);
   private notification = inject(NotificationService);
   private route = inject(ActivatedRoute);
-  private destroy$ = new Subject<void>();
-  private cdr = inject(ChangeDetectorRef);
-  private readonly addressService = inject(AddressService);
+  private destroyRef = inject(DestroyRef);
+  private addressService = inject(AddressService);
+  private errorHandler = inject(ErrorHandlerService);
+
+  readonly loading = signal(true);
+  readonly error = signal<string | null>(null);
+  readonly activities = signal<Activity[]>([]);
+  readonly addressSuggestions = signal<AddressSuggestion[]>([]);
 
   eventId!: string;
   event?: EventDetails;
   form!: FormGroup;
-  loading = true;
-  activities: Activity[] = [];
-  addressSuggestions: AddressSuggestion[] = [];
 
   ngOnInit(): void {
-    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
       const id = params.get('id');
       if (!id) {
-        this.notification.showError('ID de l’événement manquant.');
-        this.loading = false;
+        this.error.set('ID de l’événement manquant.');
+        this.loading.set(false);
         return;
       }
       this.eventId = id;
@@ -74,42 +80,20 @@ export class EditEventComponent implements OnInit, OnDestroy {
     const event$ = this.eventService.fetchEventById(this.eventId);
 
     forkJoin([activities$, event$])
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: ([activities, event]) => {
-          this.activities = activities;
-          this.event = event;
-          this.initForm(event);
-          this.loading = false;
-          this.cdr.detectChanges();
-        },
-        error: () => {
-          this.notification.showError('Erreur lors du chargement des données.');
-          this.loading = false;
-        }
-      });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  loadEvent(): void {
-    this.loading = true;
-    this.eventService.fetchEventById(this.eventId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (data) => {
-          this.event = data;
-          this.initForm(data);
-          this.loading = false;
-          this.cdr.detectChanges();
-        },
-        error: () => {
-          this.loading = false;
-          this.notification.showError('❌ Impossible de charger les détails de l’événement.');
-        }
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        catchError(err => {
+          this.errorHandler.handle(err, '❌ Erreur lors du chargement des données.');
+          this.loading.set(false);
+          this.error.set('Erreur lors du chargement des données.');
+          return EMPTY;
+        })
+      )
+      .subscribe(([activities, event]) => {
+        this.activities.set(activities);
+        this.event = event;
+        this.initForm(event);
+        this.loading.set(false);
       });
   }
 
@@ -129,8 +113,8 @@ export class EditEventComponent implements OnInit, OnDestroy {
       status: [event.status]
     });
 
-    if (this.activities?.length && event.activityName) {
-      const match = this.activities.find(a => a.name === event.activityName);
+    if (this.activities()?.length && event.activityName) {
+      const match = this.activities().find(a => a.name === event.activityName);
       if (match) {
         this.form.patchValue({ activityId: match.id });
       } else {
@@ -141,6 +125,7 @@ export class EditEventComponent implements OnInit, OnDestroy {
 
   saveChanges(): void {
     if (!this.form.valid || !this.eventId) return;
+
     const updated: EventDetails = {
       ...this.event!,
       ...this.form.value,
@@ -149,22 +134,29 @@ export class EditEventComponent implements OnInit, OnDestroy {
     };
 
     this.eventService.updateEvent(this.eventId, updated)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => {
-          this.notification.showSuccess('✅ Événement mis à jour avec succès.');
-          this.router.navigate(['/profile']);
-        },
-        error: () => {
-          this.notification.showError('❌ Erreur lors de la mise à jour.');
-        }
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        catchError(err => {
+          this.errorHandler.handle(err, '❌ Erreur lors de la mise à jour.');
+          this.error.set('Erreur lors de la mise à jour.');
+          return EMPTY;
+        })
+      )
+      .subscribe(() => {
+        this.notification.showSuccess('✅ Événement mis à jour avec succès.');
+        this.router.navigate(['/profile']);
       });
   }
 
   onAddressInput(value: string): void {
-    this.addressService.getAddressSuggestions(value).subscribe({
-      next: (suggestions) => (this.addressSuggestions = suggestions)
-    });
+    this.addressService.getAddressSuggestions(value)
+      .pipe(
+        catchError(err => {
+          this.errorHandler.handle(err, 'Erreur lors du chargement des suggestions.');
+          return EMPTY;
+        })
+      )
+      .subscribe(suggestions => this.addressSuggestions.set(suggestions));
   }
 
   private parseAddress(label: string) {

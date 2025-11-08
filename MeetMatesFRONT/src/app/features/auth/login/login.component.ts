@@ -1,12 +1,14 @@
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, DestroyRef, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Validators, NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { finalize, switchMap } from 'rxjs/operators';
+import { finalize, switchMap, catchError, EMPTY } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { NotificationService } from '../../../core/services/notification/notification.service';
 import { UserService } from '../../../core/services/user/user.service';
 import { SignalsService } from '../../../core/services/signals/signals.service';
+import { ErrorHandlerService } from '../../../core/services/error-handler/error-handler.service'; 
 import { MatCardModule } from '@angular/material/card';
 import { AppButtonComponent } from '../../../shared-components/button/button.component';
 import { AppInputComponent } from '../../../shared-components/input/input.component';
@@ -31,8 +33,10 @@ export class LoginComponent {
   private userService = inject(UserService);
   private signals = inject(SignalsService);
   private notification = inject(NotificationService);
+  private errorHandler = inject(ErrorHandlerService); 
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
+  private destroyRef = inject(DestroyRef);
 
   isSubmitting = false;
 
@@ -54,23 +58,20 @@ export class LoginComponent {
       .login({ email: email.trim().toLowerCase(), password })
       .pipe(
         switchMap(() => this.userService.getCurrentUser()),
-        finalize(() => (this.isSubmitting = false))
+        catchError((err) => {
+          this.errorHandler.handle(err);
+          this.cdr.markForCheck();
+          return EMPTY;
+        }),
+
+        finalize(() => (this.isSubmitting = false)),
+        takeUntilDestroyed(this.destroyRef)
       )
-      .subscribe({
-        next: (user) => {
-          this.signals.updateCurrentUser(user);
-          this.notification.showSuccess('✅ Connexion réussie !');
-          this.router.navigate(['/home']);
-          this.cdr.markForCheck();
-        },
-        error: (err) => {
-          if (err.status === 401) {
-            this.notification.showError('Identifiants incorrects.');
-          } else {
-            this.notification.showError(err.error?.message || '❌ Échec de la connexion.');
-          }
-          this.cdr.markForCheck();
-        },
+      .subscribe((user) => {
+        this.signals.updateCurrentUser(user);
+        this.notification.showSuccess('✅ Connexion réussie !');
+        this.router.navigate(['/home']);
+        this.cdr.markForCheck();
       });
   }
 

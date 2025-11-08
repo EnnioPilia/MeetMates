@@ -1,10 +1,12 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, DestroyRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { IconCardComponent } from '../../../shared-components/icon-card/icon-card.component';
 import { ActivityService } from '../../../core/services/activity/activity.service';
 import { Category } from '../../../core/models/category.model';
-
+import { ErrorHandlerService } from '../../../core/services/error-handler/error-handler.service';
+import { catchError, EMPTY } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-category',
@@ -14,26 +16,31 @@ import { Category } from '../../../core/models/category.model';
   styleUrls: ['./category.component.scss']
 })
 export class CategoryComponent implements OnInit {
-
+  private errorHandler = inject(ErrorHandlerService);
   private router = inject(Router);
   private activityService = inject(ActivityService);
+  private destroyRef = inject(DestroyRef);
 
   readonly error = signal<string | null>(null);
-  categories: Category[] = []; // ✅ plus d’erreur
+  categories: Category[] = [];
 
   ngOnInit(): void {
     this.loadCategories();
   }
 
   loadCategories(): void {
-    this.activityService.fetchAllCategories().subscribe({
-      next: (data) => {
+    this.activityService.fetchAllCategories()
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        catchError(err => {
+          this.errorHandler.handle(err, 'Erreur lors du chargement des catégories.');
+          this.error.set('Erreur lors du chargement.');
+          return EMPTY;
+        })
+      )
+      .subscribe(data => {
         this.categories = data;
-      },
-      error: () => {
-        this.error.set('Erreur lors du chargement des catégories.');
-      }
-    });
+      });
   }
 
   navigateTo(categoryId: string): void {

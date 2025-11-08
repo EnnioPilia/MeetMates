@@ -1,6 +1,6 @@
 <div class="pt-[40px] pb-[60px] w-full overflow-y-auto">
   @if (error()) {
-      <p class="text-lg font-medium">{{ error() }}</p>
+    <p class="text-red-600 text-center font-semibold mt-10 pt-10">{{ error() }}</p>
   } @else {
     <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-6 p-6 justify-items-center">
       @for (activity of activities; track activity.id) {

@@ -5,19 +5,21 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog } from '@angular/material/dialog';
-import { forkJoin } from 'rxjs';
+import { forkJoin, EMPTY } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { UserService } from '../../core/services/user/user.service';
 import { EventUserService } from '../../core/services/event/event-user-service';
+import { SignalsService } from '../../core/services/signals/signals.service';
+import { NotificationService } from '../../core/services/notification/notification.service';
+import { ErrorHandlerService } from '../../core/services/error-handler/error-handler.service';
 import { ConfirmDialogComponent } from '../../shared-components/confirm-dialog/confirm-dialog.component';
+import { CguDialogComponent } from '../../shared-components/cgu-dialog/cgu-dialog.component';
 import { ProfileCardComponent } from '../profile/components/profile-card.component';
 import { ParticipationTabComponent } from '../profile/components/participation-tab.component';
 import { OrganizationTabComponent } from '../profile/components/organization-tab.component';
 import { SettingsMenuComponent } from '../profile/components/settings-menu.component';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CguDialogComponent } from '../../shared-components/cgu-dialog/cgu-dialog.component';
-import { SignalsService } from '../../core/services/signals/signals.service';
-import { NotificationService } from '../../core/services/notification/notification.service';
 
 @Component({
   selector: 'app-profile',
@@ -41,10 +43,11 @@ export class ProfileComponent {
   private dialog = inject(MatDialog);
   private authService = inject(AuthService);
   private userService = inject(UserService);
-  private destroyRef = inject(DestroyRef);
   private eventUserService = inject(EventUserService);
   private signals = inject(SignalsService);
   private notification = inject(NotificationService);
+  private errorHandler = inject(ErrorHandlerService);
+  private destroyRef = inject(DestroyRef);
 
   readonly user = signal<any>(null);
   readonly eventsParticipating = signal<any[]>([]);
@@ -60,18 +63,19 @@ export class ProfileComponent {
     this.loading.set(true);
 
     this.userService.getCurrentUser()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (user) => {
-          this.user.set(user);
-          this.signals.updateCurrentUser(user);
-          this.fetchEvents();
-        },
-        error: () => {
-          this.error.set('Erreur lors du chargement du profil.');
-          this.notification.showError('❌ Impossible de charger le profil utilisateur.');
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        catchError(err => {
+          this.errorHandler.handle(err, '❌ Impossible de charger le profil utilisateur.');
+          this.error.set('Profil introuvable.');
           this.loading.set(false);
-        }
+          return EMPTY;
+        })
+      )
+      .subscribe(user => {
+        this.user.set(user);
+        this.signals.updateCurrentUser(user);
+        this.fetchEvents();
       });
   }
 
@@ -79,22 +83,23 @@ export class ProfileComponent {
     forkJoin({
       organized: this.getOrganizedEvents(),
       participating: this.getParticipatingEvents()
-    }).subscribe({
-      next: ({ organized, participating }) => {
-
+    })
+      .pipe(
+        catchError(err => {
+          this.errorHandler.handle(err, '❌ Impossible de charger vos événements.');
+          this.error.set('Evénements introuvable.');
+          this.loading.set(false);
+          return EMPTY;
+        })
+      )
+      .subscribe(({ organized, participating }) => {
         const organizedIds = new Set(organized.map(e => e.eventId || e.id));
         const filteredParticipating = participating.filter(e => !organizedIds.has(e.eventId || e.id));
 
         this.eventsOrganized.set(organized);
         this.eventsParticipating.set(filteredParticipating);
         this.loading.set(false);
-      },
-      error: () => {
-        this.error.set('Erreur lors du chargement des événements.');
-        this.notification.showError('❌ Impossible de charger vos événements.');
-        this.loading.set(false);
-      }
-    });
+      });
   }
 
   private getOrganizedEvents() {
@@ -125,21 +130,20 @@ export class ProfileComponent {
     dialogRef.afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((confirmed) => {
-        if (confirmed) {
-          this.authService.logout()
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe({
-              next: () => {
-                this.signals.clearCurrentUser();
-                this.router.navigate(['/login']);
-              },
-              error: (err) => {
-                this.notification.showError(
-                  err?.error?.message || '❌ Une erreur est survenue lors de la déconnexion.'
-                );
-              }
-            });
-        }
+        if (!confirmed) return;
+
+        this.authService.logout()
+          .pipe(
+            takeUntilDestroyed(this.destroyRef),
+            catchError(err => {
+              this.errorHandler.handle(err, '❌ Une erreur est survenue lors de la déconnexion.');
+              return EMPTY;
+            })
+          )
+          .subscribe(() => {
+            this.signals.clearCurrentUser();
+            this.router.navigate(['/login']);
+          });
       });
   }
 
@@ -157,18 +161,17 @@ export class ProfileComponent {
         if (!confirmed) return;
 
         this.userService.deleteMyAccount()
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe({
-            next: () => {
-              this.notification.showSuccess('✅ Votre compte a été supprimé avec succès.');
-              this.signals.clearCurrentUser();
-              this.router.navigate(['/login']);
-            },
-            error: (err) => {
-              this.notification.showError(
-                err?.error?.message || '❌ Une erreur est survenue lors de la suppression du compte.'
-              );
-            }
+          .pipe(
+            takeUntilDestroyed(this.destroyRef),
+            catchError(err => {
+              this.errorHandler.handle(err, '❌ Une erreur est survenue lors de la suppression du compte.');
+              return EMPTY;
+            })
+          )
+          .subscribe(() => {
+            this.notification.showSuccess('✅ Votre compte a été supprimé avec succès.');
+            this.signals.clearCurrentUser();
+            this.router.navigate(['/login']);
           });
       });
   }
@@ -177,4 +180,3 @@ export class ProfileComponent {
     this.fetchEvents();
   }
 }
-

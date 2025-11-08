@@ -1,13 +1,14 @@
 <div class="flex flex-col items-center justify-center min-h-screen px-10 py-6">
-  @if (loadings()) {
-    <p>Chargement...</p>
+  @if (loading()) {
+    <mat-spinner diameter="50"></mat-spinner>
   } @else if (error()) {
-    <p class="text-red-600 font-semibold mt-10">{{ error() }}</p>
-  } @else {
+    <p class="text-red-600 font-semibold">{{ error() }}</p>
+  } @else if (user) {
     <div class="flex flex-col items-center justify-center w-full max-w-2xl">
       
       <app-edit-profile-picture 
-        [user]="user" (photoSelected)="onPhotoSelected($event)"
+        [user]="user" 
+        (photoSelected)="onPhotoSelected($event)"
         (photoDeleted)="onPhotoDeleted()">
       </app-edit-profile-picture>
 

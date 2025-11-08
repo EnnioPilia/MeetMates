@@ -1,46 +1,41 @@
 <div class="flex flex-col items-center justify-start min-h-screen px-6 py-10 mt-8">
-  @if (loading) {
-  <div class="flex justify-center items-center h-[50vh]">
-    <mat-spinner diameter="50"></mat-spinner>
-  </div>
-  }
-  @else if (event && form) {
-    
-  <div class="w-full max-w-3xl p-6 flex flex-col items-center ">
+  @if (loading()) {
+      <mat-spinner diameter="50"></mat-spinner>
+  } @else if (error()) {
+      <p class="text-red-600">{{ error() }}</p>
+  } @else if (event && form) {
 
-    <app-edit-event-info 
-      [form]="form">
-    </app-edit-event-info>
+    <div class="w-full max-w-3xl p-6 flex flex-col items-center">
 
-    <app-edit-event-activity 
-      [form]="form" 
-      [activities]="activities">
-    </app-edit-event-activity>
-    
-    <app-edit-event-address 
-      [form]="form"
-      [suggestions]="addressSuggestions" 
-      (inputChange)="onAddressInput($event)">
-    </app-edit-event-address>
+      <app-edit-event-info 
+        [form]="form">
+      </app-edit-event-info>
 
-    <app-edit-event-date-time 
-      [form]="form">
-    </app-edit-event-date-time>
+      <app-edit-event-activity 
+        [form]="form" 
+        [activities]="activities()">
+      </app-edit-event-activity>
 
-    <app-edit-event-details 
-      [form]="form">
-    </app-edit-event-details>
+      <app-edit-event-address
+        [form]="form"
+        [suggestions]="addressSuggestions()"
+        (inputChange)="onAddressInput($event)">
+      </app-edit-event-address>
 
-    <app-button label="Sauvegarder" 
-      class="primary-button w-80 mb-5" 
-      (click)="saveChanges()">
-    </app-button>
+      <app-edit-event-date-time 
+        [form]="form">
+      </app-edit-event-date-time>
 
-  </div>
-  }
-  @else {
-  <div class="flex flex-col items-center justify-center h-[50vh]">
-    <p class="text-red-600">Événement introuvable.</p>
-  </div>
+      <app-edit-event-details 
+        [form]="form">
+      </app-edit-event-details>
+
+      <app-button 
+        label="Sauvegarder" 
+        class="primary-button w-80 mb-5"
+        (click)="saveChanges()">
+      </app-button>
+
+    </div>
   }
 </div>

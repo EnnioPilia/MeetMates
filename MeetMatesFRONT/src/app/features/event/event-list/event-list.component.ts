@@ -1,9 +1,7 @@
-import { Component, OnInit, inject, OnDestroy, ElementRef, QueryList, ViewChildren } from '@angular/core';
-import { Subject, takeUntil } from 'rxjs';
+import { Component, OnInit, inject, ElementRef, QueryList, ViewChildren, DestroyRef, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
-import { environment } from '../../../../environments/environment';
 import { SignalsService } from '../../../core/services/signals/signals.service';
 import { NotificationService } from '../../../core/services/notification/notification.service';
 import { EventService } from '../../../core/services/event/event-service.service';
@@ -17,6 +15,7 @@ import { EventInfoComponent } from '../../../shared-components/event-info/event-
 import { EventUserService } from '../../../core/services/event/event-user-service';
 import { ActivityService } from '../../../core/services/activity/activity.service';
 import { UserService } from '../../../core/services/user/user.service';
+import { ErrorHandlerService } from '../../../core/services/error-handler/error-handler.service';
 
 @Component({
   selector: 'app-event-list',
@@ -30,20 +29,23 @@ import { UserService } from '../../../core/services/user/user.service';
     MatSnackBarModule,
     EventInfoComponent,
     EventHeaderComponent,
-    AppButtonComponent
+    AppButtonComponent,
   ],
 })
-export class EventListComponent implements OnInit, OnDestroy {
+export class EventListComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private signals = inject(SignalsService);
   private notification = inject(NotificationService);
   private eventService = inject(EventService);
-  private destroy$ = new Subject<void>();
   private eventUserService = inject(EventUserService);
   private activityService = inject(ActivityService);
   private userService = inject(UserService);
+  private errorHandler = inject(ErrorHandlerService);
+  private destroyRef = inject(DestroyRef);
 
-  loading = true;
+  loading = signal(true);
+  error = signal<string | null>(null);
+
   events: EventResponse[] = [];
   activityName = 'TOUT LES ÉVÉNEMENTS';
 
@@ -51,14 +53,10 @@ export class EventListComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.userService.getCurrentUser()
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (user: any) => {
-          this.signals.updateCurrentUser(user);
-        },
-        error: () => {
-          this.signals.clearCurrentUser();
-        },
+        next: (user: any) => this.signals.updateCurrentUser(user),
+        error: (err) => this.errorHandler.handle(err, '❌ Impossible de charger le profil utilisateur.')
       });
 
     const activityId = this.route.snapshot.paramMap.get('activityId');
@@ -68,25 +66,25 @@ export class EventListComponent implements OnInit, OnDestroy {
     } else {
       this.loadAllEvents();
     }
-  }
 
-  ngAfterViewInit() {
     this.route.queryParams
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(params => {
         const eventId = params['eventId'];
-        if (!eventId) return;
-
-        const checkLoaded = setInterval(() => {
-          if (!this.loading && this.eventCards?.length > 0) {
-            this.scrollToEvent(eventId);
-            clearInterval(checkLoaded);
-          }
-        }, 200);
+        if (eventId) this.scrollToEventWhenReady(eventId);
       });
   }
 
-  scrollToEvent(eventId: string) {
+  private scrollToEventWhenReady(eventId: string) {
+    const checkLoaded = setInterval(() => {
+      if (!this.loading() && this.eventCards?.length > 0) {
+        this.scrollToEvent(eventId);
+        clearInterval(checkLoaded);
+      }
+    }, 200);
+  }
+
+  private scrollToEvent(eventId: string) {
     const card = this.eventCards.find(el =>
       el.nativeElement.getAttribute('data-id') === eventId
     );
@@ -104,79 +102,81 @@ export class EventListComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const eventFound = this.events.find(e => e.id === eventId)
-      ?? (() => this.notification.showError("L'événement n'a pas été trouvé."))();
-    if (!eventFound) return;
+    const eventFound = this.events.find(e => e.id === eventId);
+    if (!eventFound) {
+      this.notification.showError("L'événement n'a pas été trouvé.");
+      return;
+    }
 
-    if (['CANCELLED', 'FULL', 'FINISHED'].includes(eventFound.status?.toUpperCase() || ''))
-      return this.notification.showWarning("Cet événement n’est plus disponible.");
+    if (['CANCELLED', 'FULL', 'FINISHED'].includes(eventFound.status?.toUpperCase() || '')) {
+      this.notification.showWarning("Cet événement n’est plus disponible.");
+      return;
+    }
 
     this.eventUserService.joinEvent(eventId, user.id)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => this.notification.showSuccess('Demande de participation envoyée.'),
+            error: err => {
+        if (err?.status === 409) {
+          this.notification.showWarning('Une demande a deja été envoyé .');
+          return;
+        }
+        this.errorHandler.handle(err, 'Vous avez été retiré de cet événement.');
+      }
+    });
+  }
+
+  loadAllEvents(): void {
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.eventService.fetchAllEvents()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (data) => {
+          this.events = data;
+          this.loading.set(false);
+        },
         error: (err) => {
-          const messages: Record<number, string> = {
-            409: 'Vous participez déjà à cet événement.',
-            410: 'Vous avez été retiré de cette activité.',
-            401: 'Vous devez être connecté pour participer.'
-          };
-          const message = messages[err.status] || 'Une erreur est survenue.';
-          this.notification.showError(message);
+          this.errorHandler.handle(err, '❌ Impossible de charger les événements.');
+          this.loading.set(false);
         }
       });
   }
 
-  loadAllEvents(): void {
-    this.loading = true;
-    this.eventService.fetchAllEvents()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (data) => {
-          this.events = data;
-          this.loading = false;
-          this.updatePageTitle('TOUT LES ÉVÉNEMENTS');
-        },
-        error: () => {
-          this.loading = false;
-          this.updatePageTitle('TOUT LES ÉVÉNEMENTS');
-        },
-      });
-  }
-
   private loadEventsByActivity(activityId: string): void {
-    this.loading = true;
+    this.loading.set(true);
+    this.error.set(null);
+
     this.eventService.fetchEventsByActivity(activityId)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (data) => {
           this.events = data;
-          this.loading = false;
+          this.loading.set(false);
         },
-        error: () => {
-          this.loading = false;
+        error: (err) => {
+          this.errorHandler.handle(err, '❌ Impossible de charger les événements pour cette activité.');
+          this.loading.set(false);
         }
       });
   }
 
   loadActivityName(activityId: string): void {
     this.activityService.fetchActivityById(activityId)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (activity) => {
           this.activityName = activity.name;
           this.updatePageTitle(activity.name);
         },
-        error: () => {
+        error: (err) => {
+          this.errorHandler.handle(err, '❌ Impossible de charger l’activité.');
           this.activityName = 'Activité inconnue';
           this.updatePageTitle('Activité inconnue');
         },
       });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   private updatePageTitle(title: string): void {
@@ -196,7 +196,7 @@ export class EventListComponent implements OnInit, OnDestroy {
   }
 
   getLevelLabel(level: string): string {
-    return this.eventService.getLevelLabel(level)
+    return this.eventService.getLevelLabel(level);
   }
 
   getMaterialLabel(material: string): string {
