@@ -41,7 +41,7 @@ public class AuthController {
             String message = authService.register(request);
             return ResponseEntity.ok(Map.of("message", message));
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            return ResponseEntity.status(HttpStatus.CONFLICT)
                                  .body(Map.of("error", e.getMessage()));
         }
     }
@@ -77,8 +77,6 @@ public class AuthController {
     @PostMapping("/refresh-token")
     public ResponseEntity<?> refreshToken(HttpServletRequest request) {
         try {
-            // Ici on utilise le service RefreshTokenService mais il retourne le token
-            // depuis le modèle unique Token avec tokenType = "REFRESH"
             Map<String, String> newToken = refreshTokenService.generateNewAccessTokenFromRefreshToken(request, jwtUtils);
             return ResponseEntity.ok(newToken);
         } catch (RuntimeException e) {
