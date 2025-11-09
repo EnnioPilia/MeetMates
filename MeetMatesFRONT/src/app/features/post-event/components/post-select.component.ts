@@ -13,7 +13,7 @@ import { MatSelectModule } from '@angular/material/select';
   ],
   template: `
   
-    <div [formGroup]="form" class="w-80">
+    <div [formGroup]="form" class="flex flex-col items-center gap-4 w-80">
       <mat-form-field class="w-full">
         <mat-label>Activité</mat-label>
         <mat-select formControlName="activityId">

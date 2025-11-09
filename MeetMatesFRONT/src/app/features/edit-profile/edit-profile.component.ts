@@ -36,7 +36,7 @@ export class EditProfileComponent implements OnInit {
 
   readonly error = signal<string | null>(null);
   readonly loading = signal<boolean>(true);
-  user!: User;
+  readonly user = signal<User | null>(null);
 
   ngOnInit() {
     this.userService.getCurrentUser()
@@ -50,7 +50,7 @@ export class EditProfileComponent implements OnInit {
         })
       )
       .subscribe(user => {
-        this.user = user;
+        this.user.set(user);
         this.signals.updateCurrentUser(user);
         this.loading.set(false);
       });
@@ -66,7 +66,7 @@ export class EditProfileComponent implements OnInit {
         })
       )
       .subscribe(user => {
-        this.user = user;
+        this.user.set(user);
         this.signals.updateCurrentUser(user);
         this.notification.showSuccess('✅ Profil enregistré avec succès !');
         this.router.navigate(['/profile']);
@@ -83,13 +83,16 @@ export class EditProfileComponent implements OnInit {
         })
       )
       .subscribe(user => {
-        this.user = user;
+        this.user.set(user);
         this.signals.updateCurrentUser(user);
         this.notification.showSuccess('✅ Photo mise à jour avec succès !');
       });
   }
 
-  onPhotoDeleted() {
+   onPhotoDeleted() {
+    const currentUser = this.user();
+    if (!currentUser) return;
+
     this.userService.deleteProfilePicture()
       .pipe(
         takeUntilDestroyed(this.destroyRef),
@@ -99,18 +102,9 @@ export class EditProfileComponent implements OnInit {
         })
       )
       .subscribe(() => {
-        this.user.profilePictureUrl = undefined;
-        this.signals.updateCurrentUser(this.user);
-
-        this.userService.getCurrentUser()
-          .pipe(
-            takeUntilDestroyed(this.destroyRef),
-            catchError(err => {
-              this.errorHandler.handle(err, '❌ Erreur lors du rafraîchissement du profil.');
-              return EMPTY;
-            })
-          )
-          .subscribe(updatedUser => this.user = updatedUser);
+        const updatedUser = { ...currentUser, profilePictureUrl: undefined };
+        this.user.set(updatedUser);
+        this.signals.updateCurrentUser(updatedUser);
 
         this.notification.showSuccess('✅ Photo supprimée avec succès.');
       });

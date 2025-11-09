@@ -34,10 +34,10 @@ import { MatOptionModule } from '@angular/material/core';
           #auto="matAutocomplete"
           (optionSelected)="onOptionSelected($event.option.value)"
         >
-          @for (suggestion of suggestions; track suggestion.label) {
-            <mat-option [value]="suggestion.label">
-              {{ suggestion.label }}
-            </mat-option>
+        @for (suggestion of suggestions; track suggestion.label) {
+          <mat-option [value]="suggestion.label">
+            {{ suggestion.label }}
+          </mat-option>
           }
         </mat-autocomplete>
 

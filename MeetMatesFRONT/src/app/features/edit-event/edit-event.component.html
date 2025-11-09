@@ -5,7 +5,7 @@
   @else if (error()) {
     <p class="text-red-600 mt-10">{{ error() }}</p>
   } 
-  @else if (event && form) {
+  @else if (event() && form) {
     <div class="w-full max-w-3xl p-6 flex flex-col items-center">
 
       <app-edit-event-info 

@@ -59,9 +59,9 @@ export class EditEventComponent implements OnInit {
   readonly error = signal<string | null>(null);
   readonly activities = signal<Activity[]>([]);
   readonly addressSuggestions = signal<AddressSuggestion[]>([]);
+  readonly event = signal<EventDetails | null>(null);
 
   eventId!: string;
-  event?: EventDetails;
   form!: FormGroup;
 
   ngOnInit(): void {
@@ -93,7 +93,7 @@ export class EditEventComponent implements OnInit {
       )
       .subscribe(([activities, event]) => {
         this.activities.set(activities);
-        this.event = event;
+        this.event.set(event);
         this.initForm(event);
         this.loading.set(false);
       });
@@ -129,7 +129,7 @@ export class EditEventComponent implements OnInit {
     if (!this.form.valid || !this.eventId) return;
 
     const updated: EventDetails = {
-      ...this.event!,
+      ...this.event()!,
       ...this.form.value,
       id: this.eventId,
       address: this.parseAddress(this.form.value.addressLabel)

@@ -8,19 +8,8 @@
     ));
 }
 
-// .header {
-//   background-color: white !important;
-//   border-bottom: black solid 1px;
-// }
-
-// .footer {
-//   background-color: white !important;
-//   border-top: black solid 1px;
-// }
-
-
 mat-progress-spinner {
-  --mdc-circular-progress-active-indicator-color: #1976d2; // bleu Material
+  --mdc-circular-progress-active-indicator-color: #1976d2; 
 }
 
 .header {
@@ -45,9 +34,9 @@ body {
   background-color: #f0f8ff;
 }
 
+//vraiement utile????
 mat-error {
   color: #ff0000 !important;
-  /* rouge vif */
   font-weight: 700;
 }
 

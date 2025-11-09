@@ -5,9 +5,9 @@
   @else if (error()) {
     <p class="text-red-600 mt-10">{{ error() }}</p>
   } 
-  @else if (events.length > 0) {
+  @else if (events().length > 0) {
     <div class="flex flex-col items-center gap-6 w-full max-w-3xl">
-      @for (event of events; track event.id) {
+      @for (event of events(); track event.id) {
         <div #eventCard [attr.data-id]="event.id" class="activity-card w-full flex flex-col items-center p-6">
 
           <app-event-header

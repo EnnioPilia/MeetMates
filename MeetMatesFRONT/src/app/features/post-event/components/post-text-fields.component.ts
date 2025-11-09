@@ -11,7 +11,7 @@ import { AppInputComponent } from '../../../shared-components/input/input.compon
   imports: [CommonModule, MatFormFieldModule, MatInputModule, ReactiveFormsModule, AppInputComponent],
   template: `
 
-    <div [formGroup]="form">
+    <div [formGroup]="form"  class="flex flex-col items-center gap-4 w-80">
 
       <app-input
         label="Titre"

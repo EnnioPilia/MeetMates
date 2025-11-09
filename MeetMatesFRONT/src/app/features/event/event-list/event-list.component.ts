@@ -45,10 +45,10 @@ export class EventListComponent implements OnInit {
   private userService = inject(UserService);
   private errorHandler = inject(ErrorHandlerService);
   private destroyRef = inject(DestroyRef);
+  readonly events = signal<EventResponse[]>([]);
 
   loading = signal(true);
   error = signal<string | null>(null);
-  events: EventResponse[] = [];
 
   @ViewChildren('eventCard') eventCards!: QueryList<ElementRef>;
 
@@ -103,7 +103,7 @@ export class EventListComponent implements OnInit {
       return;
     }
 
-    const eventFound = this.events.find(e => e.id === eventId)!;
+    const eventFound = this.events().find(e => e.id === eventId)!;
 
     if (eventFound.organizerId === user.id) {
       this.notification.showWarning('Vous êtes l’organisateur de cet événement.');
@@ -144,7 +144,7 @@ export class EventListComponent implements OnInit {
         })
       )
       .subscribe(data => {
-        this.events = data;
+        this.events.set(data);
         this.loading.set(false);
       });
   }
@@ -164,7 +164,7 @@ export class EventListComponent implements OnInit {
         })
       )
       .subscribe(data => {
-        this.events = data;
+        this.events.set(data);
         this.loading.set(false);
       });
   }
