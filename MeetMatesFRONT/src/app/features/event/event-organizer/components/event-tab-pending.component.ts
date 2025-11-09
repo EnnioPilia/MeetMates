@@ -18,12 +18,12 @@ import { MatButtonModule } from '@angular/material/button';
 
               <div class="flex">
                 <button mat-icon-button color="primary" 
-                  (click)="accept.emit(p.id)" aria-label="Accept participant">
+                  (click)="accept.emit(p.id)">
                   <mat-icon>check</mat-icon>
                 </button>
 
                 <button mat-icon-button color="warn" 
-                  (click)="reject.emit(p.id)" aria-label="Reject participant">
+                  (click)="reject.emit(p.id)">
                   <mat-icon>highlight_off</mat-icon>
                 </button>
               </div>

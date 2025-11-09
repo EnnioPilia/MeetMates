@@ -46,9 +46,7 @@ export class EventListComponent implements OnInit {
 
   loading = signal(true);
   error = signal<string | null>(null);
-
   events: EventResponse[] = [];
-  activityName = 'TOUT LES ÉVÉNEMENTS';
 
   @ViewChildren('eventCard') eventCards!: QueryList<ElementRef>;
 
@@ -174,12 +172,10 @@ export class EventListComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (activity) => {
-          this.activityName = activity.name;
           this.updatePageTitle(activity.name);
         },
         error: (err) => {
           this.errorHandler.handle(err, '❌ Impossible de charger les événements.');
-          this.activityName = 'Activité inconnue';
           this.updatePageTitle('Activité inconnue');
         },
       });

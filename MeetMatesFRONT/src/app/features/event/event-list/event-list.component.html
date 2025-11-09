@@ -1,6 +1,9 @@
 <div class="flex flex-col items-center justify-start min-h-[70vh] px-7 py-10 mt-3">
   @if (loading()) {
-    <mat-spinner diameter="50"></mat-spinner>
+    <div class="flex flex-col items-center justify-center h-full gap-6 mt-10">
+      <mat-progress-spinner mode="indeterminate" diameter="70"></mat-progress-spinner>
+      <p>chargement des données...</p>
+    </div>  
   }
   @else if (error()) {
     <p class="text-red-600 text-center mt-10">{{ error() }}</p>
@@ -34,10 +37,7 @@
   }
   @else {
     <div class="flex flex-col items-center justify-center h-[60vh] text-center">
-      <p class="card-text p-8 text-center text-gray-600">
-        AUCUNE ACTIVITÉ DISPONIBLE<br><br>
-        Soyez le premier à proposer un événement pour cette activité.
-      </p>
+      <p> AUCUNE ACTIVITÉ DISPONIBLE<br><br>Soyez le premier à proposer un événement pour cette activité.</p>
     </div>
   }
 </div>

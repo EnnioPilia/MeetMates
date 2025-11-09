@@ -12,6 +12,7 @@ import { AppInputComponent } from '../../shared-components/input/input.component
 import { MatExpansionModule } from '@angular/material/expansion';
 import { EventCardComponent } from '../../features/search-event/components/event-card-component';
 import { NotificationService } from '../../core/services/notification/notification.service';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-search-events',
@@ -22,7 +23,8 @@ import { NotificationService } from '../../core/services/notification/notificati
     AppInputComponent,
     RouterModule,
     EventCardComponent,
-    MatExpansionModule
+    MatExpansionModule,
+    MatProgressSpinnerModule
   ],
   templateUrl: './search-events.component.html',
 })

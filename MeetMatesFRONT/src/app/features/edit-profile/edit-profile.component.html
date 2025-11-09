@@ -1,9 +1,14 @@
 <div class="flex flex-col items-center justify-center min-h-screen px-10 py-6">
   @if (loading()) {
-    <mat-spinner diameter="50"></mat-spinner>
-  } @else if (error()) {
+    <div class="flex flex-col items-center justify-center h-full gap-6">
+      <mat-progress-spinner mode="indeterminate" diameter="70"></mat-progress-spinner>
+      <p>Chargement du profil...</p>
+    </div>
+  } 
+  @else if (error()) {
     <p class="text-red-600 font-semibold">{{ error() }}</p>
-  } @else if (user) {
+  } 
+  @else if (user) {
     <div class="flex flex-col items-center justify-center w-full max-w-2xl">
       
       <app-edit-profile-picture 

@@ -7,32 +7,42 @@ import { ActivityService } from '../../../core/services/activity/activity.servic
 import { ErrorHandlerService } from '../../../core/services/error-handler/error-handler.service';
 import { catchError, EMPTY } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-activity',
   standalone: true,
-  imports: [CommonModule, IconCardComponent],
+  imports: [
+    CommonModule,
+    IconCardComponent,
+    MatProgressSpinnerModule
+  ],
   templateUrl: './activity.component.html',
   styleUrls: ['./activity.component.scss']
 })
 export class ActivityComponent implements OnInit {
-
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  readonly loading = signal(true);
+  readonly error = signal<string | null>(null);
+
   private activityService = inject(ActivityService);
   private errorHandler = inject(ErrorHandlerService);
   private destroyRef = inject(DestroyRef);
 
-  readonly loading = signal(true);
-  readonly error = signal<string | null>(null);
   activities: Activity[] = [];
 
   ngOnInit(): void {
+    this.loading.set(true);
+    this.error.set(null);
+
     const categoryId = this.route.snapshot.paramMap.get('categoryId');
+
     if (categoryId) {
       this.loadActivities(categoryId);
     } else {
-      this.error.set('Catégorie introuvable.');
+      this.error.set('Erreur lors du chargement des activités.');
+      this.loading.set(false);
     }
   }
 
@@ -43,11 +53,13 @@ export class ActivityComponent implements OnInit {
         catchError(err => {
           this.errorHandler.handle(err, '❌ Erreur lors du chargement des activités.');
           this.error.set('Erreur lors du chargement.');
+          this.loading.set(false);
           return EMPTY;
         })
       )
       .subscribe(data => {
         this.activities = data;
+        this.loading.set(false);
       });
   }
 

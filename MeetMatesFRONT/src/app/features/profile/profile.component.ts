@@ -56,7 +56,10 @@ export class ProfileComponent {
   readonly error = signal<string | null>(null);
 
   ngOnInit(): void {
-    this.loadProfileData();
+    this.loading.set(true);
+    setTimeout(() => {
+      this.loadProfileData();
+    },);
   }
 
   private loadProfileData(): void {
@@ -167,7 +170,7 @@ export class ProfileComponent {
             takeUntilDestroyed(this.destroyRef),
             catchError(err => {
               this.errorHandler.handle(err, '❌ Une erreur est survenue lors de la suppression du compte.');
-              this.authService.logout(); 
+              this.authService.logout();
               return EMPTY;
             })
           )

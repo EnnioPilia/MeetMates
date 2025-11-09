@@ -2,15 +2,14 @@
 
     <app-input
       label="Rechercher une activité"
-      class="mt-8"
+      class="mt-8 mb-3"
       [control]="form.controls['query']">
     </app-input>
 
   @if (loading()) {
-    <div class="text-gray-500 mt-6 animate-pulse"> Recherche en cours...</div>
-    <!-- mettre le spinner ????? -->
+    <mat-progress-spinner mode="indeterminate" diameter="30"></mat-progress-spinner>
+    <p class="text-gray-500 mt-3 animate-pulse"> Recherche en cours...</p>
   }
-
   @if (!loading() && results().length > 0) {
     <mat-accordion multi class="w-80 flex flex-col mt-2 p-1 gap-5">
       @for (event of results(); track event?.id) {

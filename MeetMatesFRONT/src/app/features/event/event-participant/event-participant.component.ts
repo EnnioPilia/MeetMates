@@ -55,10 +55,13 @@ export class EventParticipantComponent implements OnInit {
   event = signal<EventDetails | null>(null);
 
   ngOnInit(): void {
-    const eventId = this.route.snapshot.paramMap.get('id');
-    if (!eventId) return;
-
-    this.loadEvent(eventId);
+    const eventId = this.route.snapshot.paramMap.get('eventId');
+    if (eventId) {
+      this.loadEvent(eventId);
+    } else {
+      this.error.set("Événement introuvable.");
+      this.loading.set(false);
+    }
   }
 
   private loadEvent(eventId: string): void {
@@ -99,7 +102,7 @@ export class EventParticipantComponent implements OnInit {
             this.notification.showSuccess('✅ Votre participation a été annulée avec succès.');
             this.router.navigate(['/profile']);
           },
-          error: (err) =>this.errorHandler.handle(err, '❌ Impossible de charger cet événement.')
+          error: (err) => this.errorHandler.handle(err, '❌ Impossible de charger cet événement.')
         });
     });
   }

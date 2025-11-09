@@ -19,6 +19,10 @@
 // }
 
 
+mat-progress-spinner {
+  --mdc-circular-progress-active-indicator-color: #1976d2; // bleu Material
+}
+
 .header {
   background-color: #acdbff !important;
   border-bottom: 1px solid #000000;
@@ -108,6 +112,7 @@ mat-expansion-panel {
   cursor: pointer;
   transition: all 0.2s ease;
 }
+
 p,
 label,
 h3 {

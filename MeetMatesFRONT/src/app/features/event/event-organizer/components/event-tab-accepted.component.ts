@@ -17,7 +17,7 @@ import { MatButtonModule } from '@angular/material/button';
               <span>{{ p.firstName }} {{ p.lastName }}</span>
               
               <button mat-icon-button color="warn"
-                (click)="onReject(p.id)" aria-label="Refuser">
+                (click)="onReject(p.id)">
                 <mat-icon>highlight_off</mat-icon>
               </button>
             </div>

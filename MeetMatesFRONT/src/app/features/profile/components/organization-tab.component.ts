@@ -20,7 +20,7 @@ import { EventInfoCardComponent } from '../../../shared-components/event-info-ca
 
     <div class="max-h-[35vh] overflow-y-auto mt-2 p-1">
       @if (events.length === 0) {
-      <p class="text-center mt-4">Vous n'organisez aucun événement actuellement.</p>
+      <p class="text-center text-gray-500 mt-4">Vous n'organisez aucun événement actuellement.</p>
       } @else {
       <mat-accordion multi class="flex flex-col gap-4">
         @for (event of events; track event.id) {

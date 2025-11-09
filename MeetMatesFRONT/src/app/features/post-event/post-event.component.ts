@@ -24,6 +24,7 @@ import { EventService } from '../../core/services/event/event-service.service';
 import { catchError } from 'rxjs/operators';
 import { EMPTY } from 'rxjs';
 import { ErrorHandlerService } from '../../core/services/error-handler/error-handler.service';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-post-event',
@@ -45,7 +46,8 @@ import { ErrorHandlerService } from '../../core/services/error-handler/error-han
     PostAddressComponent,
     PostDateTimeComponent,
     PostOptionsComponent,
-    AppButtonComponent
+    AppButtonComponent,
+    MatProgressSpinnerModule
   ],
   templateUrl: './post-event.component.html',
   styleUrls: ['./post-event.component.scss']
@@ -58,6 +60,8 @@ export class PostEventComponent implements OnInit {
   private eventService = inject(EventService);
   private errorHandler = inject(ErrorHandlerService);
   readonly addressSuggestions = signal<AddressSuggestion[]>([]);
+  readonly loading = signal(false);
+  readonly error = signal<string | null>(null);
 
   form!: FormGroup;
   activities: any[] = [];
@@ -90,8 +94,15 @@ export class PostEventComponent implements OnInit {
 
   private loadActivities(): void {
     this.activityService.fetchAllActivities().subscribe({
-      next: (data) => (this.activities = data),
-      error: () => this.notification.showError('Erreur lors du chargement des activités.')
+      next: (data) => {
+        this.activities = data;
+        this.loading.set(false);
+      },
+      error: (err) => {
+        this.errorHandler.handle(err, '❌ Erreur lors du chargement des activités.');
+        this.error.set('Impossible de charger les activités.');
+        this.loading.set(false);
+      }
     });
   }
 
@@ -133,6 +144,9 @@ export class PostEventComponent implements OnInit {
       return;
     }
 
+    this.loading.set(true);
+    this.error.set(null);
+
     this.isSubmitting = true;
     const { titre, description, date, startTime, endTime, participants, materiel, niveau, adresse, activityId } = this.form.value;
 
@@ -150,23 +164,25 @@ export class PostEventComponent implements OnInit {
       address: { street: adresse, city: '', postalCode: '' },
     };
 
-    this.eventService.createEvent(eventPayload).subscribe({
-      next: (res) => {
-        const eventId = res?.id || res?.eventId;
-        if (!eventId) {
-          this.notification.showWarning('Activité créée, mais identifiant introuvable.');
+    this.eventService.createEvent(eventPayload)
+      .pipe(
+        catchError(err => {
+          this.errorHandler.handle(err, '❌ Erreur lors de la création de l’activité.');
+          this.error.set('Impossible de créer l’activité.');
+          this.loading.set(false);
+          return EMPTY;
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.notification.showSuccess('✅ Activité créée avec succès !');
           this.resetForm();
-          return;
+          this.loading.set(false);
+        },
+        error: () => {
+          this.loading.set(false);
         }
-
-        this.notification.showSuccess('🎉 Activité créée avec succès !');
-        this.resetForm();
-      },
-      error: () => {
-        this.notification.showError('Erreur lors de la création de l’activité. Êtes-vous connecté ?');
-        this.isSubmitting = false;
-      },
-    });
+      });
   }
 
   private formatDate(date: Date): string {

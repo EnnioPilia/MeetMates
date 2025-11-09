@@ -7,11 +7,16 @@ import { Category } from '../../../core/models/category.model';
 import { ErrorHandlerService } from '../../../core/services/error-handler/error-handler.service';
 import { catchError, EMPTY } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-category',
   standalone: true,
-  imports: [CommonModule, IconCardComponent],
+  imports: [
+    CommonModule,
+    IconCardComponent,
+    MatProgressSpinnerModule
+  ],
   templateUrl: './category.component.html',
   styleUrls: ['./category.component.scss']
 })
@@ -20,8 +25,9 @@ export class CategoryComponent implements OnInit {
   private router = inject(Router);
   private activityService = inject(ActivityService);
   private destroyRef = inject(DestroyRef);
-
+  readonly loading = signal(true);
   readonly error = signal<string | null>(null);
+
   categories: Category[] = [];
 
   ngOnInit(): void {
@@ -29,25 +35,27 @@ export class CategoryComponent implements OnInit {
   }
 
   loadCategories(): void {
+    this.loading.set(true);
+    this.error.set(null);
+
     this.activityService.fetchAllCategories()
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError(err => {
           this.errorHandler.handle(err, '❌ Erreur lors du chargement des catégories.');
-          this.error.set('Erreur lors du chargement.');
+          this.error.set('Erreur lors du chargement des catégories.');
+          this.loading.set(false);
           return EMPTY;
         })
       )
       .subscribe(data => {
         this.categories = data;
+        this.loading.set(false);
       });
   }
 
   navigateTo(categoryId: string): void {
-    if (!categoryId) {
-      return;
-    }
+    if (!categoryId) return;
     this.router.navigate([`/activity/${categoryId}`]);
   }
-
 }
