@@ -17,4 +17,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     // ✅ Nouvelle méthode qui force un chargement complet (évite LazyInitializationException)
     @Query("SELECT u FROM User u WHERE u.email = :email")
     Optional<User> findByEmailEager(@Param("email") String email);
+
+     boolean existsByEmailAndDeletedAtIsNull(String email);
+
+    // ✅ Pour trouver un utilisateur non supprimé
+    Optional<User> findByEmailAndDeletedAtIsNull(String email);
 }

@@ -1,5 +1,6 @@
 package com.example.meetmates.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -104,16 +105,18 @@ public class UserService implements UserDetailsService {
         return false;
     }
 
-    @Transactional
     public boolean deleteMyAccount(String email) {
-        return userRepository.findByEmail(email.toLowerCase()).map(user -> {
-            tokenRepository.deleteByUser_IdAndType(user.getId(), TokenType.REFRESH);
-            tokenRepository.deleteByUser_IdAndType(user.getId(), TokenType.VERIFICATION);
-            tokenRepository.deleteByUser_IdAndType(user.getId(), TokenType.PASSWORD_RESET);
+        Optional<User> userOpt = userRepository.findByEmailAndDeletedAtIsNull(email);
+        if (userOpt.isEmpty()) {
+            return false;
+        }
 
-            userRepository.delete(user);
-            return true;
-        }).orElse(false);
+        User user = userOpt.get();
+        user.setDeletedAt(LocalDateTime.now());
+        user.setStatus(UserStatus.DELETED);
+        user.setEnabled(false); 
+        userRepository.save(user);
+        return true;
     }
 
 }

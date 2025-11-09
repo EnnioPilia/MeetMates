@@ -1,5 +1,7 @@
 package com.example.meetmates.service;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -12,9 +14,10 @@ import com.example.meetmates.config.JWTUtils;
 import com.example.meetmates.dto.LoginRequest;
 import com.example.meetmates.dto.LoginResponse;
 import com.example.meetmates.dto.RegisterRequest;
+import com.example.meetmates.model.Token;
 import com.example.meetmates.model.User;
 import com.example.meetmates.model.UserRole;
-import com.example.meetmates.model.Token;
+import com.example.meetmates.model.UserStatus;
 import com.example.meetmates.repository.UserRepository;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -38,26 +41,54 @@ public class AuthService {
     private RefreshTokenService refreshTokenService;
 
     public String register(RegisterRequest request) {
-        if (userRepository.findByEmail(request.getEmail().toLowerCase()).isPresent()) {
-            throw new RuntimeException("Email déjà utilisé");
+        String email = request.getEmail().toLowerCase();
+
+        Optional<User> existingUserOpt = userRepository.findByEmail(email);
+
+        if (existingUserOpt.isPresent()) {
+            User existingUser = existingUserOpt.get();
+
+            if (existingUser.getDeletedAt() == null) {
+                throw new RuntimeException("Email déjà utilisé");
+            }
+
+            existingUser.setFirstName(request.getFirstName());
+            existingUser.setLastName(request.getLastName());
+            existingUser.setPassword(passwordEncoder.encode(request.getPassword()));
+            existingUser.setAge(request.getAge());
+            existingUser.setRole(
+                    request.getRole() == null
+                    ? UserRole.USER
+                    : UserRole.valueOf(request.getRole().toUpperCase())
+            );
+            existingUser.setEnabled(false);
+            existingUser.setStatus(UserStatus.ACTIVE);
+            existingUser.setAcceptedCguAt(request.getDateAcceptationCGU());
+            existingUser.setDeletedAt(null); 
+
+            userRepository.save(existingUser);
+
+            String verificationToken = VerificationTokenService.createVerificationToken(existingUser);
+            emailService.sendVerificationEmail(existingUser.getEmail(), verificationToken);
+
+            return "Compte restauré avec succès, veuillez vérifier votre email.";
         }
 
-        User user = new User();
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
-        user.setEmail(request.getEmail().toLowerCase());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setAge(request.getAge());
-        user.setRole(
+        User newUser = new User();
+        newUser.setFirstName(request.getFirstName());
+        newUser.setLastName(request.getLastName());
+        newUser.setEmail(email);
+        newUser.setPassword(passwordEncoder.encode(request.getPassword()));
+        newUser.setAge(request.getAge());
+        newUser.setRole(
                 request.getRole() == null
                 ? UserRole.USER
                 : UserRole.valueOf(request.getRole().toUpperCase())
         );
-        user.setEnabled(false);
+        newUser.setEnabled(false);
+        newUser.setAcceptedCguAt(request.getDateAcceptationCGU());
 
-        user.setAcceptedCguAt(request.getDateAcceptationCGU());
-
-        User savedUser = userRepository.save(user);
+        User savedUser = userRepository.save(newUser);
 
         String verificationToken = VerificationTokenService.createVerificationToken(savedUser);
         emailService.sendVerificationEmail(savedUser.getEmail(), verificationToken);
