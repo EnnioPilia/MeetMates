@@ -17,6 +17,7 @@ import { ActivityService } from '../../../core/services/activity/activity.servic
 import { UserService } from '../../../core/services/user/user.service';
 import { ErrorHandlerService } from '../../../core/services/error-handler/error-handler.service';
 import { catchError, EMPTY } from 'rxjs';
+import { LoadingSpinnerComponent } from '../../../shared-components/loading-spinner/loading-spinner.component'; 
 
 @Component({
   selector: 'app-event-list',
@@ -31,6 +32,7 @@ import { catchError, EMPTY } from 'rxjs';
     EventInfoComponent,
     EventHeaderComponent,
     AppButtonComponent,
+    LoadingSpinnerComponent
   ],
 })
 export class EventListComponent implements OnInit {

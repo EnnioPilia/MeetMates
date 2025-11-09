@@ -35,7 +35,7 @@ import { EventService } from '../../../core/services/event/event-service.service
             <p><strong>Status de l'activité:</strong> {{ getStatusLabel(event.eventStatus) }}</p>
             <p><strong>Votre participation :</strong> {{ getParticipationLabel(event.participationStatus) }}</p>
             <p>{{ event.addressLabel }}</p>
-            <button class="primary-button h-10" [routerLink]="['/event-details', event.eventId]">Voir détails</button>
+            <button class="primary-button h-10" [routerLink]="['/event-participant', event.eventId]">Voir détails</button>
           </div>
         </mat-expansion-panel>
         }

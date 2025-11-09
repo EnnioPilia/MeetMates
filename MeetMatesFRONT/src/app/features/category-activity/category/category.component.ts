@@ -8,6 +8,7 @@ import { ErrorHandlerService } from '../../../core/services/error-handler/error-
 import { catchError, EMPTY } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { LoadingSpinnerComponent } from '../../../shared-components/loading-spinner/loading-spinner.component'; 
 
 @Component({
   selector: 'app-category',
@@ -15,7 +16,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   imports: [
     CommonModule,
     IconCardComponent,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    LoadingSpinnerComponent
   ],
   templateUrl: './category.component.html',
   styleUrls: ['./category.component.scss']

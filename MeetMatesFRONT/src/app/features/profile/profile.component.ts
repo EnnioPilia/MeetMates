@@ -20,6 +20,7 @@ import { ProfileCardComponent } from '../profile/components/profile-card.compone
 import { ParticipationTabComponent } from '../profile/components/participation-tab.component';
 import { OrganizationTabComponent } from '../profile/components/organization-tab.component';
 import { SettingsMenuComponent } from '../profile/components/settings-menu.component';
+import { LoadingSpinnerComponent } from '../../shared-components/loading-spinner/loading-spinner.component'; 
 
 @Component({
   selector: 'app-profile',
@@ -32,7 +33,8 @@ import { SettingsMenuComponent } from '../profile/components/settings-menu.compo
     ProfileCardComponent,
     ParticipationTabComponent,
     OrganizationTabComponent,
-    SettingsMenuComponent
+    SettingsMenuComponent,
+    LoadingSpinnerComponent
   ],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],

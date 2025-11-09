@@ -20,6 +20,7 @@ import { AppButtonComponent } from '../../../shared-components/button/button.com
 import { EventTabAcceptedComponent } from './components/event-tab-accepted.component';
 import { EventTabPendingComponent } from './components/event-tab-pending.component';
 import { ConfirmDialogComponent } from '../../../shared-components/confirm-dialog/confirm-dialog.component';
+import { LoadingSpinnerComponent } from '../../../shared-components/loading-spinner/loading-spinner.component'; 
 
 @Component({
   selector: 'app-event-organizer',
@@ -35,6 +36,7 @@ import { ConfirmDialogComponent } from '../../../shared-components/confirm-dialo
     EventTabAcceptedComponent,
     EventTabPendingComponent,
     MatTabsModule,
+    LoadingSpinnerComponent
   ],
   templateUrl: './event-organizer.component.html',
   styleUrls: ['./event-organizer.component.scss'],

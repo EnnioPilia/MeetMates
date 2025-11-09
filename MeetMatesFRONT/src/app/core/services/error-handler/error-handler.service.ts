@@ -11,8 +11,9 @@ export class ErrorHandlerService {
 
     switch (err.status) {
       case 0:
-        this.notification.showError('Impossible de contacter le serveur.');
-        break;
+        this.notification.showError('❌ Impossible de contacter le serveur.');
+        break;   
+      //verifie le 400
       case 400: {
         const backendMsg =
           (typeof err.error === 'string'
@@ -25,7 +26,7 @@ export class ErrorHandlerService {
         break;
       }
       case 401:
-        this.notification.showError('❌ Identifiants incorrects.');
+        this.notification.showError('❌ Identifiants incorrects. Avez-vous crée un compte ?');
         break;
       case 403:
         this.notification.showError('❌ Accès refusé ou session expirée.');

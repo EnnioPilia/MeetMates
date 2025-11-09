@@ -47,7 +47,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     PostDateTimeComponent,
     PostOptionsComponent,
     AppButtonComponent,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
   ],
   templateUrl: './post-event.component.html',
   styleUrls: ['./post-event.component.scss']
@@ -100,7 +100,7 @@ export class PostEventComponent implements OnInit {
       },
       error: (err) => {
         this.errorHandler.handle(err, '❌ Erreur lors du chargement des activités.');
-        this.error.set('Impossible de charger les activités.');
+        this.error.set('Impossible de charger le formulaire.');
         this.loading.set(false);
       }
     });

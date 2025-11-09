@@ -21,6 +21,7 @@ import { ActivityService } from '../../core/services/activity/activity.service';
 import { Activity } from '../../core/models/activity.model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ErrorHandlerService } from '../../core/services/error-handler/error-handler.service';
+import { LoadingSpinnerComponent } from '../../shared-components/loading-spinner/loading-spinner.component'; 
 
 @Component({
   selector: 'app-edit-event',
@@ -36,7 +37,8 @@ import { ErrorHandlerService } from '../../core/services/error-handler/error-han
     EditEventAddressComponent,
     EditEventDateTimeComponent,
     EditEventActivityComponent,
-    AppButtonComponent
+    AppButtonComponent,
+    LoadingSpinnerComponent
   ],
   templateUrl: './edit-event.component.html',
   styleUrls: ['./edit-event.component.scss']

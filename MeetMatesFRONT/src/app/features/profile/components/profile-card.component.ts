@@ -13,13 +13,10 @@ import { User } from '../../../core/models/user.model';
   template: `
 
     <div class="flex flex-col items-center gap-3 w-full mt-8 text-center relative">
-      
       <img [src]="user.profilePictureUrl || 'assets/images/default-avatar.png'"alt="photo"
         class="w-32 h-32 rounded-full object-cover border-2 border-black"/>
-
         <p>{{ user.lastName }} {{ user.firstName }}</p> 
         <p>{{ user.email }}</p>
-
     </div>
 
   `,

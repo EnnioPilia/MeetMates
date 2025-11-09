@@ -1,12 +1,6 @@
 <div class="flex flex-col items-center px-8 py-12 min-h-screen overflow-auto bg-gray-50">
-  @if (loading()) {
-    <div class="flex flex-col items-center justify-center h-full gap-6 mt-10">
-      <mat-progress-spinner mode="indeterminate" diameter="70"></mat-progress-spinner>
-      <p>chargement des données...</p>
-    </div>
-  } 
-  @else if (error()) {
-    <p class="text-red-600 font-semibold mt-10">{{ error() }}</p>
+  @if (error()) {
+    <p class="text-red-600 mt-10">{{ error() }}</p>
   } 
   @else {
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col items-center gap-4 w-full max-w-2xl mt-10 mb-10">

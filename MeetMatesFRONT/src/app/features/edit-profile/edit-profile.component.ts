@@ -12,6 +12,7 @@ import { ErrorHandlerService } from '../../core/services/error-handler/error-han
 import { User } from '../../core/models/user.model';
 import { EditProfilePictureComponent } from './components/edit-profile-picture.component';
 import { EditProfileFormComponent } from './components/edit-profile-form.component';
+import { LoadingSpinnerComponent } from '../../shared-components/loading-spinner/loading-spinner.component'; 
 
 @Component({
   selector: 'app-edit-profile',
@@ -20,7 +21,8 @@ import { EditProfileFormComponent } from './components/edit-profile-form.compone
     CommonModule,
     EditProfilePictureComponent,
     EditProfileFormComponent,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    LoadingSpinnerComponent
   ],
   templateUrl: './edit-profile.component.html',
 })

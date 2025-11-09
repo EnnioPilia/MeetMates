@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -20,7 +20,7 @@ import { ParticipantListComponent } from './components/participant-list';
 import { EventHeaderComponent } from '../../../shared-components/event-header/event-header.component';
 import { EventInfoComponent } from '../../../shared-components/event-info/event-info.component';
 import { AppButtonComponent } from '../../../shared-components/button/button.component';
-import { signal } from '@angular/core';
+import { LoadingSpinnerComponent } from '../../../shared-components/loading-spinner/loading-spinner.component'; 
 
 @Component({
   selector: 'app-event-participant',
@@ -35,7 +35,8 @@ import { signal } from '@angular/core';
     ParticipantListComponent,
     EventHeaderComponent,
     EventInfoComponent,
-    AppButtonComponent
+    AppButtonComponent,
+    LoadingSpinnerComponent
   ],
   templateUrl: './event-participant.component.html',
   styleUrls: ['./event-participant.component.scss']

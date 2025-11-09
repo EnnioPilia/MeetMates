@@ -1,12 +1,9 @@
 <div class="flex flex-col items-center justify-start h-[calc(100vh-64px)] pt-16 px-8 overflow-hidden">
   @if (loading()) {
-    <div class="flex flex-col items-center justify-center h-full gap-6">
-      <mat-progress-spinner mode="indeterminate" diameter="70"></mat-progress-spinner>
-      <p>Chargement du profil...</p>
-    </div>
+    <app-loading-spinner message="Chargement du profil..."></app-loading-spinner>
   } 
   @else if (error()) {
-    <p class="text-red-600 font-semibold mt-10 ">{{ error() }}</p>
+    <p class="text-red-600 mt-10">{{ error() }}</p>
   } 
   @else if (user()) {
     <div class="activity-card w-full flex flex-col items-center">
@@ -23,10 +20,19 @@
         [user]="user()">
       </app-profile-card>
 
-      <mat-tab-group class="w-full mt-4" mat-align-tabs="start" animationDuration="300ms">
-        <mat-tab label="Je participe"><app-participation-tab [events]="eventsParticipating()"></app-participation-tab></mat-tab>
-        <mat-tab label="J’organise"><app-organization-tab [events]="eventsOrganized()"></app-organization-tab></mat-tab>
-      </mat-tab-group>
+    <mat-tab-group class="w-full mt-4" mat-align-tabs="start" animationDuration="300ms">
+      <mat-tab label="Je participe">
+        <app-participation-tab 
+          [events]="eventsParticipating()">
+        </app-participation-tab>
+      </mat-tab>
+
+      <mat-tab label="J’organise">
+          <app-organization-tab 
+          [events]="eventsOrganized()">
+        </app-organization-tab>
+      </mat-tab>
+    </mat-tab-group>
 
   </div>
   }
