@@ -25,13 +25,13 @@ export class ErrorHandlerService {
         break;
       }
       case 401:
-        this.notification.showError('Identifiants incorrects.');
+        this.notification.showError('❌ Identifiants incorrects.');
         break;
       case 403:
-        this.notification.showError('Accès refusé.');
+        this.notification.showError('❌ Accès refusé ou session expirée.');
         break;
       case 409:
-        this.notification.showWarning('Cet email est déjà utilisé.');
+        this.notification.showWarning('❌ Cet email est déjà utilisé.');
         break;
       default:
         handled = false;

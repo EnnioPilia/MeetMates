@@ -41,7 +41,7 @@ export class EditProfileComponent implements OnInit {
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError(err => {
-          this.errorHandler.handle(err, 'Erreur lors du chargement du profil.');
+          this.errorHandler.handle(err, '❌ Erreur lors du chargement du profil.');
           this.error.set('Profil introuvable.');
           this.loading.set(false);
           return EMPTY;
@@ -76,14 +76,14 @@ export class EditProfileComponent implements OnInit {
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError(err => {
-          this.errorHandler.handle(err, 'Erreur lors du téléversement de la photo.');
+          this.errorHandler.handle(err, '❌ Erreur lors du téléversement de la photo.');
           return EMPTY;
         })
       )
       .subscribe(user => {
         this.user = user;
         this.signals.updateCurrentUser(user);
-        this.notification.showSuccess('Photo mise à jour avec succès !');
+        this.notification.showSuccess('✅ Photo mise à jour avec succès !');
       });
   }
 
@@ -92,7 +92,7 @@ export class EditProfileComponent implements OnInit {
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError(err => {
-          this.errorHandler.handle(err, 'Erreur lors de la suppression de la photo.');
+          this.errorHandler.handle(err, '❌ Erreur lors de la suppression de la photo.');
           return EMPTY;
         })
       )
@@ -104,13 +104,13 @@ export class EditProfileComponent implements OnInit {
           .pipe(
             takeUntilDestroyed(this.destroyRef),
             catchError(err => {
-              this.errorHandler.handle(err, 'Erreur lors du rafraîchissement du profil.');
+              this.errorHandler.handle(err, '❌ Erreur lors du rafraîchissement du profil.');
               return EMPTY;
             })
           )
           .subscribe(updatedUser => this.user = updatedUser);
 
-        this.notification.showSuccess('Photo supprimée avec succès.');
+        this.notification.showSuccess('✅ Photo supprimée avec succès.');
       });
   }
 }

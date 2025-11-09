@@ -129,7 +129,7 @@ export class EventOrganizerComponent implements OnInit {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: () => {
-            this.notification.showSuccess('🗑️ Activité supprimée avec succès.');
+            this.notification.showSuccess('✅ Activité supprimée avec succès.');
             this.router.navigate(['/profile']);
           },
           error: err => {

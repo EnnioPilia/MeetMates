@@ -67,7 +67,7 @@ export class ResetPasswordComponent {
     }
 
     if (!this.token) {
-      this.notification.showError('Lien de réinitialisation invalide ou expiré.');
+      this.notification.showError('❌ Lien de réinitialisation invalide ou expiré.');
       return;
     }
 

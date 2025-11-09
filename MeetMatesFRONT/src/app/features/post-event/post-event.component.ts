@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -21,6 +21,9 @@ import { AddressService, AddressSuggestion } from '../../core/services/address/a
 import { MATERIAL_OPTIONS, LEVEL_OPTIONS } from '../../shared-components/constants/event-option';
 import { ActivityService } from '../../core/services/activity/activity.service';
 import { EventService } from '../../core/services/event/event-service.service';
+import { catchError } from 'rxjs/operators';
+import { EMPTY } from 'rxjs';
+import { ErrorHandlerService } from '../../core/services/error-handler/error-handler.service';
 
 @Component({
   selector: 'app-post-event',
@@ -53,10 +56,11 @@ export class PostEventComponent implements OnInit {
   private readonly addressService = inject(AddressService);
   private activityService = inject(ActivityService);
   private eventService = inject(EventService);
+  private errorHandler = inject(ErrorHandlerService);
+  readonly addressSuggestions = signal<AddressSuggestion[]>([]);
 
   form!: FormGroup;
   activities: any[] = [];
-  addressSuggestions: AddressSuggestion[] = [];
   previewUrl?: string | null = null;
   selectedFile: File | null = null;
   selectedAddress?: string;
@@ -105,10 +109,16 @@ export class PostEventComponent implements OnInit {
     this.selectedFile = null;
   }
 
+  // dans un service ? 2 occurences
   onAddressInput(value: string): void {
-    this.addressService.getAddressSuggestions(value).subscribe({
-      next: (suggestions) => (this.addressSuggestions = suggestions)
-    });
+    this.addressService.getAddressSuggestions(value)
+      .pipe(
+        catchError(err => {
+          this.errorHandler.handle(err, '❌ Erreur lors du chargement des suggestions.');
+          return EMPTY;
+        })
+      )
+      .subscribe(suggestions => this.addressSuggestions.set(suggestions));
   }
 
   onAddressSelect(value: string): void {

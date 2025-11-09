@@ -2,7 +2,7 @@ import { Component, OnInit, inject, DestroyRef, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { forkJoin, EMPTY } from 'rxjs';
-import { catchError, takeUntil } from 'rxjs/operators';
+import { catchError } from 'rxjs/operators';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
@@ -152,7 +152,7 @@ export class EditEventComponent implements OnInit {
     this.addressService.getAddressSuggestions(value)
       .pipe(
         catchError(err => {
-          this.errorHandler.handle(err, 'Erreur lors du chargement des suggestions.');
+          this.errorHandler.handle(err, '❌ Erreur lors du chargement des suggestions.');
           return EMPTY;
         })
       )

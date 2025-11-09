@@ -85,6 +85,7 @@ export class ProfileComponent {
       participating: this.getParticipatingEvents()
     })
       .pipe(
+        takeUntilDestroyed(this.destroyRef),
         catchError(err => {
           this.errorHandler.handle(err, '❌ Impossible de charger vos événements.');
           this.error.set('Evénements introuvable.');
@@ -129,7 +130,7 @@ export class ProfileComponent {
 
     dialogRef.afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((confirmed) => {
+      .subscribe(confirmed => {
         if (!confirmed) return;
 
         this.authService.logout()
@@ -145,6 +146,7 @@ export class ProfileComponent {
             this.router.navigate(['/login']);
           });
       });
+
   }
 
   onDeleteAccount(): void {
@@ -157,7 +159,7 @@ export class ProfileComponent {
 
     dialogRef.afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((confirmed) => {
+      .subscribe(confirmed => {
         if (!confirmed) return;
 
         this.userService.deleteMyAccount()
@@ -165,7 +167,7 @@ export class ProfileComponent {
             takeUntilDestroyed(this.destroyRef),
             catchError(err => {
               this.errorHandler.handle(err, '❌ Une erreur est survenue lors de la suppression du compte.');
-              this.authService.logout();
+              this.authService.logout(); 
               return EMPTY;
             })
           )
@@ -175,6 +177,7 @@ export class ProfileComponent {
             this.router.navigate(['/login']);
           });
       });
+
   }
 
   refreshData(): void {

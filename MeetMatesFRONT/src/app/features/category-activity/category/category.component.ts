@@ -33,7 +33,7 @@ export class CategoryComponent implements OnInit {
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError(err => {
-          this.errorHandler.handle(err, 'Erreur lors du chargement des catégories.');
+          this.errorHandler.handle(err, '❌ Erreur lors du chargement des catégories.');
           this.error.set('Erreur lors du chargement.');
           return EMPTY;
         })

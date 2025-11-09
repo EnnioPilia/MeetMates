@@ -16,6 +16,7 @@ import { EventUserService } from '../../../core/services/event/event-user-servic
 import { ActivityService } from '../../../core/services/activity/activity.service';
 import { UserService } from '../../../core/services/user/user.service';
 import { ErrorHandlerService } from '../../../core/services/error-handler/error-handler.service';
+import { catchError, EMPTY } from 'rxjs';
 
 @Component({
   selector: 'app-event-list',
@@ -56,7 +57,7 @@ export class EventListComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (user: any) => this.signals.updateCurrentUser(user),
-        error: (err) => this.errorHandler.handle(err, '❌ Impossible de charger le profil utilisateur.')
+        error: (err) => this.errorHandler.handle(err, '❌ Impossible de charger les événements.')
       });
 
     const activityId = this.route.snapshot.paramMap.get('activityId');
@@ -120,7 +121,7 @@ export class EventListComponent implements OnInit {
         next: () => this.notification.showSuccess('✅ Demande de participation envoyée.'),
         error: err => {
           if (err?.status === 409) {
-            this.notification.showWarning('Une demande a deja été envoyé .');
+            this.notification.showWarning('Une demande a deja été envoyé.');
             return;
           }
           this.errorHandler.handle(err, 'Vous avez été retiré de cet événement.');
@@ -133,16 +134,18 @@ export class EventListComponent implements OnInit {
     this.error.set(null);
 
     this.eventService.fetchAllEvents()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (data) => {
-          this.events = data;
-          this.loading.set(false);
-        },
-        error: (err) => {
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        catchError(err => {
           this.errorHandler.handle(err, '❌ Impossible de charger les événements.');
+          this.error.set('Impossible de charger les événements.');
           this.loading.set(false);
-        }
+          return EMPTY;
+        })
+      )
+      .subscribe(data => {
+        this.events = data;
+        this.loading.set(false);
       });
   }
 
@@ -151,16 +154,18 @@ export class EventListComponent implements OnInit {
     this.error.set(null);
 
     this.eventService.fetchEventsByActivity(activityId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (data) => {
-          this.events = data;
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        catchError(err => {
+          this.errorHandler.handle(err, '❌ Impossible de charger les événements.');
+          this.error.set('Impossible de charger les événements.');
           this.loading.set(false);
-        },
-        error: (err) => {
-          this.errorHandler.handle(err, '❌ Impossible de charger les événements pour cette activité.');
-          this.loading.set(false);
-        }
+          return EMPTY;
+        })
+      )
+      .subscribe(data => {
+        this.events = data;
+        this.loading.set(false);
       });
   }
 
@@ -173,7 +178,7 @@ export class EventListComponent implements OnInit {
           this.updatePageTitle(activity.name);
         },
         error: (err) => {
-          this.errorHandler.handle(err, '❌ Impossible de charger l’activité.');
+          this.errorHandler.handle(err, '❌ Impossible de charger les événements.');
           this.activityName = 'Activité inconnue';
           this.updatePageTitle('Activité inconnue');
         },

@@ -41,7 +41,7 @@ export class ActivityComponent implements OnInit {
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError(err => {
-          this.errorHandler.handle(err, 'Erreur lors du chargement des activités.');
+          this.errorHandler.handle(err, '❌ Erreur lors du chargement des activités.');
           this.error.set('Erreur lors du chargement.');
           return EMPTY;
         })
