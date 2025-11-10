@@ -6,7 +6,7 @@
     <p class="text-red-600 mt-10">{{ error() }}</p>
   } 
   @else if (event() && form) {
-    <div class="w-full max-w-3xl p-6 flex flex-col items-center">
+    <div class="flex flex-col items-center p-6">
 
       <app-edit-event-info 
         [form]="form">
@@ -33,7 +33,7 @@
 
       <app-button 
         label="Sauvegarder" 
-        class="primary-button w-80 mb-5"
+        class="primary-button mb-5"
         (click)="saveChanges()">
       </app-button>
 

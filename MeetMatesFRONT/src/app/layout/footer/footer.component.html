@@ -1,21 +1,21 @@
-<mat-toolbar class="footer fixed bottom-0 left-0 right-0 flex justify-around items-center h-16 z-50">
-  <button mat-icon-button style="color: var(--mat-sys-on-primary)" mat-icon-button class="flex flex-col items-center " (click)="navigateTo('home')">
+<mat-toolbar class="footer fixed flex bottom-0 justify-around z-50">
+  <button mat-icon-button (click)="navigateTo('home')">
     <mat-icon>home</mat-icon>
   </button>
 
-  <button mat-icon-button style="color: var(--mat-sys-on-primary)" mat-icon-button class="flex flex-col items-center" (click)="navigateTo('category')" >
+  <button mat-icon-button (click)="navigateTo('category')" >
     <mat-icon>sports_basketball</mat-icon>
   </button>
 
-  <button mat-icon-button style="color: var(--mat-sys-on-primary)" mat-icon-button class="flex flex-col items-center" (click)="navigateTo('post-event')">
+  <button mat-icon-button  (click)="navigateTo('post-event')">
     <mat-icon>add</mat-icon>
   </button>
 
-  <button mat-icon-button style="color: var(--mat-sys-on-primary)" mat-icon-button class="flex flex-col items-center" (click)="navigateTo('search-events')">
+  <button mat-icon-button (click)="navigateTo('search-events')">
     <mat-icon>search</mat-icon>
   </button>
 
-  <button mat-icon-button style="color: var(--mat-sys-on-primary)" mat-icon-button class="flex flex-col items-center" (click)="navigateTo('profile')">
+  <button mat-icon-button (click)="navigateTo('profile')">
     <mat-icon>person</mat-icon>
   </button>
 </mat-toolbar>

@@ -7,7 +7,11 @@ import { MatButtonModule } from '@angular/material/button';
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [MatToolbarModule, MatIconModule, MatButtonModule],
+  imports: [
+    MatToolbarModule, 
+    MatIconModule, 
+    MatButtonModule
+  ],
   templateUrl: './footer.component.html',
   styleUrls: ['./footer.component.scss'] 
 })

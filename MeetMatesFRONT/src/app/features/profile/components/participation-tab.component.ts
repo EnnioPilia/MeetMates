@@ -26,8 +26,8 @@ import { EventService } from '../../../core/services/event/event-service.service
         <mat-expansion-panel class=" w-full">
           <mat-expansion-panel-header class="items-start">
             <div class="flex justify-between w-full items-start mr-3">
-              <span>{{ event.eventTitle }}</span>
-              <span>{{ event.eventDate | date: 'dd/MM/yy' }}</span>
+              <span class="text-xl">{{ event.eventTitle }}</span>
+              <span class="mt-1">{{ event.eventDate | date: 'dd/MM/yy' }}</span>
             </div>
           </mat-expansion-panel-header>
 
@@ -35,7 +35,7 @@ import { EventService } from '../../../core/services/event/event-service.service
             <p><strong>Status de l'activité:</strong> {{ getStatusLabel(event.eventStatus) }}</p>
             <p><strong>Votre participation :</strong> {{ getParticipationLabel(event.participationStatus) }}</p>
             <p>{{ event.addressLabel }}</p>
-            <button class="primary-button h-10" [routerLink]="['/event-participant', event.eventId]">Voir détails</button>
+            <button class="primary-button h-10" [routerLink]="['/event-participant', event.eventId]">VOIR DÉTAILS</button>
           </div>
         </mat-expansion-panel>
         }

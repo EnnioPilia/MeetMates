@@ -27,12 +27,12 @@ import { EventInfoCardComponent } from '../../../shared-components/event-info-ca
         <mat-expansion-panel class="w-full">
           <mat-expansion-panel-header class="items-start">
             <div class="flex justify-between w-full items-start mr-3">
-              <span>{{ event.eventTitle }}</span>
-              <span>{{ event.eventDate | date: 'dd/MM/yy' }}</span>
+              <span class="text-xl"> {{ event.eventTitle }}</span>
+              <span class="mt-1">{{ event.eventDate | date: 'dd/MM/yy' }}</span>
             </div>
           </mat-expansion-panel-header>
 
-          <div class="flex flex-col gap-2">
+          <div class="flex flex-col">
             <app-event-info-card [event]="event"></app-event-info-card>
             <button class="primary-button h-10" [routerLink]="['/event-organizer', event.eventId]">VOIR DÉTAILS</button>
           </div>

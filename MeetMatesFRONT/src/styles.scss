@@ -1,15 +1,46 @@
 @use '@angular/material' as mat;
 @use 'theme-colors' as theme;
 
+// :root {
+//   @include mat.toolbar-overrides((container-background-color: var(--mat-sys-tertiary),
+//       container-text-color: var(--mat-sys-on-tertiary),
+//     ));
+// }
 
-:root {
-  @include mat.toolbar-overrides((container-background-color: var(--mat-sys-tertiary),
-      container-text-color: var(--mat-sys-on-tertiary),
-    ));
+html,
+body {
+  font-family: 'Poiret One', cursive;
+  font-weight: 700;
+  color: #000000;
+  background-color: #f0f8ff;
 }
 
-mat-progress-spinner {
-  --mdc-circular-progress-active-indicator-color: #1976d2; 
+.menu-profile {
+  background-color: white !important;
+  border-bottom: 2px solid black;
+  border-left: 2px solid black;
+}
+
+.primary-button {
+  font-weight: 700;
+  border-radius: 9px !important;
+  box-shadow: 0 6px 8px -6px rgba(0, 0, 0, 0.6);
+  border-bottom: black solid 1px !important;
+}
+
+p {
+  font-weight: 700;
+  color: #000000; 
+}
+
+h3 {
+  font-weight: 700 !important;
+  color: #000000; 
+  border-bottom: 1px solid black !important;
+}
+
+.text {
+  border-bottom: 1px solid black !important;
 }
 
 .header {
@@ -26,55 +57,26 @@ mat-progress-spinner {
   color: rgb(32, 32, 32) !important;
 }
 
-html,
-body {
-  font-family: 'Poiret One', cursive;
-  font-weight: 700;
-  color: #000000;
-  background-color: #f0f8ff;
+.icone-card {
+  background-color: #e6f1fd !important;
+  border-radius: 5px !important;
+  cursor: pointer;
+  border-bottom: black solid 1px !important;
+  box-shadow: 0 6px 10px -6px rgba(0, 0, 0, 0.6) !important;
 }
 
-//vraiement utile????
+mat-progress-spinner {
+  --mdc-circular-progress-active-indicator-color: #1976d2;
+}
+
 mat-error {
   color: #ff0000 !important;
   font-weight: 700;
 }
 
-.menu-profile {
-  background-color: white !important;
-  border-bottom: 2px solid black;
-  border-left: 2px solid black;
-}
 
-.secondary-button,
-.primary-button {
-  font-weight: 700;
-  border-radius: 9px !important;
-  box-shadow: 0 6px 8px -6px rgba(0, 0, 0, 0.6);
-  border-bottom: black solid 1px !important;
-}
 
-.primary-button-details {
-  font-weight: 700;
-  border-radius: 10px !important;
-  box-shadow: 0 6px 9px -6px rgba(0, 0, 0, 0.6) !important;
-  border-bottom: black solid 1px !important;
-}
 
-.tertiary-button {
-  background: transparent !important;
-  color: #000000; 
-  border: none !important;
-  font-weight: 700;
-  
-}
-
-.primary-button-cancel {
-  font-weight: 700;
-  border-radius: 9px !important;
-  box-shadow: 0 4px 8px -4px rgb(0, 0, 0);
-  border-bottom: rgb(255, 0, 0) solid 2px !important;
-}
 
 mat-expansion-panel {
   box-shadow: 0 6px 8px -6px rgba(0, 0, 0, 0.8) !important;
@@ -86,77 +88,12 @@ mat-expansion-panel {
 .mat-accordion .mat-expansion-panel:not(.mat-expanded),
 .mat-accordion .mat-expansion-panel:not(.mat-expansion-panel-spacing) {
   border-radius: 3px !important;
-
 }
 
-.tertiary-box {
-  display: inline-block;
-  padding: 3px 10px;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  color: #333;
-  background-color: #f9f9f9;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-p,
-label,
-h3 {
-  font-weight: 700;
-  color: #000000 // font-bold 
-
-}
-.text {
-  border-bottom: 1px solid black !important;
-}
-
-
-.card-profil {
-  color: black !important;
-}
-
-.icone-card {
-  background-color: #e6f1fd!important;
-
-  color: black;
-  border-radius: 5px !important;
-  transition: 0.2s ease-in-out;
-  cursor: pointer;
-  border-bottom: black solid 1px !important;
-  box-shadow: 0 6px 10px -6px rgba(0, 0, 0, 0.6) !important;
-}
-
-.acitivity-card {
-  border-bottom: black solid 1px !important;
-}
-
-.photo-card {
-  color: black;
-  border-radius: 5px !important;
-  transition: 0.2s ease-in-out;
-  cursor: pointer;
-  border: black solid 1px !important;
-  box-shadow: 0 6px 10px -6px rgba(0, 0, 0, 0.6) !important;
-
-}
-
-// Neutraliser les styles de base Material
 .card-profil.mat-mdc-card {
   --mdc-elevated-card-container-color: transparent;
   --mdc-outlined-card-outline-color: transparent;
   --mdc-elevated-card-container-elevation: 0;
-}
-
-
-.title-page {
-  color: var(--mat-sys-surface-container-low);
-}
-
-.title-home {
-  color: var(--mat-sys-on-tertiary);
 }
 
 .mat-mdc-snack-bar-container {
@@ -187,21 +124,11 @@ h3 {
 
 }
 
-// .mat-mdc-form-field {
-//   --mdc-filled-text-field-container-color: rgba(196, 219, 248, 0.911); // fond léger
-//   --mdc-filled-text-field-focus-active-indicator-color: #004f99;
-//   --mdc-filled-text-field-input-text-color: #004f99;
-//   --mdc-filled-text-field-label-text-color: #004f99(41, 41, 41, 0.8);
-//   --mdc-filled-text-field-hover-active-indicator-color: var(--mat-sys-on-tertiary);
-// }
-
 .mat-mdc-dialog-surface {
   --mdc-dialog-container-color: rgb(243, 236, 236);
   --mdc-dialog-subhead-color: #000000;
   --mdc-dialog-supporting-text-color: #ffffff;
   box-shadow: var(--mat-sys-level3);
-
-
 }
 
 .cancel-button.mat-mdc-button-base {
@@ -244,19 +171,6 @@ h3 {
 .mat-mdc-input-element {
   font-weight: 700 !important;
   color: #000000 !important;
-}
-
-.upload-box {
-  border: 2px dashed var(--mat-sys-outline);
-  color: var(--mat-sys-on-surface-variant);
-  transition: all 0.3s ease;
-  background-color: var(--mat-sys-surface-container-low);
-
-  // &:hover {
-  //   border-color: var(--mat-sys-primary);
-  //   color: var(--mat-sys-primary);
-  //   background-color: var(--mat-sys-surface-container);
-  // }
 }
 
 .mat-expansion-panel,

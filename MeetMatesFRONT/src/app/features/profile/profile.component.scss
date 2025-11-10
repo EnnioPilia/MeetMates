@@ -1,0 +1,16 @@
+.container {
+  position: relative;
+
+    @media (min-width: 1000px) and (max-width: 2880px) {
+        width: 50vw;
+        margin: 0 auto;
+        padding-inline: 4rem;
+
+        .absolute {
+            position: absolute;
+            top: 1rem;
+            right: 1.25rem;
+            z-index: 50;
+        }
+    }
+}

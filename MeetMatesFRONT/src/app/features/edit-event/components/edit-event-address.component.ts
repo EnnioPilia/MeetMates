@@ -19,34 +19,32 @@ import { MatIconModule } from '@angular/material/icon';
   ],
   template: `
 
-<div [formGroup]="form" class="flex flex-col items-center w-full">
-  <div class="w-80">
-    <mat-form-field class="w-full" appearance="fill">
-      <mat-label>Adresse</mat-label>
+    <div [formGroup]="form">
+      <div class="w-80">
+        <mat-form-field class="w-full" appearance="fill">
+          <mat-label>Adresse</mat-label>
 
-      <input
-        matInput
-        formControlName="addressLabel"
-        [matAutocomplete]="auto"
-        (input)="onInputChange($event)"
-        (keyup)="onInputChange($event)"
-      />
-      
-      <mat-autocomplete
-        #auto="matAutocomplete"
-        (optionSelected)="onOptionSelected($event.option.value)"
-      >
-        @for (suggestion of suggestions; track suggestion.label) {
-          <mat-option [value]="suggestion.label">
-            {{ suggestion.label }}
-          </mat-option>
-        }
-      </mat-autocomplete>
-    </mat-form-field>
-  </div>
-</div>
-
-
+          <input
+            matInput
+            formControlName="addressLabel"
+            [matAutocomplete]="auto"
+            (input)="onInputChange($event)"
+            (keyup)="onInputChange($event)"
+          />
+          
+          <mat-autocomplete
+            #auto="matAutocomplete"
+            (optionSelected)="onOptionSelected($event.option.value)"
+          >
+            @for (suggestion of suggestions; track suggestion.label) {
+              <mat-option [value]="suggestion.label">
+                {{ suggestion.label }}
+              </mat-option>
+            }
+          </mat-autocomplete>
+        </mat-form-field>
+      </div>
+    </div>
   `,
 })
 export class EditEventAddressComponent {

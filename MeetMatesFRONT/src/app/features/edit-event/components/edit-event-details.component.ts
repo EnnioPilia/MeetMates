@@ -27,24 +27,24 @@ import { MATERIAL_OPTIONS, LEVEL_OPTIONS } from '../../../shared-components/cons
     <div [formGroup]="form">
       <mat-form-field class="w-80">
         <mat-label>Niveau</mat-label>
-        <mat-select formControlName="level">
-          @for (option of levelOptions; track option.value) {
-            <mat-option [value]="option.value">
-              {{ option.label }}
-            </mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+          <mat-select formControlName="level">
+            @for (option of levelOptions; track option.value) {
+              <mat-option [value]="option.value">
+                {{ option.label }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
 
-      <div class="flex flex-col items-start w-80 mb-2">
-        <label class="text-gray-700">Matériel :</label>
-        <mat-radio-group formControlName="material" class="flex flex-col">
-          @for (option of materialOptions; track option.value) {
-            <mat-radio-button [value]="option.value">
-              {{ option.label }}
-            </mat-radio-button>
-          }
-        </mat-radio-group>
+      <div>
+        <mat-label>Matériel :</mat-label>
+          <mat-radio-group formControlName="material" class="flex flex-col">
+            @for (option of materialOptions; track option.value) {
+              <mat-radio-button [value]="option.value">
+                {{ option.label }}
+              </mat-radio-button>
+            }
+          </mat-radio-group>
       </div>
     </div>
   `

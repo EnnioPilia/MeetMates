@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
 export class LegalService {
   getCguContent(): string {
     return `
-      <h3>Conditions Générales d’Utilisation</h3>
+      <h3 class="mb-2">Conditions Générales d’Utilisation</h3>
       <p><strong>Dernière mise à jour :</strong>"date"</p>
       <p>
         Les présentes conditions définissent les modalités d’utilisation
@@ -18,7 +18,7 @@ export class LegalService {
 
   getMentionsLegales(): string {
     return `
-      <h2>Mentions légales</h2>
+      <h3 class="mb-2">Mentions légales</h3>
       <p><strong>Entreprise :</strong> Exemple SAS</p>
       <p><strong>Adresse :</strong> 123 Rue de Paris, 75000 Paris</p>
       <p><strong>Contact :</strong> contact@exemple.com</p>
