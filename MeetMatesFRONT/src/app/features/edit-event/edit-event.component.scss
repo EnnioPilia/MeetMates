@@ -1,0 +1,14 @@
+
+.container {
+    @media (min-width: 1000px) and (max-width: 2900px) {
+        margin: 0 auto;
+        margin-top: 2rem;
+    }
+}
+
+.container {
+    @media (min-width: 600px) and (max-width: 999px) {
+        margin: 0 auto;
+        margin-top: 2rem;
+    }
+}

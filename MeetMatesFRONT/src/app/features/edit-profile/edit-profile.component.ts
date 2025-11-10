@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, EMPTY } from 'rxjs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-
 import { UserService } from '../../core/services/user/user.service';
 import { NotificationService } from '../../core/services/notification/notification.service';
 import { SignalsService } from '../../core/services/signals/signals.service';
@@ -25,6 +24,8 @@ import { LoadingSpinnerComponent } from '../../shared-components/loading-spinner
     LoadingSpinnerComponent
   ],
   templateUrl: './edit-profile.component.html',
+  styleUrls: ['./edit-profile.component.scss']
+
 })
 export class EditProfileComponent implements OnInit {
   private userService = inject(UserService);

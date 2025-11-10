@@ -14,7 +14,7 @@ import { User } from '../../../core/models/user.model';
       <img 
         [src]="previewUrl || user.profilePictureUrl || 'assets/images/default-avatar.png'" 
         alt="photo profil"
-        class="w-32 h-32 rounded-full object-cover border-2 border-black"/>
+        class="w-32 h-32 rounded-full object-cover border-2 border-black mb-3"/>
       
       @if (user.profilePictureUrl) {
       <button

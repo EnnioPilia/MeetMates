@@ -29,6 +29,7 @@ import { LoadingSpinnerComponent } from '../../shared-components/loading-spinner
     LoadingSpinnerComponent
   ],
   templateUrl: './search-events.component.html',
+  styleUrls: ['./search-events.component.scss'],
 })
 export class SearchEventsComponent implements OnInit {
   private fb = inject(FormBuilder);

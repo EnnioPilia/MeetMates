@@ -29,7 +29,7 @@ import { AppInputComponent } from '../../../shared-components/input/input.compon
 
           <mat-radio-group formControlName="materiel" class="flex flex-col items-start gap-1 w-full">
             @for (option of materialOptions; track option.value) {
-              <mat-radio-button [value]="option.value" class="text-left">
+              <mat-radio-button [value]="option.value">
                 {{ option.label }}
               </mat-radio-button>
             }

@@ -8,23 +8,23 @@
   @else if (events().length > 0) {
     <div class="flex flex-col items-center gap-6 w-full max-w-3xl">
       @for (event of events(); track event.id) {
-        <div #eventCard [attr.data-id]="event.id" class="activity-card w-full flex flex-col items-center p-6">
+        <div #eventCard [attr.data-id]="event.id" class=" w-full flex flex-col items-center p-6">
 
           <app-event-header
+            class="title mb-2"
             [title]="event.title"
-            [description]="event.description"
-            class="mb-2">
+            [description]="event.description">
           </app-event-header>
 
           <app-event-info
+            class="mb-3"
             [event]="event"
-            [showStatus]="true"
-            class="mb-3">
+            [showStatus]="true">
           </app-event-info>
 
           <app-button
-            label="P A R T I C I P E R"
             class="w-80 primary-button mt-4"
+            label="P A R T I C I P E R"
             (clicked)="joinEvent(event.id)">
           </app-button>
 

@@ -1,12 +1,3 @@
-@use '@angular/material' as mat;
-@use 'theme-colors' as theme;
-
-// :root {
-//   @include mat.toolbar-overrides((container-background-color: var(--mat-sys-tertiary),
-//       container-text-color: var(--mat-sys-on-tertiary),
-//     ));
-// }
-
 html,
 body {
   font-family: 'Poiret One', cursive;
@@ -15,10 +6,14 @@ body {
   background-color: #f0f8ff;
 }
 
-.menu-profile {
-  background-color: white !important;
-  border-bottom: 2px solid black;
-  border-left: 2px solid black;
+.header {
+  background-color: #acdbff !important;
+  border-bottom: 1px solid #000000;
+}
+
+.footer {
+  background-color: #b8e0ff !important;
+  border-top: 1px solid #000000;
 }
 
 .primary-button {
@@ -30,12 +25,12 @@ body {
 
 p {
   font-weight: 700;
-  color: #000000; 
+  color: #000000;
 }
 
 h3 {
   font-weight: 700 !important;
-  color: #000000; 
+  color: #000000;
   border-bottom: 1px solid black !important;
 }
 
@@ -43,26 +38,79 @@ h3 {
   border-bottom: 1px solid black !important;
 }
 
-.header {
-  background-color: #acdbff !important;
-  border-bottom: 1px solid #000000;
-  color: rgb(0, 0, 0) !important;
-  font-family: 'Poiret One', cursive !important;
-  font-weight: 600 !important;
-}
-
-.footer {
-  background-color: #b8e0ff !important;
-  border-top: 1px solid #000000;
-  color: rgb(32, 32, 32) !important;
+.image {
+  width: 100px;
+  height: 100px;
+  margin-bottom: 12px;
+  object-fit: cover;
 }
 
 .icone-card {
   background-color: #e6f1fd !important;
   border-radius: 5px !important;
-  cursor: pointer;
   border-bottom: black solid 1px !important;
   box-shadow: 0 6px 10px -6px rgba(0, 0, 0, 0.6) !important;
+  cursor: pointer;
+}
+
+// Organization and Participant TABS (profil)
+mat-expansion-panel {
+  box-shadow: 0 6px 8px -6px rgba(0, 0, 0, 0.8) !important;
+  border-bottom: 1px solid black !important;
+  border-left: 1px solid black !important;
+  border-right: 1px solid black !important;
+  background-color: #f5f8fd !important;
+  border-radius: 0 !important;
+}
+.mat-accordion .mat-expansion-panel:not(.mat-expanded),
+.mat-accordion .mat-expansion-panel:not(.mat-expansion-panel-spacing) {
+  border-radius: 3px !important;
+}
+
+// Snack-bar
+.mat-mdc-snack-bar-container {
+  --mdc-snackbar-container-color: #000000;
+  --mdc-snackbar-supporting-text-color: #ffffff;
+  --mdc-snackbar-label-text-color: #000000;
+  font-weight: 500 !important;
+  font-family: 'Poiret One', cursive;
+}
+
+// Selectors
+.mat-mdc-select-panel {
+  border-bottom: 2px solid #000000 !important;
+  background-color: #ffffff !important;
+  border-radius: 0 !important;
+}
+
+// Selector Date
+.mat-datepicker-content {
+  border-bottom: 2px solid #000000 !important;
+  border-top: 2px solid #000000 !important;
+  background-color: #f3f4f6 !important;
+  width: 20rem !important;
+}
+.mat-calendar-body-cell {
+  background-color: #f3f4f6 !important;
+}
+
+// Selector Address
+.mat-mdc-autocomplete-panel {
+  background-color: #f3f4f6 !important;
+  border-bottom: 2px solid #000000 !important;
+  border-top: 2px solid #000000 !important;
+}
+
+// Profile Menu
+.mat-mdc-menu-panel {
+  background-color: white !important;
+  border-bottom: 2px solid black;
+  border-left: 2px solid black;
+}
+
+// dial popup
+.mat-mdc-dialog-surface {
+  --mdc-dialog-container-color: rgb(243, 236, 236);
 }
 
 mat-progress-spinner {
@@ -72,108 +120,4 @@ mat-progress-spinner {
 mat-error {
   color: #ff0000 !important;
   font-weight: 700;
-}
-
-
-
-
-
-mat-expansion-panel {
-  box-shadow: 0 6px 8px -6px rgba(0, 0, 0, 0.8) !important;
-  border-bottom: 1px solid black !important;
-  border-left: 1px solid black !important;
-  border-right: 1px solid black !important;
-}
-
-.mat-accordion .mat-expansion-panel:not(.mat-expanded),
-.mat-accordion .mat-expansion-panel:not(.mat-expansion-panel-spacing) {
-  border-radius: 3px !important;
-}
-
-.card-profil.mat-mdc-card {
-  --mdc-elevated-card-container-color: transparent;
-  --mdc-outlined-card-outline-color: transparent;
-  --mdc-elevated-card-container-elevation: 0;
-}
-
-.mat-mdc-snack-bar-container {
-  --mdc-snackbar-container-color: #000000;
-  --mdc-snackbar-supporting-text-color: #ffffff;
-  --mdc-snackbar-label-text-color: #000000;
-  font-weight: 500 !important;
-  font-family: 'Poiret One', cursive;
-
-}
-
-.mat-mdc-select-panel,
-.mat-datepicker-content {
-  background-color: #ffffff !important;
-  color: #000000 !important;
-  border-bottom: 2px solid #000000 !important;
-  font-weight: 600;
-  width: 20rem !important;
-}
-
-
-.mat-mdc-option,
-.mat-calendar-body-cell {
-  color: #000000 !important;
-  background-color: #f3f4f6 !important;
-  font-weight: 600;
-  transition: all 0.2s ease;
-
-}
-
-.mat-mdc-dialog-surface {
-  --mdc-dialog-container-color: rgb(243, 236, 236);
-  --mdc-dialog-subhead-color: #000000;
-  --mdc-dialog-supporting-text-color: #ffffff;
-  box-shadow: var(--mat-sys-level3);
-}
-
-.cancel-button.mat-mdc-button-base {
-  --mdc-filled-button-container-color: var(--mat-sys-error);
-  --mdc-filled-button-label-text-color: var(--mat-sys-on-error);
-}
-
-.cancel-button.mat-mdc-button-base:hover {
-  --mdc-filled-button-container-color: color-mix(in srgb, var(--mat-sys-error) 85%, black);
-}
-
-
-.mat-mdc-dialog-actions button {
-  border: 1px solid #ffffff;
-  transition: all 0.2s ease;
-}
-
-.mat-mdc-radio-button {
-  --mdc-radio-selected-icon-color: black(50, 98, 156, 0.911);
-  --mdc-radio-unselected-icon-color: black(50, 98, 156, 0.911);
-
-}
-
-.mat-chip-open {
-  color: black !important;
-
-}
-
-.mat-chip-closed {
-  background-color: #dc2626 !important;
-  color: #fff !important;
-}
-
-
-.mat-mdc-form-field .mdc-floating-label {
-  font-weight: 700 !important;
-  color: #000000 !important;
-}
-
-.mat-mdc-input-element {
-  font-weight: 700 !important;
-  color: #000000 !important;
-}
-
-.mat-expansion-panel,
-.mat-expansion-panel-header {
-  border-radius: 0 !important;
 }

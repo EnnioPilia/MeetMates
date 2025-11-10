@@ -20,11 +20,11 @@ import { RouterModule } from '@angular/router';
   
     <div class="absolute top-15 right-5 z-50">
 
-      <button mat-icon-button [matMenuTriggerFor]="settingsMenu" aria-label="Ouvrir le menu paramètres">
+      <button mat-icon-button [matMenuTriggerFor]="settingsMenu">
         <mat-icon>settings</mat-icon>
       </button>
 
-      <mat-menu #settingsMenu="matMenu" xPosition="before" yPosition="below" class="menu-profile">
+      <mat-menu #settingsMenu="matMenu">
         <button mat-menu-item (click)="editProfile.emit()">
           <span>Modifier le profil</span><mat-icon>edit</mat-icon>
         </button>

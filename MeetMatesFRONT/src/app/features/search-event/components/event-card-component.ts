@@ -15,7 +15,7 @@ import { EventInfoCardComponent } from '../../../shared-components/event-info-ca
   ],
   template: `
 
-      <mat-expansion-panel class="activity-card w-full flex flex-col justify-center">
+      <mat-expansion-panel class="w-full flex flex-col justify-center">
         <mat-expansion-panel-header >
           <div class="flex justify-between w-full mr-3">
             <span>{{ event.title }}</span>

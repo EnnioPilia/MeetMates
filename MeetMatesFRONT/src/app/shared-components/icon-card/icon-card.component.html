@@ -1,24 +1,12 @@
 <mat-card
   class="icone-card flex flex-col items-center justify-center"
   [ngClass]="cardSizeClass"
-  (click)="onCardClick()"
->
-  <!-- @if (iconPath) {
-    <img
-      [src]="iconPath"
-      class="w-12 h-12 mb-3 object-contain"
-      (error)="iconPath = 'assets/images/icons/default-avatar.png'"
-    />
-  } -->
-<img 
-  [attr.src]="'/assets/images/icons/' + title.toLowerCase().replaceAll(' ', '-').replaceAll('/', '-') + '.png'"
-  class="object-contain"
-  style="width: 100px; height: 100px; margin-bottom: 12px; object-fit: contain;"
+  (click)="onCardClick()">
 
-/>
+  <img [attr.src]="'/assets/images/icons/' + title.toLowerCase().replaceAll(' ', '-').replaceAll('/', '-') + '.png'"class="image"/>
 
-  
   <mat-card-title class="text-center text-base font-semibold">
     {{ title }}
   </mat-card-title>
+
 </mat-card>
