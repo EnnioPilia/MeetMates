@@ -1,6 +1,6 @@
 import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { EventService } from '../../../../core/services/event/event-service.service';
+import { EventService } from '../../../core/services/event/event-service.service';
 
 @Component({
   selector: 'app-event-status',

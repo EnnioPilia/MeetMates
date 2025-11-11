@@ -8,19 +8,19 @@ import { MatDialog } from '@angular/material/dialog';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, EMPTY } from 'rxjs';
 
-import { EventDetails } from '../../../core/models/event-details.model';
-import { EventService } from '../../../core/services/event/event-service.service';
-import { EventUserService } from '../../../core/services/event/event-user-service';
-import { NotificationService } from '../../../core/services/notification/notification.service';
-import { ErrorHandlerService } from '../../../core/services/error-handler/error-handler.service';
+import { EventDetails } from '../../core/models/event-details.model';
+import { EventService } from '../../core/services/event/event-service.service';
+import { EventUserService } from '../../core/services/event/event-user-service';
+import { NotificationService } from '../../core/services/notification/notification.service';
+import { ErrorHandlerService } from '../../core/services/error-handler/error-handler.service';
 
-import { ConfirmDialogComponent } from '../../../shared-components/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../shared-components/confirm-dialog/confirm-dialog.component';
 import { EventStatusComponent } from './components/event-status';
 import { ParticipantListComponent } from './components/participant-list';
-import { EventHeaderComponent } from '../../../shared-components/event-header/event-header.component';
-import { EventInfoComponent } from '../../../shared-components/event-info/event-info.component';
-import { AppButtonComponent } from '../../../shared-components/button/button.component';
-import { LoadingSpinnerComponent } from '../../../shared-components/loading-spinner/loading-spinner.component'; 
+import { EventHeaderComponent } from '../../shared-components/event-header/event-header.component';
+import { EventInfoComponent } from '../../shared-components/event-info/event-info.component';
+import { AppButtonComponent } from '../../shared-components/button/button.component';
+import { LoadingSpinnerComponent } from '../../shared-components/loading-spinner/loading-spinner.component'; 
 
 @Component({
   selector: 'app-event-participant',

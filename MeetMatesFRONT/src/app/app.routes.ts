@@ -12,9 +12,9 @@ import { HomeComponent } from './features/home/home.component';
 import { CategoryComponent } from './features/category-activity/category/category.component';
 import { ActivityComponent } from './features/category-activity/activity/activity.component';
 import { PostEventComponent } from './features/post-event/post-event.component';
-import { EventListComponent } from './features/event/event-list/event-list.component';
-import { EventParticipantComponent } from './features/event/event-participant/event-participant.component';
-import { EventOrganizerComponent } from './features/event/event-organizer/event-organizer.component';
+import { EventListComponent } from './features/event-list/event-list.component';
+import { EventParticipantComponent } from './features/event-participant/event-participant.component';
+import { EventOrganizerComponent } from './features/event-organizer/event-organizer.component';
 import { SearchEventsComponent } from './features/search-event/search-events.component'; 
 
 // import { authGuard } from './core/guards/auth.guard';

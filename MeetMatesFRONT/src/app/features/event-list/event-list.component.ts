@@ -2,22 +2,22 @@ import { Component, OnInit, inject, ElementRef, QueryList, ViewChildren, Destroy
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { SignalsService } from '../../../core/services/signals/signals.service';
-import { NotificationService } from '../../../core/services/notification/notification.service';
-import { EventService } from '../../../core/services/event/event-service.service';
-import { EventResponse } from '../../../core/models/event-response.model';
+import { SignalsService } from '../../core/services/signals/signals.service';
+import { NotificationService } from '../../core/services/notification/notification.service';
+import { EventService } from '../../core/services/event/event-service.service';
+import { EventResponse } from '../../core/models/event-response.model';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { AppButtonComponent } from '../../../shared-components/button/button.component';
-import { EventHeaderComponent } from '../../../shared-components/event-header/event-header.component';
-import { EventInfoComponent } from '../../../shared-components/event-info/event-info.component';
-import { EventUserService } from '../../../core/services/event/event-user-service';
-import { ActivityService } from '../../../core/services/activity/activity.service';
-import { UserService } from '../../../core/services/user/user.service';
-import { ErrorHandlerService } from '../../../core/services/error-handler/error-handler.service';
+import { AppButtonComponent } from '../../shared-components/button/button.component';
+import { EventHeaderComponent } from '../../shared-components/event-header/event-header.component';
+import { EventInfoComponent } from '../../shared-components/event-info/event-info.component';
+import { EventUserService } from '../../core/services/event/event-user-service';
+import { ActivityService } from '../../core/services/activity/activity.service';
+import { UserService } from '../../core/services/user/user.service';
+import { ErrorHandlerService } from '../../core/services/error-handler/error-handler.service';
 import { catchError, EMPTY } from 'rxjs';
-import { LoadingSpinnerComponent } from '../../../shared-components/loading-spinner/loading-spinner.component'; 
+import { LoadingSpinnerComponent } from '../../shared-components/loading-spinner/loading-spinner.component'; 
 
 @Component({
   selector: 'app-event-list',

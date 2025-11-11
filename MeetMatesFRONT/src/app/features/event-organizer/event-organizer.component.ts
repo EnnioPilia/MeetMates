@@ -8,19 +8,19 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatDialog } from '@angular/material/dialog';
 import { EMPTY, catchError } from 'rxjs';
 
-import { EventDetails } from '../../../core/models/event-details.model';
-import { EventService } from '../../../core/services/event/event-service.service';
-import { EventUserService } from '../../../core/services/event/event-user-service';
-import { NotificationService } from '../../../core/services/notification/notification.service';
-import { ErrorHandlerService } from '../../../core/services/error-handler/error-handler.service';
+import { EventDetails } from '../../core/models/event-details.model';
+import { EventService } from '../../core/services/event/event-service.service';
+import { EventUserService } from '../../core/services/event/event-user-service';
+import { NotificationService } from '../../core/services/notification/notification.service';
+import { ErrorHandlerService } from '../../core/services/error-handler/error-handler.service';
 
-import { EventHeaderComponent } from '../../../shared-components/event-header/event-header.component';
-import { EventInfoComponent } from '../../../shared-components/event-info/event-info.component';
-import { AppButtonComponent } from '../../../shared-components/button/button.component';
+import { EventHeaderComponent } from '../../shared-components/event-header/event-header.component';
+import { EventInfoComponent } from '../../shared-components/event-info/event-info.component';
+import { AppButtonComponent } from '../../shared-components/button/button.component';
 import { EventTabAcceptedComponent } from './components/event-tab-accepted.component';
 import { EventTabPendingComponent } from './components/event-tab-pending.component';
-import { ConfirmDialogComponent } from '../../../shared-components/confirm-dialog/confirm-dialog.component';
-import { LoadingSpinnerComponent } from '../../../shared-components/loading-spinner/loading-spinner.component'; 
+import { ConfirmDialogComponent } from '../../shared-components/confirm-dialog/confirm-dialog.component';
+import { LoadingSpinnerComponent } from '../../shared-components/loading-spinner/loading-spinner.component'; 
 
 @Component({
   selector: 'app-event-organizer',
