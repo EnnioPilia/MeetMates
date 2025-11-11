@@ -1,4 +1,4 @@
-<div class="flex flex-col items-center justify-start min-h-screen px-7 py-20 overflow-y-auto">
+<div class="flex flex-col items-center justify-start min-h-screen px-7 py-20">
   @if (loading()) {
     <app-loading-spinner></app-loading-spinner>
   }
@@ -10,7 +10,7 @@
 
       <app-button 
         label="M O D I F I E R" 
-        class="w-80 primary-button mb-6" 
+        class="primary-button w-80 mb-6" 
         [routerLink]="['/edit-event', event()!.id]">
       </app-button>
 

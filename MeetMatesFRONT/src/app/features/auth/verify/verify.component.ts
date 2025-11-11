@@ -8,7 +8,6 @@ import { AuthService } from '../../../core/services/auth/auth.service';
   standalone: true,
   imports: [MatCardModule],
   templateUrl: './verify.component.html',
-  styleUrls: ['./verify.component.scss']
 })
 export class VerifyComponent implements OnInit {
   private route = inject(ActivatedRoute);

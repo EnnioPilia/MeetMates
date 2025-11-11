@@ -17,7 +17,6 @@ import { AppButtonComponent } from '../../../shared-components/button/button.com
   selector: 'app-forgot-password',
   standalone: true,
   templateUrl: './forgot-password.component.html',
-  styleUrls: ['./forgot-password.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,

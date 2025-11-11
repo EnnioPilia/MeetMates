@@ -50,7 +50,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatProgressSpinnerModule,
   ],
   templateUrl: './post-event.component.html',
-  styleUrls: ['./post-event.component.scss']
 })
 export class PostEventComponent implements OnInit {
   private fb = inject(FormBuilder);

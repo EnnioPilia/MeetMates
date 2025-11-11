@@ -1,5 +1,5 @@
-<div class="flex flex-col items-center justify-center min-h-[calc(100vh-10px)] px-8">
-  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col items-center mt-4">
+<div class="flex flex-col items-center justify-center min-h-screen px-8">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col items-center">
 
     <app-input 
       label="Nom" 
@@ -43,7 +43,7 @@
 
     <app-button 
       label="S’inscrire"
-      class="w-80 primary-button"
+      class="w-80 primary-button mt-2"
       type="submit" 
       [disabled]="isSubmitting">
     </app-button>

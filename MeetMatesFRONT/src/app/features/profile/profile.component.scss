@@ -4,8 +4,8 @@
     @media (min-width: 1000px) and (max-width: 2880px) {
         width: 50vw;
         margin: 0 auto;
-        margin-top: 2rem;
         padding-inline: 4rem;
+        padding-top: 7rem;
 
         .absolute {
             position: absolute;
@@ -22,8 +22,8 @@
     @media (min-width: 600px) and (max-width: 999px) {
         width: 70vw;
         margin: 0 auto;
-        margin-top: 2rem;
         padding-inline: 4rem;
+        padding-top: 7rem;
 
         .absolute {
             position: absolute;
@@ -33,3 +33,4 @@
         }
     }
 }
+

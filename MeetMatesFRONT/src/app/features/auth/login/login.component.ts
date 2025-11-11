@@ -17,7 +17,6 @@ import { AppInputComponent } from '../../../shared-components/input/input.compon
   selector: 'app-login',
   standalone: true,
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,

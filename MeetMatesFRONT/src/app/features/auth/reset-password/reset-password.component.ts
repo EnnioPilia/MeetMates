@@ -19,7 +19,6 @@ import { AppButtonComponent } from '../../../shared-components/button/button.com
   selector: 'app-reset-password',
   standalone: true,
   templateUrl: './reset-password.component.html',
-  styleUrls: ['./reset-password.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,

@@ -18,7 +18,6 @@ import { CguDialogComponent } from '../../../shared-components/cgu-dialog/cgu-di
   selector: 'app-register',
   standalone: true,
   templateUrl: './register.component.html',
-  styleUrls: ['./register.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,

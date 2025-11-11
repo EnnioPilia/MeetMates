@@ -17,7 +17,6 @@ import { BackButtonComponent } from '../../shared-components/back-button/back-bu
     BackButtonComponent]
     ,
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent {
   signals = inject(SignalsService);

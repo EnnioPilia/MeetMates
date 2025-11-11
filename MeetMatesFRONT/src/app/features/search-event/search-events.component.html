@@ -1,13 +1,13 @@
-<div class="container flex flex-col items-center justify-start min-h-[90vh] px-7 py-10 mb-10 mt-3">
+<div class="container flex flex-col items-center justify-start min-h-screen px-8 pt-16 pb-10">
   @if (error()) {
-    <p class="text-red-600 mt-10 ">{{ error() }}</p>
+    <p class="text-red-600 mt-10">{{ error() }}</p>
   } 
   @else {
-    <div class="flex flex-col items-center w-full">
+    <div class="flex flex-col items-center">
 
       <app-input
-        label="Rechercher une activité"
         class="mt-8 mb-3"
+        label="Rechercher une activité"
         [control]="form.controls['query']">
       </app-input>
 
@@ -18,7 +18,7 @@
       }
 
       @if (!loadingSearch() && results().length > 0) {
-        <mat-accordion multi class="w-80 flex flex-col p-1 gap-5">
+        <mat-accordion multi class="w-80 flex flex-col p-1 pb-10 gap-5">
           @for (event of results(); track event?.id) {
             @if (event) {
               <app-event-card
@@ -31,7 +31,7 @@
       }
 
       @if (!loadingSearch() && results().length === 0 && form.controls['query'].value?.length > 0) {
-        <div class="text-gray-400">
+        <div class="text-gray-500">
           Aucun événement trouvé pour
           <span class="text-gray-800">"{{ form.controls['query'].value }}"</span>
         </div>

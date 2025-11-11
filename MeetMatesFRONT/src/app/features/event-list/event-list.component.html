@@ -1,4 +1,4 @@
-<div class="flex flex-col items-center justify-start min-h-[70vh] px-7 py-10 mt-3">
+<div class="container flex flex-col items-center justify-center min-h-screen px-10 py-12">
   @if (loading()) {
     <app-loading-spinner></app-loading-spinner> 
   }
@@ -6,12 +6,12 @@
     <p class="text-red-600 mt-10">{{ error() }}</p>
   } 
   @else if (events().length > 0) {
-    <div class="flex flex-col items-center gap-6 w-full max-w-3xl">
+    <div class="flex flex-col items-center">
       @for (event of events(); track event.id) {
-        <div #eventCard [attr.data-id]="event.id" class=" w-full flex flex-col items-center p-6">
+        <div #eventCard [attr.data-id]="event.id" class="flex flex-col items-center p-6">
 
           <app-event-header
-            class="title mb-2"
+            class="title m-3"
             [title]="event.title"
             [description]="event.description">
           </app-event-header>
@@ -23,7 +23,7 @@
           </app-event-info>
 
           <app-button
-            class="w-80 primary-button mt-4 mb-3"
+            class="primary-button mt-2 mb-3 w-80 "
             label="P A R T I C I P E R"
             (clicked)="joinEvent(event.id)">
           </app-button>
@@ -33,7 +33,7 @@
     </div>
   }
   @else {
-    <div class="flex flex-col items-center justify-center h-[60vh] text-center">
+    <div class="empty flex flex-col items-center justify-start h-[60vh] text-center mt-10">
       <p> AUCUNE ACTIVITÉ DISPONIBLE<br><br>Soyez le premier à proposer un événement pour cette activité.</p>
     </div>
   }
