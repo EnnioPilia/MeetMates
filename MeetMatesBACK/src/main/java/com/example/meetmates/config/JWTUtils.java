@@ -15,6 +15,12 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 
+
+    // ⚠️ Gestion d’erreurs brute
+// e.printStackTrace() → pas terrible.
+// Préfère un vrai logger (ex: log.warn("Invalid token: {}", e.getMessage());).
+
+
 @Component
 public class JWTUtils {
 
@@ -69,11 +75,7 @@ public class JWTUtils {
         return jwtExpirationMs;
     }
 
-    /**
-     * Récupère le token depuis les cookies ou le header "refreshToken" de la requête.
-     */
     public String extractTokenFromRequest(HttpServletRequest request) {
-        // Vérifie d'abord les cookies
         if (request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
                 if ("refreshToken".equals(cookie.getName())) {
@@ -81,7 +83,6 @@ public class JWTUtils {
                 }
             }
         }
-        // Sinon regarde dans le header
         return request.getHeader("refreshToken");
     }
 }

@@ -46,8 +46,10 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable())
+        http                                  // Si un token est invalide ou expiré, Spring renvoie une 403 brute. définir un retour JSON propre.
+
+                .csrf(csrf -> csrf.disable()) // CSRF désactivé car application stateless (JWT)
+                                              // Aucun cookie de session utilisé, et cookie JWT avec SameSite=Strict → pas vulnérable au CSRF.
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
@@ -63,8 +65,8 @@ public class SecurityConfig {
                 .requestMatchers("/user/me").hasAnyRole("USER", "ADMIN")
                 .requestMatchers("/user/me/picture").hasAnyRole("USER", "ADMIN")
                 .requestMatchers("/user/**").hasRole("ADMIN") // <------ avec hasAnyAuthority ca ne marche pas 
-
                 // .requestMatchers("/auth/registerAdmin/**").permitAll()
+
                 .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

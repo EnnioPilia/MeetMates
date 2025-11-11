@@ -85,7 +85,6 @@ public class UserService implements UserDetailsService {
                 .map(user -> {
                     user.setFirstName(updatedUser.getFirstName());
                     user.setLastName(updatedUser.getLastName());
-                    user.setEmail(updatedUser.getEmail());
                     user.setAge(updatedUser.getAge());
                     return userRepository.save(user);
                 })

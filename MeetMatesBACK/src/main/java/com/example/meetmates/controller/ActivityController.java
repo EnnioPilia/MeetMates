@@ -29,38 +29,38 @@ public class ActivityController {
         this.eventService = eventService;
     }
 
-    // ✅ Récupérer toutes les activités
+    // Récupérer toutes les activités
     @GetMapping
     public List<Activity> getAll() {
         return activityService.findAll();
     }
 
-    // ✅ Récupérer une activité par ID
+    // Récupérer une activité par ID
     @GetMapping("/{id}")
     public Activity getById(@PathVariable UUID id) {
         return activityService.findById(id);
     }
 
-    // ✅ Récupérer toutes les activités d'une catégorie
+    // Récupérer toutes les activités d'une catégorie
     @GetMapping("/category/{categoryId}")
     public List<Activity> getByCategory(@PathVariable UUID categoryId) {
         return activityService.findByCategoryId(categoryId);
     }
 
-// ✅ Récupérer tous les événements liés à une activité
+    // Récupérer tous les événements liés à une activité
     @GetMapping("/{activityId}/events")
     public ResponseEntity<List<EventResponse>> getEventsByActivity(@PathVariable UUID activityId) {
         List<EventResponse> events = eventService.getEventResponsesByActivity(activityId);
         return ResponseEntity.ok(events);
     }
 
-    // ✅ Créer une activité
+    // Créer une activité
     @PostMapping
     public Activity create(@RequestBody Activity activity) {
         return activityService.save(activity);
     }
 
-    // ✅ Supprimer une activité
+    // Supprimer une activité
     @DeleteMapping("/{id}")
     public void delete(@PathVariable UUID id) {
         activityService.delete(id);

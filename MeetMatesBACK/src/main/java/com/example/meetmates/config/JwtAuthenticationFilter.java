@@ -24,6 +24,27 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+
+    // ⚠️ Pas de rotation ni d’invalidation du refresh token
+// Tu valides qu’il n’est pas expiré, mais tu ne le régénères pas → vulnérable au vol de refresh token.
+// Idéalement : rotation (chaîne de refresh tokens) ou invalidation côté DB.
+
+
+    // ⚠️ shouldNotFilter() exclut /auth/, mais si tu as /auth/somethingelse non lié à login, ça bypassera tout.
+// Mieux : ne whitelister que /auth/login, /auth/register, /auth/refresh.
+
+
+    // ⚠️ Pas de validation du type du token
+// Tu fais validateToken(authToken) sans vérifier que c’est un JWT d’accès (tu relies juste au format).
+// Si quelqu’un injecte un refresh token au mauvais endroit → confusion possible.
+
+
+    // ⚠️ Pas de “Bearer” prefix handling
+// Si un client envoie Authorization: Bearer <token> → ton filtre l’ignore.
+
+
+
+
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -52,7 +73,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String authToken = null;
         String refreshTokenStr = null;
 
-        // Extraction des cookies
         if (request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
                 if ("authToken".equals(cookie.getName())) {
@@ -63,7 +83,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-        // Fallback sur le header
         if (refreshTokenStr == null) {
             refreshTokenStr = request.getHeader("refreshToken");
         }
@@ -86,10 +105,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 String newAuthToken = jwtUtils.generateToken(fullUser.getEmail(), fullUser.getRole().name());
 
-                // Regénération du cookie authToken
                 ResponseCookie newAuthCookie = ResponseCookie.from("authToken", newAuthToken)
                         .httpOnly(true)
-                        .secure(false)
+                        .secure(false) // mettre à true en prod !!!!!
                         .path("/")
                         .sameSite("Strict")
                         .maxAge(jwtUtils.getJwtExpirationMs() / 1000)
