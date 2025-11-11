@@ -121,3 +121,25 @@ mat-error {
   color: #ff0000 !important;
   font-weight: 700;
 }
+
+// Clic effects
+.primary-button {
+  cursor: pointer;
+  transition: transform 0.05s cubic-bezier(0.25, 0.1, 0.25, 1), 
+}
+
+.primary-button:active {
+  transform: translateY(4px);
+  box-shadow: 0 1.5px 0 #000000; 
+}
+
+.icon-card {
+  cursor: pointer;
+  transition: transform 0.05s cubic-bezier(0.25, 0.1, 0.25, 1), 
+}
+
+.icon-card:active {
+  transform: translateY(4px);
+  box-shadow: 0 0.5px 0 #000000;
+  border-radius: 5px;
+}

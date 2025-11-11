@@ -10,6 +10,7 @@
       @for (category of categories; track category.categoryId) {
 
         <app-icon-card
+          class="icon-card"
           [title]="category.name"
           [iconPath]="'/assets/images/icons/' + category.icon"
           (cardClick)="navigateTo(category.categoryId)">

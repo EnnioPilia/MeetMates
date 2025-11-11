@@ -13,9 +13,8 @@ import { MatButtonModule } from '@angular/material/button';
       @if (filteredAcceptedParticipants.length > 0) {
         <div class="flex flex-col gap-1">
           @for (p of filteredAcceptedParticipants; track p.id) {
-            <div class="flex justify-between items-center">
+            <div class="flex justify-between items-center">              
               <span>{{ p.firstName }} {{ p.lastName }}</span>
-              
               <button mat-icon-button color="warn"
                 (click)="onReject(p.id)">
                 <mat-icon>highlight_off</mat-icon>

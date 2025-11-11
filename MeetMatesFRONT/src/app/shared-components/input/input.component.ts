@@ -9,9 +9,14 @@ import { MatIconModule } from '@angular/material/icon';
   selector: 'app-input',
   standalone: true,
   templateUrl: './input.component.html',
-  styleUrls: ['./input.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatIconModule],
+  imports: [
+    CommonModule, 
+    ReactiveFormsModule, 
+    MatFormFieldModule, 
+    MatInputModule, 
+    MatIconModule
+  ],
 })
 export class AppInputComponent {
   @Input({ required: true }) label!: string;
@@ -23,6 +28,7 @@ export class AppInputComponent {
   get control(): FormControl<any> {
     return this._control;
   }
+
 @Input() type: 'text' | 'number' | 'email' | 'password' | 'date' | 'time' = 'text';
   @Input() required = false;
   @Input() placeholder = '';

@@ -9,8 +9,7 @@ import { CommonModule } from '@angular/common';
   selector: 'app-cgu-dialog',
   standalone: true,
   templateUrl: './cgu-dialog.component.html',
-  styleUrls: ['./cgu-dialog.component.scss'],
-  imports: [
+    imports: [
     CommonModule,
     MatButtonModule,
     MatDialogModule

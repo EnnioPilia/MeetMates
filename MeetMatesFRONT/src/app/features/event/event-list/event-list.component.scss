@@ -4,6 +4,13 @@
         margin: 0 auto;
     }
 }
+.container {
+    @media (min-width: 1000px) and (max-width: 2900px) {
+        width: 25vw;
+        margin: 0 auto;
+        margin-bottom: 3rem;
+    }
+}
 
 .title {
     @media (min-width: 600px) and (max-width: 999px) {

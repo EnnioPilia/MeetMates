@@ -10,6 +10,7 @@
       @for (activity of activities; track activity.id) {
 
         <app-icon-card
+          class="icon-card"
           [title]="activity.name"
           [iconPath]="'assets/images/icons/' + (activity.icon)"
           (cardClick)="goToEvents(activity.id)">

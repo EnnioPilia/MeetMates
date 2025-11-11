@@ -5,12 +5,15 @@ import { NgClass } from '@angular/common';
 @Component({
   selector: 'app-icon-card',
   standalone: true,
-  imports: [MatCardModule, NgClass],
+  imports: [
+    MatCardModule, 
+    NgClass
+  ],
   templateUrl: './icon-card.component.html'
 })
 export class IconCardComponent {
   @Input() title!: string;
-  @Input() iconPath!: string; // chemin direct (ex: 'assets/images/icons/football.png')
+  @Input() iconPath!: string; 
   @Input() size: 'sm' | 'md' | 'lg' = 'md';
   @Output() cardClick = new EventEmitter<void>();
 
