@@ -99,7 +99,7 @@ export class PostEventComponent implements OnInit {
         this.loading.set(false);
       },
       error: (err) => {
-        this.errorHandler.handle(err, '❌ Erreur lors du chargement des activités.');
+        this.errorHandler.handle(err, '❌ Erreur lors du chargement du formulaire.');
         this.error.set('Impossible de charger le formulaire.');
         this.loading.set(false);
       }
