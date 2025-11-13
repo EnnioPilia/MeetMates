@@ -27,18 +27,15 @@ import { MatOptionModule } from '@angular/material/core';
           matInput
           [formControl]="control"
           [matAutocomplete]="auto"
-          (input)="onInputChange($event)"
-        />
+          (input)="onInputChange($event)"/>
 
-        <mat-autocomplete
-          #auto="matAutocomplete"
-          (optionSelected)="onOptionSelected($event.option.value)"
-        >
-        @for (suggestion of suggestions; track suggestion.label) {
-          <mat-option [value]="suggestion.label">
-            {{ suggestion.label }}
-          </mat-option>
-          }
+        <mat-autocomplete #auto="matAutocomplete"
+          (optionSelected)="onOptionSelected($event.option.value)">
+            @for (suggestion of suggestions; track suggestion.label) {
+              <mat-option [value]="suggestion.label">
+                {{ suggestion.label }}
+              </mat-option>
+              }
         </mat-autocomplete>
 
         @if (form.get('adresse')?.hasError('required') && (form.get('adresse')?.touched || form.get('adresse')?.dirty)) {

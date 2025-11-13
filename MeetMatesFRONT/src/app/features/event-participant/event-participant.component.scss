@@ -1,16 +1,24 @@
-
 .container {
     @media (min-width: 1000px) and (max-width: 2900px) {
+        margin: 0 auto;
+        padding-top: 7rem;
+    }
+
+    @media (min-width: 600px) and (max-width: 999px) {
+        margin: 0 auto;
+        padding-top: 7rem;
+    }
+}
+
+.list {
+    @media (min-width: 1000px) and (max-width: 2900px) {
+        width: 20vw;
+        margin: 0 auto;
+    }
+
+    @media (min-width: 600px) and (max-width: 999px) {
         width: 40vw;
         margin: 0 auto;
-        padding-top: 7rem;
-    }
-}
-
-.list {
-    @media (min-width: 1000px) and (max-width: 2900px) {
-        width: 20vw;
-        margin: 0 auto;
     }
 }
 
@@ -19,26 +27,7 @@
         width: 20vw;
         margin: 0 auto;
     }
-}
 
-
-
-.container {
-    @media (min-width: 600px) and (max-width: 999px) {
-        width: 70vw;
-        margin: 0 auto;
-        padding-top: 7rem;
-    }
-}
-
-.list {
-    @media (min-width: 600px) and (max-width: 999px) {
-        width: 30vw;
-        margin: 0 auto;
-    }
-}
-
-.title {
     @media (min-width: 600px) and (max-width: 999px) {
         width: 40vw;
         margin: 0 auto;

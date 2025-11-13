@@ -7,12 +7,13 @@
 
       <app-input
         class="mt-8 mb-3"
-        label="Rechercher une activité"
+        label="Rechercher un événements"
         [control]="form.controls['query']">
       </app-input>
 
       @if (loadingSearch()) {
         <app-loading-spinner 
+          message="Chargement des événements..."
           [diameter]="30">
         </app-loading-spinner>
       }
@@ -36,8 +37,6 @@
           <span class="text-gray-800">"{{ form.controls['query'].value }}"</span>
         </div>
       }
-
     </div>
   }
-
 </div>

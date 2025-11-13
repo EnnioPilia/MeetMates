@@ -3,18 +3,28 @@
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 4rem;
-    width: fit-content;    
-    margin: 3rem auto 0 auto; 
-    margin-bottom: 2rem;
+    width: fit-content;
+    margin: 3rem auto 2rem auto;
+  }
+
+  app-loading-spinner {
+    display: block;
+    margin-top: 100px;
   }
 }
-    @media (min-width: 600px) and (max-width: 999px) {
+
+@media (min-width: 600px) and (max-width: 999px) {
   .grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 4rem;
-    width: fit-content;      
-    margin: 3rem auto 0 auto; 
+    width: fit-content;
+    margin: 3rem auto 0 auto;
     margin-bottom: 2rem;
+  }
+
+  app-loading-spinner {
+    display: block;
+    margin-top: 100px;
   }
 }
