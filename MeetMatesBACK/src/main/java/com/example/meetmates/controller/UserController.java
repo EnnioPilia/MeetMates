@@ -49,8 +49,7 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<User> getCurrentUser(Authentication authentication) {
         String email = authentication.getName();
-        return userService.findByEmail(email)
-                .map(ResponseEntity::ok)
+        return userService.findByEmail(email).map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 

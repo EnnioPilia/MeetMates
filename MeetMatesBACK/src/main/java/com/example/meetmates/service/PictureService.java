@@ -2,51 +2,29 @@ package com.example.meetmates.service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.meetmates.model.User;
-import com.example.meetmates.model.Picture;
 import com.example.meetmates.model.PictureUser;
-import com.example.meetmates.repository.PictureRepository;
+import com.example.meetmates.model.User;
 import com.example.meetmates.repository.PictureUserRepository;
 import com.example.meetmates.repository.UserRepository;
 
 @Service
 public class PictureService {
 
-    private final PictureRepository pictureRepository;
     private final PictureUserRepository pictureUserRepository;
     private final UserRepository userRepository;
 
-    public PictureService(PictureRepository pictureRepository,
+    public PictureService(
             PictureUserRepository pictureUserRepository,
             UserRepository userRepository) {
-        this.pictureRepository = pictureRepository;
         this.pictureUserRepository = pictureUserRepository;
         this.userRepository = userRepository;
     }
-
-    @Transactional
-    public Picture save(Picture picture) {
-        return pictureRepository.save(picture);
-    }
-
-    @Transactional(readOnly = true)
-    public List<Picture> getAll() {
-        return pictureRepository.findAll();
-    }
-
-    @Transactional
-    public void delete(UUID id) {
-        pictureRepository.deleteById(id);
-    }
-
 
 
     @Transactional

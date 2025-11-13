@@ -36,13 +36,12 @@ public class AuthController {
     private JWTUtils jwtUtils;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<?> register(@RequestBody RegisterRequest request) { // ResponseEntity : classe Spring représentant une réponse HTTP complète (statut + headers + corps).
         try {
             String message = authService.register(request);
             return ResponseEntity.ok(Map.of("message", message));
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                                 .body(Map.of("error", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
         }
     }
 
@@ -52,8 +51,7 @@ public class AuthController {
             LoginResponse loginResponse = authService.login(request, response);
             return ResponseEntity.ok(loginResponse);
         } catch (RuntimeException ex) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                                 .body(Map.of("error", ex.getMessage()));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", ex.getMessage()));
         }
     }
 
@@ -63,8 +61,7 @@ public class AuthController {
             String result = authService.verifyUser(token);
             return ResponseEntity.ok(Map.of("message", result));
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                 .body(Map.of("error", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
         }
     }
 
@@ -80,8 +77,7 @@ public class AuthController {
             Map<String, String> newToken = refreshTokenService.generateNewAccessTokenFromRefreshToken(request, jwtUtils);
             return ResponseEntity.ok(newToken);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                                 .body(Map.of("error", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", e.getMessage()));
         }
     }
 }

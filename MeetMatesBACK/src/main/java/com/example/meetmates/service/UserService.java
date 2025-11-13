@@ -40,6 +40,8 @@ public class UserService implements UserDetailsService {
 // 🔸 Annoter les méthodes de lecture avec @Transactional(readOnly = true).
 // 🔸 Logger les actions sensibles (deleteUserById, register, etc.).
 // 🔸 Tester la cohérence entre UserStatus et enabled (par ex., ne pas avoir ACTIVE mais enabled = false sauf au moment de la vérification de mail).
+
+
     public User updateUser(User user) {
         return userRepository.save(user);
     }

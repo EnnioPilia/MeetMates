@@ -20,7 +20,6 @@ public class TokenService {
         this.tokenRepository = tokenRepository;
     }
 
-    // Crée un token pour un utilisateur avec un type et une durée en secondes
     public Token createToken(User user, TokenType type, long durationInSeconds) {
         Token token = new Token();
         token.setToken(UUID.randomUUID().toString());
@@ -32,17 +31,14 @@ public class TokenService {
         return tokenRepository.save(token);
     }
 
-    // Trouve un token par sa valeur
     public Optional<Token> findByToken(String token) {
         return tokenRepository.findByToken(token);
     }
 
-    // Supprime les tokens d’un utilisateur selon le type
     public void deleteTokenByUserAndType(UUID userId, TokenType type) {
         tokenRepository.deleteByUser_IdAndType(userId, type);
     }
 
-    // Marque un token comme utilisé (utile pour reset password)
     public void markTokenAsUsed(Token token) {
         token.setUsed(true);
         token.setConfirmedAt(Instant.now());

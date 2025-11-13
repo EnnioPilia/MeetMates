@@ -21,10 +21,8 @@ public class VerificationTokenService {
     }
 
 public String createVerificationToken(User user) {
-    // Génération d'un token unique
     String tokenString = UUID.randomUUID().toString();
 
-    // Création du token
     Token token = new Token(
         tokenString,
         user,
@@ -33,33 +31,29 @@ public String createVerificationToken(User user) {
         TokenType.VERIFICATION
     );
 
-    // Sauvegarde dans la base
     tokenRepository.save(token);
 
-    // Retourner uniquement la valeur du token
     return tokenString;
 }
 
-    // Confirme un token de vérification
     public boolean confirmToken(String tokenString) {
         Optional<Token> optionalToken = tokenRepository.findByToken(tokenString);
         if (optionalToken.isEmpty()) {
-            return false; // token inexistant
+            return false; 
         }
 
         Token token = optionalToken.get();
         if (token.getType() != com.example.meetmates.model.TokenType.VERIFICATION) {
-            return false; // mauvais type
+            return false; 
         }
 
         if (token.getExpiresAt() != null && token.getExpiresAt().isBefore(java.time.Instant.now())) {
-            return false; // token expiré
+            return false; 
         }
 
-        // Activer l'utilisateur
         User user = token.getUser();
         user.setEnabled(true);
-        tokenRepository.delete(token); // supprimer le token après confirmation
+        tokenRepository.delete(token);
         return true;
     }
 }
