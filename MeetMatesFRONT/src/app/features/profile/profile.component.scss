@@ -13,6 +13,12 @@
             right: 1.25rem;
             z-index: 50;
         }
+        .dialog{
+              display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-left: 50px;
+        }
     }
 }
 

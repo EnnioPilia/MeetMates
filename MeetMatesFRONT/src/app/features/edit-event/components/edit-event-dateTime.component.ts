@@ -20,7 +20,7 @@ import { MatNativeDateModule } from '@angular/material/core';
   template: `
   
     <div [formGroup]="form" class="flex flex-col items-center w-full">
-      <mat-form-field class="w-80" appearance="fill">
+      <mat-form-field class="w-80">
         <mat-label>Date</mat-label>
         <input matInput [matDatepicker]="picker" formControlName="eventDate" />
         <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
@@ -28,12 +28,12 @@ import { MatNativeDateModule } from '@angular/material/core';
       </mat-form-field>
 
       <div class="flex w-80 gap-4">
-        <mat-form-field class="flex-1" appearance="fill">
+        <mat-form-field class="flex-1">
           <mat-label>Heure de début</mat-label>
           <input matInput type="time" formControlName="startTime" />
         </mat-form-field>
 
-        <mat-form-field class="flex-1" appearance="fill">
+        <mat-form-field class="flex-1">
           <mat-label>Heure de fin</mat-label>
           <input matInput type="time" formControlName="endTime" />
         </mat-form-field>

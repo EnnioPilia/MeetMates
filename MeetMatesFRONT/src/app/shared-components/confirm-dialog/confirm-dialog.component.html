@@ -1,15 +1,16 @@
 <div class="border border-black">
 
   <h2 class="text-center !font-bold" mat-dialog-title>
-    {{ data.title }} 
+    {{ data.title }}
   </h2>
 
   <mat-dialog-content class="text-center">
     <p>{{ data.message }}</p>
   </mat-dialog-content>
 
-  <mat-dialog-actions class="flex flex-row justify-center items-center mt-4 !flex-nowrap">
+  <mat-dialog-actions class="flex flex-row !justify-center items-center mt-4 !flex-nowrap gap-4">
     <button mat-raised-button class="primary-button w-40" (click)="onClose(true) ">Confirmer</button>
     <button mat-button class="primary-button w-40" (click)="onClose(false)">Annuler</button>
   </mat-dialog-actions>
+  
 </div>

@@ -21,7 +21,7 @@ import { MatIconModule } from '@angular/material/icon';
 
     <div [formGroup]="form">
       <div class="w-80">
-        <mat-form-field class="w-full" appearance="fill">
+        <mat-form-field class="w-full">
           <mat-label>Adresse</mat-label>
 
           <input
@@ -29,18 +29,15 @@ import { MatIconModule } from '@angular/material/icon';
             formControlName="addressLabel"
             [matAutocomplete]="auto"
             (input)="onInputChange($event)"
-            (keyup)="onInputChange($event)"
-          />
+            (keyup)="onInputChange($event)"/>
           
-          <mat-autocomplete
-            #auto="matAutocomplete"
-            (optionSelected)="onOptionSelected($event.option.value)"
-          >
-            @for (suggestion of suggestions; track suggestion.label) {
-              <mat-option [value]="suggestion.label">
-                {{ suggestion.label }}
-              </mat-option>
-            }
+          <mat-autocomplete #auto="matAutocomplete"
+            (optionSelected)="onOptionSelected($event.option.value)">
+              @for (suggestion of suggestions; track suggestion.label) {
+                <mat-option [value]="suggestion.label">
+                  {{ suggestion.label }}
+                </mat-option>
+              }
           </mat-autocomplete>
         </mat-form-field>
       </div>

@@ -22,7 +22,7 @@ import { AppInputComponent } from '../../../shared-components/input/input.compon
     <div [formGroup]="form" class="flex flex-col items-center w-full">
       <div class="w-80 flex flex-col items-start">
         <mat-label>Statut :</mat-label>
-        <mat-button-toggle-group formControlName="status" appearance="standard">
+        <mat-button-toggle-group formControlName="status">
           @for (option of statusOptions; track option.value) {
             <mat-button-toggle [value]="option.value">
               {{ option.label }}

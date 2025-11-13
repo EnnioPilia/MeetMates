@@ -1,6 +1,7 @@
 import { Component, Input, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EventService } from '../../core/services/event/event-service.service';
+import { StatusColorPipe } from '../pipes/statusColor.pipe'; 
 
 interface EventData {
   status?: string;
@@ -18,7 +19,7 @@ interface EventData {
 @Component({
   selector: 'app-event-info',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule,StatusColorPipe],
   templateUrl: './event-info.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
