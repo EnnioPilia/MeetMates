@@ -9,7 +9,7 @@ import com.example.meetmates.model.Event.EventStatus;
 import com.example.meetmates.model.Event.Level;
 import com.example.meetmates.model.Event.MaterialOption;
 
-public class EventRequest {
+public class EventRequestDto {
 
     private String title;
     private String description;

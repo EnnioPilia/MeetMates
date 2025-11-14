@@ -33,11 +33,12 @@ public class UserController {
     private final UserRepository userRepository;
     private final PictureService pictureService;
 
-    public UserController(UserService userService, PictureService pictureService, UserRepository userRepository) {
+    public UserController(UserService userService,
+            PictureService pictureService,
+            UserRepository userRepository) {
         this.userService = userService;
         this.userRepository = userRepository;
         this.pictureService = pictureService;
-
     }
 
     @GetMapping
@@ -110,7 +111,7 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-     @DeleteMapping("/me")
+    @DeleteMapping("/me")
     public ResponseEntity<Void> deleteMyAccount(@AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

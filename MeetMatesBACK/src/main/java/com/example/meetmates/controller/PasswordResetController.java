@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.meetmates.dto.PasswordResetDto;
 import com.example.meetmates.dto.PasswordResetRequestDto;
+import com.example.meetmates.dto.PasswordResetResponseDto;
 import com.example.meetmates.service.PasswordResetService;
 
 @RestController
@@ -31,7 +31,7 @@ public class PasswordResetController {
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@RequestBody PasswordResetDto dto) {
+    public ResponseEntity<String> resetPassword(@RequestBody PasswordResetResponseDto dto) {
         try {
             String message = passwordResetService.resetPassword(dto.getToken(), dto.getNewPassword());
             return ResponseEntity.ok(message);

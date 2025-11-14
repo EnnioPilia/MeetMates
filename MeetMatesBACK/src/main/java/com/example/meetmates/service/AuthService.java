@@ -11,9 +11,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.meetmates.config.JWTUtils;
-import com.example.meetmates.dto.LoginRequest;
-import com.example.meetmates.dto.LoginResponse;
-import com.example.meetmates.dto.RegisterRequest;
+import com.example.meetmates.dto.LoginRequestDto;
+import com.example.meetmates.dto.LoginResponseDto;
+import com.example.meetmates.dto.RegisterRequestDto;
 import com.example.meetmates.model.Token;
 import com.example.meetmates.model.User;
 import com.example.meetmates.model.UserRole;
@@ -40,7 +40,7 @@ public class AuthService {
     @Autowired
     private RefreshTokenService refreshTokenService;
 
-    public String register(RegisterRequest request) {
+    public String register(RegisterRequestDto request) {
         String email = request.getEmail().toLowerCase();
 
         Optional<User> existingUserOpt = userRepository.findByEmail(email);
@@ -96,7 +96,7 @@ public class AuthService {
         return "Utilisateur enregistré avec succès, veuillez vérifier votre email.";
     }
 
-    public LoginResponse login(LoginRequest request, HttpServletResponse response) {
+    public LoginResponseDto login(LoginRequestDto request, HttpServletResponse response) {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -138,7 +138,7 @@ public class AuthService {
         response.addHeader("Set-Cookie", authCookie.toString());
         response.addHeader("Set-Cookie", refreshCookie.toString());
 
-        return new LoginResponse("Connexion réussie !", token);
+        return new LoginResponseDto("Connexion réussie !", token);
     }
 
     public String verifyUser(String token) {

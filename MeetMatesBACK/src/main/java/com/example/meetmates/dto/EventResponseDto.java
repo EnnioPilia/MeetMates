@@ -12,7 +12,7 @@ import com.example.meetmates.model.Event.Level;
 import com.example.meetmates.model.Event.MaterialOption;
 import com.example.meetmates.model.EventUser.ParticipantRole;
 
-public record EventResponse(
+public record EventResponseDto(
         UUID id,
         String title,
         String description,
@@ -26,12 +26,12 @@ public record EventResponse(
         UUID activityId,
         String activityName,
         String addressLabel,
-        UUID organizerId,          // ✅ ajouté ici
+        UUID organizerId,         
         String organizerName,
         List<String> participantNames
 ) {
 
-    public static EventResponse from(Event e) {
+    public static EventResponseDto from(Event e) {
         if (e == null) return null;
 
         var organizerOpt = e.getParticipants().stream()
@@ -55,7 +55,7 @@ public record EventResponse(
         String activityName = e.getActivity() != null ? e.getActivity().getName() : null;
         String addressLabel = e.getAddress() != null ? e.getAddress().getFullAddress() : null;
 
-        return new EventResponse(
+        return new EventResponseDto(
                 e.getId(),
                 e.getTitle(),
                 e.getDescription(),

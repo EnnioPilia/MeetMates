@@ -7,7 +7,7 @@ import com.example.meetmates.model.Event;
 import com.example.meetmates.model.EventUser;
 import com.example.meetmates.model.User;
 
-public record EventUserDTO(
+public record EventUserDto(
         UUID id,
         UUID eventId,
         String eventTitle,
@@ -26,12 +26,12 @@ public record EventUserDTO(
 )
  {
 
-    public static EventUserDTO from(EventUser eu) {
+    public static EventUserDto from(EventUser eu) {
         Event e = eu.getEvent();
         User u = eu.getUser();
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-        return new EventUserDTO(
+        return new EventUserDto(
                 eu.getId(),
                 e.getId(),
                 e.getTitle(),

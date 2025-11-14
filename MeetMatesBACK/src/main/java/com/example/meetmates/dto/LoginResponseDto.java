@@ -1,10 +1,10 @@
 package com.example.meetmates.dto;
 
-public class LoginResponse {
+public class LoginResponseDto {
     private String message;
     private String token;
 
-    public LoginResponse(String message, String token) {
+    public LoginResponseDto(String message, String token) {
         this.message = message;
         this.token = token;
     }

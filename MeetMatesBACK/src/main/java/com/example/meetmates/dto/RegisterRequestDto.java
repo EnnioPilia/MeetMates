@@ -2,7 +2,7 @@ package com.example.meetmates.dto;
 
 import java.time.LocalDateTime;
 
-public class RegisterRequest {
+public class RegisterRequestDto {
 
     private String firstName;
     private String lastName;

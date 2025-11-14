@@ -10,10 +10,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.meetmates.dto.EventDetailsDTO;
-import com.example.meetmates.dto.EventRequest;
-import com.example.meetmates.dto.EventResponse;
-import com.example.meetmates.dto.EventUserDTO;
+import com.example.meetmates.dto.EventDetailsDto;
+import com.example.meetmates.dto.EventRequestDto;
+import com.example.meetmates.dto.EventResponseDto;
+import com.example.meetmates.dto.EventUserDto;
 import com.example.meetmates.model.Address;
 import com.example.meetmates.model.Event;
 import com.example.meetmates.model.EventUser;
@@ -50,7 +50,7 @@ public class EventService {
       }
 
     @Transactional
-    public EventResponse createEvent(EventRequest req) {
+    public EventResponseDto createEvent(EventRequestDto req) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User organizer = userRepository.findByEmail(auth.getName())
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
@@ -80,7 +80,7 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
-    public List<EventResponse> findAllResponses() {
+    public List<EventResponseDto> findAllResponses() {
         return eventRepository.findAllWithPictures()
                 .stream()
                 .map(eventMapper::toResponse)
@@ -88,7 +88,7 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
-    public EventDetailsDTO findEventDetailsById(UUID id) {
+    public EventDetailsDto findEventDetailsById(UUID id) {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         var user = userRepository.findByEmail(auth.getName()).orElse(null);
 
@@ -110,22 +110,22 @@ public class EventService {
                 .map(p -> p.getUser().getFirstName() + " " + p.getUser().getLastName())
                 .orElse("Inconnu");
 
-        List<EventUserDTO> accepted = event.getParticipants().stream()
+        List<EventUserDto> accepted = event.getParticipants().stream()
                 .filter(p -> p.getParticipationStatus() == EventUser.ParticipationStatus.ACCEPTED)
-                .map(eventMapper::toEventUserDTO)
+                .map(eventMapper::EventUserDto)
                 .collect(Collectors.toList());
 
-        List<EventUserDTO> pending = event.getParticipants().stream()
+        List<EventUserDto> pending = event.getParticipants().stream()
                 .filter(p -> p.getParticipationStatus() == EventUser.ParticipationStatus.PENDING)
-                .map(eventMapper::toEventUserDTO)
+                .map(eventMapper::EventUserDto)
                 .collect(Collectors.toList());
 
-        List<EventUserDTO> rejected = event.getParticipants().stream()
+        List<EventUserDto> rejected = event.getParticipants().stream()
                 .filter(p -> p.getParticipationStatus() == EventUser.ParticipationStatus.REJECTED)
-                .map(eventMapper::toEventUserDTO)
+                .map(eventMapper::EventUserDto)
                 .collect(Collectors.toList());
 
-        return new EventDetailsDTO(
+        return new EventDetailsDto(
                 event.getId(),
                 event.getTitle(),
                 event.getDescription(),
@@ -147,7 +147,7 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
-    public List<EventResponse> getEventResponsesByActivity(UUID activityId) {
+    public List<EventResponseDto> getEventResponsesByActivity(UUID activityId) {
         return eventRepository.findByActivityIdWithPictures(activityId)
                 .stream()
                 .map(eventMapper::toResponse)
@@ -174,7 +174,7 @@ public class EventService {
         event.getParticipants().add(link);
     }
 
-    public EventResponse updateEvent(UUID id, EventRequest updatedEvent) {
+    public EventResponseDto updateEvent(UUID id, EventRequestDto updatedEvent) {
         return eventRepository.findById(id)
                 .map(event -> {
                     event.setTitle(updatedEvent.getTitle());
@@ -213,7 +213,7 @@ public class EventService {
                 .orElseThrow(() -> new RuntimeException("Event not found"));
     }
 
-    public List<EventResponse> searchEvents(String query) {
+    public List<EventResponseDto> searchEvents(String query) {
         if (query == null || query.isBlank()) {
             return List.of();
         }

@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.meetmates.dto.EventUserDTO;
-import com.example.meetmates.dto.JoinEventRequest;
+import com.example.meetmates.dto.EventUserDto;
+import com.example.meetmates.dto.JoinEventRequestDto;
 import com.example.meetmates.model.EventUser;
 import com.example.meetmates.model.User;
 import com.example.meetmates.repository.UserRepository;
@@ -36,7 +36,7 @@ public class EventUserController {
     }
 
     @PostMapping("/join")
-    public ResponseEntity<EventUserDTO> joinEvent(@RequestBody JoinEventRequest request, Authentication authentication) {
+    public ResponseEntity<EventUserDto> joinEvent(@RequestBody JoinEventRequestDto request, Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(401).build();
         }
@@ -46,11 +46,11 @@ public class EventUserController {
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
 
         EventUser eventUser = eventUserService.joinEvent(request.eventId(), currentUser.getId());
-        return ResponseEntity.ok(EventUserDTO.from(eventUser));
+        return ResponseEntity.ok(EventUserDto.from(eventUser));
     }
 
     @DeleteMapping("/leave")
-    public ResponseEntity<EventUserDTO> leaveEvent(
+    public ResponseEntity<EventUserDto> leaveEvent(
             @RequestParam UUID eventId,
             Authentication authentication) {
 
@@ -63,31 +63,31 @@ public class EventUserController {
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
 
         EventUser eu = eventUserService.leaveEvent(eventId, currentUser.getId());
-        return ResponseEntity.ok(EventUserDTO.from(eu));
+        return ResponseEntity.ok(EventUserDto.from(eu));
     }
 
     @PutMapping("/{eventUserId}/accept")
-    public ResponseEntity<EventUserDTO> acceptParticipant(@PathVariable UUID eventUserId, Authentication authentication) {
+    public ResponseEntity<EventUserDto> acceptParticipant(@PathVariable UUID eventUserId, Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(401).build();
         }
 
         EventUser eu = eventUserService.acceptParticipant(eventUserId);
-        return ResponseEntity.ok(EventUserDTO.from(eu));
+        return ResponseEntity.ok(EventUserDto.from(eu));
     }
 
     @PutMapping("/{eventUserId}/reject")
-    public ResponseEntity<EventUserDTO> rejectParticipant(@PathVariable UUID eventUserId, Authentication authentication) {
+    public ResponseEntity<EventUserDto> rejectParticipant(@PathVariable UUID eventUserId, Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(401).build();
         }
 
         EventUser eu = eventUserService.rejectParticipant(eventUserId);
-        return ResponseEntity.ok(EventUserDTO.from(eu));
+        return ResponseEntity.ok(EventUserDto.from(eu));
     }
 
     @GetMapping("/participating")
-    public ResponseEntity<List<EventUserDTO>> getEventsParticipating(Authentication authentication) {
+    public ResponseEntity<List<EventUserDto>> getEventsParticipating(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(401).build();
         }
@@ -97,15 +97,15 @@ public class EventUserController {
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
 
         List<EventUser> participations = eventUserService.findByUserId(currentUser.getId());
-        List<EventUserDTO> dtos = participations.stream()
-                .map(EventUserDTO::from)
+        List<EventUserDto> dtos = participations.stream()
+                .map(EventUserDto::from)
                 .toList();
 
         return ResponseEntity.ok(dtos);
     }
 
     @GetMapping("/organized")
-    public ResponseEntity<List<EventUserDTO>> getEventsOrganized(Authentication authentication) {
+    public ResponseEntity<List<EventUserDto>> getEventsOrganized(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(401).build();
         }
@@ -115,8 +115,8 @@ public class EventUserController {
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
 
         List<EventUser> organized = eventUserService.findOrganizedByUserId(currentUser.getId());
-        List<EventUserDTO> dtos = organized.stream()
-                .map(EventUserDTO::from)
+        List<EventUserDto> dtos = organized.stream()
+                .map(EventUserDto::from)
                 .toList();
 
         return ResponseEntity.ok(dtos);

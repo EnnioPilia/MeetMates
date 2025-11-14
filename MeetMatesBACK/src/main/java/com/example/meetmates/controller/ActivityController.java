@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.meetmates.dto.EventResponse;
+import com.example.meetmates.dto.EventResponseDto;
 import com.example.meetmates.model.Activity;
 import com.example.meetmates.service.ActivityService;
 import com.example.meetmates.service.EventService;
@@ -49,8 +49,8 @@ public class ActivityController {
 
     // Récupérer tous les événements liés à une activité
     @GetMapping("/{activityId}/events")
-    public ResponseEntity<List<EventResponse>> getEventsByActivity(@PathVariable UUID activityId) {
-        List<EventResponse> events = eventService.getEventResponsesByActivity(activityId);
+    public ResponseEntity<List<EventResponseDto>> getEventsByActivity(@PathVariable UUID activityId) {
+        List<EventResponseDto> events = eventService.getEventResponsesByActivity(activityId);
         return ResponseEntity.ok(events);
     }
 

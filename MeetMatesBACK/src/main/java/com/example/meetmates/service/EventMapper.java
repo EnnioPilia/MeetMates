@@ -6,8 +6,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
-import com.example.meetmates.dto.EventResponse;
-import com.example.meetmates.dto.EventUserDTO;
+import com.example.meetmates.dto.EventResponseDto;
+import com.example.meetmates.dto.EventUserDto;
 import com.example.meetmates.model.Event;
 import com.example.meetmates.model.EventUser;
 import com.example.meetmates.model.User;
@@ -15,9 +15,9 @@ import com.example.meetmates.model.User;
 @Component
 public class EventMapper {
 
-    public EventResponse toResponse(Event e) {
+    public EventResponseDto toResponse(Event e) {
 
-        // 🧩 Récupération de l’organisateur
+        //  Récupération de l’organisateur
         var organizerOpt = e.getParticipants().stream()
                 .filter(p -> p.getRole() == EventUser.ParticipantRole.ORGANIZER)
                 .findFirst();
@@ -30,14 +30,14 @@ public class EventMapper {
                 .map(p -> p.getUser().getFirstName() + " " + p.getUser().getLastName())
                 .orElse("Inconnu");
 
-        // 🧩 Liste des participants
+        //  Liste des participants
         List<String> participantNames = e.getParticipants().stream()
                 .filter(p -> p.getRole() == EventUser.ParticipantRole.PARTICIPANT)
                 .map(p -> p.getUser().getFirstName() + " " + p.getUser().getLastName())
                 .collect(Collectors.toList());
 
-        // ✅ Création du DTO complet
-        return new EventResponse(
+        //  Création du DTO complet
+        return new EventResponseDto(
                 e.getId(),
                 e.getTitle(),
                 e.getDescription(),
@@ -57,11 +57,11 @@ public class EventMapper {
         );
     }
 
-    public EventUserDTO toEventUserDTO(EventUser eu) {
+    public EventUserDto EventUserDto(EventUser eu) {
         Event event = eu.getEvent();
         User user = eu.getUser();
 
-        return new EventUserDTO(
+        return new EventUserDto(
                 eu.getId(),
                 event.getId(),
                 event.getTitle(),

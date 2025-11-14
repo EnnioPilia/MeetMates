@@ -3,7 +3,7 @@ package com.example.meetmates.dto;
 import java.util.List;
 import java.util.UUID;
 
-public record EventDetailsDTO(
+public record EventDetailsDto(
         UUID id,
         String title,
         String description,
@@ -18,9 +18,8 @@ public record EventDetailsDTO(
         String status,
         Integer maxParticipants,
         String participationStatus,
-        List<EventUserDTO> acceptedParticipants,
-        List<EventUserDTO> pendingParticipants,
-        List<EventUserDTO> rejectedParticipants
+        List<EventUserDto> acceptedParticipants,
+        List<EventUserDto> pendingParticipants,
+        List<EventUserDto> rejectedParticipants
         ) {
-
 }

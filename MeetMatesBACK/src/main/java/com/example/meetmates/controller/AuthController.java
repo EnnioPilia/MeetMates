@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.meetmates.config.JWTUtils;
-import com.example.meetmates.dto.LoginRequest;
-import com.example.meetmates.dto.LoginResponse;
-import com.example.meetmates.dto.RegisterRequest;
+import com.example.meetmates.dto.LoginRequestDto;
+import com.example.meetmates.dto.LoginResponseDto;
+import com.example.meetmates.dto.RegisterRequestDto;
 import com.example.meetmates.service.AuthService;
 import com.example.meetmates.service.RefreshTokenService;
 
@@ -36,7 +36,7 @@ public class AuthController {
     private JWTUtils jwtUtils;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest request) { // ResponseEntity : classe Spring représentant une réponse HTTP complète (statut + headers + corps).
+    public ResponseEntity<?> register(@RequestBody RegisterRequestDto request) { // ResponseEntity : classe Spring représentant une réponse HTTP complète (statut + headers + corps).
         try {
             String message = authService.register(request);
             return ResponseEntity.ok(Map.of("message", message));
@@ -46,10 +46,10 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpServletResponse response) {
+    public ResponseEntity<?> login(@RequestBody LoginRequestDto request, HttpServletResponse response) {
         try {
-            LoginResponse loginResponse = authService.login(request, response);
-            return ResponseEntity.ok(loginResponse);
+            LoginResponseDto LoginResponseDto = authService.login(request, response);
+            return ResponseEntity.ok(LoginResponseDto);
         } catch (RuntimeException ex) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", ex.getMessage()));
         }

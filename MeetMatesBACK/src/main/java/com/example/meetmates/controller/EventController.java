@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.meetmates.dto.EventDetailsDTO;
-import com.example.meetmates.dto.EventRequest;
-import com.example.meetmates.dto.EventResponse;
+import com.example.meetmates.dto.EventDetailsDto;
+import com.example.meetmates.dto.EventRequestDto;
+import com.example.meetmates.dto.EventResponseDto;
 import com.example.meetmates.service.EventService;
 
 @RestController
@@ -30,31 +30,31 @@ public class EventController {
     }
 
     @PostMapping
-    public ResponseEntity<EventResponse> createEvent(@RequestBody EventRequest req) {
-        EventResponse event = eventService.createEvent(req);
+    public ResponseEntity<EventResponseDto> createEvent(@RequestBody EventRequestDto req) {
+        EventResponseDto event = eventService.createEvent(req);
         return ResponseEntity.ok(event);
     }
 
     @GetMapping
-    public ResponseEntity<List<EventResponse>> getAllEvents() {
+    public ResponseEntity<List<EventResponseDto>> getAllEvents() {
         return ResponseEntity.ok(eventService.findAllResponses());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EventDetailsDTO> getEventById(@PathVariable UUID id) {
+    public ResponseEntity<EventDetailsDto> getEventById(@PathVariable UUID id) {
         return ResponseEntity.ok(eventService.findEventDetailsById(id));
     }
 
     @GetMapping("/activity/{activityId}")
-    public ResponseEntity<List<EventResponse>> getEventsByActivity(@PathVariable UUID activityId) {
+    public ResponseEntity<List<EventResponseDto>> getEventsByActivity(@PathVariable UUID activityId) {
         return ResponseEntity.ok(eventService.getEventResponsesByActivity(activityId));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EventResponse> updateEvent(
+    public ResponseEntity<EventResponseDto> updateEvent(
             @PathVariable UUID id,
-            @RequestBody EventRequest updatedEvent) {
-        EventResponse updated = eventService.updateEvent(id, updatedEvent);
+            @RequestBody EventRequestDto updatedEvent) {
+        EventResponseDto updated = eventService.updateEvent(id, updatedEvent);
         return ResponseEntity.ok(updated);
     }
 
@@ -65,8 +65,8 @@ public class EventController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<EventResponse>> searchEvents(@RequestParam String query) {
-        List<EventResponse> results = eventService.searchEvents(query);
+    public ResponseEntity<List<EventResponseDto>> searchEvents(@RequestParam String query) {
+        List<EventResponseDto> results = eventService.searchEvents(query);
         return ResponseEntity.ok(results);
     }
 
