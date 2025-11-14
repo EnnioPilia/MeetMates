@@ -86,8 +86,4 @@ export class SearchEventsComponent implements OnInit {
       });
     }
   }
-
-  trackById(index: number, item: EventDetails) {
-    return item.id;
-  }
 }

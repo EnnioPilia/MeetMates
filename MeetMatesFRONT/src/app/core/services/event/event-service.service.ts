@@ -12,6 +12,10 @@ export class EventService {
   private http = inject(HttpClient);
   private baseUrl = environment.apiUrl;
 
+// Pas de gestion d’erreur centralisée dans les appels service VERIFIER les autres services
+// Typage de createEvent(eventPayload: any) → any interdit !!!!
+
+
   fetchAllEvents(): Observable<EventResponse[]> {
     return this.http.get<EventResponse[]>(`${this.baseUrl}/event`, { withCredentials: true });
   }
@@ -38,43 +42,5 @@ export class EventService {
 
   searchEvents(query: string): Observable<EventResponse[]> {
     return this.http.get<EventResponse[]>(`${this.baseUrl}/event/search`, { params: { query }, withCredentials: true });
-  }
-
-  getStatusLabel(status: string): string {
-    switch (status) {
-      case 'OPEN': return 'Ouvert';
-      case 'FULL': return 'Complet';
-      case 'CANCELLED': return 'Annulé';
-      case 'FINISHED': return 'Terminé';
-      default: return status;
-    }
-  }
-
-  getLevelLabel(level: string): string {
-    switch (level) {
-      case 'BEGINNER': return 'Débutant';
-      case 'INTERMEDIATE': return 'Intermédiaire';
-      case 'EXPERT': return 'Expert';
-      case 'ALL_LEVELS': return 'Tous niveaux';
-      default: return level;
-    }
-  }
-
-  getMaterialLabel(material: string): string {
-    switch (material) {
-      case 'YOUR_OWN': return 'Apporter votre matériel';
-      case 'PROVIDED': return 'Matériel fourni';
-      case 'NOT_REQUIRED': return 'Pas de matériel requis';
-      default: return material;
-    }
-  }
-
-  getParticipationLabel(status: string | null | undefined): string {
-    switch (status) {
-      case 'ACCEPTED': return 'Accepté';
-      case 'PENDING': return 'En attente';
-      case 'REJECTED': return 'Refusé';
-      default: return 'Statut inconnu';
-    }
   }
 }

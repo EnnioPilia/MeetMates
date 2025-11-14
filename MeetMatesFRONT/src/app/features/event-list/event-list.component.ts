@@ -18,6 +18,7 @@ import { UserService } from '../../core/services/user/user.service';
 import { ErrorHandlerService } from '../../core/services/error-handler/error-handler.service';
 import { catchError, EMPTY } from 'rxjs';
 import { LoadingSpinnerComponent } from '../../shared-components/loading-spinner/loading-spinner.component'; 
+import { getStatusLabel, getLevelLabel, getMaterialLabel } from '../../core/utils/labels.util';
 
 @Component({
   selector: 'app-event-list',
@@ -195,15 +196,15 @@ export class EventListComponent implements OnInit {
     return (event?.status ?? '').toUpperCase() === 'OPEN';
   }
 
-  getStatusLabel(status: string): string {
-    return this.eventService.getStatusLabel(status);
+  getStatusLabel(status?: string): string {
+    return status ? getStatusLabel(status) : '';
   }
 
-  getLevelLabel(level: string): string {
-    return this.eventService.getLevelLabel(level);
+  getLevelLabel(level?: string): string {
+    return level ? getLevelLabel(level) : '';
   }
 
-  getMaterialLabel(material: string): string {
-    return this.eventService.getMaterialLabel(material);
+  getMaterialLabel(material?: string): string {
+    return material ? getMaterialLabel(material) : '';
   }
 }

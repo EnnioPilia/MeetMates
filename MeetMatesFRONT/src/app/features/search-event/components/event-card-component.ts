@@ -1,9 +1,9 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { EventDetails } from '../../../core/models/event-details.model';
-import { EventService } from '../../../core/services/event/event-service.service';
 import { EventInfoCardComponent } from '../../../shared-components/event-info-card/event-info-card';
+import { getStatusLabel, getParticipationLabel } from '../../../core/utils/labels.util';
 
 @Component({
   selector: 'app-event-card',
@@ -45,13 +45,11 @@ export class EventCardComponent {
   @Input() event!: EventDetails;
   @Input() events: any[] = [];
 
-  private eventService = inject(EventService);
+  getStatusLabel(status?: string): string {
+     return status ? getStatusLabel(status) : '';
+   }
 
-  getStatusLabel(status: string): string {
-    return this.eventService.getStatusLabel(status);
-  }
-
-  getParticipationLabel(status: string | null | undefined): string {
-    return this.eventService.getParticipationLabel(status);
+ getParticipationLabel(status: string | null | undefined): string {
+    return getParticipationLabel(status ?? null);
   }
 }

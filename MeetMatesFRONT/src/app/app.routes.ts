@@ -16,8 +16,12 @@ import { EventListComponent } from './features/event-list/event-list.component';
 import { EventParticipantComponent } from './features/event-participant/event-participant.component';
 import { EventOrganizerComponent } from './features/event-organizer/event-organizer.component';
 import { SearchEventsComponent } from './features/search-event/search-events.component'; 
-
 // import { authGuard } from './core/guards/auth.guard';
+
+
+  // Aucun lazy loading, alors que ton projet est énorme. !!!!!!
+  // Tous les composants sont importés directement → pas optimal.
+
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -38,6 +42,7 @@ export const routes: Routes = [
   { path: 'event-participant/:eventId', component: EventParticipantComponent, data: { title: 'DETAILS DE l\'ÉVÉNEMENT' } },
   { path: 'event-organizer/:eventId', component: EventOrganizerComponent, data: { title: 'ÉVÉNEMENT ORGANISATEUR' } },
   { path: 'search-events', component: SearchEventsComponent, data: { title: 'RECHERCHE' } },
+  // Doublon :
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: '**', redirectTo: 'home' }
 ];

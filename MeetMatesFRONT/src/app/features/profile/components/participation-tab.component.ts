@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-import { EventService } from '../../../core/services/event/event-service.service';
 import { StatusColorPipe } from '../../../shared-components/pipes/statusColor.pipe';
+import { getStatusLabel, getParticipationLabel } from '../../../core/utils/labels.util';
 
 @Component({
   selector: 'app-participation-tab',
@@ -57,15 +57,14 @@ import { StatusColorPipe } from '../../../shared-components/pipes/statusColor.pi
   `,
 })
 export class ParticipationTabComponent {
-  private eventService = inject(EventService);
 
   @Input() events: any[] = [];
 
-  getStatusLabel(status: string): string {
-    return this.eventService.getStatusLabel(status);
-  }
+   getStatusLabel(status?: string): string {
+     return status ? getStatusLabel(status) : '';
+   }
 
-  getParticipationLabel(status: string | null | undefined): string {
-    return this.eventService.getParticipationLabel(status);
-  }
+   getParticipationLabel(status: string | null | undefined): string {
+     return getParticipationLabel(status ?? null);
+   }
 }

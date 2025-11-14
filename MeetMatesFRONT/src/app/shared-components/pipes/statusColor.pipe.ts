@@ -6,33 +6,19 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 export class StatusColorPipe implements PipeTransform {
   transform(label?: string | null): string {
-    if (!label) return 'text-black';
-
-    const value = label.toLowerCase();
+    const value = label?.toLowerCase();
 
     switch (value) {
       // --- Statuts d'activité ---
-        case 'ouvert':      
-          return 'text-green-600';
+        case 'ouvert': return 'text-green-600';
+        case 'complet': return 'text-orange-500';
+        case 'annulé': return 'text-red-600';
+        case 'terminé': return 'text-gray-500';
 
-        case 'complet':     
-          return 'text-orange-500';
-
-        case 'annulé':      
-          return 'text-red-600';
-
-        case 'terminé':     
-          return 'text-gray-500';
-
-        // --- Statuts de participation ---
-        case 'accepté':     
-          return 'text-green-600';
-
-        case 'en attente':  
-          return 'text-orange-500';
-
-        case 'refusé':      
-          return 'text-red-600';
+      // --- Statuts de participation ---
+        case 'accepté':  return 'text-green-600';
+        case 'en attente': return 'text-orange-500';
+        case 'refusé': return 'text-red-600';
 
       default:
         return 'text-black';

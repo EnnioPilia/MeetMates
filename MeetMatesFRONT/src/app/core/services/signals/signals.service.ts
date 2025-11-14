@@ -19,10 +19,6 @@ export class SignalsService {
     this.pageTitle.set(title);
   }
 
-  // setCurrentUser(user: CurrentUser | null) {
-  //   this.currentUser.set(user);
-  // }
-
   clearCurrentUser() {
     this.currentUser.set(null);
   }

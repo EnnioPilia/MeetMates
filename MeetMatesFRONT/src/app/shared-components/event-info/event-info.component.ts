@@ -1,7 +1,7 @@
-import { Component, Input, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { EventService } from '../../core/services/event/event-service.service';
-import { StatusColorPipe } from '../pipes/statusColor.pipe'; 
+import { StatusColorPipe } from '../pipes/statusColor.pipe';
+import { getStatusLabel, getLevelLabel, getMaterialLabel } from '../../core/utils/labels.util';
 
 interface EventData {
   status?: string;
@@ -19,30 +19,29 @@ interface EventData {
 @Component({
   selector: 'app-event-info',
   standalone: true,
-  imports: [CommonModule,StatusColorPipe],
+  imports: [CommonModule, StatusColorPipe],
   templateUrl: './event-info.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EventInfoComponent {
-  private readonly eventService = inject(EventService);
 
   @Input() event: EventData = {};
   @Input() showStatus = false;
   @Input() showOrganizer = true;
 
   getStatusLabel(status?: string): string {
-    return status ? this.eventService.getStatusLabel(status) : '';
+    return status ? getStatusLabel(status) : '';
   }
 
   getLevelLabel(level?: string): string {
-    return level ? this.eventService.getLevelLabel(level) : '';
+    return level ? getLevelLabel(level) : '';
   }
 
   getMaterialLabel(material?: string): string {
-    return material ? this.eventService.getMaterialLabel(material) : '';
+    return material ? getMaterialLabel(material) : '';
   }
-  
+
   formatTime(time?: string): string {
-    return time ? time.slice(0, 5) : '';
+    return time?.slice(0, 5) ?? '';
   }
 }

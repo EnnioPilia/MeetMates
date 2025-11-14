@@ -2,6 +2,7 @@ import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EventService } from '../../../core/services/event/event-service.service';
 import { StatusColorPipe } from '../../../shared-components/pipes/statusColor.pipe'; // 
+import { getStatusLabel, getParticipationLabel } from '../../../core/utils/labels.util';
 
 @Component({
   selector: 'app-event-status',
@@ -26,11 +27,12 @@ export class EventStatusComponent {
   @Input() eventStatus!: string | null;
   @Input() participationStatus!: string | null;
 
-  getStatusLabel(status: string) {
-    return this.eventService.getStatusLabel(status);
-  }
 
-  getParticipationLabel(status: string | null) {
-    return this.eventService.getParticipationLabel(status);
+  getStatusLabel(status?: string): string {
+     return status ? getStatusLabel(status) : '';
+   }
+
+ getParticipationLabel(status: string | null | undefined): string {
+    return getParticipationLabel(status ?? null);
   }
 }
