@@ -4,7 +4,8 @@
     <p><strong>Activité :</strong> {{ event.activityName }}</p>
   }
   @if (getStatus(event)) {
-    <p><strong>Status de l'activité :</strong> {{ getStatusLabel(getStatus(event)) }}</p>
+    <p><strong>Status de l'activité :</strong><span [ngClass]="getStatusLabel(getStatus(event)) | statusColor">
+    {{ getStatusLabel(getStatus(event)) }}</span></p>
   }
   @if (showAddress) {
     <p><strong></strong> {{ event.addressLabel }}</p>

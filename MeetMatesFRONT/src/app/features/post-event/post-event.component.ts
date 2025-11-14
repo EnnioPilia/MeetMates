@@ -1,6 +1,11 @@
+// ---------- Angular Core & Utilities ----------
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { catchError } from 'rxjs/operators';
+import { EMPTY } from 'rxjs';
+
+// ---------- Angular Material ----------
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -10,21 +15,25 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
+// ---------- Services ----------
+import { ActivityService } from '../../core/services/activity/activity.service';
+import { EventService } from '../../core/services/event/event-service.service';
+import { ErrorHandlerService } from '../../core/services/error-handler/error-handler.service';
 import { NotificationService } from '../../core/services/notification/notification.service';
+import { AddressService, AddressSuggestion } from '../../core/services/address/address.service';
+
+// ---------- Composants enfant ----------
 import { PostSelectComponent } from './components/post-select.component';
 import { PostTextFieldsComponent } from './components/post-text-fields.component';
 import { PostDateTimeComponent } from './components/post-date-time.component';
 import { PostOptionsComponent } from './components/post-options.component';
 import { PostAddressComponent } from './components/post-address.component';
+
+// ---------- Composants Shared ----------
 import { AppButtonComponent } from '../../shared-components/button/button.component';
-import { AddressService, AddressSuggestion } from '../../core/services/address/address.service';
 import { MATERIAL_OPTIONS, LEVEL_OPTIONS } from '../../shared-components/constants/event-option';
-import { ActivityService } from '../../core/services/activity/activity.service';
-import { EventService } from '../../core/services/event/event-service.service';
-import { catchError } from 'rxjs/operators';
-import { EMPTY } from 'rxjs';
-import { ErrorHandlerService } from '../../core/services/error-handler/error-handler.service';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-post-event',
@@ -54,10 +63,11 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 export class PostEventComponent implements OnInit {
   private fb = inject(FormBuilder);
   private notification = inject(NotificationService);
-  private readonly addressService = inject(AddressService);
   private activityService = inject(ActivityService);
   private eventService = inject(EventService);
   private errorHandler = inject(ErrorHandlerService);
+
+  private readonly addressService = inject(AddressService);
   readonly addressSuggestions = signal<AddressSuggestion[]>([]);
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
@@ -119,15 +129,8 @@ export class PostEventComponent implements OnInit {
     this.selectedFile = null;
   }
 
-  // dans un service ? 2 occurences
   onAddressInput(value: string): void {
     this.addressService.getAddressSuggestions(value)
-      .pipe(
-        catchError(err => {
-          this.errorHandler.handle(err, '❌ Erreur lors du chargement des suggestions.');
-          return EMPTY;
-        })
-      )
       .subscribe(suggestions => this.addressSuggestions.set(suggestions));
   }
 
@@ -172,20 +175,22 @@ export class PostEventComponent implements OnInit {
           return EMPTY;
         })
       )
-      .subscribe({
-        next: () => {
-          this.notification.showSuccess('✅ Activité créée avec succès !');
-          this.resetForm();
-          this.loading.set(false);
-        },
-        error: () => {
-          this.loading.set(false);
-        }
+      .subscribe(() => {
+        this.notification.showSuccess('✅ Activité créée avec succès !');
+        this.resetForm();
+        this.loading.set(false);
       });
   }
 
-  private formatDate(date: Date): string {
-    return new Date(date).toISOString().split('T')[0];
+  private formatDate(date: any): string {
+    if (!date) return '';
+
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
   }
 
   private resetForm(): void {

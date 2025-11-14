@@ -2,11 +2,12 @@ import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EventDetails } from '../../core/models/event-details.model';
 import { EventService } from '../../core/services/event/event-service.service';
+import { StatusColorPipe } from '../../shared-components/pipes/statusColor.pipe';
 
 @Component({
   selector: 'app-event-info-card',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule,StatusColorPipe],
   templateUrl: './event-info-card.html',
 })
 export class EventInfoCardComponent {

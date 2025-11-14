@@ -4,6 +4,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { EventService } from '../../../core/services/event/event-service.service';
+import { StatusColorPipe } from '../../../shared-components/pipes/statusColor.pipe';
 
 @Component({
   selector: 'app-participation-tab',
@@ -13,6 +14,7 @@ import { EventService } from '../../../core/services/event/event-service.service
     MatExpansionModule, 
     RouterModule, 
     MatButtonModule,
+    StatusColorPipe
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -32,10 +34,20 @@ import { EventService } from '../../../core/services/event/event-service.service
           </mat-expansion-panel-header>
 
           <div class="flex flex-col gap-2">
-            <p><strong>Status de l'activité:</strong> {{ getStatusLabel(event.eventStatus) }}</p>
-            <p><strong>Votre participation :</strong> {{ getParticipationLabel(event.participationStatus) }}</p>
+            
+            <p><strong>Status de l'activité :</strong><span [ngClass]="getStatusLabel(event.eventStatus) | statusColor">
+                {{ getStatusLabel(event.eventStatus) }}</span></p>
+
+            <p><strong>Votre participation :</strong><span [ngClass]="getParticipationLabel(event.participationStatus) | statusColor">
+                {{ getParticipationLabel(event.participationStatus) }}</span></p>
+
             <p>{{ event.addressLabel }}</p>
-            <button class="primary-button h-10" [routerLink]="['/event-participant', event.eventId]">VOIR DÉTAILS</button>
+
+            <button class="primary-button h-10" 
+              [routerLink]="['/event-participant', event.eventId]">
+              VOIR DÉTAILS
+            </button>
+
           </div>
         </mat-expansion-panel>
         }

@@ -11,7 +11,9 @@ import { StatusColorPipe } from '../../../shared-components/pipes/statusColor.pi
   
     <div class="flex flex-col items-center gap-2 border-b border-black mb-3 p-3">
 
-      <p><strong>VOTRE PARTICIPATION :</strong> {{ getParticipationLabel(participationStatus || '') }}</p>
+      <p><strong>VOTRE PARTICIPATION :</strong><span [ngClass]="getParticipationLabel(participationStatus || '') | statusColor">
+        {{ getParticipationLabel(participationStatus || '') }}</span></p> 
+          
       <p><strong>STATUT DE L'ACTIVITÉ :</strong><span [ngClass]="getStatusLabel(eventStatus || '') | statusColor">
         {{ getStatusLabel(eventStatus || '') }}</span></p>
       

@@ -1,27 +1,38 @@
+// ---------- Angular Core & Utilities ----------
 import { Component, OnInit, inject, DestroyRef, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { forkJoin, EMPTY } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError } from 'rxjs/operators';
+
+// ---------- Angular Material ----------
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
-import { Router, ActivatedRoute } from '@angular/router';
+
+// ---------- Services ----------
 import { EventService } from '../../core/services/event/event-service.service';
 import { NotificationService } from '../../core/services/notification/notification.service';
+import { AddressService, AddressSuggestion } from '../../core/services/address/address.service';
+import { ActivityService } from '../../core/services/activity/activity.service';
+import { ErrorHandlerService } from '../../core/services/error-handler/error-handler.service';
+
+// ---------- Modèles ----------
 import { EventDetails } from '../../core/models/event-details.model';
+import { Activity } from '../../core/models/activity.model';
+
+// ---------- Composants enfant ----------
 import { EditEventInfoComponent } from './components/edit-event-info.component';
 import { EditEventDetailsComponent } from './components/edit-event-details.component';
 import { EditEventAddressComponent } from './components/edit-event-address.component';
 import { EditEventDateTimeComponent } from './components/edit-event-dateTime.component';
-import { AppButtonComponent } from '../../shared-components/button/button.component';
 import { EditEventActivityComponent } from './components/edit-event-activity.component';
-import { AddressService, AddressSuggestion } from '../../core/services/address/address.service';
-import { ActivityService } from '../../core/services/activity/activity.service';
-import { Activity } from '../../core/models/activity.model';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ErrorHandlerService } from '../../core/services/error-handler/error-handler.service';
-import { LoadingSpinnerComponent } from '../../shared-components/loading-spinner/loading-spinner.component'; 
+
+// ---------- Composants Shared ----------
+import { AppButtonComponent } from '../../shared-components/button/button.component';
+import { LoadingSpinnerComponent } from '../../shared-components/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-edit-event',
@@ -44,7 +55,6 @@ import { LoadingSpinnerComponent } from '../../shared-components/loading-spinner
   styleUrls: ['./edit-event.component.scss']
 })
 export class EditEventComponent implements OnInit {
-
   private router = inject(Router);
   private fb = inject(FormBuilder);
   private eventService = inject(EventService);
@@ -108,7 +118,7 @@ export class EditEventComponent implements OnInit {
       level: [event.level],
       maxParticipants: [event.maxParticipants],
       material: [event.material],
-      eventDate: [event.eventDate],
+      eventDate: [this.toLocalDate(event.eventDate)],
       startTime: [event.startTime],
       endTime: [event.endTime],
       addressLabel: [event.addressLabel],
@@ -127,11 +137,13 @@ export class EditEventComponent implements OnInit {
 
   saveChanges(): void {
     if (!this.form.valid || !this.eventId) return;
+    const formValue = this.form.value;
 
     const updated: EventDetails = {
       ...this.event()!,
       ...this.form.value,
       id: this.eventId,
+      eventDate: this.toBackendDate(formValue.eventDate),
       address: this.parseAddress(this.form.value.addressLabel)
     };
 
@@ -152,12 +164,6 @@ export class EditEventComponent implements OnInit {
 
   onAddressInput(value: string): void {
     this.addressService.getAddressSuggestions(value)
-      .pipe(
-        catchError(err => {
-          this.errorHandler.handle(err, '❌ Erreur lors du chargement des suggestions.');
-          return EMPTY;
-        })
-      )
       .subscribe(suggestions => this.addressSuggestions.set(suggestions));
   }
 
@@ -167,5 +173,23 @@ export class EditEventComponent implements OnInit {
     return match
       ? { street: match[1].trim(), postalCode: match[2], city: match[3].trim() }
       : { street: label, postalCode: '', city: '' };
+  }
+
+  private toLocalDate(utcString: string): Date {
+    if (!utcString) return new Date();
+    const date = new Date(utcString);
+
+    return new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate()
+    );
+  }
+
+  private toBackendDate(date: Date): string {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
   }
 }
