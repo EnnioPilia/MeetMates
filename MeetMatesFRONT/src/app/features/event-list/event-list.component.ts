@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { SignalsService } from '../../core/services/signals/signals.service';
 import { NotificationService } from '../../core/services/notification/notification.service';
-import { EventService } from '../../core/services/event/event-service.service';
+import { EventService } from '../../core/services/event/event.service.service';
 import { EventResponse } from '../../core/models/event-response.model';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -12,7 +12,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { AppButtonComponent } from '../../shared-components/button/button.component';
 import { EventHeaderComponent } from '../../shared-components/event-header/event-header.component';
 import { EventInfoComponent } from '../../shared-components/event-info/event-info.component';
-import { EventUserService } from '../../core/services/event/event-user-service';
+import { EventUserService } from '../../core/services/event-user/event-user.service';
 import { ActivityService } from '../../core/services/activity/activity.service';
 import { UserService } from '../../core/services/user/user.service';
 import { ErrorHandlerService } from '../../core/services/error-handler/error-handler.service';
@@ -116,7 +116,7 @@ export class EventListComponent implements OnInit {
       return;
     }
 
-    this.eventUserService.joinEvent(eventId, user.id)
+    this.eventUserService.joinEvent(eventId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => this.notification.showSuccess('✅ Demande de participation envoyée.'),

@@ -8,7 +8,12 @@ import { User } from '../../../core/models/user.model';
 @Component({
   selector: 'app-profile-card',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatIconModule, MatButtonModule],
+  imports: [
+    CommonModule, 
+    MatCardModule, 
+    MatIconModule, 
+    MatButtonModule
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
 

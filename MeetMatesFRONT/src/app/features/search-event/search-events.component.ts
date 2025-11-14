@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterModule } from '@angular/router';
-import { EventService } from '../../core/services/event/event-service.service';
+import { EventService } from '../../core/services/event/event.service.service';
 import { EventMapperService } from '../../core/services/event/event-mapper.service';
 import { EventDetails } from '../../core/models/event-details.model';
 import { EventResponse } from '../../core/models/event-response.model';

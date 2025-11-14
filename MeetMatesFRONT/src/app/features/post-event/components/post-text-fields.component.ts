@@ -8,7 +8,13 @@ import { AppInputComponent } from '../../../shared-components/input/input.compon
 @Component({
   selector: 'app-post-text-fields',
   standalone: true,
-  imports: [CommonModule, MatFormFieldModule, MatInputModule, ReactiveFormsModule, AppInputComponent],
+  imports: [
+    CommonModule, 
+    MatFormFieldModule, 
+    MatInputModule, 
+    ReactiveFormsModule, 
+    AppInputComponent
+  ],
   template: `
 
     <div [formGroup]="form"  class="flex flex-col items-center gap-4 w-80">

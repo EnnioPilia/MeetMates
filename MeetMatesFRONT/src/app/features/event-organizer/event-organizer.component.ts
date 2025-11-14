@@ -9,8 +9,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { EMPTY, catchError } from 'rxjs';
 
 import { EventDetails } from '../../core/models/event-details.model';
-import { EventService } from '../../core/services/event/event-service.service';
-import { EventUserService } from '../../core/services/event/event-user-service';
+import { EventService } from '../../core/services/event/event.service.service';
+import { EventUserService } from '../../core/services/event-user/event-user.service';
 import { NotificationService } from '../../core/services/notification/notification.service';
 import { ErrorHandlerService } from '../../core/services/error-handler/error-handler.service';
 

@@ -10,7 +10,7 @@ import { catchError } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { UserService } from '../../core/services/user/user.service';
-import { EventUserService } from '../../core/services/event/event-user-service';
+import { EventUserService } from '../../core/services/event-user/event-user.service';
 import { SignalsService } from '../../core/services/signals/signals.service';
 import { NotificationService } from '../../core/services/notification/notification.service';
 import { ErrorHandlerService } from '../../core/services/error-handler/error-handler.service';

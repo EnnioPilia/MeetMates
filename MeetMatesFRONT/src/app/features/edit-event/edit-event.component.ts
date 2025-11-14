@@ -13,7 +13,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 
 // ---------- Services ----------
-import { EventService } from '../../core/services/event/event-service.service';
+import { EventService } from '../../core/services/event/event.service.service';
 import { NotificationService } from '../../core/services/notification/notification.service';
 import { AddressService, AddressSuggestion } from '../../core/services/address/address.service';
 import { ActivityService } from '../../core/services/activity/activity.service';

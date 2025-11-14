@@ -1,6 +1,6 @@
 import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { EventService } from '../../../core/services/event/event-service.service';
+import { EventService } from '../../../core/services/event/event.service.service';
 import { StatusColorPipe } from '../../../shared-components/pipes/statusColor.pipe'; // 
 import { getStatusLabel, getParticipationLabel } from '../../../core/utils/labels.util';
 

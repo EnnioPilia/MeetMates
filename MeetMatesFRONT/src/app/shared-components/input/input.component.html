@@ -9,6 +9,7 @@
     [required]="required"
     [attr.min]="min"
     [attr.max]="max"
+    [attr.maxlength]="maxLength"
   />
 
   @if (control.hasError('required') && (control.touched || control.dirty)) {

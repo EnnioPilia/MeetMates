@@ -19,7 +19,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 // ---------- Services ----------
 import { ActivityService } from '../../core/services/activity/activity.service';
-import { EventService } from '../../core/services/event/event-service.service';
+import { EventService } from '../../core/services/event/event.service.service';
 import { ErrorHandlerService } from '../../core/services/error-handler/error-handler.service';
 import { NotificationService } from '../../core/services/notification/notification.service';
 import { AddressService, AddressSuggestion } from '../../core/services/address/address.service';

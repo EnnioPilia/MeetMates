@@ -35,4 +35,5 @@ export class AppInputComponent {
   @Input() icon?: string;
   @Input() min?: number;
   @Input() max?: number;
+  @Input() maxLength?: number;
 }

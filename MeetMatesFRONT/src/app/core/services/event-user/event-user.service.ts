@@ -10,8 +10,8 @@ export class EventUserService {
   private http = inject(HttpClient);
   private baseUrl = environment.apiUrl;
 
-  joinEvent(eventId: string, userId: string): Observable<void> {
-    return this.http.post<void>(`${this.baseUrl}/event-user/join`, { eventId, userId }, { withCredentials: true });
+  joinEvent(eventId: string): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/event-user/${eventId}/join`, {}, { withCredentials: true });
   }
 
   acceptParticipant(eventUserId: string): Observable<void> {
@@ -23,11 +23,11 @@ export class EventUserService {
   }
 
   removeParticipant(eventId: string, userId: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/event-user/${eventId}/remove/${userId}`, { withCredentials: true });
+    return this.http.delete<void>(`${this.baseUrl}/event-user/${eventId}/participants/${userId}`, { withCredentials: true });
   }
 
   leaveEvent(eventId: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/event-user/leave`, { params: { eventId }, withCredentials: true });
+    return this.http.delete<void>(`${this.baseUrl}/event-user/${eventId}/leave`, { withCredentials: true });
   }
 
   getOrganizedEvents(): Observable<any[]> {

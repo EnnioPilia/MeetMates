@@ -34,7 +34,8 @@ import { AppInputComponent } from '../../../shared-components/input/input.compon
         <app-input 
           label="Titre" 
           [control]="form.get('title')!" 
-          type="text">
+          type="text"
+          [maxLength]="20">
         </app-input>
 
       <mat-form-field appearance="fill" class="w-80">
