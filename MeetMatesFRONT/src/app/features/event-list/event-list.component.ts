@@ -17,7 +17,7 @@ import { ActivityService } from '../../core/services/activity/activity.service';
 import { UserService } from '../../core/services/user/user.service';
 import { ErrorHandlerService } from '../../core/services/error-handler/error-handler.service';
 import { catchError, EMPTY } from 'rxjs';
-import { LoadingSpinnerComponent } from '../../shared-components/loading-spinner/loading-spinner.component'; 
+import { LoadingSpinnerComponent } from '../../shared-components/loading-spinner/loading-spinner.component';
 import { getStatusLabel, getLevelLabel, getMaterialLabel } from '../../core/utils/labels.util';
 
 @Component({
@@ -112,7 +112,7 @@ export class EventListComponent implements OnInit {
     }
 
     if (['CANCELLED', 'FULL', 'FINISHED'].includes(eventFound.status?.toUpperCase() || '')) {
-      this.notification.showWarning("Cet événement n’est plus disponible.");
+      this.notification.showWarning("❌ Cet événement n’est plus disponible.");
       return;
     }
 
@@ -121,11 +121,20 @@ export class EventListComponent implements OnInit {
       .subscribe({
         next: () => this.notification.showSuccess('✅ Demande de participation envoyée.'),
         error: err => {
-          if (err?.status === 409) {
-            this.notification.showWarning('Une demande a deja été envoyé.');
-            return;
+          switch (err.status) {
+            case 409:
+              this.notification.showWarning( err.error?.message);
+              return;
+            case 403:
+              this.notification.showError("❌ Vous ne pouvez pas rejoindre cet événement car vous avez été retiré");
+              return;
+            case 404:
+              this.notification.showError(err.error?.message || "❌ Événement introuvable.");
+              return;
+            default:
+              this.errorHandler.handle(err, '❌ Une erreur est survenue.');
+              return;
           }
-          this.errorHandler.handle(err, 'Vous avez été retiré de cet événement.');
         }
       });
   }
