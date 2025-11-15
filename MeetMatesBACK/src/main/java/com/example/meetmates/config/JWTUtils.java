@@ -8,19 +8,15 @@ import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 
-
-    // ⚠️ Gestion d’erreurs brute
-// e.printStackTrace() → pas terrible.
-// Préfère un vrai logger (ex: log.warn("Invalid token: {}", e.getMessage());).
-
-
+@Slf4j
 @Component
 public class JWTUtils {
 
@@ -33,56 +29,62 @@ public class JWTUtils {
         this.jwtExpirationMs = jwtExpirationMs;
     }
 
-    public SecretKey getKey() {
-        return key;
-    }
+    public String generateAccessToken(String email, String role) {
+        log.debug("Generating access token for {}", email);
 
-    public String generateToken(String email, String role) {
-        String cleanRole = role.toUpperCase();
-        String prefixedRole = cleanRole.startsWith("ROLE_") ? cleanRole : "ROLE_" + cleanRole;
         return Jwts.builder()
                 .setSubject(email)
-                .claim("role", prefixedRole)
+                .claim("role", role.toUpperCase())
+                .claim("tokenType", "ACCESS")
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
     }
 
-    public String getUsernameFromToken(String token) {
+    public Claims getClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+                .getBody();
     }
 
-    public boolean validateToken(String token) {
+    public boolean isValidAccessToken(String token) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token);
+            Claims claims = getClaims(token);
+
+            if (!"ACCESS".equals(claims.get("tokenType"))) {
+                log.warn("Rejected JWT → wrong type: {}", claims.get("tokenType"));
+                return false;
+            }
+
             return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            e.printStackTrace();
+
+        } catch (ExpiredJwtException e) {
+            log.warn("JWT expired at {}", e.getClaims().getExpiration());
+            return false;
+
+        } catch (JwtException e) {
+            log.warn("Invalid JWT: {}", e.getMessage());
+            return false;
+
+        } catch (IllegalArgumentException e) {
+            log.warn("JWT was null or empty");
+            return false;
         }
-        return false;
+    }
+
+    public String getUsername(String token) {
+        try {
+            return getClaims(token).getSubject();
+        } catch (JwtException e) {
+            log.error("Unable to extract username from token: {}", e.getMessage());
+            return null;
+        }
     }
 
     public int getJwtExpirationMs() {
         return jwtExpirationMs;
-    }
-
-    public String extractTokenFromRequest(HttpServletRequest request) {
-        if (request.getCookies() != null) {
-            for (Cookie cookie : request.getCookies()) {
-                if ("refreshToken".equals(cookie.getName())) {
-                    return cookie.getValue();
-                }
-            }
-        }
-        return request.getHeader("refreshToken");
     }
 }

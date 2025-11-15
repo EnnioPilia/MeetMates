@@ -14,6 +14,10 @@ import com.example.meetmates.config.JWTUtils;
 import com.example.meetmates.dto.LoginRequestDto;
 import com.example.meetmates.dto.LoginResponseDto;
 import com.example.meetmates.dto.RegisterRequestDto;
+import com.example.meetmates.exception.EmailAlreadyUsedException;
+import com.example.meetmates.exception.InvalidTokenException;
+import com.example.meetmates.exception.UserDisabledException;
+import com.example.meetmates.exception.UserNotFoundException;
 import com.example.meetmates.model.Token;
 import com.example.meetmates.model.User;
 import com.example.meetmates.model.UserRole;
@@ -36,135 +40,153 @@ public class AuthService {
     @Autowired
     private EmailService emailService;
     @Autowired
-    private VerificationTokenService VerificationTokenService;
+    private VerificationTokenService verificationTokenService;
     @Autowired
     private RefreshTokenService refreshTokenService;
 
+    // ============================================================
+    // REGISTER
+    // ============================================================
     public String register(RegisterRequestDto request) {
+
         String email = request.getEmail().toLowerCase();
 
         Optional<User> existingUserOpt = userRepository.findByEmail(email);
 
+        // ---- Cas 1 : l’email existe et n'est pas supprimé
         if (existingUserOpt.isPresent()) {
             User existingUser = existingUserOpt.get();
 
             if (existingUser.getDeletedAt() == null) {
-                throw new RuntimeException("Email déjà utilisé");
+                throw new EmailAlreadyUsedException("Email déjà utilisé.");
             }
 
+            // ---- Cas 2 : l’utilisateur existait mais était supprimé → restauration
             existingUser.setFirstName(request.getFirstName());
             existingUser.setLastName(request.getLastName());
             existingUser.setPassword(passwordEncoder.encode(request.getPassword()));
             existingUser.setAge(request.getAge());
-            existingUser.setRole(
-                    request.getRole() == null
+            existingUser.setRole(request.getRole() == null
                     ? UserRole.USER
-                    : UserRole.valueOf(request.getRole().toUpperCase())
-            );
+                    : UserRole.valueOf(request.getRole().toUpperCase()));
             existingUser.setEnabled(false);
             existingUser.setStatus(UserStatus.ACTIVE);
             existingUser.setAcceptedCguAt(request.getDateAcceptationCGU());
-            existingUser.setDeletedAt(null); 
+            existingUser.setDeletedAt(null);
 
             userRepository.save(existingUser);
 
-            String verificationToken = VerificationTokenService.createVerificationToken(existingUser);
+            String verificationToken = verificationTokenService.createVerificationToken(existingUser);
             emailService.sendVerificationEmail(existingUser.getEmail(), verificationToken);
 
-            return "Compte restauré avec succès, veuillez vérifier votre email.";
+            return "Compte restauré avec succès. Vérifiez votre email.";
         }
 
+        // ---- Cas 3 : création d'un nouvel utilisateur
         User newUser = new User();
         newUser.setFirstName(request.getFirstName());
         newUser.setLastName(request.getLastName());
         newUser.setEmail(email);
         newUser.setPassword(passwordEncoder.encode(request.getPassword()));
         newUser.setAge(request.getAge());
-        newUser.setRole(
-                request.getRole() == null
+        newUser.setRole(request.getRole() == null
                 ? UserRole.USER
-                : UserRole.valueOf(request.getRole().toUpperCase())
-        );
+                : UserRole.valueOf(request.getRole().toUpperCase()));
         newUser.setEnabled(false);
         newUser.setAcceptedCguAt(request.getDateAcceptationCGU());
 
         User savedUser = userRepository.save(newUser);
 
-        String verificationToken = VerificationTokenService.createVerificationToken(savedUser);
+        String verificationToken = verificationTokenService.createVerificationToken(savedUser);
         emailService.sendVerificationEmail(savedUser.getEmail(), verificationToken);
 
-        return "Utilisateur enregistré avec succès, veuillez vérifier votre email.";
+        return "Utilisateur enregistré avec succès. Vérifiez votre email.";
     }
 
+    // ============================================================
+    // LOGIN
+    // ============================================================
     public LoginResponseDto login(LoginRequestDto request, HttpServletResponse response) {
+
+        String email = request.getEmail().toLowerCase();
+
         try {
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            request.getEmail().toLowerCase(),
-                            request.getPassword()
-                    )
-            );
+                    new UsernamePasswordAuthenticationToken(email, request.getPassword()));
         } catch (BadCredentialsException e) {
-            throw new BadCredentialsException("Identifiants invalides");
+            throw new BadCredentialsException("Identifiants invalides.");
         }
 
-        User user = userRepository.findByEmail(request.getEmail().toLowerCase())
-                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé."));
 
         if (!user.isEnabled()) {
-            throw new RuntimeException("Compte non vérifié");
+            throw new UserDisabledException("Compte non vérifié.");
         }
 
         String role = user.getRole().name().toLowerCase();
-        String token = jwtUtils.generateToken(user.getEmail(), role);
+        String jwt = jwtUtils.generateAccessToken(user.getEmail(), role);
         Token refreshToken = refreshTokenService.createRefreshToken(user);
 
-        ResponseCookie authCookie = ResponseCookie.from("authToken", token)
+       ResponseCookie authCookie = ResponseCookie.from("authToken", jwt)
                 .httpOnly(true)
-                .secure(false) // mettre true en prod avec HTTPS
+                .secure(true)
                 .path("/")
+                .sameSite("None") // strict en prod
                 .maxAge(jwtUtils.getJwtExpirationMs() / 1000)
-                .sameSite("Strict")
                 .build();
 
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken.getToken())
                 .httpOnly(true)
-                .secure(false) // mettre true en prod avec HTTPS
+                .secure(true)
                 .path("/")
+                .sameSite("None") // strict en prod
                 .maxAge(7 * 24 * 60 * 60)
-                .sameSite("Strict")
                 .build();
+
 
         response.addHeader("Set-Cookie", authCookie.toString());
         response.addHeader("Set-Cookie", refreshCookie.toString());
 
-        return new LoginResponseDto("Connexion réussie !", token);
+        return new LoginResponseDto("Connexion réussie !", jwt);
     }
 
+    // ============================================================
+    // VERIFY EMAIL
+    // ============================================================
     public String verifyUser(String token) {
-        boolean verified = VerificationTokenService.confirmToken(token);
-        if (verified) {
+        try {
+            boolean confirmed = verificationTokenService.confirmToken(token);
+            if (!confirmed) {
+                throw new InvalidTokenException("Token invalide ou expiré.");
+            }
             return "Compte vérifié avec succès !";
-        } else {
-            throw new RuntimeException("Token invalide ou expiré");
+        } catch (InvalidTokenException e) {
+            throw e; 
+        } catch (RuntimeException e) {
+            throw new InvalidTokenException("Erreur lors de la vérification du token.");
         }
     }
 
+    // ==================== ========================================
+    // LOGOUT
+    // ============================================================
     public void logout(HttpServletResponse response) {
+
         ResponseCookie authCookie = ResponseCookie.from("authToken", "")
                 .httpOnly(true)
-                .secure(false)
+                .secure(true)
                 .path("/")
                 .maxAge(0)
-                .sameSite("Strict")
+                .sameSite("None")
                 .build();
 
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", "")
                 .httpOnly(true)
-                .secure(false)
+                .secure(true)
                 .path("/")
                 .maxAge(0)
-                .sameSite("Strict")
+                .sameSite("None")
                 .build();
 
         response.addHeader("Set-Cookie", authCookie.toString());

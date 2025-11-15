@@ -2,7 +2,6 @@ package com.example.meetmates.config;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -27,54 +26,66 @@ import com.example.meetmates.service.UserService;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
+
+    // * CONSTANTES
+    private static final List<String> PUBLIC_URLS = List.of(
+            "/auth/login",
+            "/auth/register",
+            "/auth/verify",
+            "/auth/logout",
+            "/auth/request-reset",
+            "/auth/reset-password",
+            "/auth/refresh-token",
+            "/category",
+            "/activity",
+            "/activity/**",
+            "/event/**",
+            "/error/**"
+    );
+
+    private static final String ROLE_USER = "USER";
+    private static final String ROLE_ADMIN = "ADMIN";
+
+    // * CORS CONFIG
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:4200")); //  changer var d'env
+        config.setAllowedOrigins(List.of("http://localhost:4200")); // à remplacer par var d'env prod
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
-
         return source;
     }
 
+    // * SECURITY FILTER CHAIN
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http                                  // Si un token est invalide ou expiré, Spring renvoie une 403 brute. définir un retour JSON propre.
-
-                .csrf(csrf -> csrf.disable()) // CSRF désactivé car application stateless (JWT)
-                                              // Aucun cookie de session utilisé, et cookie JWT avec SameSite=Strict → pas vulnérable au CSRF.
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .authorizeHttpRequests(auth -> auth
+        http
+            .csrf(csrf -> csrf.disable()) // JWT stateless → CSRF désactivé
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/auth/login", "/auth/register", "/auth/verify", "/auth/logout").permitAll()
-                .requestMatchers("/auth/request-reset", "/auth/reset-password").permitAll()
-                .requestMatchers("/auth/refresh-token").permitAll()
-                .requestMatchers("/category").permitAll()
-                .requestMatchers("/activity").permitAll()
-                .requestMatchers("/activity/**").permitAll()
-                .requestMatchers("/event/**").permitAll()
-                .requestMatchers("/error/**").permitAll()
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/user/me").hasAnyRole("USER", "ADMIN")
-                .requestMatchers("/user/me/picture").hasAnyRole("USER", "ADMIN")
-                .requestMatchers("/user/**").hasRole("ADMIN") // <------ avec hasAnyAuthority ca ne marche pas 
-                // .requestMatchers("/auth/registerAdmin/**").permitAll()
-
+                .requestMatchers(PUBLIC_URLS.toArray(String[]::new)).permitAll()
+                .requestMatchers("/admin/**").hasRole(ROLE_ADMIN)
+                .requestMatchers("/user/me", "/user/me/picture").hasAnyRole(ROLE_USER, ROLE_ADMIN)
+                .requestMatchers("/user/**").hasRole(ROLE_ADMIN)
                 .anyRequest().authenticated()
-                )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            )
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
+    // * AUTH PROVIDER
     @Bean
     public AuthenticationProvider authenticationProvider(UserService userService) {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();

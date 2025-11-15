@@ -1,62 +1,49 @@
 package com.example.meetmates.service;
 
 import java.time.Instant;
-import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import com.example.meetmates.config.JWTUtils;
-import com.example.meetmates.model.User;
 import com.example.meetmates.model.Token;
 import com.example.meetmates.model.TokenType;
-
-import jakarta.servlet.http.HttpServletRequest;
+import com.example.meetmates.model.User;
+import com.example.meetmates.repository.TokenRepository;
 
 @Service
 public class RefreshTokenService {
 
-    private final TokenService tokenService;
-    // private final UserService userService;
+    private final TokenRepository tokenRepository;
 
-    public RefreshTokenService(TokenService tokenService, @Lazy UserService userService) {
-        this.tokenService = tokenService;
-        // this.userService = userService;
+    public RefreshTokenService(TokenRepository tokenRepository) {
+        this.tokenRepository = tokenRepository;
     }
 
     public Token createRefreshToken(User user) {
-        return tokenService.createToken(user, TokenType.REFRESH, 604_800); // 7 jours
+        Token token = new Token(
+                UUID.randomUUID().toString(),
+                user,
+                Instant.now(),
+                Instant.now().plusSeconds(7 * 24 * 3600),
+                TokenType.REFRESH
+        );
+        token.setUsed(false);
+        return tokenRepository.save(token);
     }
 
     public Optional<Token> findByToken(String token) {
-        return tokenService.findByToken(token);
+        return tokenRepository.findByToken(token);
     }
 
-    public void deleteByUser(User user) {
-        tokenService.deleteTokenByUserAndType(user.getId(), TokenType.REFRESH);
+    public boolean isExpired(Token token) {
+        return token.getExpiresAt().isBefore(Instant.now());
     }
 
-    public boolean isRefreshTokenExpired(Token token) {
-        return token.getExpiresAt() != null && token.getExpiresAt().isBefore(Instant.now());
-    }
+    public Token rotateToken(Token oldToken) {
+        oldToken.setUsed(true);
+        tokenRepository.save(oldToken);
 
-    public Map<String, String> generateNewAccessTokenFromRefreshToken(HttpServletRequest request, JWTUtils jwtUtils) {
-        String refreshTokenString = jwtUtils.extractTokenFromRequest(request);
-
-        Token refreshToken = findByToken(refreshTokenString)
-                .orElseThrow(() -> new RuntimeException("Refresh token invalide"));
-
-        if (isRefreshTokenExpired(refreshToken)) {
-            throw new RuntimeException("Refresh token expiré");
-        }
-
-        User user = refreshToken.getUser();
-        String newAccessToken = jwtUtils.generateToken(user.getEmail(), user.getRole().name());
-
-        return Map.of(
-                "accessToken", newAccessToken,
-                "refreshToken", refreshToken.getToken()
-        );
+        return createRefreshToken(oldToken.getUser());
     }
 }

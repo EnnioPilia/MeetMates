@@ -2,8 +2,6 @@ package com.example.meetmates.controller;
 
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,43 +24,32 @@ import jakarta.servlet.http.HttpServletResponse;
 @RequestMapping("/auth")
 public class AuthController {
 
-    @Autowired
-    private AuthService authService;
+    private final AuthService authService;
 
-    @Autowired
-    private RefreshTokenService refreshTokenService;
 
-    @Autowired
-    private JWTUtils jwtUtils;
+    public AuthController(
+            AuthService authService,
+            RefreshTokenService refreshTokenService,
+            JWTUtils jwtUtils) {
+        this.authService = authService;
+    }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequestDto request) { // ResponseEntity : classe Spring représentant une réponse HTTP complète (statut + headers + corps).
-        try {
-            String message = authService.register(request);
-            return ResponseEntity.ok(Map.of("message", message));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
-        }
+    public ResponseEntity<?> register(@RequestBody RegisterRequestDto request) {
+        String message = authService.register(request);
+        return ResponseEntity.ok(Map.of("message", message));
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDto request, HttpServletResponse response) {
-        try {
-            LoginResponseDto LoginResponseDto = authService.login(request, response);
-            return ResponseEntity.ok(LoginResponseDto);
-        } catch (RuntimeException ex) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", ex.getMessage()));
-        }
+        LoginResponseDto res = authService.login(request, response);
+        return ResponseEntity.ok(res);
     }
 
     @GetMapping("/verify")
     public ResponseEntity<?> verifyUser(@RequestParam String token) {
-        try {
-            String result = authService.verifyUser(token);
-            return ResponseEntity.ok(Map.of("message", result));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
-        }
+        String res = authService.verifyUser(token);
+        return ResponseEntity.ok(Map.of("message", res));
     }
 
     @PostMapping("/logout")
@@ -71,13 +58,9 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("message", "Déconnexion réussie"));
     }
 
-    @PostMapping("/refresh-token")
+    @PostMapping("/auth/refresh-token")
     public ResponseEntity<?> refreshToken(HttpServletRequest request) {
-        try {
-            Map<String, String> newToken = refreshTokenService.generateNewAccessTokenFromRefreshToken(request, jwtUtils);
-            return ResponseEntity.ok(newToken);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", e.getMessage()));
-        }
+        return ResponseEntity.ok("Token traité par le filtre");
     }
+
 }

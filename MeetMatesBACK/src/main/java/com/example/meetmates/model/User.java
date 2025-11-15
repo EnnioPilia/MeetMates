@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.type.SqlTypes;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -71,7 +72,8 @@ public class User {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @Column(name = "updated_at")
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
     @Column(name = "deleted_at")
@@ -107,7 +109,6 @@ public class User {
         this.deletedAt = deletedAt;
     }
 
-    // === GETTERS/SETTERS ===
     public UUID getId() {
         return id;
     }

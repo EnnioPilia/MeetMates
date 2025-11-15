@@ -2,7 +2,6 @@ package com.example.meetmates.config;
 
 import java.io.IOException;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -13,8 +12,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.example.meetmates.model.Token;
-import com.example.meetmates.model.TokenType;
-import com.example.meetmates.model.User;
 import com.example.meetmates.service.RefreshTokenService;
 import com.example.meetmates.service.UserService;
 
@@ -23,118 +20,124 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 
-
-    // ⚠️ Pas de rotation ni d’invalidation du refresh token
-// Tu valides qu’il n’est pas expiré, mais tu ne le régénères pas → vulnérable au vol de refresh token.
-// Idéalement : rotation (chaîne de refresh tokens) ou invalidation côté DB.
-
-
-    // ⚠️ shouldNotFilter() exclut /auth/, mais si tu as /auth/somethingelse non lié à login, ça bypassera tout.
-// Mieux : ne whitelister que /auth/login, /auth/register, /auth/refresh.
-
-
-    // ⚠️ Pas de validation du type du token
-// Tu fais validateToken(authToken) sans vérifier que c’est un JWT d’accès (tu relies juste au format).
-// Si quelqu’un injecte un refresh token au mauvais endroit → confusion possible.
-
-
-    // ⚠️ Pas de “Bearer” prefix handling
-// Si un client envoie Authorization: Bearer <token> → ton filtre l’ignore.
-
-
-
-
+@Slf4j
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    @Autowired
-    private JWTUtils jwtUtils;
+    private final JWTUtils jwtUtils;
+    private final UserService userService;
+    private final RefreshTokenService refreshTokenService;
 
-    @Autowired
-    @Lazy
-    private UserService userService;
-
-    @Autowired
-    private RefreshTokenService refreshTokenService;
-
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        String path = request.getServletPath();
-        return path.startsWith("/auth/");
+    public JwtAuthenticationFilter(
+            JWTUtils jwtUtils,
+            @Lazy UserService userService,
+            RefreshTokenService refreshTokenService) {
+        this.jwtUtils = jwtUtils;
+        this.userService = userService;
+        this.refreshTokenService = refreshTokenService;
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+        return path.equals("/auth/login")
+                || path.equals("/auth/register")
+                || path.equals("/auth/refresh-token")
+                || path.equals("/auth/verify");
+    }
+
+    @Override
+    protected void doFilterInternal(
+            HttpServletRequest request,
             HttpServletResponse response,
             FilterChain filterChain)
             throws ServletException, IOException {
 
-        String authToken = null;
-        String refreshTokenStr = null;
+        String access = getCookie(request, "authToken");
+        String refresh = getCookie(request, "refreshToken");
 
-        if (request.getCookies() != null) {
-            for (Cookie cookie : request.getCookies()) {
-                if ("authToken".equals(cookie.getName())) {
-                    authToken = cookie.getValue();
-                } else if ("refreshToken".equals(cookie.getName())) {
-                    refreshTokenStr = cookie.getValue();
-                }
+        // -------- ACCESS TOKEN --------
+        if (access != null) {
+            log.debug("Access token found in cookies");
+
+            if (jwtUtils.isValidAccessToken(access)) {
+                String username = jwtUtils.getUsername(access);
+                log.info("User authenticated with access token: {}", username);
+
+                authenticate(username, request);
+                filterChain.doFilter(request, response);
+                return;
+            } else {
+                log.warn("Invalid access token");
             }
         }
 
-        if (refreshTokenStr == null) {
-            refreshTokenStr = request.getHeader("refreshToken");
-        }
+        // -------- REFRESH TOKEN --------
+        if (refresh != null) {
+            log.debug("Refresh token found in cookies");
 
-        boolean isAuthenticated = false;
+            Token ref = refreshTokenService.findByToken(refresh).orElse(null);
 
-        if (authToken != null && jwtUtils.validateToken(authToken)) {
-            String username = jwtUtils.getUsernameFromToken(authToken);
-            authenticateUser(username, request);
-            isAuthenticated = true;
-        } else if (refreshTokenStr != null) {
-            Token refreshToken = refreshTokenService.findByToken(refreshTokenStr)
-                    .filter(t -> t.getType() == TokenType.REFRESH)
-                    .orElse(null);
+            if (ref == null) {
+                log.warn("Refresh token not found in DB");
+            }
+            else if (ref.isUsed()) {
+                log.warn("Refresh token already used for user {}", ref.getUser().getEmail());
+            }
+            else if (refreshTokenService.isExpired(ref)) {
+                log.warn("Refresh token expired for user {}", ref.getUser().getEmail());
+            }
+            else {
+                // Rotation
+                Token newRefresh = refreshTokenService.rotateToken(ref);
+                log.info("Refresh token rotated for user {}", ref.getUser().getEmail());
 
-            if (refreshToken != null && !refreshTokenService.isRefreshTokenExpired(refreshToken)) {
-                User user = refreshToken.getUser();
-                User fullUser = userService.findByEmailEager(user.getEmail())
-                        .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
+                // Access token régénéré
+                String newAccess = jwtUtils.generateAccessToken(
+                        ref.getUser().getEmail(),
+                        ref.getUser().getRole().name()
+                );
 
-                String newAuthToken = jwtUtils.generateToken(fullUser.getEmail(), fullUser.getRole().name());
+                sendCookie(response, "authToken", newAccess, jwtUtils.getJwtExpirationMs() / 1000);
+                sendCookie(response, "refreshToken", newRefresh.getToken(), 7 * 24 * 3600);
 
-                ResponseCookie newAuthCookie = ResponseCookie.from("authToken", newAuthToken)
-                        .httpOnly(true)
-                        .secure(false) // mettre à true en prod !!!!!
-                        .path("/")
-                        .sameSite("Strict")
-                        .maxAge(jwtUtils.getJwtExpirationMs() / 1000)
-                        .build();
-
-                response.setHeader("Set-Cookie", newAuthCookie.toString());
-
-                authenticateUser(user.getEmail(), request);
-                isAuthenticated = true;
+                authenticate(ref.getUser().getEmail(), request);
+                filterChain.doFilter(request, response);
+                return;
             }
         }
 
-        if (!isAuthenticated) {
-            SecurityContextHolder.clearContext();
-        }
-
+        log.debug("No valid token found → anonymous request");
+        SecurityContextHolder.clearContext();
         filterChain.doFilter(request, response);
     }
 
-    private void authenticateUser(String username, HttpServletRequest request) {
-        if (SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userService.loadUserByUsername(username);
-            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                    userDetails, null, userDetails.getAuthorities());
-            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authToken);
-        }
+    private void authenticate(String username, HttpServletRequest request) {
+        UserDetails user = userService.loadUserByUsername(username);
+        UsernamePasswordAuthenticationToken auth =
+                new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+        auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
+    private void sendCookie(HttpServletResponse res, String name, String value, long age) {
+        ResponseCookie cookie = ResponseCookie.from(name, value)
+                .httpOnly(true)
+                .secure(false) // mettre true en prod
+                .sameSite("Strict")
+                .path("/")
+                .maxAge(age)
+                .build();
+        res.addHeader("Set-Cookie", cookie.toString());
+    }
+
+    private String getCookie(HttpServletRequest req, String name) {
+        if (req.getCookies() == null) return null;
+        for (Cookie c : req.getCookies()) {
+            if (c.getName().equals(name)) return c.getValue();
+        }
+        return null;
+    }
 }
