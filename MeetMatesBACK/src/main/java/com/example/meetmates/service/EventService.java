@@ -14,6 +14,9 @@ import com.example.meetmates.dto.EventDetailsDto;
 import com.example.meetmates.dto.EventRequestDto;
 import com.example.meetmates.dto.EventResponseDto;
 import com.example.meetmates.dto.EventUserDto;
+import com.example.meetmates.exception.ActivityNotFoundException;
+import com.example.meetmates.exception.EventNotFoundException;
+import com.example.meetmates.exception.UnauthorizedEventAccessException;
 import com.example.meetmates.mapper.EventMapper;
 import com.example.meetmates.model.Address;
 import com.example.meetmates.model.Event;
@@ -35,29 +38,33 @@ public class EventService {
     private final EventUserRepository eventUserRepository;
     private final EventMapper eventMapper;
 
-    public EventService(EventRepository eventRepository,
+    public EventService(
+            EventRepository eventRepository,
             ActivityRepository activityRepository,
             AddressRepository addressRepository,
             UserRepository userRepository,
             EventUserRepository eventUserRepository,
-            EventMapper eventMapper,
-            PictureService pictureService) {
+            EventMapper eventMapper
+    ) {
         this.eventRepository = eventRepository;
         this.activityRepository = activityRepository;
         this.addressRepository = addressRepository;
         this.userRepository = userRepository;
         this.eventUserRepository = eventUserRepository;
         this.eventMapper = eventMapper;
-      }
+    }
 
+    // ------------------------------------------------------------
+    // CREATE EVENT
+    // ------------------------------------------------------------
     @Transactional
     public EventResponseDto createEvent(EventRequestDto req) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User organizer = userRepository.findByEmail(auth.getName())
-                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+                .orElseThrow(() -> new UnauthorizedEventAccessException("Utilisateur non trouvé"));
 
         var activity = activityRepository.findById(req.getActivityId())
-                .orElseThrow(() -> new RuntimeException("Activité introuvable"));
+                .orElseThrow(() -> new ActivityNotFoundException("Activité introuvable"));
 
         Address address = addressRepository.save(req.getAddress());
 
@@ -80,21 +87,28 @@ public class EventService {
         return eventMapper.toResponse(saved);
     }
 
+    // ------------------------------------------------------------
+    // LIST EVENTS
+    // ------------------------------------------------------------
     @Transactional(readOnly = true)
     public List<EventResponseDto> findAllResponses() {
-        return eventRepository.findAllWithPictures()
+        return eventRepository.findAllWithDetails()
                 .stream()
                 .map(eventMapper::toResponse)
                 .toList();
     }
 
+    // ------------------------------------------------------------
+    // DETAILS EVENT
+    // ------------------------------------------------------------
     @Transactional(readOnly = true)
     public EventDetailsDto findEventDetailsById(UUID id) {
+
         var auth = SecurityContextHolder.getContext().getAuthentication();
         var user = userRepository.findByEmail(auth.getName()).orElse(null);
 
         Event event = eventRepository.findByIdWithAllRelations(id)
-                .orElseThrow(() -> new RuntimeException("Événement introuvable avec l'id: " + id));
+                .orElseThrow(() -> new EventNotFoundException("Événement introuvable avec l'id: " + id));
 
         String participationStatus = null;
         if (user != null) {
@@ -147,73 +161,68 @@ public class EventService {
         );
     }
 
+    // ------------------------------------------------------------
+    // BY ACTIVITY
+    // ------------------------------------------------------------
     @Transactional(readOnly = true)
     public List<EventResponseDto> getEventResponsesByActivity(UUID activityId) {
-        return eventRepository.findByActivityIdWithPictures(activityId)
+        return eventRepository.findByActivityIdWithDetails(activityId)
                 .stream()
                 .map(eventMapper::toResponse)
                 .toList();
     }
 
+    // ------------------------------------------------------------
+    // DELETE EVENT
+    // ------------------------------------------------------------
     @Transactional
     public void delete(UUID id) {
+        if (!eventRepository.existsById(id)) {
+            throw new EventNotFoundException("Impossible de supprimer : événement introuvable.");
+        }
         eventRepository.deleteById(id);
     }
 
-    private void addOrganizer(Event event, User organizer) {
-        EventUser link = new EventUser();
-        link.setEvent(event);
-        link.setUser(organizer);
-        link.setUserEmail(organizer.getEmail());
-        link.setRole(EventUser.ParticipantRole.ORGANIZER);
-        link.setParticipationStatus(EventUser.ParticipationStatus.ACCEPTED);
-        eventUserRepository.save(link);
-
-        if (event.getParticipants() == null) {
-            event.setParticipants(new ArrayList<>());
-        }
-        event.getParticipants().add(link);
-    }
-
+    // ------------------------------------------------------------
+    // UPDATE EVENT
+    // ------------------------------------------------------------
     public EventResponseDto updateEvent(UUID id, EventRequestDto updatedEvent) {
-        return eventRepository.findById(id)
-                .map(event -> {
-                    event.setTitle(updatedEvent.getTitle());
-                    event.setDescription(updatedEvent.getDescription());
-                    event.setEventDate(updatedEvent.getEventDate());
-                    event.setStartTime(updatedEvent.getStartTime());
-                    event.setEndTime(updatedEvent.getEndTime());
-                    event.setMaxParticipants(updatedEvent.getMaxParticipants());
-                    event.setStatus(updatedEvent.getStatus());
-                    event.setMaterial(updatedEvent.getMaterial());
-                    event.setLevel(updatedEvent.getLevel());
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new EventNotFoundException("Événement introuvable"));
 
-                    if (updatedEvent.getAddress() != null) {
-                        Address newAddress = updatedEvent.getAddress();
-                        Address existingAddress = event.getAddress();
+        event.setTitle(updatedEvent.getTitle());
+        event.setDescription(updatedEvent.getDescription());
+        event.setEventDate(updatedEvent.getEventDate());
+        event.setStartTime(updatedEvent.getStartTime());
+        event.setEndTime(updatedEvent.getEndTime());
+        event.setMaxParticipants(updatedEvent.getMaxParticipants());
+        event.setStatus(updatedEvent.getStatus());
+        event.setMaterial(updatedEvent.getMaterial());
+        event.setLevel(updatedEvent.getLevel());
 
-                        if (existingAddress == null) {
-                            existingAddress = new Address();
-                        }
+        if (updatedEvent.getAddress() != null) {
+            Address existing = event.getAddress() != null ? event.getAddress() : new Address();
+            Address newAddr = updatedEvent.getAddress();
 
-                        existingAddress.setStreet(newAddress.getStreet());
-                        existingAddress.setPostalCode(newAddress.getPostalCode());
-                        existingAddress.setCity(newAddress.getCity());
+            existing.setStreet(newAddr.getStreet());
+            existing.setPostalCode(newAddr.getPostalCode());
+            existing.setCity(newAddr.getCity());
+            event.setAddress(existing);
+        }
 
-                        event.setAddress(existingAddress);
-                    }
+        if (updatedEvent.getActivityId() != null) {
+            var activity = activityRepository.findById(updatedEvent.getActivityId())
+                    .orElseThrow(() -> new ActivityNotFoundException("Activité introuvable"));
+            event.setActivity(activity);
+        }
 
-                    if (updatedEvent.getActivityId() != null) {
-                        event.setActivity(activityRepository.findById(updatedEvent.getActivityId())
-                                .orElseThrow(() -> new RuntimeException("Activity not found")));
-                    }
-
-                    Event saved = eventRepository.save(event);
-                    return eventMapper.toResponse(saved);
-                })
-                .orElseThrow(() -> new RuntimeException("Event not found"));
+        Event saved = eventRepository.save(event);
+        return eventMapper.toResponse(saved);
     }
 
+    // ------------------------------------------------------------
+    // SEARCH
+    // ------------------------------------------------------------
     public List<EventResponseDto> searchEvents(String query) {
         if (query == null || query.isBlank()) {
             return List.of();
@@ -224,4 +233,22 @@ public class EventService {
                 .toList();
     }
 
+    // ------------------------------------------------------------
+    // PRIVATE
+    // ------------------------------------------------------------
+    private void addOrganizer(Event event, User organizer) {
+        EventUser link = new EventUser();
+        link.setEvent(event);
+        link.setUser(organizer);
+        link.setUserEmail(organizer.getEmail());
+        link.setRole(EventUser.ParticipantRole.ORGANIZER);
+        link.setParticipationStatus(EventUser.ParticipationStatus.ACCEPTED);
+
+        eventUserRepository.save(link);
+
+        if (event.getParticipants() == null) {
+            event.setParticipants(new ArrayList<>());
+        }
+        event.getParticipants().add(link);
+    }
 }

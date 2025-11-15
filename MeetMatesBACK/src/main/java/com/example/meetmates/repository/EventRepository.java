@@ -27,32 +27,33 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
 
     List<Event> findByActivityId(UUID activityId);
 
-    // ✅ Charger un événement unique avec ses images, activité et adresse
+    // Charger un événement avec activité + adresse
     @Query("""
       SELECT e FROM Event e
       LEFT JOIN FETCH e.activity a
       LEFT JOIN FETCH e.address addr
       WHERE e.id = :id
       """)
-    Optional<Event> findByIdWithPictures(@Param("id") UUID id);
+    Optional<Event> findByIdWithDetails(@Param("id") UUID id);
 
-    // ✅ Charger tous les événements d’une activité avec leurs images
+    // Charger les événements d'une activité avec activité + adresse
     @Query("""
       SELECT DISTINCT e FROM Event e
       LEFT JOIN FETCH e.activity a
       LEFT JOIN FETCH e.address addr
       WHERE a.id = :activityId
       """)
-    List<Event> findByActivityIdWithPictures(@Param("activityId") UUID activityId);
+    List<Event> findByActivityIdWithDetails(@Param("activityId") UUID activityId);
 
-    // ✅ Charger tous les événements avec leurs images, activité et adresse
+    // Charger tous les events avec activité + adresse
     @Query("""
       SELECT DISTINCT e FROM Event e
       LEFT JOIN FETCH e.activity a
       LEFT JOIN FETCH e.address addr
       """)
-    List<Event> findAllWithPictures();
+    List<Event> findAllWithDetails();
 
+    // Charger un event complet (participants + users)
     @Query("""
       SELECT DISTINCT e FROM Event e
       LEFT JOIN FETCH e.activity
@@ -63,6 +64,7 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
       """)
     Optional<Event> findByIdWithAllRelations(@Param("id") UUID id);
 
+    // Recherche d'événements (titre, activité, adresse)
     @Query("""
       SELECT DISTINCT e FROM Event e
       JOIN FETCH e.activity a
@@ -70,12 +72,12 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
       LEFT JOIN FETCH e.participants p
       LEFT JOIN FETCH p.user
       WHERE LOWER(e.title) LIKE LOWER(CONCAT('%', :query, '%'))
-        OR LOWER(a.name) LIKE LOWER(CONCAT('%', :query, '%'))
-        OR LOWER(CONCAT(
+         OR LOWER(a.name) LIKE LOWER(CONCAT('%', :query, '%'))
+         OR LOWER(CONCAT(
             COALESCE(addr.street, ''), ' ',
             COALESCE(addr.postalCode, ''), ' ',
             COALESCE(addr.city, '')
-        )) LIKE LOWER(CONCAT('%', :query, '%'))
+         )) LIKE LOWER(CONCAT('%', :query, '%'))
       """)
     List<Event> searchEvents(@Param("query") String query);
 
