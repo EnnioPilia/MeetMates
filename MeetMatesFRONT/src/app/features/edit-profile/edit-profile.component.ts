@@ -11,7 +11,7 @@ import { ErrorHandlerService } from '../../core/services/error-handler/error-han
 import { User } from '../../core/models/user.model';
 import { EditProfilePictureComponent } from './components/edit-profile-picture.component';
 import { EditProfileFormComponent } from './components/edit-profile-form.component';
-import { LoadingSpinnerComponent } from '../../shared-components/loading-spinner/loading-spinner.component'; 
+import { LoadingSpinnerComponent } from '../../shared-components/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-edit-profile',
@@ -58,7 +58,7 @@ export class EditProfileComponent implements OnInit {
   }
 
   onSave(formValue: Partial<User>) {
-    this.userService.updateMyProfile({ ...this.user, ...formValue })
+    this.userService.updateMyProfile(formValue)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError(err => {
@@ -90,7 +90,7 @@ export class EditProfileComponent implements OnInit {
       });
   }
 
-   onPhotoDeleted() {
+  onPhotoDeleted() {
     const currentUser = this.user();
     if (!currentUser) return;
 
@@ -106,7 +106,6 @@ export class EditProfileComponent implements OnInit {
         const updatedUser = { ...currentUser, profilePictureUrl: undefined };
         this.user.set(updatedUser);
         this.signals.updateCurrentUser(updatedUser);
-
         this.notification.showSuccess('✅ Photo supprimée avec succès.');
       });
   }

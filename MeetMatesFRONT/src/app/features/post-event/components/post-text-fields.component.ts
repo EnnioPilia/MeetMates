@@ -13,8 +13,7 @@ import { AppInputComponent } from '../../../shared-components/input/input.compon
     MatFormFieldModule, 
     MatInputModule, 
     ReactiveFormsModule, 
-    AppInputComponent
-  ],
+    AppInputComponent],
   template: `
 
     <div [formGroup]="form"  class="flex flex-col items-center gap-4 w-80">
