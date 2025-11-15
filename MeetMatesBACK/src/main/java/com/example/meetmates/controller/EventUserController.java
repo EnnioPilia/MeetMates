@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.meetmates.dto.EventUserDto;
-import com.example.meetmates.model.EventUser;
 import com.example.meetmates.model.User;
 import com.example.meetmates.repository.UserRepository;
 import com.example.meetmates.service.EventUserService;
@@ -32,9 +31,8 @@ public class EventUserController {
         this.userRepository = userRepository;
     }
 
-    //  Méthode privée pour obtenir l'utilisateur connecté
+    // Méthode privée pour obtenir l'utilisateur connecté
     private User getAuthenticatedUser(Authentication authentication) {
-
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new RuntimeException("Utilisateur non connecté");
         }
@@ -43,82 +41,60 @@ public class EventUserController {
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
     }
 
-    //  Rejoindre un événement
+    // Rejoindre un événement
     @PostMapping("/{eventId}/join")
     public ResponseEntity<EventUserDto> joinEvent(@PathVariable UUID eventId, Authentication authentication) {
-
         User user = getAuthenticatedUser(authentication);
-        EventUser eventUser = eventUserService.joinEvent(eventId, user.getId());
-        
-        return ResponseEntity.ok(EventUserDto.from(eventUser));
+        EventUserDto dto = eventUserService.joinEvent(eventId, user.getId());
+        return ResponseEntity.ok(dto);
     }
 
-    //  Quitter un événement
+    // Quitter un événement
     @DeleteMapping("/{eventId}/leave")
     public ResponseEntity<EventUserDto> leaveEvent(@PathVariable UUID eventId, Authentication authentication) {
-
         User user = getAuthenticatedUser(authentication);
-        EventUser eu = eventUserService.leaveEvent(eventId, user.getId());
-
-        return ResponseEntity.ok(EventUserDto.from(eu));
+        EventUserDto dto = eventUserService.leaveEvent(eventId, user.getId());
+        return ResponseEntity.ok(dto);
     }
 
     // Accepter un participant
     @PutMapping("/{eventUserId}/accept")
     public ResponseEntity<EventUserDto> acceptParticipant(@PathVariable UUID eventUserId, Authentication authentication) {
-
         getAuthenticatedUser(authentication);
-        EventUser eu = eventUserService.acceptParticipant(eventUserId);
-
-        return ResponseEntity.ok(EventUserDto.from(eu));
+        EventUserDto dto = eventUserService.acceptParticipant(eventUserId);
+        return ResponseEntity.ok(dto);
     }
 
-    //  Refuser un participant
+    // Refuser un participant
     @PutMapping("/{eventUserId}/reject")
     public ResponseEntity<EventUserDto> rejectParticipant(@PathVariable UUID eventUserId, Authentication authentication) {
-
         getAuthenticatedUser(authentication);
-        EventUser eu = eventUserService.rejectParticipant(eventUserId);
-
-        return ResponseEntity.ok(EventUserDto.from(eu));
+        EventUserDto dto = eventUserService.rejectParticipant(eventUserId);
+        return ResponseEntity.ok(dto);
     }
 
-    //  Événements auxquels l’utilisateur participe
+    // Événements auxquels l’utilisateur participe
     @GetMapping("/participating")
     public ResponseEntity<List<EventUserDto>> getEventsParticipating(Authentication authentication) {
-
         User user = getAuthenticatedUser(authentication);
-        List<EventUser> participations = eventUserService.findByUserId(user.getId());
-
-        return ResponseEntity.ok(
-                participations.stream()
-                        .map(EventUserDto::from)
-                        .toList()
-        );
+        List<EventUserDto> dtos = eventUserService.findByUserId(user.getId());
+        return ResponseEntity.ok(dtos);
     }
 
-    //  Événements organisés par l’utilisateur
+    // Événements organisés par l’utilisateur
     @GetMapping("/organized")
     public ResponseEntity<List<EventUserDto>> getEventsOrganized(Authentication authentication) {
-
         User user = getAuthenticatedUser(authentication);
-        List<EventUser> organized = eventUserService.findOrganizedByUserId(user.getId());
-
-        return ResponseEntity.ok(
-                organized.stream()
-                        .map(EventUserDto::from)
-                        .toList()
-        );
+        List<EventUserDto> dtos = eventUserService.findOrganizedByUserId(user.getId());
+        return ResponseEntity.ok(dtos);
     }
 
-    //  Retirer un participant (organisateur)
+    // Retirer un participant (organisateur)
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{eventId}/participants/{userId}")
     public ResponseEntity<String> removeParticipant(@PathVariable UUID eventId, @PathVariable UUID userId, Authentication authentication) {
-
         User currentUser = getAuthenticatedUser(authentication);
         eventUserService.removeParticipant(eventId, userId, currentUser.getId());
-
         return ResponseEntity.ok("Participant retiré avec succès");
     }
 }

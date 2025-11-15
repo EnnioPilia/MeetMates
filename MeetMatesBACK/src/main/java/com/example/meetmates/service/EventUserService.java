@@ -10,9 +10,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.meetmates.dto.EventUserDto;
 import com.example.meetmates.exception.AlreadyParticipantException;
 import com.example.meetmates.exception.EventNotFoundException;
 import com.example.meetmates.exception.UserNotFoundException;
+import com.example.meetmates.mapper.EventMapper;
 import com.example.meetmates.model.Event;
 import com.example.meetmates.model.EventUser;
 import com.example.meetmates.model.EventUser.ParticipantRole;
@@ -28,19 +30,25 @@ public class EventUserService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final EventUserRepository eventUserRepository;
+    private final EventMapper eventMapper;
 
-    public EventUserService(EventRepository eventRepository, UserRepository userRepository,
-            EventUserRepository eventUserRepository) {
+    public EventUserService(
+            EventRepository eventRepository,
+            UserRepository userRepository,
+            EventUserRepository eventUserRepository,
+            EventMapper eventMapper
+    ) {
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
         this.eventUserRepository = eventUserRepository;
+        this.eventMapper = eventMapper;  
     }
 
     // ------------------------------------------------------------
     // JOIN EVENT
     // ------------------------------------------------------------
     @Transactional
-    public EventUser joinEvent(UUID eventId, UUID userId) {
+    public EventUserDto joinEvent(UUID eventId, UUID userId) {
 
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EventNotFoundException("Événement introuvable"));
@@ -57,21 +65,19 @@ public class EventUserService {
             switch (existing.getParticipationStatus()) {
 
                 case ACCEPTED ->
-                    throw new AlreadyParticipantException("Vous participez déjà à cet événement."); // 409
+                    throw new AlreadyParticipantException("Vous participez déjà à cet événement.");
 
                 case PENDING ->
-                    throw new AlreadyParticipantException("Votre demande est encore en attente."); // 409
+                    throw new AlreadyParticipantException("Votre demande est encore en attente.");
 
                 case REJECTED, LEFT_REJECTED ->
-                    throw new ResponseStatusException(
-                            HttpStatus.FORBIDDEN,
-                            "Vous ne pouvez pas rejoindre cet événement car vous avez été retiré."
-                    ); // 403
+                    throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                            "Vous ne pouvez pas rejoindre cet événement car vous avez été retiré.");
 
                 case LEFT -> {
                     existing.setParticipationStatus(ParticipationStatus.PENDING);
                     existing.setJoinedAt(LocalDateTime.now());
-                    return eventUserRepository.save(existing);
+                    return eventMapper.EventUserDto(eventUserRepository.save(existing));
                 }
 
                 default ->
@@ -97,36 +103,36 @@ public class EventUserService {
         eventUser.setParticipationStatus(ParticipationStatus.PENDING);
         eventUser.setJoinedAt(LocalDateTime.now());
 
-        return eventUserRepository.save(eventUser);
+        return eventMapper.EventUserDto(eventUserRepository.save(eventUser)); 
     }
 
     // ------------------------------------------------------------
     // ACCEPT PARTICIPANT
     // ------------------------------------------------------------
-    public EventUser acceptParticipant(UUID eventUserId) {
+    public EventUserDto acceptParticipant(UUID eventUserId) {
         EventUser eu = eventUserRepository.findById(eventUserId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Participant introuvable"));
 
         eu.setParticipationStatus(ParticipationStatus.ACCEPTED);
-        return eventUserRepository.save(eu);
+        return eventMapper.EventUserDto(eventUserRepository.save(eu));
     }
 
     // ------------------------------------------------------------
     // REJECT PARTICIPANT
     // ------------------------------------------------------------
-    public EventUser rejectParticipant(UUID eventUserId) {
+    public EventUserDto rejectParticipant(UUID eventUserId) {
         EventUser eu = eventUserRepository.findById(eventUserId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Participant introuvable"));
 
         eu.setParticipationStatus(ParticipationStatus.REJECTED);
-        return eventUserRepository.save(eu);
+        return eventMapper.EventUserDto(eventUserRepository.save(eu));
     }
 
     // ------------------------------------------------------------
     // LEAVE EVENT
     // ------------------------------------------------------------
     @Transactional
-    public EventUser leaveEvent(UUID eventId, UUID userId) {
+    public EventUserDto leaveEvent(UUID eventId, UUID userId) {
         EventUser eu = eventUserRepository.findByEventIdAndUserId(eventId, userId)
                 .orElseThrow(()
                         -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Vous ne participez pas à cet événement.")
@@ -143,28 +149,34 @@ public class EventUserService {
             eu.setParticipationStatus(ParticipationStatus.LEFT);
         }
 
-        return eventUserRepository.save(eu);
+        return eventMapper.EventUserDto(eventUserRepository.save(eu));
     }
 
     // ------------------------------------------------------------
     // MY EVENTS
     // ------------------------------------------------------------
-    public List<EventUser> findByUserId(UUID userId) {
+    public List<EventUserDto> findByUserId(UUID userId) {
         return eventUserRepository.findAllByUserIdAndParticipationStatusNotIn(
                 userId,
                 List.of(ParticipationStatus.LEFT, ParticipationStatus.LEFT_REJECTED)
-        );
+        )
+                .stream()
+                .map(eventMapper::EventUserDto)
+                .toList();
     }
 
     // ------------------------------------------------------------
     // ORGANIZED EVENTS
     // ------------------------------------------------------------
-    public List<EventUser> findOrganizedByUserId(UUID userId) {
-        return eventUserRepository.findAllByUserIdAndRole(userId, ParticipantRole.ORGANIZER);
+    public List<EventUserDto> findOrganizedByUserId(UUID userId) {
+        return eventUserRepository.findAllByUserIdAndRole(userId, ParticipantRole.ORGANIZER)
+                .stream()
+                .map(eventMapper::EventUserDto)
+                .toList();
     }
 
     // ------------------------------------------------------------
-    // REMOVE PARTICIPANT (ORGANIZER ONLY)
+    // REMOVE PARTICIPANT
     // ------------------------------------------------------------
     @Transactional
     public void removeParticipant(UUID eventId, UUID userId, UUID organizerId) {

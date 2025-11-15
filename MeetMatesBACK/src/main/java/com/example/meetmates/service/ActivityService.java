@@ -13,11 +13,9 @@ import com.example.meetmates.repository.ActivityRepository;
 public class ActivityService {
 
     private final ActivityRepository activityRepository;
-    private final CategoryService categoryService;
 
     public ActivityService(ActivityRepository activityRepository, CategoryService categoryService) {
         this.activityRepository = activityRepository;
-        this.categoryService = categoryService;
     }
 
     public List<Activity> findAll() {

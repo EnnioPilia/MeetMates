@@ -50,12 +50,6 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.CONFLICT, ex.getMessage());
     }
 
-    // 409 – L'organisateur tente de participer
-    @ExceptionHandler(OrganizerCannotJoinException.class)
-    public ResponseEntity<Object> handleOrganizerJoin(OrganizerCannotJoinException ex) {
-        return build(HttpStatus.CONFLICT, ex.getMessage());
-    }
-
     // 400 – Token invalide / expiré
     @ExceptionHandler(InvalidTokenException.class)
     public ResponseEntity<Object> handleInvalidToken(InvalidTokenException ex) {
