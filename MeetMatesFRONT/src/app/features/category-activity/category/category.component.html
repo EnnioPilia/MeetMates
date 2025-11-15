@@ -7,15 +7,16 @@
   }
   @else {
     <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 justify-items-center gap-6 p-6">
-      @for (category of categories; track category.categoryId) {
+      
+      @for (category of categories; track category.id) {
 
         <app-icon-card
           class="icon-card"
           [title]="category.name"
-          [iconPath]="'/assets/images/icons/' + category.icon"
-          (cardClick)="navigateTo(category.categoryId)">
+          [iconPath]="'/assets/images/icons/' + category.imageUrl"
+          (cardClick)="navigateTo(category.id)">
         </app-icon-card>
-        
+
       }
     </div>
   }
