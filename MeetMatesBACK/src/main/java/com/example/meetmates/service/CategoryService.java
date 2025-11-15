@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.example.meetmates.exception.CategoryNotFoundException;
 import com.example.meetmates.model.Category;
 import com.example.meetmates.repository.CategoryRepository;
 
@@ -22,7 +23,8 @@ public class CategoryService {
     }
 
     public Category findById(UUID id) {
-        return categoryRepository.findById(id).orElse(null);
+        return categoryRepository.findById(id)
+                .orElseThrow(() -> new CategoryNotFoundException("Catégorie introuvable : " + id));
     }
 
     public Category save(Category category) {
@@ -30,6 +32,9 @@ public class CategoryService {
     }
 
     public void delete(UUID id) {
+        if (!categoryRepository.existsById(id)) {
+            throw new CategoryNotFoundException("Catégorie introuvable : " + id);
+        }
         categoryRepository.deleteById(id);
     }
 }

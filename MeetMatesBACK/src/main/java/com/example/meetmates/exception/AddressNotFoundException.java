@@ -1,7 +1,7 @@
-package com.example.meetmates.exception;
+// package com.example.meetmates.exception;
 
-public class AddressNotFoundException extends RuntimeException {
-    public AddressNotFoundException(String message) {
-        super(message);
-    }
-}
+// public class AddressNotFoundException extends RuntimeException {
+//     public AddressNotFoundException(String message) {
+//         super(message);
+//     }
+// }

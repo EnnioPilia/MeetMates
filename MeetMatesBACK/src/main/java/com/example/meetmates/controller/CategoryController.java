@@ -3,6 +3,7 @@ package com.example.meetmates.controller;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.meetmates.dto.CategoryDto;
+import com.example.meetmates.mapper.CategoryMapper;
 import com.example.meetmates.model.Category;
 import com.example.meetmates.service.CategoryService;
 
@@ -24,23 +27,44 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
+    // ---------------------------------------------------------
+    // GET ALL
+    // ---------------------------------------------------------
     @GetMapping
-    public List<Category> getAll() {
-        return categoryService.findAll();
+    public ResponseEntity<List<CategoryDto>> getAll() {
+        return ResponseEntity.ok(
+                categoryService.findAll()
+                        .stream()
+                        .map(CategoryMapper::toDto)
+                        .toList()
+        );
     }
 
+    // ---------------------------------------------------------
+    // GET BY ID
+    // ---------------------------------------------------------
     @GetMapping("/{id}")
-    public Category getById(@PathVariable UUID id) {
-        return categoryService.findById(id);
+    public ResponseEntity<CategoryDto> getById(@PathVariable UUID id) {
+        Category category = categoryService.findById(id);
+        return ResponseEntity.ok(CategoryMapper.toDto(category));
     }
 
+    // ---------------------------------------------------------
+    // CREATE
+    // ---------------------------------------------------------
     @PostMapping
-    public Category create(@RequestBody Category category) {
-        return categoryService.save(category);
+    public ResponseEntity<CategoryDto> create(@RequestBody CategoryDto dto) {
+        Category category = CategoryMapper.fromDto(dto);
+        Category saved = categoryService.save(category);
+        return ResponseEntity.ok(CategoryMapper.toDto(saved));
     }
 
+    // ---------------------------------------------------------
+    // DELETE
+    // ---------------------------------------------------------
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable UUID id) {
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
         categoryService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }

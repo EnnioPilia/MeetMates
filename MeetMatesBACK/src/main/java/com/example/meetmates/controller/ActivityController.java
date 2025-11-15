@@ -12,9 +12,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.meetmates.dto.EventResponseDto;
+import com.example.meetmates.dto.ActivityDto;
+import com.example.meetmates.mapper.ActivityMapper;
 import com.example.meetmates.model.Activity;
+import com.example.meetmates.model.Category;
 import com.example.meetmates.service.ActivityService;
+import com.example.meetmates.service.CategoryService;
 import com.example.meetmates.service.EventService;
 
 @RestController
@@ -22,47 +25,85 @@ import com.example.meetmates.service.EventService;
 public class ActivityController {
 
     private final ActivityService activityService;
+    private final CategoryService categoryService;
     private final EventService eventService;
+    private final ActivityMapper activityMapper;
 
-    public ActivityController(ActivityService activityService, EventService eventService) {
+    public ActivityController(
+            ActivityService activityService,
+            CategoryService categoryService,
+            EventService eventService,
+            ActivityMapper activityMapper
+    ) {
         this.activityService = activityService;
+        this.categoryService = categoryService;
         this.eventService = eventService;
+        this.activityMapper = activityMapper;
     }
 
-    // Récupérer toutes les activités
+    // ---------------------------------------------------------
+    // GET ALL
+    // ---------------------------------------------------------
     @GetMapping
-    public List<Activity> getAll() {
-        return activityService.findAll();
+    public ResponseEntity<List<ActivityDto>> getAll() {
+        List<ActivityDto> list = activityService.findAll()
+                .stream()
+                .map(activityMapper::toDto)
+                .toList();
+
+        return ResponseEntity.ok(list);
     }
 
-    // Récupérer une activité par ID
+    // ---------------------------------------------------------
+    // GET BY ID
+    // ---------------------------------------------------------
     @GetMapping("/{id}")
-    public Activity getById(@PathVariable UUID id) {
-        return activityService.findById(id);
+    public ResponseEntity<ActivityDto> getById(@PathVariable UUID id) {
+        Activity activity = activityService.findById(id);
+        return ResponseEntity.ok(activityMapper.toDto(activity));
     }
 
-    // Récupérer toutes les activités d'une catégorie
+    // ---------------------------------------------------------
+    // GET BY CATEGORY
+    // ---------------------------------------------------------
     @GetMapping("/category/{categoryId}")
-    public List<Activity> getByCategory(@PathVariable UUID categoryId) {
-        return activityService.findByCategoryId(categoryId);
+    public ResponseEntity<List<ActivityDto>> getByCategory(@PathVariable UUID categoryId) {
+        List<ActivityDto> list = activityService.findByCategory(categoryId)
+                .stream()
+                .map(activityMapper::toDto)
+                .toList();
+
+        return ResponseEntity.ok(list);
     }
 
-    // Récupérer tous les événements liés à une activité
-    @GetMapping("/{activityId}/events")
-    public ResponseEntity<List<EventResponseDto>> getEventsByActivity(@PathVariable UUID activityId) {
-        List<EventResponseDto> events = eventService.getEventResponsesByActivity(activityId);
-        return ResponseEntity.ok(events);
-    }
-
-    // Créer une activité
+    // ---------------------------------------------------------
+    // CREATE
+    // ---------------------------------------------------------
     @PostMapping
-    public Activity create(@RequestBody Activity activity) {
-        return activityService.save(activity);
+    public ResponseEntity<ActivityDto> create(@RequestBody ActivityDto dto) {
+
+        if (dto.getCategoryId() == null) {
+            throw new IllegalArgumentException("categoryId ne peut pas être null");
+        }
+
+        Category category = categoryService.findById(dto.getCategoryId());
+        if (category == null) {
+            throw new IllegalArgumentException("Catégorie introuvable");
+        }
+
+        Activity activity = activityMapper.fromDto(dto, category);
+
+        Activity saved = activityService.save(activity);
+
+        return ResponseEntity.ok(activityMapper.toDto(saved));
     }
 
-    // Supprimer une activité
+    // ---------------------------------------------------------
+    // DELETE
+    // ---------------------------------------------------------
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable UUID id) {
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
         activityService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }

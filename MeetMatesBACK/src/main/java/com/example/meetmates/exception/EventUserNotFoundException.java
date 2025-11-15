@@ -1,7 +1,7 @@
-package com.example.meetmates.exception;
+// package com.example.meetmates.exception;
 
-public class EventUserNotFoundException extends RuntimeException {
-    public EventUserNotFoundException(String message) {
-        super(message);
-    }
-}
+// public class EventUserNotFoundException extends RuntimeException {
+//     public EventUserNotFoundException(String message) {
+//         super(message);
+//     }
+// }

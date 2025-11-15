@@ -29,7 +29,7 @@ public class Category {
             name = "UUID",
             strategy = "org.hibernate.id.UUIDGenerator"
     )
-    @JdbcTypeCode(SqlTypes.CHAR) // UUID stocké en CHAR(36)
+    @JdbcTypeCode(SqlTypes.CHAR) 
     @Column(name = "category_id", updatable = false, nullable = false, length = 36)
     private UUID categoryId;
 

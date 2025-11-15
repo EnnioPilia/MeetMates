@@ -75,7 +75,7 @@ public class GlobalExceptionHandler {
     }
 
     // 404 – Événement introuvable
-   @ExceptionHandler(EventNotFoundException.class)
+    @ExceptionHandler(EventNotFoundException.class)
     public ResponseEntity<Object> handleEventNotFound(EventNotFoundException ex) {
         return build(HttpStatus.NOT_FOUND, ex.getMessage());
     }
@@ -83,6 +83,12 @@ public class GlobalExceptionHandler {
     // 404 – Activité introuvable
     @ExceptionHandler(ActivityNotFoundException.class)
     public ResponseEntity<Object> handleActivityNotFound(ActivityNotFoundException ex) {
+        return build(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    // 404 – Catégorie introuvable
+    @ExceptionHandler(CategoryNotFoundException.class)
+    public ResponseEntity<Object> handleCategoryNotFound(CategoryNotFoundException ex) {
         return build(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 

@@ -1,7 +1,7 @@
-package com.example.meetmates.exception;
+// package com.example.meetmates.exception;
 
-public class EventUserRejectedCannotRejoinException extends RuntimeException {
-    public EventUserRejectedCannotRejoinException(String message) {
-        super(message);
-    }
-}
+// public class EventUserRejectedCannotRejoinException extends RuntimeException {
+//     public EventUserRejectedCannotRejoinException(String message) {
+//         super(message);
+//     }
+// }
