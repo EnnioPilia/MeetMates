@@ -11,13 +11,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.meetmates.dto.EventUserDto;
-import com.example.meetmates.dto.JoinEventRequestDto;
 import com.example.meetmates.model.EventUser;
 import com.example.meetmates.model.User;
 import com.example.meetmates.repository.UserRepository;
@@ -35,108 +32,91 @@ public class EventUserController {
         this.userRepository = userRepository;
     }
 
-    @PostMapping("/join")
-    public ResponseEntity<EventUserDto> joinEvent(@RequestBody JoinEventRequestDto request, Authentication authentication) {
+    //  Méthode privée pour obtenir l'utilisateur connecté
+    private User getAuthenticatedUser(Authentication authentication) {
+
         if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(401).build();
+            throw new RuntimeException("Utilisateur non connecté");
         }
 
-        String email = authentication.getName();
-        User currentUser = userRepository.findByEmail(email)
+        return userRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
+    }
 
-        EventUser eventUser = eventUserService.joinEvent(request.eventId(), currentUser.getId());
+    //  Rejoindre un événement
+    @PostMapping("/{eventId}/join")
+    public ResponseEntity<EventUserDto> joinEvent(@PathVariable UUID eventId, Authentication authentication) {
+
+        User user = getAuthenticatedUser(authentication);
+        EventUser eventUser = eventUserService.joinEvent(eventId, user.getId());
+        
         return ResponseEntity.ok(EventUserDto.from(eventUser));
     }
 
-    @DeleteMapping("/leave")
-    public ResponseEntity<EventUserDto> leaveEvent(
-            @RequestParam UUID eventId,
-            Authentication authentication) {
+    //  Quitter un événement
+    @DeleteMapping("/{eventId}/leave")
+    public ResponseEntity<EventUserDto> leaveEvent(@PathVariable UUID eventId, Authentication authentication) {
 
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(401).build();
-        }
+        User user = getAuthenticatedUser(authentication);
+        EventUser eu = eventUserService.leaveEvent(eventId, user.getId());
 
-        String email = authentication.getName();
-        User currentUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
-
-        EventUser eu = eventUserService.leaveEvent(eventId, currentUser.getId());
         return ResponseEntity.ok(EventUserDto.from(eu));
     }
 
+    // Accepter un participant
     @PutMapping("/{eventUserId}/accept")
     public ResponseEntity<EventUserDto> acceptParticipant(@PathVariable UUID eventUserId, Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(401).build();
-        }
 
+        getAuthenticatedUser(authentication);
         EventUser eu = eventUserService.acceptParticipant(eventUserId);
+
         return ResponseEntity.ok(EventUserDto.from(eu));
     }
 
+    //  Refuser un participant
     @PutMapping("/{eventUserId}/reject")
     public ResponseEntity<EventUserDto> rejectParticipant(@PathVariable UUID eventUserId, Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(401).build();
-        }
 
+        getAuthenticatedUser(authentication);
         EventUser eu = eventUserService.rejectParticipant(eventUserId);
+
         return ResponseEntity.ok(EventUserDto.from(eu));
     }
 
+    //  Événements auxquels l’utilisateur participe
     @GetMapping("/participating")
     public ResponseEntity<List<EventUserDto>> getEventsParticipating(Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(401).build();
-        }
 
-        String email = authentication.getName();
-        User currentUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
+        User user = getAuthenticatedUser(authentication);
+        List<EventUser> participations = eventUserService.findByUserId(user.getId());
 
-        List<EventUser> participations = eventUserService.findByUserId(currentUser.getId());
-        List<EventUserDto> dtos = participations.stream()
-                .map(EventUserDto::from)
-                .toList();
-
-        return ResponseEntity.ok(dtos);
+        return ResponseEntity.ok(
+                participations.stream()
+                        .map(EventUserDto::from)
+                        .toList()
+        );
     }
 
+    //  Événements organisés par l’utilisateur
     @GetMapping("/organized")
     public ResponseEntity<List<EventUserDto>> getEventsOrganized(Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(401).build();
-        }
 
-        String email = authentication.getName();
-        User currentUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
+        User user = getAuthenticatedUser(authentication);
+        List<EventUser> organized = eventUserService.findOrganizedByUserId(user.getId());
 
-        List<EventUser> organized = eventUserService.findOrganizedByUserId(currentUser.getId());
-        List<EventUserDto> dtos = organized.stream()
-                .map(EventUserDto::from)
-                .toList();
-
-        return ResponseEntity.ok(dtos);
+        return ResponseEntity.ok(
+                organized.stream()
+                        .map(EventUserDto::from)
+                        .toList()
+        );
     }
 
+    //  Retirer un participant (organisateur)
     @PreAuthorize("isAuthenticated()")
-    @DeleteMapping("/{eventId}/remove/{userId}")
-    public ResponseEntity<String> removeParticipant(
-            @PathVariable UUID eventId,
-            @PathVariable UUID userId,
-            Authentication authentication) {
+    @DeleteMapping("/{eventId}/participants/{userId}")
+    public ResponseEntity<String> removeParticipant(@PathVariable UUID eventId, @PathVariable UUID userId, Authentication authentication) {
 
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(401).body("Non connecté");
-        }
-
-        String email = authentication.getName();
-        User currentUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
-
+        User currentUser = getAuthenticatedUser(authentication);
         eventUserService.removeParticipant(eventId, userId, currentUser.getId());
 
         return ResponseEntity.ok("Participant retiré avec succès");

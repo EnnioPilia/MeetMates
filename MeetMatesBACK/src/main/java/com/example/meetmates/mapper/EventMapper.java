@@ -1,4 +1,4 @@
-package com.example.meetmates.service;
+package com.example.meetmates.mapper;
 
 import java.util.List;
 import java.util.UUID;
@@ -17,7 +17,6 @@ public class EventMapper {
 
     public EventResponseDto toResponse(Event e) {
 
-        //  Récupération de l’organisateur
         var organizerOpt = e.getParticipants().stream()
                 .filter(p -> p.getRole() == EventUser.ParticipantRole.ORGANIZER)
                 .findFirst();
@@ -30,13 +29,11 @@ public class EventMapper {
                 .map(p -> p.getUser().getFirstName() + " " + p.getUser().getLastName())
                 .orElse("Inconnu");
 
-        //  Liste des participants
         List<String> participantNames = e.getParticipants().stream()
                 .filter(p -> p.getRole() == EventUser.ParticipantRole.PARTICIPANT)
                 .map(p -> p.getUser().getFirstName() + " " + p.getUser().getLastName())
                 .collect(Collectors.toList());
 
-        //  Création du DTO complet
         return new EventResponseDto(
                 e.getId(),
                 e.getTitle(),
@@ -51,7 +48,7 @@ public class EventMapper {
                 e.getActivity() != null ? e.getActivity().getId() : null,
                 e.getActivity() != null ? e.getActivity().getName() : null,
                 e.getAddress() != null ? e.getAddress().getFullAddress() : null,
-                organizerId,              // ✅ ajouté ici
+                organizerId,          
                 organizerName,
                 participantNames
         );

@@ -14,6 +14,7 @@ import com.example.meetmates.dto.EventDetailsDto;
 import com.example.meetmates.dto.EventRequestDto;
 import com.example.meetmates.dto.EventResponseDto;
 import com.example.meetmates.dto.EventUserDto;
+import com.example.meetmates.mapper.EventMapper;
 import com.example.meetmates.model.Address;
 import com.example.meetmates.model.Event;
 import com.example.meetmates.model.EventUser;

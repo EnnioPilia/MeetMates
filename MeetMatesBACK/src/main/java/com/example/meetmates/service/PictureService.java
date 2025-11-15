@@ -26,6 +26,17 @@ public class PictureService {
         this.userRepository = userRepository;
     }
 
+    /**
+     * * Génère simplement l’URL de l’image stockée (mock pour ton CDN)
+     *   Cette méthode correspond EXACTEMENT à ce que ton controller appelle.
+     */
+    public String uploadProfilePicture(MultipartFile file) throws IOException {
+        if (file == null || file.isEmpty()) {
+            throw new IOException("Le fichier est vide");
+        }
+
+        return "https://cdn.meetmates.com/profiles/" + file.getOriginalFilename();
+    }
 
     @Transactional
     public PictureUser uploadUserProfilePicture(User user, MultipartFile file) {

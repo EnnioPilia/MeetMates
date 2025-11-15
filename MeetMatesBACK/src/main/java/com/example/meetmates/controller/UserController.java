@@ -1,6 +1,7 @@
 package com.example.meetmates.controller;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,8 +21,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.meetmates.dto.UpdateUserDto;
+import com.example.meetmates.dto.UserDto;
+import com.example.meetmates.exception.UserNotFoundException;
+import com.example.meetmates.mapper.UserMapper;
 import com.example.meetmates.model.User;
-import com.example.meetmates.repository.UserRepository;
 import com.example.meetmates.service.PictureService;
 import com.example.meetmates.service.UserService;
 
@@ -30,97 +34,100 @@ import com.example.meetmates.service.UserService;
 public class UserController {
 
     private final UserService userService;
-    private final UserRepository userRepository;
     private final PictureService pictureService;
+    private final UserMapper userMapper;
 
     public UserController(UserService userService,
             PictureService pictureService,
-            UserRepository userRepository) {
+            UserMapper userMapper) {
         this.userService = userService;
-        this.userRepository = userRepository;
         this.pictureService = pictureService;
+        this.userMapper = userMapper;
     }
 
+    // * Récupère la liste de tous les utilisateurs 
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
+    public ResponseEntity<List<UserDto>> getAllUsers() {
         List<User> users = userService.getAllUsers();
-        return ResponseEntity.ok(users);
+        return ResponseEntity.ok(users.stream().map(userMapper::toDto).toList());
     }
 
+    // * Récupère le profil de l'utilisateur connecté
     @GetMapping("/me")
-    public ResponseEntity<User> getCurrentUser(Authentication authentication) {
-        String email = authentication.getName();
-        return userService.findByEmail(email).map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    @PutMapping("/me")
-    public ResponseEntity<User> updateMyProfile(
-            @RequestBody User updatedUser,
-            Authentication authentication) {
-
+    public ResponseEntity<UserDto> getMe(Authentication authentication) {
         String email = authentication.getName();
 
-        return userService.findByEmail(email)
-                .map(user -> {
-                    User saved = userService.updateUser(user.getId(), updatedUser);
-                    return ResponseEntity.ok(saved);
-                })
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+        User user = userService.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé"));
+
+        return ResponseEntity.ok(userMapper.toDto(user));
     }
 
+    // * Upload une nouvelle photo de profil
     @PostMapping("/me/picture")
-    public ResponseEntity<User> uploadProfilePicture(
+    public ResponseEntity<UserDto> uploadProfilePicture(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam("file") MultipartFile file) throws IOException {
 
         if (userDetails == null) {
-            return ResponseEntity.status(401).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        var userOpt = userRepository.findByEmail(userDetails.getUsername());
-        if (userOpt.isEmpty()) {
-            return ResponseEntity.status(404).build();
-        }
+        User user = userService.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new UserNotFoundException("Utilisateur introuvable"));
 
-        User user = userOpt.get();
-        String imageUrl = "https://cdn.meetmates.com/uploads/" + file.getOriginalFilename();
+        String imageUrl = pictureService.uploadProfilePicture(file);
 
         user.setProfilePictureUrl(imageUrl);
-        userRepository.save(user);
+        userService.updateUser(user);
 
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(userMapper.toDto(user));
     }
 
+    // * Mise à jour du profil utilisateur 
+    @PutMapping("/me")
+    public ResponseEntity<UserDto> updateMyProfile(
+            @RequestBody UpdateUserDto updateUserDto,
+            Principal principal) {
+
+        UserDto updatedUser = userService.updateMyProfile(principal.getName(), updateUserDto);
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    // * Suppression définitive d'un utilisateur (admin)
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable UUID id) {
+    public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
         boolean deleted = userService.deleteUserById(id);
-        if (deleted) {
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return deleted
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.notFound().build();
     }
 
+    // * Supprime la photo de profil de l'utilisateur connecté
     @DeleteMapping("/me/picture")
-    public ResponseEntity<Void> deleteProfilePhoto(@AuthenticationPrincipal org.springframework.security.core.userdetails.User principal) {
-        User user = userService.findByEmail(principal.getUsername())
-                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
+    public ResponseEntity<Void> deleteProfilePicture(
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        User user = userService.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new UserNotFoundException("Utilisateur introuvable"));
 
         pictureService.deleteUserProfilePicture(user);
         return ResponseEntity.noContent().build();
     }
 
+    // * Supprime son propre compte (soft delete)
     @DeleteMapping("/me")
-    public ResponseEntity<Void> deleteMyAccount(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<Void> deleteMyAccount(
+            @AuthenticationPrincipal UserDetails userDetails) {
+
         if (userDetails == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         boolean deleted = userService.deleteMyAccount(userDetails.getUsername());
+
         return deleted
                 ? ResponseEntity.noContent().build()
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
-
 }
