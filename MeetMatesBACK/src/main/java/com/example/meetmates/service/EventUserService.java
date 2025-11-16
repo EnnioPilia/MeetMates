@@ -44,9 +44,7 @@ public class EventUserService {
         this.eventMapper = eventMapper;  
     }
 
-    // ------------------------------------------------------------
-    // JOIN EVENT
-    // ------------------------------------------------------------
+    // * Permet à un utilisateur de rejoindre un événement
     @Transactional
     public EventUserDto joinEvent(UUID eventId, UUID userId) {
 
@@ -56,7 +54,6 @@ public class EventUserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Utilisateur introuvable"));
 
-        // Vérifier si l'utilisateur participe déjà
         Optional<EventUser> existingOpt = eventUserRepository.findByEventIdAndUserId(eventId, userId);
 
         if (existingOpt.isPresent()) {
@@ -88,13 +85,11 @@ public class EventUserService {
             }
         }
 
-        // Vérifier si l'événement est plein
         if (event.getMaxParticipants() != null
                 && event.getParticipants().size() >= event.getMaxParticipants()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "L'événement est complet.");
         }
 
-        // Ajouter le participant
         EventUser eventUser = new EventUser();
         eventUser.setEvent(event);
         eventUser.setUser(user);
@@ -106,9 +101,7 @@ public class EventUserService {
         return eventMapper.EventUserDto(eventUserRepository.save(eventUser)); 
     }
 
-    // ------------------------------------------------------------
-    // ACCEPT PARTICIPANT
-    // ------------------------------------------------------------
+    // * Accepte un participant en attente pour un événement
     public EventUserDto acceptParticipant(UUID eventUserId) {
         EventUser eu = eventUserRepository.findById(eventUserId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Participant introuvable"));
@@ -116,10 +109,8 @@ public class EventUserService {
         eu.setParticipationStatus(ParticipationStatus.ACCEPTED);
         return eventMapper.EventUserDto(eventUserRepository.save(eu));
     }
-
-    // ------------------------------------------------------------
-    // REJECT PARTICIPANT
-    // ------------------------------------------------------------
+    
+    // * Rejette une demande de participation
     public EventUserDto rejectParticipant(UUID eventUserId) {
         EventUser eu = eventUserRepository.findById(eventUserId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Participant introuvable"));
@@ -128,9 +119,7 @@ public class EventUserService {
         return eventMapper.EventUserDto(eventUserRepository.save(eu));
     }
 
-    // ------------------------------------------------------------
-    // LEAVE EVENT
-    // ------------------------------------------------------------
+    // * Permet à un utilisateur de quitter un événement
     @Transactional
     public EventUserDto leaveEvent(UUID eventId, UUID userId) {
         EventUser eu = eventUserRepository.findByEventIdAndUserId(eventId, userId)
@@ -152,9 +141,7 @@ public class EventUserService {
         return eventMapper.EventUserDto(eventUserRepository.save(eu));
     }
 
-    // ------------------------------------------------------------
-    // MY EVENTS
-    // ------------------------------------------------------------
+    // * Retourne tous les événements auxquels l'utilisateur participe
     public List<EventUserDto> findByUserId(UUID userId) {
         return eventUserRepository.findAllByUserIdAndParticipationStatusNotIn(
                 userId,
@@ -165,9 +152,7 @@ public class EventUserService {
                 .toList();
     }
 
-    // ------------------------------------------------------------
-    // ORGANIZED EVENTS
-    // ------------------------------------------------------------
+    // * Retourne les événements dont l'utilisateur est organisateur
     public List<EventUserDto> findOrganizedByUserId(UUID userId) {
         return eventUserRepository.findAllByUserIdAndRole(userId, ParticipantRole.ORGANIZER)
                 .stream()
@@ -175,9 +160,7 @@ public class EventUserService {
                 .toList();
     }
 
-    // ------------------------------------------------------------
-    // REMOVE PARTICIPANT
-    // ------------------------------------------------------------
+    // * Permet à l'organisateur de retirer un participant d’un événement
     @Transactional
     public void removeParticipant(UUID eventId, UUID userId, UUID organizerId) {
 

@@ -3,6 +3,7 @@ package com.example.meetmates.controller;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.meetmates.model.Address;
 import com.example.meetmates.service.AddressService;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 @RequestMapping("/address")
 @CrossOrigin(origins = "*")
@@ -28,27 +32,33 @@ public class AddressController {
     }
 
     @GetMapping
-    public List<Address> getAll() {
-        return addressService.findAll();
+    public ResponseEntity<List<Address>> getAll() {
+        log.info("[ADDRESS CTRL] GET /address - Récupération de toutes les adresses");
+        return ResponseEntity.ok(addressService.findAll());
     }
 
     @GetMapping("/{id}")
-    public Address getById(@PathVariable UUID id) {
-        return addressService.findById(id);
+    public ResponseEntity<Address> getById(@PathVariable UUID id) {
+        log.info("[ADDRESS CTRL] GET /address/{} - Récupération d'une adresse", id);
+        return ResponseEntity.ok(addressService.findById(id));
     }
 
     @PostMapping
-    public Address create(@RequestBody Address address) {
-        return addressService.save(address);
+    public ResponseEntity<Address> create(@RequestBody Address address) {
+        log.info("[ADDRESS CTRL] POST /address - Création d'une adresse");
+        return ResponseEntity.ok(addressService.save(address));
     }
 
     @PutMapping("/{id}")
-    public Address update(@PathVariable UUID id, @RequestBody Address addressDetails) {
-        return addressService.update(id, addressDetails);
+    public ResponseEntity<Address> update(@PathVariable UUID id, @RequestBody Address addressDetails) {
+        log.info("[ADDRESS CTRL] PUT /address/{} - Mise à jour de l'adresse", id);
+        return ResponseEntity.ok(addressService.update(id, addressDetails));
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable UUID id) {
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        log.warn("[ADDRESS CTRL] DELETE /address/{} - Suppression d'une adresse", id);
         addressService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }

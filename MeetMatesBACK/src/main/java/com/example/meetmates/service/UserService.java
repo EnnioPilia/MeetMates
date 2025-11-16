@@ -45,7 +45,7 @@ public class UserService implements UserDetailsService {
         this.userMapper = userMapper;
     }
 
-    // * Met à jour un utilisateur dans la base de données
+    // * Met à jour un utilisateur existant
     public User updateUser(User user) {
         logger.info("Mise à jour de l'utilisateur {}", user.getId());
         return userRepository.save(user);
@@ -63,17 +63,13 @@ public class UserService implements UserDetailsService {
         return userRepository.findByEmail(email.toLowerCase());
     }
 
+    // * Recherche un utilisateur par ID
     @Transactional(readOnly = true)
     public Optional<User> findById(UUID id) {
         return userRepository.findById(id);
     }
 
-    // * Enregistrer un utilisateur 
-    @Transactional
-    public User save(User user) {
-        return userRepository.save(user);
-    }
-
+    // * Recherche un user + relations associées (chargement eager)
     @Transactional(readOnly = true)
     public Optional<User> findByEmailEager(String email) {
         return userRepository.findByEmailEager(email.toLowerCase());
@@ -111,21 +107,11 @@ public class UserService implements UserDetailsService {
 
         logger.info("Mise à jour du profil utilisateur {}", user.getId());
 
-        if (dto.getFirstName() != null) {
-            user.setFirstName(dto.getFirstName());
-        }
-        if (dto.getLastName() != null) {
-            user.setLastName(dto.getLastName());
-        }
-        if (dto.getAge() != null && dto.getAge() >= 13) {
-            user.setAge(dto.getAge());
-        }
-        if (dto.getCity() != null) {
-            user.setCity(dto.getCity());
-        }
-        if (dto.getProfilePictureUrl() != null) {
-            user.setProfilePictureUrl(dto.getProfilePictureUrl());
-        }
+        if (dto.getFirstName() != null) {user.setFirstName(dto.getFirstName());}
+        if (dto.getLastName() != null) {user.setLastName(dto.getLastName());}
+        if (dto.getAge() != null && dto.getAge() >= 13) {user.setAge(dto.getAge());}
+        if (dto.getCity() != null) {user.setCity(dto.getCity());}
+        if (dto.getProfilePictureUrl() != null) {user.setProfilePictureUrl(dto.getProfilePictureUrl());}
 
         userRepository.save(user);
 
@@ -146,7 +132,6 @@ public class UserService implements UserDetailsService {
             userRepository.deleteById(userId);
             return true;
         }
-
         return false;
     }
 

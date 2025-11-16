@@ -40,7 +40,7 @@ public class AuthService {
     @Autowired
     private EmailService emailService;
     @Autowired
-    private VerificationTokenService verificationTokenService;
+    private VerificationService VerificationService;
     @Autowired
     private RefreshTokenService refreshTokenService;
 
@@ -76,7 +76,7 @@ public class AuthService {
 
             userRepository.save(existingUser);
 
-            String verificationToken = verificationTokenService.createVerificationToken(existingUser);
+            String verificationToken = VerificationService.createVerificationToken(existingUser);
             emailService.sendVerificationEmail(existingUser.getEmail(), verificationToken);
 
             return "Compte restauré avec succès. Vérifiez votre email.";
@@ -97,7 +97,7 @@ public class AuthService {
 
         User savedUser = userRepository.save(newUser);
 
-        String verificationToken = verificationTokenService.createVerificationToken(savedUser);
+        String verificationToken = VerificationService.createVerificationToken(savedUser);
         emailService.sendVerificationEmail(savedUser.getEmail(), verificationToken);
 
         return "Utilisateur enregistré avec succès. Vérifiez votre email.";
@@ -128,7 +128,7 @@ public class AuthService {
         String jwt = jwtUtils.generateAccessToken(user.getEmail(), role);
         Token refreshToken = refreshTokenService.createRefreshToken(user);
 
-       ResponseCookie authCookie = ResponseCookie.from("authToken", jwt)
+        ResponseCookie authCookie = ResponseCookie.from("authToken", jwt)
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
@@ -144,7 +144,6 @@ public class AuthService {
                 .maxAge(7 * 24 * 60 * 60)
                 .build();
 
-
         response.addHeader("Set-Cookie", authCookie.toString());
         response.addHeader("Set-Cookie", refreshCookie.toString());
 
@@ -156,13 +155,12 @@ public class AuthService {
     // ============================================================
     public String verifyUser(String token) {
         try {
-            boolean confirmed = verificationTokenService.confirmToken(token);
-            if (!confirmed) {
-                throw new InvalidTokenException("Token invalide ou expiré.");
-            }
+            VerificationService.confirmToken(token); // si problème, une exception sera lancée
             return "Compte vérifié avec succès !";
+
         } catch (InvalidTokenException e) {
-            throw e; 
+            throw e;
+
         } catch (RuntimeException e) {
             throw new InvalidTokenException("Erreur lors de la vérification du token.");
         }

@@ -1,14 +1,25 @@
 package com.example.meetmates.service;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
+import com.example.meetmates.exception.EmailSendException;
+
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class EmailService {
 
     private final JavaMailSender mailSender;
+    private final TemplateEngine templateEngine;
 
     @Value("${app.mail.from:no-reply@localhost}")
     private String fromEmail;
@@ -16,48 +27,63 @@ public class EmailService {
     @Value("${app.frontend.url}")
     private String frontendUrl;
 
-    public EmailService(JavaMailSender mailSender) {
+    public EmailService(JavaMailSender mailSender, TemplateEngine templateEngine) {
         this.mailSender = mailSender;
+        this.templateEngine = templateEngine;
     }
 
-    /**
-     * Envoie un email de réinitialisation de mot de passe
-     *
-     * @param toEmail destinataire
-     * @param token token brut (UUID)
-     */
+
+     // * Envoi d’un email de réinitialisation du mot de passe (templates HTML)
     public void sendPasswordResetEmail(String toEmail, String token) {
-        String subject = "Réinitialisation de votre mot de passe";
-        String resetUrl = frontendUrl + "/reset-password?token=" + token;
-        String message = "Pour réinitialiser votre mot de passe, cliquez sur le lien ci-dessous :\n" + resetUrl + "\n\n"
-                + "Ce lien est valide pendant 30 minutes.\n\n"
-                + "Si vous n'êtes pas à l'origine de cette demande, ignorez cet email.";
+        String url = frontendUrl + "/reset-password?token=" + token;
 
-        sendEmail(toEmail, subject, message);
+        Context ctx = new Context();
+        ctx.setVariable("title", "Réinitialisation du mot de passe");
+        ctx.setVariable("actionUrl", url);
+        ctx.setVariable("buttonText", "Réinitialiser mon mot de passe");
+        ctx.setVariable("content",
+                "Vous avez demandé la réinitialisation de votre mot de passe. Cliquez sur le bouton ci-dessous.");
+
+        String htmlContent = templateEngine.process("email/reset-password", ctx);
+
+        sendHtmlEmail(toEmail, "Réinitialisation de votre mot de passe", htmlContent);
     }
 
-    /**
-     * Envoie un email de vérification de compte
-     *
-     * @param toEmail destinataire
-     * @param token token brut (UUID)
-     */
+    // * Envoi d’un email de vérification de compte (templates HTML)
     public void sendVerificationEmail(String toEmail, String token) {
-        String subject = "Vérification de votre compte";
-        String verificationUrl = frontendUrl + "/verify?token=" + token;
-        String message = "Merci de cliquer sur le lien ci-dessous pour activer votre compte :\n" + verificationUrl + "\n\n"
-                + "Ce lien est valide pendant 24 heures.\n\n"
-                + "Si vous n'avez pas créé de compte, ignorez cet email.";
+        String url = frontendUrl + "/verify?token=" + token;
 
-        sendEmail(toEmail, subject, message);
+        Context ctx = new Context();
+        ctx.setVariable("title", "Vérification de votre compte");
+        ctx.setVariable("actionUrl", url);
+        ctx.setVariable("buttonText", "Activer mon compte");
+        ctx.setVariable("content",
+                "Merci de cliquer sur le bouton ci-dessous pour activer votre compte.");
+
+        String htmlContent = templateEngine.process("email/verify-account", ctx);
+
+        sendHtmlEmail(toEmail, "Activation de votre compte", htmlContent);
     }
 
-    private void sendEmail(String toEmail, String subject, String message) {
-        SimpleMailMessage email = new SimpleMailMessage();
-        email.setTo(toEmail);
-        email.setSubject(subject);
-        email.setText(message);
-        email.setFrom(fromEmail);
-        mailSender.send(email);
+
+    // * Méthode générique pour envoyer un email HTML
+    private void sendHtmlEmail(String toEmail, String subject, String htmlContent) {
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper =
+                    new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, "UTF-8");
+
+            helper.setFrom(fromEmail);
+            helper.setTo(toEmail);
+            helper.setSubject(subject);
+            helper.setText(htmlContent, true); // true = HTML
+
+            mailSender.send(mimeMessage);
+            log.info("Email HTML envoyé à {}", toEmail);
+
+        } catch (MessagingException | MailException e) {
+            log.error("Erreur lors de l'envoi de l'e-mail HTML à {} : {}", toEmail, e.getMessage());
+            throw new EmailSendException("Impossible d'envoyer l'email à : " + toEmail);
+        }
     }
 }

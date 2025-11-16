@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <style>
+        .container {
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+
+        .title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .button {
+            display: inline-block;
+            background-color: #4A90E2;
+            color: white;
+            padding: 12px 20px;
+            text-decoration: none;
+            border-radius: 6px;
+            margin-top: 20px;
+        }
+    </style>
+    <title>Vérification de compte</title>
+</head>
+
+<body>
+    <div class="container">
+
+        <h2 th:text="${title}">Titre par défaut</h2>
+        <p th:text="${content}">Contenu par défaut</p>
+
+        <a th:href="${actionUrl}">
+            <button th:text="${buttonText}">Vérifier mon compte</button>
+        </a>
+    </div>
+</body>
+
+</html>

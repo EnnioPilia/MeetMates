@@ -28,6 +28,9 @@ import com.example.meetmates.repository.EventRepository;
 import com.example.meetmates.repository.EventUserRepository;
 import com.example.meetmates.repository.UserRepository;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class EventService {
 
@@ -54,12 +57,12 @@ public class EventService {
         this.eventMapper = eventMapper;
     }
 
-    // ------------------------------------------------------------
-    // CREATE EVENT
-    // ------------------------------------------------------------
+    // * Crée un nouvel événemen
     @Transactional
     public EventResponseDto createEvent(EventRequestDto req) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        log.info("Tentative de création d'événement par {}", auth.getName());
+
         User organizer = userRepository.findByEmail(auth.getName())
                 .orElseThrow(() -> new UnauthorizedEventAccessException("Utilisateur non trouvé"));
 
@@ -87,9 +90,7 @@ public class EventService {
         return eventMapper.toResponse(saved);
     }
 
-    // ------------------------------------------------------------
-    // LIST EVENTS
-    // ------------------------------------------------------------
+    // * Retourne tous les événements avec leurs détails
     @Transactional(readOnly = true)
     public List<EventResponseDto> findAllResponses() {
         return eventRepository.findAllWithDetails()
@@ -98,9 +99,7 @@ public class EventService {
                 .toList();
     }
 
-    // ------------------------------------------------------------
-    // DETAILS EVENT
-    // ------------------------------------------------------------
+    // * Retourne les détails complets d'un événement par ID
     @Transactional(readOnly = true)
     public EventDetailsDto findEventDetailsById(UUID id) {
 
@@ -161,9 +160,7 @@ public class EventService {
         );
     }
 
-    // ------------------------------------------------------------
-    // BY ACTIVITY
-    // ------------------------------------------------------------
+    // * Liste tous les événements liés à une activité
     @Transactional(readOnly = true)
     public List<EventResponseDto> getEventResponsesByActivity(UUID activityId) {
         return eventRepository.findByActivityIdWithDetails(activityId)
@@ -172,20 +169,18 @@ public class EventService {
                 .toList();
     }
 
-    // ------------------------------------------------------------
-    // DELETE EVENT
-    // ------------------------------------------------------------
+    // * Supprime un événement par ID
     @Transactional
     public void delete(UUID id) {
+        log.info("Demande de suppression de l'événement {}", id);
+
         if (!eventRepository.existsById(id)) {
             throw new EventNotFoundException("Impossible de supprimer : événement introuvable.");
         }
         eventRepository.deleteById(id);
     }
 
-    // ------------------------------------------------------------
-    // UPDATE EVENT
-    // ------------------------------------------------------------
+    // * Met à jour un événement existant
     public EventResponseDto updateEvent(UUID id, EventRequestDto updatedEvent) {
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new EventNotFoundException("Événement introuvable"));
@@ -220,9 +215,7 @@ public class EventService {
         return eventMapper.toResponse(saved);
     }
 
-    // ------------------------------------------------------------
-    // SEARCH
-    // ------------------------------------------------------------
+    // * Recherche des événements par mot-clé
     public List<EventResponseDto> searchEvents(String query) {
         if (query == null || query.isBlank()) {
             return List.of();
@@ -233,9 +226,7 @@ public class EventService {
                 .toList();
     }
 
-    // ------------------------------------------------------------
-    // PRIVATE
-    // ------------------------------------------------------------
+    // * Ajoute l'organisateur d'un événement dans la table EventUser
     private void addOrganizer(Event event, User organizer) {
         EventUser link = new EventUser();
         link.setEvent(event);

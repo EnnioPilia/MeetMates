@@ -60,7 +60,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // -------- ACCESS TOKEN --------
         if (access != null) {
-            log.debug("Access token found in cookies");
 
             if (jwtUtils.isValidAccessToken(access)) {
                 String username = jwtUtils.getUsername(access);
@@ -76,7 +75,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // -------- REFRESH TOKEN --------
         if (refresh != null) {
-            log.debug("Refresh token found in cookies");
 
             Token ref = refreshTokenService.findByToken(refresh).orElse(null);
 
@@ -109,7 +107,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-        log.debug("No valid token found → anonymous request");
         SecurityContextHolder.clearContext();
         filterChain.doFilter(request, response);
     }

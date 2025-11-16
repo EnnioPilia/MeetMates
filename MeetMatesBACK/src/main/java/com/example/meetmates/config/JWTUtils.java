@@ -30,7 +30,6 @@ public class JWTUtils {
     }
 
     public String generateAccessToken(String email, String role) {
-        log.debug("Generating access token for {}", email);
 
         return Jwts.builder()
                 .setSubject(email)
@@ -55,18 +54,19 @@ public class JWTUtils {
             Claims claims = getClaims(token);
 
             if (!"ACCESS".equals(claims.get("tokenType"))) {
-                log.warn("Rejected JWT → wrong type: {}", claims.get("tokenType"));
+                log.warn("Rejected JWT → wrong type: {}", claims.get("tokenType")); // log.warn("Rejected JWT: invalid token type"); en prod !!!!
+
                 return false;
             }
 
             return true;
 
         } catch (ExpiredJwtException e) {
-            log.warn("JWT expired at {}", e.getClaims().getExpiration());
+            log.warn("JWT expired at {}", e.getClaims().getExpiration()); // pareil !!!
             return false;
 
         } catch (JwtException e) {
-            log.warn("Invalid JWT: {}", e.getMessage());
+            log.warn("Invalid JWT: {}", e.getMessage()); // pareil !!!
             return false;
 
         } catch (IllegalArgumentException e) {
