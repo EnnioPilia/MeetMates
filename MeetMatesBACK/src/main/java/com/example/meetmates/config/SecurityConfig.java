@@ -32,7 +32,7 @@ public class SecurityConfig {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
-    // * CONSTANTES
+    // * Liste des routes publiques accessibles sans authentification
     private static final List<String> PUBLIC_URLS = List.of(
             "/auth/login",
             "/auth/register",
@@ -48,10 +48,11 @@ public class SecurityConfig {
             "/error/**"
     );
 
+    // * Déclaration des rôles utilisés dans la sécurité
     private static final String ROLE_USER = "USER";
     private static final String ROLE_ADMIN = "ADMIN";
 
-    // * CORS CONFIG
+    // * Configuration CORS de l’application
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
@@ -65,7 +66,7 @@ public class SecurityConfig {
         return source;
     }
 
-    // * SECURITY FILTER CHAIN
+    // * Chaîne de filtres de sécurité (Security Filter Chain)
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -85,7 +86,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // * AUTH PROVIDER
+    // * Provider d’authentification utilisant UserService + BCrypt
     @Bean
     public AuthenticationProvider authenticationProvider(UserService userService) {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -94,11 +95,13 @@ public class SecurityConfig {
         return provider;
     }
 
+    // * Encoder des mots de passe (BCrypt)
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    // * AuthenticationManager utilisé par Spring Security
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();

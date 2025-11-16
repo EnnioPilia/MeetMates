@@ -21,14 +21,14 @@ public class PictureUser {
     private UUID id;
 
     @Column(nullable = false)
-    private String url; // Lien ou chemin de l’image (Cloudinary, S3, etc.)
+    private String url; 
 
     @Column(name = "public_id")
-    private String publicId; // Si tu utilises Cloudinary, optionnel
+    private String publicId; 
 
     @Column(name = "is_main", nullable = false)
-    private boolean isMain = true; // Pour marquer la photo de profil principale
-
+    private boolean isMain = true; 
+    
     @Column(nullable = false)
     private String status = "ACTIVE";
 
@@ -38,73 +38,33 @@ public class PictureUser {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // 🔹 Lien direct vers l'utilisateur
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
-    // --- Getters / Setters ---
-    public UUID getId() {
-        return id;
-    }
 
-    public void setId(UUID id) {
-        this.id = id;
-    }
+    // GETTERS & SETTERS
+    public UUID getId() { return id; } 
+    public void setId(UUID id) { this.id = id; }
 
-    public String getUrl() {
-        return url;
-    }
+    public String getUrl() { return url; } 
+    public void setUrl(String url) { this.url = url; }
 
-    public void setUrl(String url) {
-        this.url = url;
-    }
+    public String getPublicId() { return publicId; } 
+    public void setPublicId(String publicId) { this.publicId = publicId; }
 
-    public String getPublicId() {
-        return publicId;
-    }
+    public boolean isMain() { return isMain; } 
+    public void setMain(boolean main) { isMain = main; }
 
-    public void setPublicId(String publicId) {
-        this.publicId = publicId;
-    }
+    public String getStatus() { return status; } 
+    public void setStatus(String status) { this.status = status; }
 
-    public boolean isMain() {
-        return isMain;
-    }
+    public LocalDateTime getCreatedAt() { return createdAt; } 
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
-    public void setMain(boolean main) {
-        isMain = main;
-    }
+    public LocalDateTime getUpdatedAt() { return updatedAt; } 
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
+    public User getUser() { return user; } 
+    public void setUser(User user) { this.user = user; }
 }

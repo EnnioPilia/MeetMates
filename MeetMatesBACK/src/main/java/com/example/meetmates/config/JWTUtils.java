@@ -28,7 +28,8 @@ public class JWTUtils {
         this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
         this.jwtExpirationMs = jwtExpirationMs;
     }
-
+    
+    // * Génère un token JWT d’accès contenant email + rôle + type ACCESS
     public String generateAccessToken(String email, String role) {
 
         return Jwts.builder()
@@ -41,6 +42,7 @@ public class JWTUtils {
                 .compact();
     }
 
+    // * Extrait toutes les claims du token JWT
     public Claims getClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
@@ -49,6 +51,7 @@ public class JWTUtils {
                 .getBody();
     }
 
+    // * Vérifie la validité d’un token d’accès (expiration, signature, type)
     public boolean isValidAccessToken(String token) {
         try {
             Claims claims = getClaims(token);
@@ -75,6 +78,7 @@ public class JWTUtils {
         }
     }
 
+    // * Récupère l’email (subject) contenu dans le token JWT
     public String getUsername(String token) {
         try {
             return getClaims(token).getSubject();
@@ -84,6 +88,7 @@ public class JWTUtils {
         }
     }
 
+    // * Retourne la durée d’expiration configurée pour les tokens JWT
     public int getJwtExpirationMs() {
         return jwtExpirationMs;
     }

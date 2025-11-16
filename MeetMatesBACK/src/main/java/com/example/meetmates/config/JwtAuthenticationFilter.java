@@ -39,6 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.refreshTokenService = refreshTokenService;
     }
 
+    // * Vérifie si la requête doit être ignorée par le filtre 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
@@ -48,6 +49,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 || path.equals("/auth/verify");
     }
 
+    // * Filtrage principal pour authentification JWT (access et refresh tokens)
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
@@ -58,7 +60,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String access = getCookie(request, "authToken");
         String refresh = getCookie(request, "refreshToken");
 
-        // -------- ACCESS TOKEN --------
+        // - ACCESS TOKEN -
+        // * Vérifie et utilise le refresh token pour rotation et régénération d'un access token
         if (access != null) {
 
             if (jwtUtils.isValidAccessToken(access)) {
@@ -73,7 +76,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-        // -------- REFRESH TOKEN --------
+        // - REFRESH TOKEN -
+        // * Vérifie et utilise le refresh token pour rotation et régénération d'un access token
         if (refresh != null) {
 
             Token ref = refreshTokenService.findByToken(refresh).orElse(null);
@@ -88,11 +92,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 log.warn("Refresh token expired for user {}", ref.getUser().getEmail());
             }
             else {
-                // Rotation
                 Token newRefresh = refreshTokenService.rotateToken(ref);
                 log.info("Refresh token rotated for user {}", ref.getUser().getEmail());
 
-                // Access token régénéré
                 String newAccess = jwtUtils.generateAccessToken(
                         ref.getUser().getEmail(),
                         ref.getUser().getRole().name()
@@ -111,6 +113,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    // * Authentifie l'utilisateur dans le contexte Spring Security
     private void authenticate(String username, HttpServletRequest request) {
         UserDetails user = userService.loadUserByUsername(username);
         UsernamePasswordAuthenticationToken auth =
@@ -119,6 +122,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
+    // * Envoie un cookie HTTP sécurisé avec les options appropriées
     private void sendCookie(HttpServletResponse res, String name, String value, long age) {
         ResponseCookie cookie = ResponseCookie.from(name, value)
                 .httpOnly(true)
@@ -130,6 +134,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         res.addHeader("Set-Cookie", cookie.toString());
     }
 
+    // * Récupère la valeur d'un cookie à partir de la requête
     private String getCookie(HttpServletRequest req, String name) {
         if (req.getCookies() == null) return null;
         for (Cookie c : req.getCookies()) {

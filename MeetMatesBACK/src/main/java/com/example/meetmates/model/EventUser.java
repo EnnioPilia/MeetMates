@@ -60,7 +60,7 @@ public class EventUser {
     @Column(name = "user_email", nullable = false)
     private String userEmail;
 
-    // === ENUMS ===
+    // ENUMS 
     public enum ParticipantRole {
         ORGANIZER, PARTICIPANT
     }
@@ -73,61 +73,25 @@ public class EventUser {
         LEFT_REJECTED
     }
 
-    // === GETTERS/SETTERS ===
-    public UUID getId() {
-        return id;
-    }
+    // GETTERS & SETTERS
+    public UUID getId() { return id; } 
+    public void setId(UUID id) { this.id = id; }
 
-    public void setId(UUID id) {
-        this.id = id;
-    }
+    public Event getEvent() { return event; } 
+    public void setEvent(Event event) { this.event = event; }
 
-    public Event getEvent() {
-        return event;
-    }
+    public User getUser() { return user; } 
+    public void setUser(User user) { this.user = user; }
 
-    public void setEvent(Event event) {
-        this.event = event;
-    }
+    public ParticipantRole getRole() { return role; } 
+    public void setRole(ParticipantRole role) { this.role = role; }
 
-    public User getUser() {
-        return user;
-    }
+    public LocalDateTime getJoinedAt() { return joinedAt; } 
+    public void setJoinedAt(LocalDateTime joinedAt) { this.joinedAt = joinedAt; }
 
-    public void setUser(User user) {
-        this.user = user;
-    }
+    public ParticipationStatus getParticipationStatus() { return participationStatus; } 
+    public void setParticipationStatus(ParticipationStatus participationStatus) { this.participationStatus = participationStatus; }
 
-    public ParticipantRole getRole() {
-        return role;
-    }
-
-    public void setRole(ParticipantRole role) {
-        this.role = role;
-    }
-
-    public LocalDateTime getJoinedAt() {
-        return joinedAt;
-    }
-
-    public void setJoinedAt(LocalDateTime joinedAt) {
-        this.joinedAt = joinedAt;
-    }
-
-    public ParticipationStatus getParticipationStatus() {
-        return participationStatus;
-    }
-
-    public void setParticipationStatus(ParticipationStatus participationStatus) {
-        this.participationStatus = participationStatus;
-    }
-
-    public String getUserEmail() {
-        return userEmail;
-    }
-
-    public void setUserEmail(String userEmail) {
-        this.userEmail = userEmail;
-    }
-
+    public String getUserEmail() { return userEmail; } 
+    public void setUserEmail(String userEmail) { this.userEmail = userEmail; }
 }

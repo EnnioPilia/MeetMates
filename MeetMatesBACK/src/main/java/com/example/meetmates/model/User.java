@@ -93,151 +93,61 @@ public class User {
     @Column(name = "profile_picture_url")
     private String profilePictureUrl;
 
-    public String getProfilePictureUrl() {
-        return profilePictureUrl;
-    }
 
-    public void setProfilePictureUrl(String profilePictureUrl) {
-        this.profilePictureUrl = profilePictureUrl;
-    }
+    // GETTERS & SETTERS
+    public UUID getId() { return id; } 
+    public void setId(UUID id) { this.id = id; }
 
-    public LocalDateTime getDeletedAt() {
-        return deletedAt;
-    }
+    public String getFirstName() { return firstName; } 
+    public void setFirstName(String firstName) { this.firstName = firstName; }
 
-    public void setDeletedAt(LocalDateTime deletedAt) {
-        this.deletedAt = deletedAt;
-    }
+    public String getLastName() { return lastName; } 
+    public void setLastName(String lastName) { this.lastName = lastName; }
 
-    public UUID getId() {
-        return id;
-    }
+    public String getEmail() { return email; } 
+    public void setEmail(String email) { this.email = email.toLowerCase(); }
 
-    public void setId(UUID id) {
-        this.id = id;
-    }
+    public String getPassword() { return password; } 
+    public void setPassword(String password) { this.password = password; }
 
-    public String getFirstName() {
-        return firstName;
-    }
+    public Integer getAge() { return age; } 
+    public void setAge(Integer age) { this.age = age; }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
+    public LocalDateTime getDeletedAt() { return deletedAt; } 
+    public void setDeletedAt(LocalDateTime deletedAt) { this.deletedAt = deletedAt; }
 
-    public String getLastName() {
-        return lastName;
-    }
+    public String getCity() { return city; } 
+    public void setCity(String city) { this.city = city; }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
+    public boolean isEnabled() { return enabled; } 
+    public void setEnabled(boolean enabled) { this.enabled = enabled; }
 
-    public String getEmail() {
-        return email;
-    }
+    public UserStatus getStatus() { return status; } 
+    public void setStatus(UserStatus status) { this.status = status; }
 
-    public void setEmail(String email) {
-        this.email = email.toLowerCase();
-    }
+    public UserRole getRole() { return role; } 
+    public void setRole(UserRole role) { this.role = role; }
 
-    public String getPassword() {
-        return password;
-    }
+    public LocalDateTime getAcceptedCguAt() { return acceptedCguAt; } 
+    public void setAcceptedCguAt(LocalDateTime acceptedCguAt) { this.acceptedCguAt = acceptedCguAt; }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+    public LocalDateTime getCreatedAt() { return createdAt; } 
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
-    public Integer getAge() {
-        return age;
-    }
+    public LocalDateTime getUpdatedAt() { return updatedAt; } 
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 
-    public void setAge(Integer age) {
-        this.age = age;
-    }
+    public List<Token> getTokens() { return tokens; } 
+    public void setTokens(List<Token> tokens) { this.tokens = tokens; }
 
-    public String getCity() {
-        return city;
-    }
+    public List<EventUser> getEventUsers() { return eventUsers; } 
+    public void setEventUsers(List<EventUser> eventUsers) { this.eventUsers = eventUsers; }
 
-    public void setCity(String city) {
-        this.city = city;
-    }
+    public PictureUser getPictureUser() { return pictureUser; } 
+    public void setPictureUser(PictureUser pictureUser) { this.pictureUser = pictureUser; }
 
-    public boolean isEnabled() {
-        return enabled;
-    }
+    public String getProfilePictureUrl() { return profilePictureUrl; } 
+    public void setProfilePictureUrl(String profilePictureUrl) { this.profilePictureUrl = profilePictureUrl; }
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    public UserStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(UserStatus status) {
-        this.status = status;
-    }
-
-    public UserRole getRole() {
-        return role;
-    }
-
-    public void setRole(UserRole role) {
-        this.role = role;
-    }
-
-    public LocalDateTime getAcceptedCguAt() {
-        return acceptedCguAt;
-    }
-
-    public void setAcceptedCguAt(LocalDateTime acceptedCguAt) {
-        this.acceptedCguAt = acceptedCguAt;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public List<Token> getTokens() {
-        return tokens;
-    }
-
-    public void setTokens(List<Token> tokens) {
-        this.tokens = tokens;
-    }
-
-    public List<EventUser> getEventUsers() {
-        return eventUsers;
-    }
-
-    public void setEventUsers(List<EventUser> eventUsers) {
-        this.eventUsers = eventUsers;
-    }
-
-    public String getUsername() {
-        return this.email;
-    }
-
-    public PictureUser getPictureUser() {
-        return pictureUser;
-    }
-
-    public void setPictureUser(PictureUser pictureUser) {
-        this.pictureUser = pictureUser;
-    }
+    public String getUsername() { return this.email; }
 }

@@ -81,14 +81,6 @@ public class Event {
     @JsonManagedReference
     private List<EventUser> participants = new ArrayList<>();
 
-    public List<EventUser> getParticipants() {
-        return participants;
-    }
-
-    public void setParticipants(List<EventUser> participants) {
-        this.participants = participants;
-    }
-
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -98,6 +90,8 @@ public class Event {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
+
+    // ENUMS
     public enum EventStatus {
         OPEN, FULL, CANCELLED, FINISHED
     }
@@ -110,125 +104,53 @@ public class Event {
         BEGINNER, INTERMEDIATE, EXPERT, ALL_LEVELS
     }
 
-    // GETTERS / SETTERS
-    public UUID getId() {
-        return id;
-    }
 
-    public void setId(UUID id) {
-        this.id = id;
-    }
+    // GETTERS & SETTERS
+    public UUID getId() { return id; } 
+    public void setId(UUID id) { this.id = id; }
 
-    public String getTitle() {
-        return title;
-    }
+    public String getTitle() { return title; } 
+    public void setTitle(String title) { this.title = title; }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+    public String getDescription() { return description; } 
+    public void setDescription(String description) { this.description = description; }
 
-    public String getDescription() {
-        return description;
-    }
+    public LocalDate getEventDate() { return eventDate; } 
+    public void setEventDate(LocalDate eventDate) { this.eventDate = eventDate; }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+    public List<EventUser> getParticipants() {return participants;}
+    public void setParticipants(List<EventUser> participants) {this.participants = participants;}
 
-    public LocalDate getEventDate() {
-        return eventDate;
-    }
+    public LocalTime getStartTime() { return startTime; } 
+    public void setStartTime(LocalTime startTime) { this.startTime = startTime; }
 
-    public void setEventDate(LocalDate eventDate) {
-        this.eventDate = eventDate;
-    }
+    public LocalTime getEndTime() { return endTime; } 
+    public void setEndTime(LocalTime endTime) { this.endTime = endTime; }
 
-    public LocalTime getStartTime() {
-        return startTime;
-    }
+    public Integer getMaxParticipants() { return maxParticipants; } 
+    public void setMaxParticipants(Integer maxParticipants) { this.maxParticipants = maxParticipants; }
 
-    public void setStartTime(LocalTime startTime) {
-        this.startTime = startTime;
-    }
+    public EventStatus getStatus() { return status; } 
+    public void setStatus(EventStatus status) { this.status = status; }
+    
+    public MaterialOption getMaterial() { return material; } 
+    public void setMaterial(MaterialOption material) { this.material = material; }
 
-    public LocalTime getEndTime() {
-        return endTime;
-    }
+    public Level getLevel() { return level; } 
+    public void setLevel(Level level) { this.level = level; }
 
-    public void setEndTime(LocalTime endTime) {
-        this.endTime = endTime;
-    }
+    public Address getAddress() { return address; } 
+    public void setAddress(Address address) { this.address = address; }
 
-    public Integer getMaxParticipants() {
-        return maxParticipants;
-    }
+    public Activity getActivity() { return activity; } 
+    public void setActivity(Activity activity) { this.activity = activity; }
 
-    public void setMaxParticipants(Integer maxParticipants) {
-        this.maxParticipants = maxParticipants;
-    }
+    public LocalDateTime getCreatedAt() { return createdAt; } 
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
-    public EventStatus getStatus() {
-        return status;
-    }
+    public LocalDateTime getUpdatedAt() { return updatedAt; } 
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 
-    public void setStatus(EventStatus status) {
-        this.status = status;
-    }
-
-    public MaterialOption getMaterial() {
-        return material;
-    }
-
-    public void setMaterial(MaterialOption material) {
-        this.material = material;
-    }
-
-    public Level getLevel() {
-        return level;
-    }
-
-    public void setLevel(Level level) {
-        this.level = level;
-    }
-
-    public Address getAddress() {
-        return address;
-    }
-
-    public void setAddress(Address address) {
-        this.address = address;
-    }
-
-    public Activity getActivity() {
-        return activity;
-    }
-
-    public void setActivity(Activity activity) {
-        this.activity = activity;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public LocalDateTime getDeletedAt() {
-        return deletedAt;
-    }
-
-    public void setDeletedAt(LocalDateTime deletedAt) {
-        this.deletedAt = deletedAt;
-    }
-
+    public LocalDateTime getDeletedAt() { return deletedAt; } 
+    public void setDeletedAt(LocalDateTime deletedAt) { this.deletedAt = deletedAt; }
 }

@@ -1,43 +1,66 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <title>Activation de compte</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poiret+One&display=swap" rel="stylesheet">
     <style>
-        .container {
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f3f4f6;
+            font-family: 'Poiret One', cursive;
+        }
+
+        .email-wrapper {
+            width: 100%;
             padding: 20px;
-            font-family: Arial, sans-serif;
+            background-color: #f3f4f6;
         }
 
-        .title {
-            font-size: 22px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .button {
-            display: inline-block;
-            background-color: #4A90E2;
+        .email-container {
+            width: 400px;
+            margin: 0 auto;
+            background: linear-gradient(to bottom, #3b82f6, #4f46e5);
+            border-radius: 10px;
+            text-align: center;
+            padding: 30px 20px;
             color: white;
-            padding: 12px 20px;
+        }
+
+        .email-container h2 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .email-container p {
+            font-size: 16px;
+            margin-bottom: 25px;
+        }
+
+        .email-container a.button {
+            display: inline-block;
+            background-color: #ffffff;
+            color: #4f46e5;
+            padding: 12px 25px;
             text-decoration: none;
             border-radius: 6px;
-            margin-top: 20px;
+            font-weight: bold;
         }
     </style>
-    <title>Vérification de compte</title>
 </head>
-
 <body>
-    <div class="container">
-
-        <h2 th:text="${title}">Titre par défaut</h2>
-        <p th:text="${content}">Contenu par défaut</p>
-
-        <a th:href="${actionUrl}">
-            <button th:text="${buttonText}">Vérifier mon compte</button>
-        </a>
+    <div class="email-wrapper">
+        <div class="email-container">
+            <h2 th:text="${title}">Vérification de votre compte</h2>
+            <p th:text="${content}">
+                Merci de cliquer sur le bouton ci-dessous pour activer votre compte.
+            </p>
+            <a th:href="${actionUrl}" class="button">
+                <span th:text="${buttonText}">Activer mon compte</span>
+            </a>
+        </div>
     </div>
 </body>
-
 </html>

@@ -31,30 +31,35 @@ public class AddressController {
         this.addressService = addressService;
     }
 
+    // * Récupère toutes les adresses
     @GetMapping
     public ResponseEntity<List<Address>> getAll() {
         log.info("[ADDRESS CTRL] GET /address - Récupération de toutes les adresses");
         return ResponseEntity.ok(addressService.findAll());
     }
 
+    // * Récupère une adresse grâce à son ID
     @GetMapping("/{id}")
     public ResponseEntity<Address> getById(@PathVariable UUID id) {
         log.info("[ADDRESS CTRL] GET /address/{} - Récupération d'une adresse", id);
         return ResponseEntity.ok(addressService.findById(id));
     }
 
+    // * Crée une nouvelle adresse
     @PostMapping
     public ResponseEntity<Address> create(@RequestBody Address address) {
         log.info("[ADDRESS CTRL] POST /address - Création d'une adresse");
         return ResponseEntity.ok(addressService.save(address));
     }
 
+    // * Met à jour une adresse existante
     @PutMapping("/{id}")
     public ResponseEntity<Address> update(@PathVariable UUID id, @RequestBody Address addressDetails) {
         log.info("[ADDRESS CTRL] PUT /address/{} - Mise à jour de l'adresse", id);
         return ResponseEntity.ok(addressService.update(id, addressDetails));
     }
 
+    // * Supprime une adresse grâce à son ID
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         log.warn("[ADDRESS CTRL] DELETE /address/{} - Suppression d'une adresse", id);

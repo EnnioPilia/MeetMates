@@ -14,29 +14,15 @@ public class ActivityDto {
         this.categoryId = categoryId;
     }
 
-    // Getters
-    public UUID getId() {
-        return id;
-    }
 
-    public String getName() {
-        return name;
-    }
+    // GETTERS & SETTERS
+    public UUID getId() {  return id; }
+    public void setId(UUID id) { this.id = id; }
 
-    public UUID getCategoryId() {
-        return categoryId;
-    }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
-    // Setters
-    public void setId(UUID id) {
-        this.id = id;
-    }
+    public UUID getCategoryId() { return categoryId; }
+    public void setCategoryId(UUID categoryId) { this.categoryId = categoryId; }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setCategoryId(UUID categoryId) {
-        this.categoryId = categoryId;
-    }
 }

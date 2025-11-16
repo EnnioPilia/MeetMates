@@ -1,11 +1,15 @@
 package com.example.meetmates.dto;
 
 public class PasswordResetResponseDto {
+
     private String token;
     private String newPassword;
 
-    public PasswordResetResponseDto() {}
+    public PasswordResetResponseDto() {
+    }
 
+
+    // GETTERS & SETTERS
     public String getToken() { return token; }
     public void setToken(String token) { this.token = token; }
 

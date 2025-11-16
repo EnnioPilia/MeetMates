@@ -17,6 +17,9 @@ import com.example.meetmates.mapper.CategoryMapper;
 import com.example.meetmates.model.Category;
 import com.example.meetmates.service.CategoryService;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 @RequestMapping("/category")
 public class CategoryController {
@@ -27,11 +30,11 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
-    // ---------------------------------------------------------
-    // GET ALL
-    // ---------------------------------------------------------
+    // * Récupère toutes les catégories disponibles.
     @GetMapping
     public ResponseEntity<List<CategoryDto>> getAll() {
+        log.info("[CATEGORY] Récupération de toutes les catégories");
+
         return ResponseEntity.ok(
                 categoryService.findAll()
                         .stream()
@@ -40,30 +43,31 @@ public class CategoryController {
         );
     }
 
-    // ---------------------------------------------------------
-    // GET BY ID
-    // ---------------------------------------------------------
+    // * Récupère une catégorie par son ID.
     @GetMapping("/{id}")
     public ResponseEntity<CategoryDto> getById(@PathVariable UUID id) {
+        log.info("[CATEGORY] Récupération de la catégorie {}", id);
+
         Category category = categoryService.findById(id);
         return ResponseEntity.ok(CategoryMapper.toDto(category));
     }
 
-    // ---------------------------------------------------------
-    // CREATE
-    // ---------------------------------------------------------
+    // * Crée une nouvelle catégorie.
     @PostMapping
     public ResponseEntity<CategoryDto> create(@RequestBody CategoryDto dto) {
+        log.info("[CATEGORY] Création d'une catégorie : {}", dto.getName());
+
         Category category = CategoryMapper.fromDto(dto);
         Category saved = categoryService.save(category);
+
         return ResponseEntity.ok(CategoryMapper.toDto(saved));
     }
 
-    // ---------------------------------------------------------
-    // DELETE
-    // ---------------------------------------------------------
+    // * Supprime une catégorie existante.
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        log.warn("[CATEGORY] Suppression de la catégorie {}", id);
+
         categoryService.delete(id);
         return ResponseEntity.noContent().build();
     }

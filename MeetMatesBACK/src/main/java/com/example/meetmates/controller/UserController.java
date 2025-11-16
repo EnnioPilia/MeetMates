@@ -29,6 +29,9 @@ import com.example.meetmates.model.User;
 import com.example.meetmates.service.PictureService;
 import com.example.meetmates.service.UserService;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -38,23 +41,28 @@ public class UserController {
     private final UserMapper userMapper;
 
     public UserController(UserService userService,
-            PictureService pictureService,
-            UserMapper userMapper) {
+                          PictureService pictureService,
+                          UserMapper userMapper) {
         this.userService = userService;
         this.pictureService = pictureService;
         this.userMapper = userMapper;
     }
 
-    // * Récupère la liste de tous les utilisateurs 
+    // * Récupère la liste de tous les utilisateurs.
     @GetMapping
     public ResponseEntity<List<UserDto>> getAllUsers() {
+        log.info("[USER] Récupération de tous les utilisateurs");
+
         List<User> users = userService.getAllUsers();
         return ResponseEntity.ok(users.stream().map(userMapper::toDto).toList());
     }
 
-    // * Récupère le profil de l'utilisateur connecté
+
+    // * Récupère le profil de l'utilisateur connecté.
     @GetMapping("/me")
     public ResponseEntity<UserDto> getMe(Authentication authentication) {
+        log.info("[USER] Récupération du profil de l'utilisateur connecté");
+
         String email = authentication.getName();
 
         User user = userService.findByEmail(email)
@@ -63,13 +71,16 @@ public class UserController {
         return ResponseEntity.ok(userMapper.toDto(user));
     }
 
-    // * Upload une nouvelle photo de profil
+    // * Upload une nouvelle photo de profil é.
     @PostMapping("/me/picture")
     public ResponseEntity<UserDto> uploadProfilePicture(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam("file") MultipartFile file) throws IOException {
 
+        log.info("[USER] Tentative d'upload de photo de profil");
+
         if (userDetails == null) {
+            log.warn("[USER] Upload refusé : utilisateur non authentifié");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
@@ -77,36 +88,48 @@ public class UserController {
                 .orElseThrow(() -> new UserNotFoundException("Utilisateur introuvable"));
 
         String imageUrl = pictureService.uploadProfilePicture(file);
-
         user.setProfilePictureUrl(imageUrl);
         userService.updateUser(user);
+
+        log.info("[USER] Photo de profil mise à jour pour {}", user.getEmail());
 
         return ResponseEntity.ok(userMapper.toDto(user));
     }
 
-    // * Mise à jour du profil utilisateur 
+
+    // * Mise à jour du profil utilisateur connecté.
     @PutMapping("/me")
     public ResponseEntity<UserDto> updateMyProfile(
             @RequestBody UpdateUserDto updateUserDto,
             Principal principal) {
 
+        log.info("[USER] Mise à jour du profil pour {}", principal.getName());
+
         UserDto updatedUser = userService.updateMyProfile(principal.getName(), updateUserDto);
         return ResponseEntity.ok(updatedUser);
     }
 
-    // * Suppression définitive d'un utilisateur (admin)
+
+    // * Suppression définitive d'un utilisateur (admin uniquement).
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
+
+        log.warn("[ADMIN] Suppression de l'utilisateur {}", id);
+
         boolean deleted = userService.deleteUserById(id);
+
         return deleted
                 ? ResponseEntity.noContent().build()
                 : ResponseEntity.notFound().build();
     }
 
-    // * Supprime la photo de profil de l'utilisateur connecté
+
+    // * Supprime la photo de profil de l'utilisateur connecté.
     @DeleteMapping("/me/picture")
     public ResponseEntity<Void> deleteProfilePicture(
             @AuthenticationPrincipal UserDetails userDetails) {
+
+        log.info("[USER] Suppression de la photo de profil");
 
         User user = userService.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new UserNotFoundException("Utilisateur introuvable"));
@@ -115,12 +138,15 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    // * Supprime son propre compte (soft delete)
+    // * Suppression du compte de l'utilisateur connecté (soft delete).
     @DeleteMapping("/me")
     public ResponseEntity<Void> deleteMyAccount(
             @AuthenticationPrincipal UserDetails userDetails) {
 
+        log.warn("[USER] Tentative de suppression de son propre compte");
+
         if (userDetails == null) {
+            log.warn("[USER] Suppression refusée : utilisateur non authentifié");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 

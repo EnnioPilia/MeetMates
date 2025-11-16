@@ -43,36 +43,17 @@ public class Category {
     @JsonManagedReference
     private List<Activity> activities;
 
-    // Getters & Setters
-    public UUID getCategoryId() {
-        return categoryId;
-    }
 
-    public void setCategoryId(UUID categoryId) {
-        this.categoryId = categoryId;
-    }
+    // GETTERS & SETTERS
+    public UUID getCategoryId() { return categoryId; }
+    public void setCategoryId(UUID categoryId) { this.categoryId = categoryId; }
 
-    public String getName() {
-        return name;
-    }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
-    public List<Activity> getActivities() {
-        return activities;
-    }
-
-    public void setActivities(List<Activity> activities) {
-        this.activities = activities;
-    }
+    public List<Activity> getActivities() { return activities; }
+    public void setActivities(List<Activity> activities) { this.activities = activities; }
 }

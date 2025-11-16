@@ -46,50 +46,25 @@ public class Activity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // === Getters & Setters ===
-    public UUID getId() {
-        return id;
-    }
 
-    public void setId(UUID id) {
-        this.id = id;
-    }
+    // GETTERS & SETTERS
+    public UUID getId() { return id; }
+    public void setId(UUID id) { this.id = id; }
 
-    public String getName() {
-        return name;
-    }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    public Category getCategory() { return category; }
+    public void setCategory(Category category) { this.category = category; }
 
-    public Category getCategory() {
-        return category;
-    }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
 
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 
     @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-    }
+    protected void onCreate() { this.createdAt = LocalDateTime.now(); }
 
     @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
+    protected void onUpdate() { this.updatedAt = LocalDateTime.now(); }
 }
