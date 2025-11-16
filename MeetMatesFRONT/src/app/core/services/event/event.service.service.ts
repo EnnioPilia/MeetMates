@@ -4,6 +4,7 @@ import { environment } from '../../../../environments/environment';
 import { Observable } from 'rxjs';
 import { EventResponse } from '../../models/event-response.model';
 import { EventDetails } from '../../models/event-details.model';
+import { EventRequest } from '../../models/event-request.model';
 
 @Injectable({
   providedIn: 'root'
@@ -11,10 +12,6 @@ import { EventDetails } from '../../models/event-details.model';
 export class EventService {
   private http = inject(HttpClient);
   private baseUrl = environment.apiUrl;
-
-// Pas de gestion d’erreur centralisée dans les appels service VERIFIER les autres services
-// Typage de createEvent(eventPayload: any) → any interdit !!!!
-
 
   fetchAllEvents(): Observable<EventResponse[]> {
     return this.http.get<EventResponse[]>(`${this.baseUrl}/event`, { withCredentials: true });
@@ -28,8 +25,8 @@ export class EventService {
     return this.http.get<EventDetails>(`${this.baseUrl}/event/${id}`, { withCredentials: true });
   }
 
-  createEvent(eventPayload: any): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/event`, eventPayload, { withCredentials: true });
+  createEvent(eventPayload: EventRequest): Observable<EventDetails> {
+    return this.http.post<EventDetails>(`${this.baseUrl}/event`, eventPayload, { withCredentials: true });
   }
   
   deleteEvent(eventId: string): Observable<void> {

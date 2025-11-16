@@ -29,19 +29,26 @@ export class EventInfoComponent {
   @Input() showStatus = false;
   @Input() showOrganizer = true;
 
-  getStatusLabel(status?: string): string {
-    return status ? getStatusLabel(status) : '';
+  get statusLabel(): string {
+    return this.event.status ? getStatusLabel(this.event.status) : '';
   }
 
-  getLevelLabel(level?: string): string {
-    return level ? getLevelLabel(level) : '';
+  get levelLabel(): string {
+    return this.event.level ? getLevelLabel(this.event.level) : '';
   }
 
-  getMaterialLabel(material?: string): string {
-    return material ? getMaterialLabel(material) : '';
+  get materialLabel(): string {
+    return this.event.material ? getMaterialLabel(this.event.material) : '';
   }
 
-  formatTime(time?: string): string {
-    return time?.slice(0, 5) ?? '';
+  get eventDate(): string {
+    return this.event.eventDate ?? '';
+  }
+
+  get eventTime(): string {
+    const start = this.event.startTime?.slice(0, 5);
+    const end = this.event.endTime?.slice(0, 5);
+    return `${start} - ${end}`;
   }
 }
+

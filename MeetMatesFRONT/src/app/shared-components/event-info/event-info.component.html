@@ -1,14 +1,18 @@
 <div class="flex flex-col w-full text-sm leading-relaxed gap-3 mt-3">
+
   @if (showStatus) {
-    <p><strong>STATUT :</strong><span [ngClass]="getStatusLabel(event.status) | statusColor">
-      {{ getStatusLabel(event.status) }}</span></p>
+    <p>
+      <strong>STATUT : </strong>
+      <span [ngClass]="statusLabel | statusColor">{{ statusLabel }}</span>
+    </p>
   }
+
     <p><strong>ACTIVITÉ :</strong> {{ event.activityName }}</p>
-    <p><strong>DATE :</strong> {{ event.eventDate | date:'mediumDate' }}</p>
-    <p><strong>HORAIRE :</strong> {{ formatTime(event.startTime) }} - {{ formatTime(event.endTime) }}</p>
+    <p><strong>DATE :</strong> {{ eventDate | date:'mediumDate' }}</p>
+    <p><strong>HORAIRE :</strong> {{ eventTime }}</p>
     <p><strong>ADRESSE :</strong> {{ event.addressLabel }}</p>
-    <p><strong>NIVEAU :</strong> {{ getLevelLabel(event.level) }}</p>
-    <p><strong>MATÉRIEL :</strong> {{ getMaterialLabel(event.material) }}</p>
+    <p><strong>NIVEAU :</strong> {{ levelLabel }}</p>
+    <p><strong>MATÉRIEL :</strong> {{ materialLabel }}</p>
     <p><strong>NOMBRE DE PARTICIPANTS :</strong> {{ event.maxParticipants }}</p>
 
   @if (showOrganizer) {

@@ -43,7 +43,8 @@ import { getStatusLabel, getParticipationLabel } from '../../../core/utils/label
 
             <p>{{ event.addressLabel }}</p>
 
-            <button class="primary-button h-10" 
+            <button 
+              class="primary-button h-10" 
               [routerLink]="['/event-participant', event.eventId]">
               VOIR DÉTAILS
             </button>

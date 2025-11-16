@@ -4,14 +4,15 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { EventInfoCardComponent } from '../../../shared-components/event-info-card/event-info-card';
+import { EventDetails } from '../../../core/models/event-details.model';
 
 @Component({
   selector: 'app-organization-tab',
   standalone: true,
   imports: [
     CommonModule,
-    MatExpansionModule, 
-    RouterModule, 
+    MatExpansionModule,
+    RouterModule,
     MatButtonModule,
     EventInfoCardComponent
   ],
@@ -33,8 +34,17 @@ import { EventInfoCardComponent } from '../../../shared-components/event-info-ca
           </mat-expansion-panel-header>
 
           <div class="flex flex-col">
-            <app-event-info-card [event]="event"></app-event-info-card>
-            <button class="primary-button h-10" [routerLink]="['/event-organizer', event.eventId]">VOIR DÉTAILS</button>
+
+            <app-event-info-card 
+              [event]="mapToEventDetails(event)">
+            </app-event-info-card>
+
+            <button 
+              class="primary-button h-10" 
+              [routerLink]="['/event-organizer', event.eventId]">
+              VOIR DÉTAILS
+            </button>
+            
           </div>
         </mat-expansion-panel>
         }
@@ -45,4 +55,12 @@ import { EventInfoCardComponent } from '../../../shared-components/event-info-ca
 })
 export class OrganizationTabComponent {
   @Input() events: any[] = [];
+
+  mapToEventDetails(e: any): Partial<EventDetails> {
+    return {
+      activityName: e.activityName,
+      addressLabel: e.addressLabel,
+      status: e.status ?? e.eventStatus,
+    };
+  }
 }

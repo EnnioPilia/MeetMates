@@ -1,14 +1,12 @@
 import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection, LOCALE_ID } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withViewTransitions } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
-
-// Import pour la localisation FR
+//  Locale FR
 import { registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
 registerLocaleData(localeFr);
-
-// Material modules
+// Angular Material & Forms
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -17,24 +15,28 @@ import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-
-// Tes routes
+//  Routes de l'application
 import { routes } from './app.routes';
+//  Intercepteurs 
+// / import { authInterceptor } from './core/interceptors/auth.interceptor';  --- (décommenter)
+// / import { errorInterceptor } from './core/interceptors/error.interceptor'; --- (décommenter)
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    //  Optimisation Angular
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes),
+    //  Router + transitions fluide
+    provideRouter(routes, withViewTransitions()),
+    // HTTP + intercepteurs
     provideHttpClient(
-      // Tu pourras réactiver tes intercepteurs ici
-      // withInterceptors([authInterceptor, errorInterceptor])
+      // withInterceptors([authInterceptor, errorInterceptor]) --- (décommenter)
     ),
+    // Animations Angular
     provideAnimations(),
-
-    // 🟦 Locale française globale
+    //  Locale FR globale
     { provide: LOCALE_ID, useValue: 'fr' },
 
-    // 🟪 Import des modules Material et Angular Forms
+    //  Material Modules / Forms
     importProvidersFrom(
       MatButtonModule,
       MatCardModule,
@@ -44,6 +46,6 @@ export const appConfig: ApplicationConfig = {
       FormsModule,
       MatFormFieldModule,
       MatSnackBarModule
-    )
+    ),
   ]
 };
