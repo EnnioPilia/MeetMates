@@ -22,5 +22,11 @@ public interface EventUserRepository extends JpaRepository<EventUser, UUID> {
     List<EventUser> findAllByUserIdAndRole(UUID userId, ParticipantRole role);
 
     List<EventUser> findAllByUserIdAndParticipationStatusNotIn(UUID userId, List<EventUser.ParticipationStatus> excludedStatuses);
+    
+List<EventUser> findAllByUserIdAndRoleAndParticipationStatusNotIn(
+        UUID userId,
+        ParticipantRole role,
+        List<EventUser.ParticipationStatus> excludedStatuses
+);
 
 }

@@ -41,7 +41,7 @@ public class EventUserService {
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
         this.eventUserRepository = eventUserRepository;
-        this.eventMapper = eventMapper;  
+        this.eventMapper = eventMapper;
     }
 
     // * Permet à un utilisateur de rejoindre un événement
@@ -98,7 +98,7 @@ public class EventUserService {
         eventUser.setParticipationStatus(ParticipationStatus.PENDING);
         eventUser.setJoinedAt(LocalDateTime.now());
 
-        return eventMapper.EventUserDto(eventUserRepository.save(eventUser)); 
+        return eventMapper.EventUserDto(eventUserRepository.save(eventUser));
     }
 
     // * Accepte un participant en attente pour un événement
@@ -109,7 +109,7 @@ public class EventUserService {
         eu.setParticipationStatus(ParticipationStatus.ACCEPTED);
         return eventMapper.EventUserDto(eventUserRepository.save(eu));
     }
-    
+
     // * Rejette une demande de participation
     public EventUserDto rejectParticipant(UUID eventUserId) {
         EventUser eu = eventUserRepository.findById(eventUserId)
@@ -143,8 +143,9 @@ public class EventUserService {
 
     // * Retourne tous les événements auxquels l'utilisateur participe
     public List<EventUserDto> findByUserId(UUID userId) {
-        return eventUserRepository.findAllByUserIdAndParticipationStatusNotIn(
+        return eventUserRepository.findAllByUserIdAndRoleAndParticipationStatusNotIn(
                 userId,
+                ParticipantRole.PARTICIPANT,
                 List.of(ParticipationStatus.LEFT, ParticipationStatus.LEFT_REJECTED)
         )
                 .stream()
