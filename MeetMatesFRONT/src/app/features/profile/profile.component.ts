@@ -20,7 +20,8 @@ import { ProfileCardComponent } from '../profile/components/profile-card.compone
 import { ParticipationTabComponent } from '../profile/components/participation-tab.component';
 import { OrganizationTabComponent } from '../profile/components/organization-tab.component';
 import { SettingsMenuComponent } from '../profile/components/settings-menu.component';
-import { LoadingSpinnerComponent } from '../../shared-components/loading-spinner/loading-spinner.component'; 
+import { LoadingSpinnerComponent } from '../../shared-components/loading-spinner/loading-spinner.component';
+import { EventResponse } from '../../core/models/event-response.model';
 
 @Component({
   selector: 'app-profile',
@@ -37,7 +38,6 @@ import { LoadingSpinnerComponent } from '../../shared-components/loading-spinner
     LoadingSpinnerComponent
   ],
   templateUrl: './profile.component.html',
-  styleUrls: ['./profile.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProfileComponent {
@@ -52,21 +52,19 @@ export class ProfileComponent {
   private destroyRef = inject(DestroyRef);
 
   readonly user = signal<any>(null);
-  readonly eventsParticipating = signal<any[]>([]);
-  readonly eventsOrganized = signal<any[]>([]);
+  readonly eventsParticipating = signal<EventResponse[]>([]);
+  readonly eventsOrganized = signal<EventResponse[]>([]);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
 
   ngOnInit(): void {
     this.loading.set(true);
-    setTimeout(() => {
-      this.loadProfileData();
-    },);
+    this.loadProfileData(); 
   }
+
 
   private loadProfileData(): void {
     this.loading.set(true);
-
     this.userService.getCurrentUser()
       .pipe(
         takeUntilDestroyed(this.destroyRef),
@@ -86,106 +84,60 @@ export class ProfileComponent {
 
   private fetchEvents(): void {
     forkJoin({
-      organized: this.getOrganizedEvents(),
-      participating: this.getParticipatingEvents()
-    })
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        catchError(err => {
-          this.errorHandler.handle(err, '❌ Impossible de charger vos événements.');
-          this.error.set('Evénements introuvable.');
-          this.loading.set(false);
-          return EMPTY;
-        })
-      )
-      .subscribe(({ organized, participating }) => {
-        const organizedIds = new Set(organized.map(e => e.eventId || e.id));
-        const filteredParticipating = participating.filter(e => !organizedIds.has(e.eventId || e.id));
+      organized: this.eventUserService.getOrganizedEvents(),
+      participating: this.eventUserService.getParticipatingEvents()
+    }).subscribe(({ organized, participating }) => {
+      console.log('organized', organized);
+      console.log('participating', participating);
 
-        this.eventsOrganized.set(organized);
-        this.eventsParticipating.set(filteredParticipating);
-        this.loading.set(false);
-      });
+      const organizedIds = new Set(organized.map(e => e.eventId ?? e.id));
+      const filteredParticipating = participating.filter(e => !organizedIds.has(e.eventId ?? e.id));
+
+      this.eventsOrganized.set(organized);
+      this.eventsParticipating.set(filteredParticipating);
+      this.loading.set(false);
+
+    });
   }
 
-  private getOrganizedEvents() {
-    return this.eventUserService.getOrganizedEvents();
+
+  get eventsParticipatingArray(): EventResponse[] {
+    return this.eventsParticipating();
   }
 
-  private getParticipatingEvents() {
-    return this.eventUserService.getParticipatingEvents();
+  get eventsOrganizedArray(): EventResponse[] {
+    return this.eventsOrganized();
   }
 
-  onEditProfile(): void {
-    this.router.navigate(['/edit-profile']);
-  }
-
-  openCguDialog(): void {
-    this.dialog.open(CguDialogComponent, { width: '600px', autoFocus: false, data: { type: 'cgu' } });
-  }
-
-  openMentionsDialog(): void {
-    this.dialog.open(CguDialogComponent, { width: '600px', autoFocus: false, data: { type: 'mentions' } });
-  }
+  onEditProfile(): void { this.router.navigate(['/edit-profile']); }
+  openCguDialog(): void { this.dialog.open(CguDialogComponent, { width: '600px', autoFocus: false, data: { type: 'cgu' } }); }
+  openMentionsDialog(): void { this.dialog.open(CguDialogComponent, { width: '600px', autoFocus: false, data: { type: 'mentions' } }); }
 
   onLogout(): void {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: { title: 'Déconnexion', message: 'Voulez-vous vraiment vous déconnecter ?' }
-    });
-
-    dialogRef.afterClosed()
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, { data: { title: 'Déconnexion', message: 'Voulez-vous vraiment vous déconnecter ?' } });
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(confirmed => {
         if (!confirmed) return;
-
-        this.authService.logout()
-          .pipe(
-            takeUntilDestroyed(this.destroyRef),
-            catchError(err => {
-              this.errorHandler.handle(err, '❌ Une erreur est survenue lors de la déconnexion.');
-              return EMPTY;
-            })
-          )
-          .subscribe(() => {
-            this.signals.clearCurrentUser();
-            this.router.navigate(['/login']);
-          });
+        this.authService.logout().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+          this.signals.clearCurrentUser();
+          this.router.navigate(['/login']);
+        });
       });
-
   }
 
   onDeleteAccount(): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: {
-        title: 'Suppression du compte',
-        message: 'Voulez-vous vraiment supprimer définitivement votre compte ? Cette action est irréversible.'
-      }
+      data: { title: 'Suppression du compte', message: 'Voulez-vous vraiment supprimer définitivement votre compte ? Cette action est irréversible.' }
     });
-
-    dialogRef.afterClosed()
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(confirmed => {
         if (!confirmed) return;
-
-        this.userService.deleteMyAccount()
-          .pipe(
-            takeUntilDestroyed(this.destroyRef),
-            catchError(err => {
-              this.errorHandler.handle(err, '❌ Une erreur est survenue lors de la suppression du compte.');
-              this.authService.logout();
-              return EMPTY;
-            })
-          )
+        this.userService.deleteMyAccount().pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe(() => {
             this.notification.showSuccess('✅ Votre compte a été supprimé avec succès.');
             this.signals.clearCurrentUser();
             this.router.navigate(['/login']);
           });
       });
-
-  }
-
-  refreshData(): void {
-    this.fetchEvents();
   }
 }

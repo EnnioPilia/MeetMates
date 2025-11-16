@@ -5,15 +5,15 @@ import { debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterModule } from '@angular/router';
 import { EventService } from '../../core/services/event/event.service.service';
-import { EventMapperService } from '../../core/services/event/event-mapper.service';
-import { EventDetails } from '../../core/models/event-details.model';
 import { EventResponse } from '../../core/models/event-response.model';
+import { EventListItem } from '../../core/models/event-list-item.model';
 import { AppInputComponent } from '../../shared-components/input/input.component';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { EventCardComponent } from '../../features/search-event/components/event-card-component';
 import { NotificationService } from '../../core/services/notification/notification.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { LoadingSpinnerComponent } from '../../shared-components/loading-spinner/loading-spinner.component';
+import { EventMapperService } from '../../core/services/event/event-mapper.service';
 
 @Component({
   selector: 'app-search-events',
@@ -32,14 +32,15 @@ import { LoadingSpinnerComponent } from '../../shared-components/loading-spinner
   styleUrls: ['./search-events.component.scss'],
 })
 export class SearchEventsComponent implements OnInit {
+
   private fb = inject(FormBuilder);
   private eventService = inject(EventService);
-  private eventMapper = inject(EventMapperService);
   private router = inject(Router);
   private notification = inject(NotificationService);
+  private mapper = inject(EventMapperService); // <-- AJOUT
   private destroyRef = inject(DestroyRef);
 
-  results = signal<EventDetails[]>([]);
+  results = signal<EventListItem[]>([]);
   loadingSearch = signal(false);
   loading = signal(false);
   error = signal<string | null>(null);
@@ -65,11 +66,12 @@ export class SearchEventsComponent implements OnInit {
       )
       .subscribe({
         next: (responses: EventResponse[]) => {
-          const mapped = this.eventMapper.toEventDetailsList(responses);
+
+          const mapped = this.mapper.toEventList(responses);
+          
           this.results.set(mapped);
           this.loadingSearch.set(false);
           this.error.set(null);
-
         },
         error: () => {
           this.loadingSearch.set(false);
@@ -79,11 +81,9 @@ export class SearchEventsComponent implements OnInit {
       });
   }
 
-  goToEventDetails(event: EventDetails) {
-    if (event.activityId) {
-      this.router.navigate(['/events', event.activityId], {
-        queryParams: { eventId: event.id }
-      });
-    }
+  goToEventDetails(event: EventListItem) {
+    this.router.navigate(['/events', event.activityId], {
+      queryParams: { eventId: event.eventId }
+    });
   }
 }

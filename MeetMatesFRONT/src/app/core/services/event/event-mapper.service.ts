@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { EventResponse } from '../../models/event-response.model';
 import { EventDetails } from '../../models/event-details.model';
-import { EventUser } from '../../models/event-user.model';
+import { EventListItem } from '../../models/event-list-item.model';
 
 @Injectable({ providedIn: 'root' })
 export class EventMapperService {
@@ -22,33 +22,33 @@ export class EventMapperService {
       activityName: response.activityName,
       organizerName: response.organizerName,
       participationStatus: null,
-      acceptedParticipants: (response.participantNames ?? []).map(name => this.toFakeUser(name)),
+      acceptedParticipants: [],
       pendingParticipants: [],
       rejectedParticipants: [],
       activityId: response.activityId ?? null,
     };
   }
 
-  private toFakeUser(name: string): EventUser {
+  toEventDetailsList(responses: EventResponse[]): EventDetails[] {
+    return responses.map(r => this.toEventDetails(r));
+  }
+
+  toEventListItem(response: EventResponse): EventListItem {
     return {
-      id: crypto.randomUUID(),
-      eventId: '',
-      eventTitle: '',
-      eventDescription: '',
-      userId: '',
-      firstName: name,
-      lastName: '',
-      email: '',
-      role: 'PARTICIPANT',
-      participationStatus: 'ACCEPTED',
-      joinedAt: '',
-      eventStatus: '',
-      eventDate: '',
-      addressLabel: ''
+      id: String(response.id),
+      eventId: String(response.eventId ?? response.id),
+      title: response.eventTitle ?? response.title ?? '',
+      date: response.eventDate ?? '',
+      status: response.eventStatus ?? response.status ?? '',
+      participationStatus: response.participationStatus ?? null,
+      activityName: response.activityName ?? '',
+      addressLabel: response.addressLabel ?? '',
+      imageUrl: response.imageUrl ?? null,
+      activityId: String(response.activityId ?? ''),
     };
   }
 
-  toEventDetailsList(responses: EventResponse[]): EventDetails[] {
-    return responses.map(r => this.toEventDetails(r));
+  toEventList(responses: EventResponse[]): EventListItem[] {
+    return responses.map(r => this.toEventListItem(r));
   }
 }

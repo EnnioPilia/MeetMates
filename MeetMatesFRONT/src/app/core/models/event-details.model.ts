@@ -14,7 +14,6 @@ export interface EventDetails {
   material: string;
   status: string;
   maxParticipants: number;
-  imageUrl?: string;
   participationStatus: string | null;
   acceptedParticipants: EventUser[];
   pendingParticipants: EventUser[];

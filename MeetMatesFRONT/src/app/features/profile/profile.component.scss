@@ -1,5 +1,5 @@
-.container {
-  @media (min-width: 1000px) {
+.layout-container {
+    @media (min-width: 1000px) and (max-width: 2900px) {
     position: relative;
     width: 40vw;
     margin: 0 auto;

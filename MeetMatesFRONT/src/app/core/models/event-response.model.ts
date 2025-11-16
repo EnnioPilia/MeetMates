@@ -6,7 +6,7 @@ export interface EventResponse {
   startTime: string;
   endTime: string;
   maxParticipants: number;
-  status: string;
+  status: string;               
   material: string;
   level: string;
   activityName: string;
@@ -15,4 +15,9 @@ export interface EventResponse {
   organizerName: string;
   organizerId: string | null; 
   participantNames: string[];
+  eventId?: string | number;       
+  eventTitle?: string;            
+  eventStatus?: string;           
+  participationStatus?: string | null;
+  imageUrl?: string | null;       
 }
