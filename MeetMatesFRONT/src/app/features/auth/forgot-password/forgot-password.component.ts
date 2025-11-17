@@ -53,7 +53,7 @@ export class ForgotPasswordComponent {
     const { email } = this.form.getRawValue();
 
     this.authService
-      .requestPasswordReset(email.trim().toLowerCase())
+      .requestPasswordReset({ email: email.trim().toLowerCase() }) 
       .pipe(
         catchError((err) => {
           this.errorHandler.handle(err);

@@ -12,9 +12,16 @@ import { EventMapperService } from '../../../core/services/event/event-mapper.se
 @Component({
   selector: 'app-participation-tab',
   standalone: true,
-  imports: [CommonModule, MatExpansionModule, RouterModule, MatButtonModule, StatusColorPipe],
+  imports: [
+    CommonModule,
+    MatExpansionModule, 
+    RouterModule, 
+    MatButtonModule, 
+    StatusColorPipe
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
+
     <div class="max-h-[35vh] overflow-y-auto mt-2 p-1">
       @if (mappedEvents.length === 0) {
         <p class="text-center text-gray-500 mt-4">
@@ -41,10 +48,15 @@ import { EventMapperService } from '../../../core/services/event/event-mapper.se
                     {{ getParticipationLabel(event.participationStatus) }}
                   </span>
                 </p>
-                <p>{{ event.addressLabel }}</p>
-                  <button class="primary-button h-10" [routerLink]="['/event-participant', event.eventId]">
-                  VOIR DÉTAILS
-                </button>
+
+                  <p>{{ event.addressLabel }}</p>
+                    
+                  <button 
+                    class="primary-button h-10" 
+                    [routerLink]="['/event-participant', event.eventId]">
+                    VOIR DÉTAILS
+                  </button>
+
               </div>
             </mat-expansion-panel>
           }

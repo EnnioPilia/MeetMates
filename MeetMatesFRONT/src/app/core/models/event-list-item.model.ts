@@ -1,6 +1,6 @@
 export interface EventListItem {
-  id: string;        // généralement l’ID EventUser
-  eventId: string;   // ID de l’ÉVÉNEMENT → OBLIGATOIRE
+  id: string;       
+  eventId: string;  
   title: string;
   date: string;
   status: string;
@@ -8,5 +8,5 @@ export interface EventListItem {
   activityName: string;
   addressLabel: string;
   imageUrl?: string | null;
-  activityId: string;   // ← doit exister !
+  activityId: string;  
 }

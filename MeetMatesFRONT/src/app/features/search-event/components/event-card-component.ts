@@ -13,6 +13,7 @@ import { EventListItem } from '../../../core/models/event-list-item.model';
     EventInfoCardComponent
   ],
   template: `
+
       <mat-expansion-panel class="w-full flex flex-col justify-center">
         <mat-expansion-panel-header>
           <div class="flex justify-between w-full mr-3">
@@ -38,12 +39,10 @@ import { EventListItem } from '../../../core/models/event-list-item.model';
   `,
 })
 export class EventCardComponent {
-
   @Input() event!: EventListItem;
   @Output() viewDetails = new EventEmitter<EventListItem>();
 
   emitDetails() {
-    console.log("CLICK depuis EventCardComponent", this.event); // <--- IMPORTANT
     this.viewDetails.emit(this.event);
   }
 }

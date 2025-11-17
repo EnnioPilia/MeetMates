@@ -1,9 +1,10 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
 import { SignalsService } from '../signals/signals.service';
+import { PasswordResetRequest, PasswordResetResponse } from '../../models/password-reset.model';
 
 export interface RegisterRequest {
   lastName: string;
@@ -38,11 +39,11 @@ export class AuthService {
     return this.http.post<{ accessToken: string }>(`${this.baseUrl}/refresh-token`, {}, { withCredentials: true });
   }
 
-  requestPasswordReset(email: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/request-reset`, { email }, { observe: 'response', responseType: 'text' });
+  requestPasswordReset(data: PasswordResetRequest): Observable<HttpResponse<string>> {
+    return this.http.post(`${this.baseUrl}/request-reset`, data, { observe: 'response', responseType: 'text' });
   }
 
-  resetPassword(data: { token: string; newPassword: string }): Observable<string> {
+  resetPassword(data: PasswordResetResponse): Observable<string> {
     return this.http.post(`${this.baseUrl}/reset-password`, data, { responseType: 'text' });
   }
 

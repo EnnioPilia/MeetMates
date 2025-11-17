@@ -11,9 +11,16 @@ import { EventMapperService } from '../../../core/services/event/event-mapper.se
 @Component({
   selector: 'app-organization-tab',
   standalone: true,
-  imports: [CommonModule, MatExpansionModule, RouterModule, MatButtonModule, EventInfoCardComponent],
+  imports: [
+    CommonModule, 
+    MatExpansionModule, 
+    RouterModule, 
+    MatButtonModule, 
+    EventInfoCardComponent
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
+
     <div class="max-h-[35vh] overflow-y-auto mt-2 p-1">
       @if (mappedEvents.length === 0) {
         <p class="text-center text-gray-500 mt-4">

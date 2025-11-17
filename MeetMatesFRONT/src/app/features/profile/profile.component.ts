@@ -59,9 +59,8 @@ export class ProfileComponent {
 
   ngOnInit(): void {
     this.loading.set(true);
-    this.loadProfileData(); 
+    this.loadProfileData();
   }
-
 
   private loadProfileData(): void {
     this.loading.set(true);
@@ -87,8 +86,6 @@ export class ProfileComponent {
       organized: this.eventUserService.getOrganizedEvents(),
       participating: this.eventUserService.getParticipatingEvents()
     }).subscribe(({ organized, participating }) => {
-      console.log('organized', organized);
-      console.log('participating', participating);
 
       const organizedIds = new Set(organized.map(e => e.eventId ?? e.id));
       const filteredParticipating = participating.filter(e => !organizedIds.has(e.eventId ?? e.id));
@@ -100,18 +97,6 @@ export class ProfileComponent {
     });
   }
 
-
-  get eventsParticipatingArray(): EventResponse[] {
-    return this.eventsParticipating();
-  }
-
-  get eventsOrganizedArray(): EventResponse[] {
-    return this.eventsOrganized();
-  }
-
-  onEditProfile(): void { this.router.navigate(['/edit-profile']); }
-  openCguDialog(): void { this.dialog.open(CguDialogComponent, { width: '600px', autoFocus: false, data: { type: 'cgu' } }); }
-  openMentionsDialog(): void { this.dialog.open(CguDialogComponent, { width: '600px', autoFocus: false, data: { type: 'mentions' } }); }
 
   onLogout(): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, { data: { title: 'Déconnexion', message: 'Voulez-vous vraiment vous déconnecter ?' } });
@@ -140,4 +125,21 @@ export class ProfileComponent {
           });
       });
   }
+
+  get eventsParticipatingArray(): EventResponse[] {
+    return this.eventsParticipating();
+  }
+
+  get eventsOrganizedArray(): EventResponse[] {
+    return this.eventsOrganized();
+  }
+
+  openCguDialog(): void { 
+    this.dialog.open(CguDialogComponent, { width: '600px', autoFocus: false, data: { type: 'cgu' } });}
+
+  openMentionsDialog(): void { 
+    this.dialog.open(CguDialogComponent, { width: '600px', autoFocus: false, data: { type: 'mentions' } });}
+
+  onEditProfile(): void { 
+    this.router.navigate(['/edit-profile']);}
 }
