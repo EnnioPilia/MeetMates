@@ -1,12 +1,13 @@
 import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection, LOCALE_ID } from '@angular/core';
-import { provideRouter, withViewTransitions } from '@angular/router';
+// 1. Ajoutez withViewTransitions à l'import
+import { provideRouter, withViewTransitions } from '@angular/router'; 
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
-//  Locale FR
+// Import pour la localisation FR
 import { registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
 registerLocaleData(localeFr);
-// Angular Material & Forms
+// Material modules
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -15,28 +16,26 @@ import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-//  Routes de l'application
+// Routes
 import { routes } from './app.routes';
-//  Intercepteurs 
-// / import { authInterceptor } from './core/interceptors/auth.interceptor';  --- (décommenter)
-// / import { errorInterceptor } from './core/interceptors/error.interceptor'; --- (décommenter)
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    //  Optimisation Angular
     provideZoneChangeDetection({ eventCoalescing: true }),
-    //  Router + transitions fluide
-    provideRouter(routes, withViewTransitions()),
-    // HTTP + intercepteurs
+    
+    // 2. Utilisez withViewTransitions() ici
+    provideRouter(routes, withViewTransitions()), 
+    
     provideHttpClient(
-      // withInterceptors([authInterceptor, errorInterceptor]) --- (décommenter)
+      // Tu pourras réactiver tes intercepteurs ici
+      // withInterceptors([authInterceptor, errorInterceptor])
     ),
-    // Animations Angular
     provideAnimations(),
-    //  Locale FR globale
+
+    // 🟦 Locale française globale
     { provide: LOCALE_ID, useValue: 'fr' },
 
-    //  Material Modules / Forms
+    // 🟪 Import des modules Material et Angular Forms
     importProvidersFrom(
       MatButtonModule,
       MatCardModule,

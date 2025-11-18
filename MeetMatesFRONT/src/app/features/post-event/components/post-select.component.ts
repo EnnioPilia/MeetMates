@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
+import { Activity } from '../../../core/models/activity.model';
 
 @Component({
   selector: 'app-post-select',
@@ -33,5 +34,5 @@ import { MatSelectModule } from '@angular/material/select';
 })
 export class PostSelectComponent {
   @Input() form!: FormGroup;
-  @Input() activities: any[] = [];
+  @Input() activities: Activity[] = [];  
 }

@@ -36,10 +36,11 @@
     </app-input>
 
     <mat-checkbox
-      formControlName="acceptCgu">J’accepte les
-      <a href="#" (click)="openCguDialog($event)"     
-      class="font-semibold underline transition duration-300 hover:opacity-60">
-        Conditions Générales d’Utilisation</a>
+      formControlName="acceptCgu"
+      class="text-sm">J’accepte les
+      <a href="#"(click)="openCguDialog($event)"
+      class="underline hover:opacity-60">
+      Conditions Générales d’Utilisation</a>
     </mat-checkbox>
 
     <app-button 

@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { Participant } from '../../../core/models/participant.model';
 
 @Component({
   selector: 'app-event-tab-accepted',
@@ -31,7 +32,7 @@ import { MatButtonModule } from '@angular/material/button';
   `,
 })
 export class EventTabAcceptedComponent {
-  @Input() acceptedParticipants: { id: string; firstName: string; lastName: string }[] = [];
+  @Input() acceptedParticipants:  Participant[] = [];
   @Input() organizerName = '';
   @Output() reject = new EventEmitter<string>();
 
@@ -45,7 +46,7 @@ export class EventTabAcceptedComponent {
     this.reject.emit(id);
   }
   
-  trackById(_: number, item: any) {
+  trackById(_: number, item: Participant) {
     return item.id;
   }
 }

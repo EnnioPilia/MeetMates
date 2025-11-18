@@ -5,6 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatIconModule } from '@angular/material/icon';
+import { AddressSuggestion } from '../../../core/services/address/address.service'; //
 
 @Component({
   selector: 'app-edit-event-address',
@@ -46,7 +47,7 @@ import { MatIconModule } from '@angular/material/icon';
 })
 export class EditEventAddressComponent {
   @Input({ required: true }) form!: FormGroup;
-  @Input() suggestions: any[] = [];
+  @Input() suggestions: AddressSuggestion[] = [];
 
   @Output() inputChange = new EventEmitter<string>();
   @Output() optionSelected = new EventEmitter<string>();

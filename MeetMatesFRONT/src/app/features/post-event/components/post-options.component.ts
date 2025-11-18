@@ -7,6 +7,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
 import { MatInputModule } from '@angular/material/input';
 import { AppInputComponent } from '../../../shared-components/input/input.component';
+import { MaterialOption, LevelOption } from '../../../shared-components/constants/event-option';
 
 @Component({
   selector: 'app-post-options',
@@ -68,6 +69,6 @@ import { AppInputComponent } from '../../../shared-components/input/input.compon
 })
 export class PostOptionsComponent {
   @Input({ required: true }) form!: FormGroup;
-  @Input() materialOptions: any[] = [];
-  @Input() levelOptions: any[] = [];
+  @Input() materialOptions: MaterialOption[] = [];
+  @Input() levelOptions: LevelOption[] = [];
 }

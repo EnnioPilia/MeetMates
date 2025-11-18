@@ -5,6 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatOptionModule } from '@angular/material/core';
+import { AddressSuggestion } from '../../../core/services/address/address.service';
 
 @Component({
   selector: 'app-post-address',
@@ -49,7 +50,7 @@ import { MatOptionModule } from '@angular/material/core';
 export class PostAddressComponent {
   @Input() form!: FormGroup;
   @Input() controlName = 'adresse';
-  @Input() suggestions: any[] = [];
+  @Input() suggestions: AddressSuggestion[] = [];
   @Output() inputChange = new EventEmitter<string>();
   @Output() optionSelected = new EventEmitter<string>();
 

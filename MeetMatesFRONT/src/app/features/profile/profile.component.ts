@@ -22,6 +22,7 @@ import { OrganizationTabComponent } from '../profile/components/organization-tab
 import { SettingsMenuComponent } from '../profile/components/settings-menu.component';
 import { LoadingSpinnerComponent } from '../../shared-components/loading-spinner/loading-spinner.component';
 import { EventResponse } from '../../core/models/event-response.model';
+import { User } from '../../core/models/user.model';
 
 @Component({
   selector: 'app-profile',
@@ -38,6 +39,7 @@ import { EventResponse } from '../../core/models/event-response.model';
     LoadingSpinnerComponent
   ],
   templateUrl: './profile.component.html',
+  styleUrls: ['./profile.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProfileComponent {
@@ -51,7 +53,7 @@ export class ProfileComponent {
   private errorHandler = inject(ErrorHandlerService);
   private destroyRef = inject(DestroyRef);
 
-  readonly user = signal<any>(null);
+  readonly user = signal<User | null>(null);
   readonly eventsParticipating = signal<EventResponse[]>([]);
   readonly eventsOrganized = signal<EventResponse[]>([]);
   readonly loading = signal(true);

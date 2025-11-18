@@ -24,6 +24,9 @@ import { ErrorHandlerService } from '../../core/services/error-handler/error-han
 import { NotificationService } from '../../core/services/notification/notification.service';
 import { AddressService, AddressSuggestion } from '../../core/services/address/address.service';
 
+// ---------- Models ----------
+import { Activity } from '../../core/models/activity.model';
+
 // ---------- Composants enfant ----------
 import { PostSelectComponent } from './components/post-select.component';
 import { PostTextFieldsComponent } from './components/post-text-fields.component';
@@ -73,7 +76,7 @@ export class PostEventComponent implements OnInit {
   readonly error = signal<string | null>(null);
 
   form!: FormGroup;
-  activities: any[] = [];
+  activities: Activity[] = [];
   previewUrl?: string | null = null;
   selectedFile: File | null = null;
   selectedAddress?: string;
@@ -103,7 +106,7 @@ export class PostEventComponent implements OnInit {
 
   private loadActivities(): void {
     this.activityService.fetchAllActivities().subscribe({
-      next: (data) => {
+      next: (data: Activity[]) => {
         this.activities = data;
         this.loading.set(false);
       },
@@ -182,7 +185,7 @@ export class PostEventComponent implements OnInit {
       });
   }
 
-  private formatDate(date: any): string {
+    private formatDate(date: Date | string | null): string {
     if (!date) return '';
 
     const d = new Date(date);

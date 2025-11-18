@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormGroup } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { Activity } from '../../../core/models/activity.model';
 
 @Component({ 
   selector: 'app-edit-event-activity',
@@ -38,5 +39,5 @@ import { MatInputModule } from '@angular/material/input';
 })
 export class EditEventActivityComponent {
   @Input({ required: true }) form!: FormGroup;
-  @Input() activities: any[] = [];
+  @Input() activities: Activity[] = [];
 }

@@ -23,7 +23,7 @@ export class AppButtonComponent {
   @Input() type: 'button' | 'submit' = 'button';
   @Input() fullWidth = false;
   @Input() icon?: string;
-  @Input() routerLink?: any[] | string;
+  @Input() routerLink?: string | (string | number)[];
   @Input() disabled = false;
   @Output() clicked = new EventEmitter<void>();
 

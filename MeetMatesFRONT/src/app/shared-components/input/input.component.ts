@@ -18,18 +18,19 @@ import { MatIconModule } from '@angular/material/icon';
     MatIconModule
   ],
 })
-export class AppInputComponent {
+export class AppInputComponent<T = any> {
   @Input({ required: true }) label!: string;
-  private _control!: FormControl<any>;
+  private _control!: FormControl<T>;
 
-  @Input({ required: true }) set control(value: FormControl<any> | AbstractControl<any, any>) {
-    this._control = value as FormControl<any>;
+  @Input({ required: true }) 
+  set control(value: FormControl<T> | AbstractControl<T>) {
+    this._control = value as FormControl<T>;
   }
-  get control(): FormControl<any> {
+  get control(): FormControl<T> {
     return this._control;
   }
 
-@Input() type: 'text' | 'number' | 'email' | 'password' | 'date' | 'time' = 'text';
+  @Input() type: 'text' | 'number' | 'email' | 'password' | 'date' | 'time' = 'text';
   @Input() required = false;
   @Input() placeholder = '';
   @Input() icon?: string;
@@ -37,3 +38,23 @@ export class AppInputComponent {
   @Input() max?: number;
   @Input() maxLength?: number;
 }
+
+// export class AppInputComponent {
+//   @Input({ required: true }) label!: string;
+//   private _control!: FormControl<any>;
+
+//   @Input({ required: true }) set control(value: FormControl<any> | AbstractControl<any, any>) {
+//     this._control = value as FormControl<any>;
+//   }
+//   get control(): FormControl<any> {
+//     return this._control;
+//   }
+
+// @Input() type: 'text' | 'number' | 'email' | 'password' | 'date' | 'time' = 'text';
+//   @Input() required = false;
+//   @Input() placeholder = '';
+//   @Input() icon?: string;
+//   @Input() min?: number;
+//   @Input() max?: number;
+//   @Input() maxLength?: number;
+// }

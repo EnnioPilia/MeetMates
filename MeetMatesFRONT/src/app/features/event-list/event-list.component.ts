@@ -19,6 +19,7 @@ import { ErrorHandlerService } from '../../core/services/error-handler/error-han
 import { catchError, EMPTY } from 'rxjs';
 import { LoadingSpinnerComponent } from '../../shared-components/loading-spinner/loading-spinner.component';
 import { getStatusLabel, getLevelLabel, getMaterialLabel } from '../../core/utils/labels.util';
+import { User } from '../../core/models/user.model';
 
 @Component({
   selector: 'app-event-list',
@@ -57,7 +58,7 @@ export class EventListComponent implements OnInit {
     this.userService.getCurrentUser()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (user: any) => this.signals.updateCurrentUser(user),
+        next: (user: User) => this.signals.updateCurrentUser(user),
         error: (err) => this.errorHandler.handle(err, '❌ Impossible de charger les événements.')
       });
 
@@ -201,7 +202,7 @@ export class EventListComponent implements OnInit {
     return time ? time.substring(0, 5) : '';
   }
 
-  isEventOpen(event: any): boolean {
+  isEventOpen(event: EventResponse): boolean {
     return (event?.status ?? '').toUpperCase() === 'OPEN';
   }
 
