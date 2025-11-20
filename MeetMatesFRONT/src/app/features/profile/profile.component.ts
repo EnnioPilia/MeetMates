@@ -99,7 +99,6 @@ export class ProfileComponent {
     });
   }
 
-
   onLogout(): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, { data: { title: 'Déconnexion', message: 'Voulez-vous vraiment vous déconnecter ?' } });
     dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef))

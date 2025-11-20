@@ -65,7 +65,7 @@ export class ForgotPasswordComponent {
           this.cdr.markForCheck();
         })
       )
-      .subscribe((message) => {
+      .subscribe(() => {
         this.notification.showSuccess('✅ Un lien de réinitialisation a été envoyé à votre adresse e-mail.');
         this.router.navigate(['/login']);
       });

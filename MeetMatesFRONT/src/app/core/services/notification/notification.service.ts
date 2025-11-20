@@ -22,7 +22,7 @@ export class NotificationService {
     this.show(message, 'warning-snackbar', 4000);
   }
 
-  showError(message: string = 'Une erreur est survenue'): void {
+  showError(message: string): void {
     this.show(message, 'error-snackbar', 4000);
   }
 }

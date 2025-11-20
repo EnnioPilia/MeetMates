@@ -122,20 +122,7 @@ export class EventListComponent implements OnInit {
       .subscribe({
         next: () => this.notification.showSuccess('✅ Demande de participation envoyée.'),
         error: err => {
-          switch (err.status) {
-            case 409:
-              this.notification.showWarning( err.error?.message);
-              return;
-            case 403:
-              this.notification.showError("❌ Vous ne pouvez pas rejoindre cet événement car vous avez été retiré");
-              return;
-            case 404:
-              this.notification.showError(err.error?.message || "❌ Événement introuvable.");
-              return;
-            default:
-              this.errorHandler.handle(err, '❌ Une erreur est survenue.');
-              return;
-          }
+          this.errorHandler.handle(err, "❌ Une erreur est survenue lors de la participation.");
         }
       });
   }
