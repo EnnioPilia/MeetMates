@@ -58,7 +58,7 @@ public class AuthService {
             User existingUser = existingUserOpt.get();
 
             if (existingUser.getDeletedAt() == null) {
-                throw new EmailAlreadyUsedException("Email déjà utilisé.");
+                throw new EmailAlreadyUsedException("❌ Email déjà utilisé.");
             }
 
             // ---- Cas 2 : l’utilisateur existait mais était supprimé → restauration
@@ -114,14 +114,14 @@ public class AuthService {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(email, request.getPassword()));
         } catch (BadCredentialsException e) {
-            throw new BadCredentialsException("Identifiants invalides.");
+            throw new BadCredentialsException("❌ Identifiants invalides.");
         }
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé."));
+                .orElseThrow(() -> new UserNotFoundException("❌ Utilisateur non trouvé."));
 
         if (!user.isEnabled()) {
-            throw new UserDisabledException("Compte non vérifié.");
+            throw new UserDisabledException("❌ Compte non vérifié.");
         }
 
         String role = user.getRole().name().toLowerCase();
@@ -162,7 +162,7 @@ public class AuthService {
             throw e;
 
         } catch (RuntimeException e) {
-            throw new InvalidTokenException("Erreur lors de la vérification du token.");
+            throw new InvalidTokenException("❌ Erreur lors de la vérification du token.");
         }
     }
 

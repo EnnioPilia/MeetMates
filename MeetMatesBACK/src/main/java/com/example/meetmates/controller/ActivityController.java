@@ -100,7 +100,7 @@ public class ActivityController {
         Category category = categoryService.findById(dto.getCategoryId());
         if (category == null) {
             log.warn("[ACTIVITY] Échec création : catégorie introuvable ({})", dto.getCategoryId());
-            throw new IllegalArgumentException("Catégorie introuvable");
+            throw new IllegalArgumentException("❌ Catégorie introuvable");
         }
 
         Activity activity = activityMapper.fromDto(dto, category);

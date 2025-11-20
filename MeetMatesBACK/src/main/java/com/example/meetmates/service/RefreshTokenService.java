@@ -25,9 +25,9 @@ public class RefreshTokenService {
         this.tokenRepository = tokenRepository;
     }
 
-    // * Recherche un refresh token en base via sa valeur brute
+    // * Recherche un refresh token avec l'utilisateur chargé (JOIN FETCH)
     public Optional<Token> findByToken(String token) {
-        return tokenRepository.findByToken(token);
+        return tokenRepository.findByTokenWithUser(token);
     }
 
     // * Vérifie si un refresh token est expiré
@@ -41,7 +41,7 @@ public class RefreshTokenService {
                 UUID.randomUUID().toString(),
                 user,
                 Instant.now(),
-                Instant.now().plusSeconds(7 * 24 * 3600), // * Expire après 7 jours
+                Instant.now().plusSeconds(7 * 24 * 3600),
                 TokenType.REFRESH
         );
 
@@ -55,7 +55,7 @@ public class RefreshTokenService {
 
     // * Valide un refresh token existant
     public Token validateRefreshToken(String tokenString) {
-        Token token = tokenRepository.findByToken(tokenString)
+        Token token = tokenRepository.findByTokenWithUser(tokenString)
                 .orElseThrow(() -> new TokenNotFoundException("Refresh token invalide"));
 
         if (token.getExpiresAt().isBefore(Instant.now())) {

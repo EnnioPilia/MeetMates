@@ -24,7 +24,7 @@ public class ActivityService {
 
     public Activity findById(UUID id) {
         return activityRepository.findById(id)
-                .orElseThrow(() -> new ActivityNotFoundException("Activité introuvable : " + id));
+                .orElseThrow(() -> new ActivityNotFoundException("❌ Activité introuvable : "));
     }
 
     public List<Activity> findByCategory(UUID categoryId) {
@@ -37,7 +37,7 @@ public class ActivityService {
 
     public void delete(UUID id) {
         if (!activityRepository.existsById(id)) {
-            throw new ActivityNotFoundException("Activité introuvable : " + id);
+            throw new ActivityNotFoundException("❌ Activité introuvable : ");
         }
         activityRepository.deleteById(id);
     }

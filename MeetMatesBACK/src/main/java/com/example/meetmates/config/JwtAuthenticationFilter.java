@@ -84,26 +84,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if (ref == null) {
                 log.warn("Refresh token not found in DB");
-            }
-            else if (ref.isUsed()) {
-                log.warn("Refresh token already used for user {}", ref.getUser().getEmail());
-            }
-            else if (refreshTokenService.isExpired(ref)) {
-                log.warn("Refresh token expired for user {}", ref.getUser().getEmail());
-            }
-            else {
+            } else if (ref.isUsed()) {
+                log.warn("Refresh token already used");
+            } else if (refreshTokenService.isExpired(ref)) {
+                log.warn("Refresh token expired");
+            } else {
                 Token newRefresh = refreshTokenService.rotateToken(ref);
-                log.info("Refresh token rotated for user {}", ref.getUser().getEmail());
+
+                String email = ref.getUser().getEmail(); 
+                log.info("Refresh token rotated for user {}", email);
 
                 String newAccess = jwtUtils.generateAccessToken(
-                        ref.getUser().getEmail(),
+                        email,
                         ref.getUser().getRole().name()
                 );
 
                 sendCookie(response, "authToken", newAccess, jwtUtils.getJwtExpirationMs() / 1000);
                 sendCookie(response, "refreshToken", newRefresh.getToken(), 7 * 24 * 3600);
 
-                authenticate(ref.getUser().getEmail(), request);
+                authenticate(email, request);
                 filterChain.doFilter(request, response);
                 return;
             }
@@ -116,8 +115,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     // * Authentifie l'utilisateur dans le contexte Spring Security
     private void authenticate(String username, HttpServletRequest request) {
         UserDetails user = userService.loadUserByUsername(username);
-        UsernamePasswordAuthenticationToken auth =
-                new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+        UsernamePasswordAuthenticationToken auth
+                = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
         auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(auth);
     }
@@ -136,9 +135,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     // * Récupère la valeur d'un cookie à partir de la requête
     private String getCookie(HttpServletRequest req, String name) {
-        if (req.getCookies() == null) return null;
+        if (req.getCookies() == null) {
+            return null;
+        }
         for (Cookie c : req.getCookies()) {
-            if (c.getName().equals(name)) return c.getValue();
+            if (c.getName().equals(name)) {
+                return c.getValue();
+            }
         }
         return null;
     }

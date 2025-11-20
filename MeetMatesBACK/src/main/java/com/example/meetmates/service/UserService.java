@@ -83,12 +83,12 @@ public class UserService implements UserDetailsService {
         User user = userRepository.findByEmail(email.toLowerCase())
                 .orElseThrow(() -> {
                     logger.warn("Tentative de connexion avec email inconnu : {}", email);
-                    return new UserNotFoundException("Utilisateur non trouvé");
+                    return new UserNotFoundException("❌ Utilisateur non trouvé");
                 });
 
         if (!user.isEnabled() || user.getStatus() != UserStatus.ACTIVE) {
             logger.warn("Tentative de connexion utilisateur désactivé/banni : {}", email);
-            throw new UserDisabledException("Utilisateur désactivé ou banni");
+            throw new UserDisabledException("❌ Utilisateur désactivé ou banni");
         }
 
         return org.springframework.security.core.userdetails.User.builder()
@@ -103,7 +103,7 @@ public class UserService implements UserDetailsService {
     public UserDto updateMyProfile(String email, UpdateUserDto dto) {
 
         User user = userRepository.findByEmail(email.toLowerCase())
-                .orElseThrow(() -> new UserNotFoundException("Utilisateur introuvable"));
+                .orElseThrow(() -> new UserNotFoundException("❌ Utilisateur introuvable"));
 
         logger.info("Mise à jour du profil utilisateur {}", user.getId());
 

@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -66,22 +67,42 @@ public class SecurityConfig {
         return source;
     }
 
-    // * Chaîne de filtres de sécurité (Security Filter Chain)
+    // * Chaîne de filtres de sécurité 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // JWT stateless → CSRF désactivé
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .authorizeHttpRequests(auth -> auth
+                .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers(PUBLIC_URLS.toArray(String[]::new)).permitAll()
                 .requestMatchers("/admin/**").hasRole(ROLE_ADMIN)
                 .requestMatchers("/user/me", "/user/me/picture").hasAnyRole(ROLE_USER, ROLE_ADMIN)
                 .requestMatchers("/user/**").hasRole(ROLE_ADMIN)
                 .anyRequest().authenticated()
-            )
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                )
+                .exceptionHandling(ex -> ex
+                .authenticationEntryPoint((req, res, authException) -> {
+                    res.setStatus(HttpStatus.UNAUTHORIZED.value());
+                    res.setContentType("application/json");
+                    res.getWriter().write("""
+                {
+                    "message": "\\u274C  Vous devez être connecté pour accéder à cette ressource."
+                }
+                """);
+                })
+                .accessDeniedHandler((req, res, accessDeniedException) -> {
+                    res.setStatus(HttpStatus.FORBIDDEN.value());
+                    res.setContentType("application/json");
+                    res.getWriter().write("""
+                {
+                    "message": "\\u274C Vous n’avez pas la permission d’accéder à cette ressource."
+                }
+                """);
+                })
+                )
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

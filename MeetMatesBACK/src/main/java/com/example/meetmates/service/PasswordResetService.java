@@ -42,7 +42,7 @@ public class PasswordResetService {
     public String createPasswordResetToken(String email) {
 
         User user = userRepository.findByEmail(email.toLowerCase())
-                .orElseThrow(() -> new UserNotFoundException("Aucun utilisateur trouvé avec cet email."));
+                .orElseThrow(() -> new UserNotFoundException("❌ Aucun utilisateur trouvé avec cet email."));
 
         tokenRepository.deleteByUser_IdAndType(user.getId(), TokenType.PASSWORD_RESET);
 
@@ -64,14 +64,14 @@ public class PasswordResetService {
     public String resetPassword(String tokenString, String newPassword) {
 
         Token token = tokenRepository.findByToken(tokenString)
-                .orElseThrow(() -> new TokenNotFoundException("Token invalide."));
+                .orElseThrow(() -> new TokenNotFoundException("❌ Token invalide."));
 
         if (token.getType() != TokenType.PASSWORD_RESET) {
-            throw new TokenNotFoundException("Ce token n'est pas un token de réinitialisation.");
+            throw new TokenNotFoundException("❌ Ce token n'est pas un token de réinitialisation.");
         }
 
         if (token.getExpiresAt().isBefore(Instant.now())) {
-            throw new TokenExpiredException("Le lien de réinitialisation a expiré.");
+            throw new TokenExpiredException("❌ Le lien de réinitialisation a expiré.");
         }
 
         User user = token.getUser();
