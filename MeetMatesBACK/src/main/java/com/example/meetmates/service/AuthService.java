@@ -110,6 +110,19 @@ public class AuthService {
 
         String email = request.getEmail().toLowerCase();
 
+        // Récupère l'utilisateur avant l'authentification
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("❌ Utilisateur non trouvé."));
+
+        if (user.getDeletedAt() != null) {
+            throw new UserDisabledException("❌ Compte supprimé."); 
+        }
+        
+        if (!user.isEnabled()) {
+            throw new UserDisabledException("❌ Compte non vérifié.");
+        }
+
+        // Vérifie le mot de passe
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(email, request.getPassword()));
@@ -117,13 +130,7 @@ public class AuthService {
             throw new BadCredentialsException("❌ Identifiants invalides.");
         }
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("❌ Utilisateur non trouvé."));
-
-        if (!user.isEnabled()) {
-            throw new UserDisabledException("❌ Compte non vérifié.");
-        }
-
+        // Génération du JWT
         String role = user.getRole().name().toLowerCase();
         String jwt = jwtUtils.generateAccessToken(user.getEmail(), role);
         Token refreshToken = refreshTokenService.createRefreshToken(user);
@@ -140,7 +147,7 @@ public class AuthService {
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
-                .sameSite("None") // strict en prod
+                .sameSite("None")
                 .maxAge(7 * 24 * 60 * 60)
                 .build();
 
