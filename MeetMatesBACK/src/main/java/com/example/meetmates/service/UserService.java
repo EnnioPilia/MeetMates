@@ -86,9 +86,19 @@ public class UserService implements UserDetailsService {
                     return new UserNotFoundException("❌ Utilisateur non trouvé");
                 });
 
-        if (!user.isEnabled() || user.getStatus() != UserStatus.ACTIVE) {
-            logger.warn("Tentative de connexion utilisateur désactivé/banni : {}", email);
-            throw new UserDisabledException("❌ Utilisateur désactivé ou banni");
+        if (user.getStatus() == UserStatus.DELETED) {
+            logger.warn("Tentative de connexion utilisateur supprimé : {}", email);
+            throw new UserDisabledException("❌ Compte supprimé");
+        }
+
+        if (user.getStatus() == UserStatus.BANNED) {
+            logger.warn("Tentative de connexion utilisateur banni : {}", email);
+            throw new UserDisabledException("❌ Utilisateur banni");
+        }
+
+        if (!user.isEnabled()) {
+            logger.warn("Tentative de connexion utilisateur non activé : {}", email);
+            throw new UserDisabledException("❌ Compte non vérifié");
         }
 
         return org.springframework.security.core.userdetails.User.builder()
@@ -107,11 +117,21 @@ public class UserService implements UserDetailsService {
 
         logger.info("Mise à jour du profil utilisateur {}", user.getId());
 
-        if (dto.getFirstName() != null) {user.setFirstName(dto.getFirstName());}
-        if (dto.getLastName() != null) {user.setLastName(dto.getLastName());}
-        if (dto.getAge() != null && dto.getAge() >= 13) {user.setAge(dto.getAge());}
-        if (dto.getCity() != null) {user.setCity(dto.getCity());}
-        if (dto.getProfilePictureUrl() != null) {user.setProfilePictureUrl(dto.getProfilePictureUrl());}
+        if (dto.getFirstName() != null) {
+            user.setFirstName(dto.getFirstName());
+        }
+        if (dto.getLastName() != null) {
+            user.setLastName(dto.getLastName());
+        }
+        if (dto.getAge() != null && dto.getAge() >= 13) {
+            user.setAge(dto.getAge());
+        }
+        if (dto.getCity() != null) {
+            user.setCity(dto.getCity());
+        }
+        if (dto.getProfilePictureUrl() != null) {
+            user.setProfilePictureUrl(dto.getProfilePictureUrl());
+        }
 
         userRepository.save(user);
 
@@ -152,8 +172,11 @@ public class UserService implements UserDetailsService {
         user.setStatus(UserStatus.DELETED);
         user.setEnabled(false);
 
-        userRepository.save(user);
+        if (user.getTokens() != null) {
+            user.getTokens().clear();
+        }
 
+        userRepository.save(user);
         return true;
     }
 }

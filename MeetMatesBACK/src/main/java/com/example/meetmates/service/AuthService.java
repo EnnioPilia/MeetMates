@@ -61,6 +61,10 @@ public class AuthService {
                 throw new EmailAlreadyUsedException("❌ Email déjà utilisé.");
             }
 
+            if (existingUser.getStatus() == UserStatus.BANNED) {
+                throw new IllegalStateException("❌ Cet utilisateur est banni et ne peut pas créer un nouveau compte.");
+            }
+
             // ---- Cas 2 : l’utilisateur existait mais était supprimé → restauration
             existingUser.setFirstName(request.getFirstName());
             existingUser.setLastName(request.getLastName());
@@ -115,9 +119,9 @@ public class AuthService {
                 .orElseThrow(() -> new UserNotFoundException("❌ Utilisateur non trouvé."));
 
         if (user.getDeletedAt() != null) {
-            throw new UserDisabledException("❌ Compte supprimé."); 
+            throw new UserDisabledException("❌ Compte supprimé.");
         }
-        
+
         if (!user.isEnabled()) {
             throw new UserDisabledException("❌ Compte non vérifié.");
         }

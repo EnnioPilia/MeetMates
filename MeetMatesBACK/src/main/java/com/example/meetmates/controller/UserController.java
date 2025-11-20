@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -29,6 +30,7 @@ import com.example.meetmates.model.User;
 import com.example.meetmates.service.PictureService;
 import com.example.meetmates.service.UserService;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -41,8 +43,8 @@ public class UserController {
     private final UserMapper userMapper;
 
     public UserController(UserService userService,
-                          PictureService pictureService,
-                          UserMapper userMapper) {
+            PictureService pictureService,
+            UserMapper userMapper) {
         this.userService = userService;
         this.pictureService = pictureService;
         this.userMapper = userMapper;
@@ -56,7 +58,6 @@ public class UserController {
         List<User> users = userService.getAllUsers();
         return ResponseEntity.ok(users.stream().map(userMapper::toDto).toList());
     }
-
 
     // * Récupère le profil de l'utilisateur connecté.
     @GetMapping("/me")
@@ -96,7 +97,6 @@ public class UserController {
         return ResponseEntity.ok(userMapper.toDto(user));
     }
 
-
     // * Mise à jour du profil utilisateur connecté.
     @PutMapping("/me")
     public ResponseEntity<UserDto> updateMyProfile(
@@ -108,7 +108,6 @@ public class UserController {
         UserDto updatedUser = userService.updateMyProfile(principal.getName(), updateUserDto);
         return ResponseEntity.ok(updatedUser);
     }
-
 
     // * Suppression définitive d'un utilisateur (admin uniquement).
     @DeleteMapping("/{id}")
@@ -122,7 +121,6 @@ public class UserController {
                 ? ResponseEntity.noContent().build()
                 : ResponseEntity.notFound().build();
     }
-
 
     // * Supprime la photo de profil de l'utilisateur connecté.
     @DeleteMapping("/me/picture")
@@ -141,7 +139,8 @@ public class UserController {
     // * Suppression du compte de l'utilisateur connecté (soft delete).
     @DeleteMapping("/me")
     public ResponseEntity<Void> deleteMyAccount(
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @AuthenticationPrincipal UserDetails userDetails,
+            HttpServletResponse response) { // <- ajouter HttpServletResponse
 
         log.warn("[USER] Tentative de suppression de son propre compte");
 
@@ -152,8 +151,31 @@ public class UserController {
 
         boolean deleted = userService.deleteMyAccount(userDetails.getUsername());
 
-        return deleted
-                ? ResponseEntity.noContent().build()
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        if (deleted) {
+            // Supprimer les cookies JWT côté navigateur
+            ResponseCookie authCookie = ResponseCookie.from("authToken", "")
+                    .httpOnly(true)
+                    .secure(true)
+                    .path("/")
+                    .maxAge(0)
+                    .sameSite("None") // ou Strict/ Lax selon prod
+                    .build();
+
+            ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", "")
+                    .httpOnly(true)
+                    .secure(true)
+                    .path("/")
+                    .maxAge(0)
+                    .sameSite("None")
+                    .build();
+
+            response.addHeader("Set-Cookie", authCookie.toString());
+            response.addHeader("Set-Cookie", refreshCookie.toString());
+
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
+
 }
