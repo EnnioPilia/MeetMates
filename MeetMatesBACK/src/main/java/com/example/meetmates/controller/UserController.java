@@ -90,7 +90,7 @@ public class UserController {
 
         String imageUrl = pictureService.uploadProfilePicture(file);
         user.setProfilePictureUrl(imageUrl);
-        userService.updateUser(user);
+        userService.saveUser(user);
 
         log.info("[USER] Photo de profil mise à jour pour {}", user.getEmail());
 
@@ -140,8 +140,7 @@ public class UserController {
     @DeleteMapping("/me")
     public ResponseEntity<Void> deleteMyAccount(
             @AuthenticationPrincipal UserDetails userDetails,
-            HttpServletResponse response) { // <- ajouter HttpServletResponse
-
+            HttpServletResponse response) {
         log.warn("[USER] Tentative de suppression de son propre compte");
 
         if (userDetails == null) {
@@ -152,13 +151,12 @@ public class UserController {
         boolean deleted = userService.deleteMyAccount(userDetails.getUsername());
 
         if (deleted) {
-            // Supprimer les cookies JWT côté navigateur
             ResponseCookie authCookie = ResponseCookie.from("authToken", "")
                     .httpOnly(true)
                     .secure(true)
                     .path("/")
                     .maxAge(0)
-                    .sameSite("None") // ou Strict/ Lax selon prod
+                    .sameSite("None") // ou Strict/ Lax selon prod !!!!!!!
                     .build();
 
             ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", "")

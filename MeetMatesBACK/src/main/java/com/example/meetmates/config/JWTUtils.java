@@ -24,11 +24,11 @@ public class JWTUtils {
     private final int jwtExpirationMs;
 
     public JWTUtils(@Value("${app.jwtSecret}") String jwtSecret,
-                    @Value("${app.jwtExpirationMs}") int jwtExpirationMs) {
+            @Value("${app.jwtExpirationMs}") int jwtExpirationMs) {
         this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
         this.jwtExpirationMs = jwtExpirationMs;
     }
-    
+
     // * Génère un token JWT d’accès contenant email + rôle + type ACCESS
     public String generateAccessToken(String email, String role) {
 
@@ -51,25 +51,33 @@ public class JWTUtils {
                 .getBody();
     }
 
+    // * Récupère le rôle contenu dans le token JWT
+    public String getRole(String token) {
+        try {
+            return (String) getClaims(token).get("role");
+        } catch (Exception e) {
+            log.error("Unable to extract role from token: {}", e.getMessage());
+            return null;
+        }
+    }
+
     // * Vérifie la validité d’un token d’accès (expiration, signature, type)
     public boolean isValidAccessToken(String token) {
         try {
             Claims claims = getClaims(token);
 
             if (!"ACCESS".equals(claims.get("tokenType"))) {
-                log.warn("Rejected JWT → wrong type: {}", claims.get("tokenType")); // log.warn("Rejected JWT: invalid token type"); en prod !!!!
-
+                log.warn("Rejected JWT → wrong type: {}", claims.get("tokenType")); // log.warn("Rejected JWT"); ----> en prod !!!!
                 return false;
             }
-
             return true;
 
         } catch (ExpiredJwtException e) {
-            log.warn("JWT expired at {}", e.getClaims().getExpiration()); // pareil !!!
+            log.warn("JWT expired at {}", e.getClaims().getExpiration()); // log.warn("JWT expired"); ----> en prod !!!!
             return false;
 
         } catch (JwtException e) {
-            log.warn("Invalid JWT: {}", e.getMessage()); // pareil !!!
+            log.warn("Invalid JWT: {}", e.getMessage()); // log.warn("Invalid JWT"); ----> en prod !!!!
             return false;
 
         } catch (IllegalArgumentException e) {

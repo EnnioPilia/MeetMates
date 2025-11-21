@@ -7,7 +7,6 @@ import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -34,25 +33,23 @@ public class UserService implements UserDetailsService {
     private final TokenRepository tokenRepository;
     private final UserMapper userMapper;
 
-    @Autowired
-    public UserService(UserRepository userRepository,
+    public UserService(
+            UserRepository userRepository,
             TokenRepository tokenRepository,
-            UserMapper userMapper) {
+            UserMapper userMapper
+    ) {
         this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
         this.userMapper = userMapper;
     }
 
-    // * Met à jour un utilisateur existant
-    public User updateUser(User user) {
-        logger.info("Mise à jour de l'utilisateur {}", user.getId());
-        return userRepository.save(user);
-    }
-
     // * Récupère tous les utilisateurs
     @Transactional(readOnly = true)
     public List<User> getAllUsers() {
-        return userRepository.findAll();
+        return userRepository.findAll()
+                .stream()
+                .filter(u -> u.getDeletedAt() == null)
+                .toList();
     }
 
     // * Rechercher un utilisateur par email (normalisé)
@@ -60,17 +57,17 @@ public class UserService implements UserDetailsService {
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email.toLowerCase());
     }
+    
+    // * Sauvegarde ou met à jour un utilisateur
+    @Transactional
+    public User saveUser(User user) {
+        return userRepository.save(user);
+    }
 
     // * Recherche un utilisateur par ID
     @Transactional(readOnly = true)
     public Optional<User> findById(UUID id) {
         return userRepository.findById(id);
-    }
-
-    // * Recherche un user + relations associées (chargement eager)
-    @Transactional(readOnly = true)
-    public Optional<User> findByEmailEager(String email) {
-        return userRepository.findByEmailEager(email.toLowerCase());
     }
 
     // * Méthode utilisée par Spring Security pour authentifier un utilisateur
@@ -80,23 +77,18 @@ public class UserService implements UserDetailsService {
 
         User user = userRepository.findByEmail(email.toLowerCase())
                 .orElseThrow(() -> {
-                    logger.warn("Tentative de connexion avec email inconnu : {}", email);
+                    logger.warn("Authentication failed: unknown email");
                     return new UserNotFoundException("❌ Utilisateur non trouvé");
                 });
 
-        if (user.getStatus() == UserStatus.DELETED) {
-            logger.warn("Tentative de connexion utilisateur supprimé : {}", email);
-            throw new UserDisabledException("❌ Compte supprimé");
-        }
-
         if (user.getStatus() == UserStatus.BANNED) {
-            logger.warn("Tentative de connexion utilisateur banni : {}", email);
-            throw new UserDisabledException("❌ Utilisateur banni");
+            logger.warn("Authentication blocked: banned user");
+            throw new UserDisabledException("User banned");
         }
 
         if (!user.isEnabled()) {
-            logger.warn("Tentative de connexion utilisateur non activé : {}", email);
-            throw new UserDisabledException("❌ Compte non vérifié");
+            logger.warn("Authentication blocked: user not activated");
+            throw new UserDisabledException("Account not activated");
         }
 
         return org.springframework.security.core.userdetails.User.builder()
@@ -110,10 +102,10 @@ public class UserService implements UserDetailsService {
     @Transactional
     public UserDto updateMyProfile(String email, UpdateUserDto dto) {
 
-        User user = userRepository.findByEmail(email.toLowerCase())
-                .orElseThrow(() -> new UserNotFoundException("❌ Utilisateur introuvable"));
+        User user = userRepository.findByEmailAndDeletedAtIsNull(email.toLowerCase())
+                .orElseThrow(() -> new UserNotFoundException("❌ Utilisateur non trouvé"));
 
-        logger.info("[PROFILE] Mise à jour du profil user={} email={}", user.getId(), user.getEmail());
+        logger.info("Profile update for user {}", user.getId());
 
         if (dto.getFirstName() != null) {
             user.setFirstName(dto.getFirstName());
@@ -140,7 +132,7 @@ public class UserService implements UserDetailsService {
     @Transactional
     public boolean deleteUserById(UUID userId) {
 
-        logger.warn("Suppression définitive de l'utilisateur {}", userId);
+        logger.warn("Hard delete user {}", userId);
 
         tokenRepository.deleteByUser_IdAndType(userId, TokenType.REFRESH);
         tokenRepository.deleteByUser_IdAndType(userId, TokenType.VERIFICATION);
@@ -163,16 +155,17 @@ public class UserService implements UserDetailsService {
         }
 
         User user = userOpt.get();
+        logger.warn("Soft delete user {}", user.getId());
 
-        logger.warn("Soft-delete du compte utilisateur {}", user.getId());
-
-        user.setDeletedAt(LocalDateTime.now());
-        user.setStatus(UserStatus.DELETED);
-        user.setEnabled(false);
+        tokenRepository.deleteByUser_Id(user.getId());
 
         if (user.getTokens() != null) {
             user.getTokens().clear();
         }
+
+        user.setDeletedAt(LocalDateTime.now());
+        user.setStatus(UserStatus.DELETED);
+        user.setEnabled(false);
 
         userRepository.save(user);
         return true;

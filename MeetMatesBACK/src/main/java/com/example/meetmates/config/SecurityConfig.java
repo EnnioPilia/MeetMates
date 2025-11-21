@@ -57,7 +57,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:4200")); // à remplacer par var d'env prod
+        config.setAllowedOrigins(List.of("http://localhost:4200")); // à remplacer par var d'env prod !!!!!!!
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
@@ -69,14 +69,14 @@ public class SecurityConfig {
 
     // * Chaîne de filtres de sécurité 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, UserService userService) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers(PUBLIC_URLS.toArray(String[]::new)).permitAll()
-                .requestMatchers("/admin/**").hasRole(ROLE_ADMIN)
+                .requestMatchers("/admin/**", "/admin/dashboard/**").hasRole(ROLE_ADMIN)
                 .requestMatchers("/user/me", "/user/me/picture").hasAnyRole(ROLE_USER, ROLE_ADMIN)
                 .requestMatchers("/user/**").hasRole(ROLE_ADMIN)
                 .anyRequest().authenticated()
@@ -84,23 +84,24 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex
                 .authenticationEntryPoint((req, res, authException) -> {
                     res.setStatus(HttpStatus.UNAUTHORIZED.value());
-                    res.setContentType("application/json");
+                    res.setContentType("application/json; charset=UTF-8");
                     res.getWriter().write("""
-                {
-                    "message": "\\u274C  Vous devez être connecté pour accéder à cette ressource."
-                }
-                """);
+                    {
+                        "message": "❌ Vous devez être connecté pour accéder à cette ressource."
+                    }
+                    """);
                 })
                 .accessDeniedHandler((req, res, accessDeniedException) -> {
                     res.setStatus(HttpStatus.FORBIDDEN.value());
-                    res.setContentType("application/json");
+                    res.setContentType("application/json; charset=UTF-8");
                     res.getWriter().write("""
-                {
-                    "message": "\\u274C Vous n’avez pas la permission d’accéder à cette ressource."
-                }
-                """);
+                    {
+                        "message": "❌ Vous n’avez pas la permission d’accéder à cette ressource."
+                    }
+                    """);
                 })
                 )
+                .authenticationProvider(authenticationProvider(userService))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

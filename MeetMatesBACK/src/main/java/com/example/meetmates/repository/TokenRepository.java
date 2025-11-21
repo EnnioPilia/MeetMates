@@ -22,5 +22,7 @@ public interface TokenRepository extends JpaRepository<Token, UUID> {
     JOIN FETCH t.user
     WHERE t.token = :token """)
     Optional<Token> findByTokenWithUser(String token);
+    
+    void deleteByUser_Id(UUID userId);
 
 }
