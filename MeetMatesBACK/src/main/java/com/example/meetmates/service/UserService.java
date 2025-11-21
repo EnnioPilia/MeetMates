@@ -22,7 +22,6 @@ import com.example.meetmates.mapper.UserMapper;
 import com.example.meetmates.model.TokenType;
 import com.example.meetmates.model.User;
 import com.example.meetmates.model.UserStatus;
-import com.example.meetmates.repository.EventRepository;
 import com.example.meetmates.repository.TokenRepository;
 import com.example.meetmates.repository.UserRepository;
 
@@ -38,7 +37,6 @@ public class UserService implements UserDetailsService {
     @Autowired
     public UserService(UserRepository userRepository,
             TokenRepository tokenRepository,
-            EventRepository eventRepository,
             UserMapper userMapper) {
         this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
@@ -115,7 +113,7 @@ public class UserService implements UserDetailsService {
         User user = userRepository.findByEmail(email.toLowerCase())
                 .orElseThrow(() -> new UserNotFoundException("❌ Utilisateur introuvable"));
 
-        logger.info("Mise à jour du profil utilisateur {}", user.getId());
+        logger.info("[PROFILE] Mise à jour du profil user={} email={}", user.getId(), user.getEmail());
 
         if (dto.getFirstName() != null) {
             user.setFirstName(dto.getFirstName());

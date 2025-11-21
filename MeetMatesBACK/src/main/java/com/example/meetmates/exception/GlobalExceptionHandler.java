@@ -109,33 +109,14 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
-    // 403 – Accès interdit à l’événement
-    @ExceptionHandler(UnauthorizedEventAccessException.class)
-    public ResponseEntity<ErrorDto> handleUnauthorized(UnauthorizedEventAccessException ex) {
-        return build(HttpStatus.FORBIDDEN, ex.getMessage());
-    }
-
     // 500 – Erreur d'envoi d'email
     @ExceptionHandler(EmailSendException.class)
     public ResponseEntity<ErrorDto> handleEmailSend(EmailSendException ex) {
         return build(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
     }
 
-    // 404 – Token non trouvé
-    @ExceptionHandler(TokenNotFoundException.class)
-    public ResponseEntity<ErrorDto> handleTokenNotFound(TokenNotFoundException ex) {
-        return build(HttpStatus.NOT_FOUND, ex.getMessage());
-    }
-
-    // 400 – Token expiré
-    @ExceptionHandler(TokenExpiredException.class)
-    public ResponseEntity<ErrorDto> handleTokenExpired(TokenExpiredException ex) {
-        return build(HttpStatus.BAD_REQUEST, ex.getMessage());
-    }
-
-    // 400 – Token déjà utilisé
-    @ExceptionHandler(TokenAlreadyUsedException.class)
-    public ResponseEntity<ErrorDto> handleTokenAlreadyUsed(TokenAlreadyUsedException ex) {
+    @ExceptionHandler(TokenException.class)
+    public ResponseEntity<ErrorDto> handleToken(TokenException ex) {
         return build(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 

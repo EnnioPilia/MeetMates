@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.meetmates.exception.TokenAlreadyUsedException;
 import com.example.meetmates.exception.TokenExpiredException;
@@ -27,6 +28,9 @@ public class TokenService {
 
     // * Génère et persiste un token générique pour un utilisateur
     public Token createToken(User user, TokenType type, long durationSeconds) {
+
+        deleteTokenByUserAndType(user.getId(), type);
+
         Token token = new Token(
                 UUID.randomUUID().toString(),
                 user,
@@ -38,8 +42,7 @@ public class TokenService {
         token.setUsed(false);
         Token saved = tokenRepository.save(token);
 
-        log.info("[TOKEN] Nouveau token {} créé pour user={} type={}", 
-                saved.getToken(), user.getEmail(), type);
+        log.info("[TOKEN] Nouveau token créé pour user={} type={}", user.getEmail(), type);
 
         return saved;
     }
@@ -47,6 +50,8 @@ public class TokenService {
     // * Récupère un token et vérifie: qu'il existe/qu'il n'a pas déjà été utilisé/qu'il n'est pas expiré
     //   Et renvoie le token valide ou lève une exception adaptée
     public Token getValidToken(String tokenString) {
+        Instant now = Instant.now();
+
         Token token = tokenRepository.findByToken(tokenString)
                 .orElseThrow(() -> new TokenNotFoundException("Token introuvable"));
 
@@ -54,7 +59,7 @@ public class TokenService {
             throw new TokenAlreadyUsedException("Ce token a déjà été utilisé.");
         }
 
-        if (token.getExpiresAt().isBefore(Instant.now())) {
+        if (token.getExpiresAt().isBefore(now)) {
             throw new TokenExpiredException("Le token a expiré.");
         }
 
@@ -62,12 +67,13 @@ public class TokenService {
     }
 
     // * Marque un token comme utilisé pour empêcher toute réutilisation
+    @Transactional
     public void markTokenAsUsed(Token token) {
         token.setUsed(true);
         token.setConfirmedAt(Instant.now());
         tokenRepository.save(token);
 
-        log.info("[TOKEN] Token {} marqué comme utilisé.", token.getToken());
+        log.info("[TOKEN] Token marqué comme utilisé pour user={}", token.getUser().getEmail());
     }
 
     // * Supprime tous les tokens d’un utilisateur pour un type donné

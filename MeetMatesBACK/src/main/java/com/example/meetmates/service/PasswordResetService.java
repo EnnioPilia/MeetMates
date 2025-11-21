@@ -5,7 +5,9 @@ import java.util.UUID;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.example.meetmates.exception.InvalidTokenException;
 import com.example.meetmates.exception.TokenExpiredException;
 import com.example.meetmates.exception.TokenNotFoundException;
 import com.example.meetmates.exception.UserNotFoundException;
@@ -29,9 +31,9 @@ public class PasswordResetService {
     private static final long EXPIRATION_MINUTES = 30;
 
     public PasswordResetService(TokenRepository tokenRepository,
-                                UserRepository userRepository,
-                                PasswordEncoder passwordEncoder,
-                                EmailService emailService) {
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            EmailService emailService) {
         this.tokenRepository = tokenRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -61,16 +63,19 @@ public class PasswordResetService {
     }
 
     // * Vérifie le token et réinitialise le mot de passe
+    @Transactional
     public String resetPassword(String tokenString, String newPassword) {
 
         Token token = tokenRepository.findByToken(tokenString)
                 .orElseThrow(() -> new TokenNotFoundException("❌ Token invalide."));
 
         if (token.getType() != TokenType.PASSWORD_RESET) {
-            throw new TokenNotFoundException("❌ Ce token n'est pas un token de réinitialisation.");
+            throw new InvalidTokenException("❌ Ce token n'est pas un token de réinitialisation.");
         }
 
-        if (token.getExpiresAt().isBefore(Instant.now())) {
+        Instant now = Instant.now();
+
+        if (token.getExpiresAt().isBefore(now)) {
             throw new TokenExpiredException("❌ Le lien de réinitialisation a expiré.");
         }
 
@@ -84,4 +89,5 @@ public class PasswordResetService {
 
         return "Mot de passe réinitialisé avec succès.";
     }
+
 }

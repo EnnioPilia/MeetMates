@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.example.meetmates.exception.InvalidTokenException;
 import com.example.meetmates.exception.TokenExpiredException;
 import com.example.meetmates.exception.TokenNotFoundException;
 import com.example.meetmates.model.Token;
@@ -55,10 +56,16 @@ public class RefreshTokenService {
 
     // * Valide un refresh token existant
     public Token validateRefreshToken(String tokenString) {
+
         Token token = tokenRepository.findByTokenWithUser(tokenString)
                 .orElseThrow(() -> new TokenNotFoundException("Refresh token invalide"));
 
-        if (token.getExpiresAt().isBefore(Instant.now())) {
+        if (token.isUsed()) {
+            throw new InvalidTokenException("Refresh token déjà utilisé.");
+        }
+        Instant now = Instant.now();
+
+        if (token.getExpiresAt().isBefore(now)) {
             throw new TokenExpiredException("Refresh token expiré");
         }
 

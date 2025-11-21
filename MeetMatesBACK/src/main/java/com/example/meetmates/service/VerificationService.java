@@ -31,11 +31,13 @@ public class VerificationService {
             throw new UserAlreadyVerifiedException("Votre compte est déjà vérifié.");
         }
 
+        tokenRepository.deleteByUser_IdAndType(user.getId(), TokenType.VERIFICATION);
+
         Token token = new Token(
                 UUID.randomUUID().toString(),
                 user,
                 Instant.now(),
-                Instant.now().plusSeconds(24 * 3600), // * Expire après 24h
+                Instant.now().plusSeconds(24 * 3600), // * Expire après 24h 
                 TokenType.VERIFICATION
         );
 
@@ -45,7 +47,7 @@ public class VerificationService {
 
         return token.getToken();
     }
-    
+
     // * Active le compte utilisateur si le token est valide et non expiré
     public void confirmToken(String tokenString) {
         Token token = tokenRepository.findByToken(tokenString)

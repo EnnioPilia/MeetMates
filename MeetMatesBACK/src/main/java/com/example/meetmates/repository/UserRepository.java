@@ -19,4 +19,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     boolean existsByEmailAndDeletedAtIsNull(String email);
 
     Optional<User> findByEmailAndDeletedAtIsNull(String email);
+
+    @Query("SELECT u FROM User u WHERE u.email = :email")
+    Optional<User> findByEmailIncludingDeleted(String email);
 }

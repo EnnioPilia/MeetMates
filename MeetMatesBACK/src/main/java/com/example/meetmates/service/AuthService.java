@@ -9,13 +9,13 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.meetmates.config.JWTUtils;
 import com.example.meetmates.dto.LoginRequestDto;
 import com.example.meetmates.dto.LoginResponseDto;
 import com.example.meetmates.dto.RegisterRequestDto;
 import com.example.meetmates.exception.EmailAlreadyUsedException;
-import com.example.meetmates.exception.InvalidTokenException;
 import com.example.meetmates.exception.UserDisabledException;
 import com.example.meetmates.exception.UserNotFoundException;
 import com.example.meetmates.model.Token;
@@ -25,7 +25,9 @@ import com.example.meetmates.model.UserStatus;
 import com.example.meetmates.repository.UserRepository;
 
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class AuthService {
 
@@ -40,32 +42,29 @@ public class AuthService {
     @Autowired
     private EmailService emailService;
     @Autowired
-    private VerificationService VerificationService;
+    private VerificationService verificationService;
     @Autowired
     private RefreshTokenService refreshTokenService;
 
-    // ============================================================
     // REGISTER
-    // ============================================================
+    @Transactional
     public String register(RegisterRequestDto request) {
 
         String email = request.getEmail().toLowerCase();
 
         Optional<User> existingUserOpt = userRepository.findByEmail(email);
 
-        // ---- Cas 1 : l’email existe et n'est pas supprimé
         if (existingUserOpt.isPresent()) {
             User existingUser = existingUserOpt.get();
-
-            if (existingUser.getDeletedAt() == null) {
-                throw new EmailAlreadyUsedException("❌ Email déjà utilisé.");
-            }
 
             if (existingUser.getStatus() == UserStatus.BANNED) {
                 throw new IllegalStateException("❌ Cet utilisateur est banni et ne peut pas créer un nouveau compte.");
             }
 
-            // ---- Cas 2 : l’utilisateur existait mais était supprimé → restauration
+            if (existingUser.getDeletedAt() == null) {
+                throw new EmailAlreadyUsedException("❌ Email déjà utilisé.");
+            }
+
             existingUser.setFirstName(request.getFirstName());
             existingUser.setLastName(request.getLastName());
             existingUser.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -77,16 +76,17 @@ public class AuthService {
             existingUser.setStatus(UserStatus.ACTIVE);
             existingUser.setAcceptedCguAt(request.getDateAcceptationCGU());
             existingUser.setDeletedAt(null);
+            existingUser.setDeletedAt(null);
+            existingUser.setTokens(null);
 
             userRepository.save(existingUser);
 
-            String verificationToken = VerificationService.createVerificationToken(existingUser);
+            String verificationToken = verificationService.createVerificationToken(existingUser);
             emailService.sendVerificationEmail(existingUser.getEmail(), verificationToken);
 
             return "Compte restauré avec succès. Vérifiez votre email.";
         }
 
-        // ---- Cas 3 : création d'un nouvel utilisateur
         User newUser = new User();
         newUser.setFirstName(request.getFirstName());
         newUser.setLastName(request.getLastName());
@@ -101,36 +101,40 @@ public class AuthService {
 
         User savedUser = userRepository.save(newUser);
 
-        String verificationToken = VerificationService.createVerificationToken(savedUser);
+        String verificationToken = verificationService.createVerificationToken(savedUser);
         emailService.sendVerificationEmail(savedUser.getEmail(), verificationToken);
 
         return "Utilisateur enregistré avec succès. Vérifiez votre email.";
     }
 
-    // ============================================================
     // LOGIN
-    // ============================================================
+    @Transactional
     public LoginResponseDto login(LoginRequestDto request, HttpServletResponse response) {
 
         String email = request.getEmail().toLowerCase();
 
-        // Récupère l'utilisateur avant l'authentification
+        log.info("[AUTH] Tentative de connexion pour {}", email);
+
+        // Récupère l'utilisateur avant authentification
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("❌ Utilisateur non trouvé."));
 
         if (user.getDeletedAt() != null) {
+            log.warn("[AUTH] Connexion refusée pour {} : compte supprimé", email);
             throw new UserDisabledException("❌ Compte supprimé.");
         }
 
         if (!user.isEnabled()) {
+            log.warn("[AUTH] Connexion refusée pour {} : compte non vérifié", email);
             throw new UserDisabledException("❌ Compte non vérifié.");
         }
 
-        // Vérifie le mot de passe
+        // Authentification
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(email, request.getPassword()));
         } catch (BadCredentialsException e) {
+            log.warn("[AUTH] Échec de connexion pour {} : mauvais mot de passe", email);
             throw new BadCredentialsException("❌ Identifiants invalides.");
         }
 
@@ -139,11 +143,12 @@ public class AuthService {
         String jwt = jwtUtils.generateAccessToken(user.getEmail(), role);
         Token refreshToken = refreshTokenService.createRefreshToken(user);
 
+        // Cookies
         ResponseCookie authCookie = ResponseCookie.from("authToken", jwt)
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
-                .sameSite("None") // strict en prod
+                .sameSite("None")
                 .maxAge(jwtUtils.getJwtExpirationMs() / 1000)
                 .build();
 
@@ -158,28 +163,19 @@ public class AuthService {
         response.addHeader("Set-Cookie", authCookie.toString());
         response.addHeader("Set-Cookie", refreshCookie.toString());
 
+        log.info("[AUTH] Connexion réussie pour {}", email);
+
         return new LoginResponseDto("Connexion réussie !", jwt);
     }
 
-    // ============================================================
     // VERIFY EMAIL
-    // ============================================================
+    @Transactional
     public String verifyUser(String token) {
-        try {
-            VerificationService.confirmToken(token); // si problème, une exception sera lancée
-            return "Compte vérifié avec succès !";
-
-        } catch (InvalidTokenException e) {
-            throw e;
-
-        } catch (RuntimeException e) {
-            throw new InvalidTokenException("❌ Erreur lors de la vérification du token.");
-        }
+        verificationService.confirmToken(token);
+        return "Compte vérifié avec succès !";
     }
 
-    // ==================== ========================================
     // LOGOUT
-    // ============================================================
     public void logout(HttpServletResponse response) {
 
         ResponseCookie authCookie = ResponseCookie.from("authToken", "")

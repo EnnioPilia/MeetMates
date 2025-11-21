@@ -16,7 +16,7 @@ import com.example.meetmates.dto.EventResponseDto;
 import com.example.meetmates.dto.EventUserDto;
 import com.example.meetmates.exception.ActivityNotFoundException;
 import com.example.meetmates.exception.EventNotFoundException;
-import com.example.meetmates.exception.UnauthorizedEventAccessException;
+import com.example.meetmates.exception.UserNotFoundException;
 import com.example.meetmates.mapper.EventMapper;
 import com.example.meetmates.model.Address;
 import com.example.meetmates.model.Event;
@@ -64,7 +64,7 @@ public class EventService {
         log.info("Tentative de création d'événement par {}", auth.getName());
 
         User organizer = userRepository.findByEmail(auth.getName())
-                .orElseThrow(() -> new UnauthorizedEventAccessException("❌ Utilisateur non trouvé"));
+                .orElseThrow(() -> new UserNotFoundException("❌ Utilisateur non trouvé"));
 
         var activity = activityRepository.findById(req.getActivityId())
                 .orElseThrow(() -> new ActivityNotFoundException("❌ Activité introuvable"));

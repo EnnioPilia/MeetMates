@@ -10,12 +10,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.meetmates.config.JWTUtils;
 import com.example.meetmates.dto.LoginRequestDto;
 import com.example.meetmates.dto.LoginResponseDto;
 import com.example.meetmates.dto.RegisterRequestDto;
 import com.example.meetmates.service.AuthService;
-import com.example.meetmates.service.RefreshTokenService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,11 +26,7 @@ public class AuthController {
 
     private final AuthService authService;
 
-    public AuthController(
-            AuthService authService,
-            RefreshTokenService refreshTokenService,
-            JWTUtils jwtUtils
-    ) {
+    public AuthController(AuthService authService) {
         this.authService = authService;
     }
 
