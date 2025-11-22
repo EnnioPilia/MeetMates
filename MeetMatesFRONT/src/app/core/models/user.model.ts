@@ -1,5 +1,5 @@
 export interface User {
-  id: number;
+  id: string;
   lastName: string;
   firstName: string;
   email: string;
@@ -11,5 +11,5 @@ export interface User {
   verifiedAt?: string;
   actif: boolean;
   avatarUrl?: string; 
-  profilePictureUrl?: string;
+  profilePictureUrl?: string | null;
 }

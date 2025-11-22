@@ -26,8 +26,8 @@ export class UserService {
     return this.http.post<User>(`${this.baseUrl}/me/picture`, formData, { withCredentials: true });
   }
 
-  deleteMyAccount(): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/me`, { body: {},withCredentials: true });
+  deleteMyAccount(): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.baseUrl}/me`, { withCredentials: true });
   }
 
   deleteProfilePicture(): Observable<void> {

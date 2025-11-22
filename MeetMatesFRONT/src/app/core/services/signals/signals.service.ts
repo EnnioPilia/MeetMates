@@ -1,12 +1,14 @@
 import { Injectable, signal } from '@angular/core';
-import { User } from '../../models/user.model'; 
+import { User } from '../../models/user.model';
 
 export interface CurrentUser {
   id: string;
   firstName: string;
   lastName: string;
   email: string;
+  profilePictureUrl?: string | null;
 }
+
 
 @Injectable({ providedIn: 'root' })
 export class SignalsService {
@@ -31,12 +33,13 @@ export class SignalsService {
     this.isMenuOpen.update(v => !v);
   }
 
-  updateCurrentUser(user: User) {
+  updateCurrentUser(user: Partial<User>) {
     this.currentUser.set({
-      id: String(user.id),
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
+      id: user.id!,
+      firstName: user.firstName!,
+      lastName: user.lastName!,
+      email: user.email!,
+      profilePictureUrl: user.profilePictureUrl ?? null
     });
   }
 }

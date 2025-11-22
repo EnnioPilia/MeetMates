@@ -4,11 +4,10 @@ import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, EMPTY } from 'rxjs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { UserService } from '../../core/services/user/user.service';
-import { NotificationService } from '../../core/services/notification/notification.service';
-import { SignalsService } from '../../core/services/signals/signals.service';
-import { ErrorHandlerService } from '../../core/services/error-handler/error-handler.service';
+
+import { UserFacade } from '../../core/facades/user/user.facade';
 import { User } from '../../core/models/user.model';
+
 import { EditProfilePictureComponent } from './components/edit-profile-picture.component';
 import { EditProfileFormComponent } from './components/edit-profile-form.component';
 import { LoadingSpinnerComponent } from '../../shared-components/loading-spinner/loading-spinner.component';
@@ -25,14 +24,10 @@ import { LoadingSpinnerComponent } from '../../shared-components/loading-spinner
   ],
   templateUrl: './edit-profile.component.html',
   styleUrls: ['./edit-profile.component.scss']
-
 })
 export class EditProfileComponent implements OnInit {
-  private userService = inject(UserService);
-  private notification = inject(NotificationService);
-  private signals = inject(SignalsService);
-  private errorHandler = inject(ErrorHandlerService);
-  private router = inject(Router);
+
+  private userFacade = inject(UserFacade);
   private destroyRef = inject(DestroyRef);
 
   readonly error = signal<string | null>(null);
@@ -40,11 +35,10 @@ export class EditProfileComponent implements OnInit {
   readonly user = signal<User | null>(null);
 
   ngOnInit() {
-    this.userService.getCurrentUser()
+    this.userFacade.getCurrentUser()
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError(err => {
-          this.errorHandler.handle(err, '❌ Erreur lors du chargement du profil.');
           this.error.set('Profil introuvable.');
           this.loading.set(false);
           return EMPTY;
@@ -52,61 +46,34 @@ export class EditProfileComponent implements OnInit {
       )
       .subscribe(user => {
         this.user.set(user);
-        this.signals.updateCurrentUser(user);
         this.loading.set(false);
       });
   }
 
   onSave(formValue: Partial<User>) {
-    this.userService.updateMyProfile(formValue)
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        catchError(err => {
-          this.errorHandler.handle(err, '❌ Erreur lors de la mise à jour du profil.');
-          return EMPTY;
-        })
-      )
+    this.userFacade.updateMyProfile(formValue)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(user => {
         this.user.set(user);
-        this.signals.updateCurrentUser(user);
-        this.notification.showSuccess('✅ Profil enregistré avec succès !');
-        this.router.navigate(['/profile']);
       });
   }
 
   onPhotoSelected(file: File) {
-    this.userService.uploadProfilePicture(file)
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        catchError(err => {
-          this.errorHandler.handle(err, '❌ Erreur lors du téléversement de la photo.');
-          return EMPTY;
-        })
-      )
+    this.userFacade.uploadProfilePicture(file)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(user => {
         this.user.set(user);
-        this.signals.updateCurrentUser(user);
-        this.notification.showSuccess('✅ Photo mise à jour avec succès !');
       });
   }
 
   onPhotoDeleted() {
-    const currentUser = this.user();
-    if (!currentUser) return;
-
-    this.userService.deleteProfilePicture()
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        catchError(err => {
-          this.errorHandler.handle(err, '❌ Erreur lors de la suppression de la photo.');
-          return EMPTY;
-        })
-      )
+    this.userFacade.deleteProfilePicture()
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
-        const updatedUser = { ...currentUser, profilePictureUrl: undefined };
-        this.user.set(updatedUser);
-        this.signals.updateCurrentUser(updatedUser);
-        this.notification.showSuccess('✅ Photo supprimée avec succès.');
+        const current = this.user();
+        if (current) {
+          this.user.set({ ...current, profilePictureUrl: null });
+        }
       });
   }
 }

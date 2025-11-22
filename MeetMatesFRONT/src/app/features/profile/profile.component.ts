@@ -24,6 +24,7 @@ import { LoadingSpinnerComponent } from '../../shared-components/loading-spinner
 import { EventResponse } from '../../core/models/event-response.model';
 import { User } from '../../core/models/user.model';
 import { AuthFacade } from '../../core/facades/auth/auth.facade';
+import { UserFacade } from '../../core/facades/user/user.facade';
 
 @Component({
   selector: 'app-profile',
@@ -46,14 +47,13 @@ import { AuthFacade } from '../../core/facades/auth/auth.facade';
 export class ProfileComponent {
   private router = inject(Router);
   private dialog = inject(MatDialog);
-  private authService = inject(AuthService);
   private userService = inject(UserService);
   private eventUserService = inject(EventUserService);
   private signals = inject(SignalsService);
-  private notification = inject(NotificationService);
   private errorHandler = inject(ErrorHandlerService);
   private destroyRef = inject(DestroyRef);
   private authFacade = inject(AuthFacade);
+  private userFacade = inject(UserFacade); 
 
   readonly user = signal<User | null>(null);
   readonly eventsParticipating = signal<EventResponse[]>([]);
@@ -119,15 +119,12 @@ export class ProfileComponent {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: { title: 'Suppression du compte', message: 'Voulez-vous vraiment supprimer définitivement votre compte ? Cette action est irréversible.' }
     });
+
     dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(confirmed => {
         if (!confirmed) return;
-        this.userService.deleteMyAccount().pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe(() => {
-            this.notification.showSuccess('✅ Votre compte a été supprimé avec succès.');
-            this.signals.clearCurrentUser();
-            this.router.navigate(['/login']);
-          });
+        this.userFacade.deleteMyAccount().pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe();
       });
   }
 
