@@ -1,17 +1,13 @@
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, DestroyRef, inject } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { finalize, catchError, EMPTY } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { AuthService } from '../../../core/services/auth/auth.service';
+import { AuthFacade } from '../../../core/facades/auth/auth.facade';
 import { NotificationService } from '../../../core/services/notification/notification.service';
-import { ErrorHandlerService } from '../../../core/services/error-handler/error-handler.service';
 
 import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
 import { AppInputComponent } from '../../../shared-components/input/input.component';
 import { AppButtonComponent } from '../../../shared-components/button/button.component';
 
@@ -24,29 +20,28 @@ import { AppButtonComponent } from '../../../shared-components/button/button.com
     CommonModule,
     ReactiveFormsModule,
     MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
     AppInputComponent,
     AppButtonComponent,
   ],
 })
 export class ResetPasswordComponent {
   private fb = inject(FormBuilder);
-  private authService = inject(AuthService);
+  private authFacade = inject(AuthFacade);
   private notification = inject(NotificationService);
-  private errorHandler = inject(ErrorHandlerService);
-  private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private destroyRef = inject(DestroyRef);
   private cdr = inject(ChangeDetectorRef);
 
-  isSubmitting = false;
   token: string | null = null;
 
   form = this.fb.nonNullable.group({
     newPassword: ['', [Validators.required, Validators.minLength(6)]],
-    confirmPassword: ['', [Validators.required]],
+    confirmPassword: ['', Validators.required],
   });
+
+  get isSubmitting() {
+    return this.authFacade.isSubmitting;
+  }
 
   ngOnInit(): void {
     this.token = this.route.snapshot.queryParamMap.get('token');
@@ -70,28 +65,9 @@ export class ResetPasswordComponent {
       return;
     }
 
-    this.isSubmitting = true;
-
-    this.authService
-      .resetPassword({ token: this.token, newPassword })
-      .pipe(
-        catchError((err) => {
-          this.errorHandler.handle(err);
-          this.cdr.markForCheck();
-          return EMPTY;
-        }),
-        finalize(() => {
-          this.isSubmitting = false;
-          this.cdr.markForCheck();
-        })
-      )
-      .subscribe(() => {
-        this.notification.showSuccess('✅ Mot de passe réinitialisé avec succès !');
-        this.router.navigate(['/login']);
-      });
-  }
-
-  navigateTo(path: string): void {
-    this.router.navigate([`/${path}`]);
+    this.authFacade
+      .resetPassword(this.token, newPassword)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.cdr.markForCheck());
   }
 }

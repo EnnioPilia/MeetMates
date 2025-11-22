@@ -1,6 +1,6 @@
 import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection, LOCALE_ID } from '@angular/core';
 // 1. Ajoutez withViewTransitions à l'import
-import { provideRouter, withViewTransitions } from '@angular/router'; 
+import { provideRouter, withViewTransitions } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
 // Import pour la localisation FR
@@ -19,16 +19,19 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 // Routes
 import { routes } from './app.routes';
 
+// import { antiSpamInterceptor  } from './core/interceptors/anti-spam.interceptor';
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
-    
+
     // 2. Utilisez withViewTransitions() ici
-    provideRouter(routes, withViewTransitions()), 
-    
+    provideRouter(routes, withViewTransitions()),
+
     provideHttpClient(
-      // Tu pourras réactiver tes intercepteurs ici
-      // withInterceptors([authInterceptor, errorInterceptor])
+      withInterceptors([
+        // antiSpamInterceptor   
+      ])
     ),
     provideAnimations(),
 

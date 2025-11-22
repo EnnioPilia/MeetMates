@@ -1,17 +1,13 @@
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, DestroyRef, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { finalize, catchError, EMPTY } from 'rxjs';
-import { AuthService } from '../../../core/services/auth/auth.service';
+import { Validators, NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { AuthFacade } from '../../../core/facades/auth/auth.facade';
 import { NotificationService } from '../../../core/services/notification/notification.service';
-import { ErrorHandlerService } from '../../../core/services/error-handler/error-handler.service';
 import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { AppInputComponent } from '../../../shared-components/input/input.component';
 import { AppButtonComponent } from '../../../shared-components/button/button.component';
+import { AppInputComponent } from '../../../shared-components/input/input.component';
 
 @Component({
   selector: 'app-forgot-password',
@@ -22,26 +18,25 @@ import { AppButtonComponent } from '../../../shared-components/button/button.com
     CommonModule,
     ReactiveFormsModule,
     MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
+    AppButtonComponent,
     AppInputComponent,
-    AppButtonComponent
   ],
 })
 export class ForgotPasswordComponent {
-  private fb = inject(NonNullableFormBuilder);
-  private authService = inject(AuthService);
-  private notification = inject(NotificationService);
-  private errorHandler = inject(ErrorHandlerService); 
-  private router = inject(Router);
-  private cdr = inject(ChangeDetectorRef);
 
-  isSubmitting = false;
+  private fb = inject(NonNullableFormBuilder);
+  private authFacade = inject(AuthFacade);
+  private notification = inject(NotificationService);
+  private destroyRef = inject(DestroyRef);
+  private cdr = inject(ChangeDetectorRef);
 
   form = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
   });
+
+  get isSubmitting() {
+    return this.authFacade.isSubmitting;
+  }
 
   onSubmit(): void {
     if (this.form.invalid) {
@@ -49,29 +44,11 @@ export class ForgotPasswordComponent {
       return;
     }
 
-    this.isSubmitting = true;
-    const { email } = this.form.getRawValue();
+    const email = this.form.getRawValue().email.trim().toLowerCase();
 
-    this.authService
-      .requestPasswordReset({ email: email.trim().toLowerCase() }) 
-      .pipe(
-        catchError((err) => {
-          this.errorHandler.handle(err);
-          this.cdr.markForCheck();
-          return EMPTY;
-        }),
-        finalize(() => {
-          this.isSubmitting = false;
-          this.cdr.markForCheck();
-        })
-      )
-      .subscribe(() => {
-        this.notification.showSuccess('✅ Un lien de réinitialisation a été envoyé à votre adresse e-mail.');
-        this.router.navigate(['/login']);
-      });
-  }
-
-  navigateTo(path: string): void {
-    this.router.navigate([`/${path}`]);
+    this.authFacade
+      .requestPasswordReset(email)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.cdr.markForCheck());
   }
 }

@@ -1,7 +1,7 @@
-import { Component, OnInit, inject  } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
-import { AuthService } from '../../../core/services/auth/auth.service';
+import { AuthFacade } from '../../../core/facades/auth/auth.facade';
 
 @Component({
   selector: 'app-verify',
@@ -11,7 +11,7 @@ import { AuthService } from '../../../core/services/auth/auth.service';
 })
 export class VerifyComponent implements OnInit {
   private route = inject(ActivatedRoute);
-  private authService = inject(AuthService);
+  private authFacade = inject(AuthFacade);
 
   message = 'Activation en cours...';
   success = false;
@@ -21,18 +21,15 @@ export class VerifyComponent implements OnInit {
 
     if (!token) {
       this.message = '❌ Token de vérification manquant.';
+      this.success = false;
       return;
     }
 
-    this.authService.verifyEmail(token).subscribe({
-      next: (res) => {
-        this.message = res.message || '✅ Votre compte a été activé avec succès.';
-        this.success = true;
-      },
-      error: (err) => {
-        this.message = err.message || '❌ Erreur lors de la vérification du compte.';
-        this.success = false;
-      }
+    this.authFacade.verifyEmail(token).subscribe(success => {
+      this.success = success;
+      this.message = success
+        ? 'Votre compte a été activé avec succès.'
+        : 'Erreur lors de la vérification du compte.';
     });
   }
 }

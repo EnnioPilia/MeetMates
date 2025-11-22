@@ -1,10 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
-import { SignalsService } from '../signals/signals.service';
-import { PasswordResetRequest, PasswordResetResponse } from '../../models/password-reset.model';
 
 export interface RegisterRequest {
   lastName: string;
@@ -15,39 +12,87 @@ export interface RegisterRequest {
   role?: string;
 }
 
+export interface PasswordResetRequest {
+  email: string;
+}
+
+export interface PasswordResetResponse {
+  token: string;
+  newPassword: string;
+}
+
+export interface MessageResponse {
+  message: string;
+}
+
+export interface LoginResponse extends MessageResponse {
+  token: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
+
   private readonly baseUrl = environment.apiUrl.replace(/\/+$/, '') + '/auth';
   private http = inject(HttpClient);
-  private signals = inject(SignalsService);
 
   login(credentials: { email: string; password: string }): Observable<{ message: string; token: string }> {
-    return this.http.post<{ message: string; token: string }>(`${this.baseUrl}/login`, credentials, { withCredentials: true });
+    return this.http.post<{ message: string; token: string }>(
+      `${this.baseUrl}/login`,
+      credentials,
+      { withCredentials: true }
+    );
   }
 
-  register(data: RegisterRequest): Observable<string> {
-    return this.http.post(`${this.baseUrl}/register`, data, { responseType: 'text' });
+  /* REGISTER */
+  register(data: RegisterRequest): Observable<MessageResponse>{
+    return this.http.post<{ message: string }>(
+      `${this.baseUrl}/register`,
+      data,
+      { withCredentials: true }
+    );
   }
 
-  logout(): Observable<void> {
-    return this.http.post<void>(`${this.baseUrl}/logout`, {}, { withCredentials: true }).pipe(tap(() => this.signals.clearCurrentUser()));
+  /* LOGOUT */
+  logout(): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(
+      `${this.baseUrl}/logout`,
+      {},
+      { withCredentials: true }
+    );
   }
 
+  /* REFRESH TOKEN */
   refreshToken(): Observable<{ accessToken: string }> {
-    return this.http.post<{ accessToken: string }>(`${this.baseUrl}/refresh-token`, {}, { withCredentials: true });
+    return this.http.post<{ accessToken: string }>(
+      `${this.baseUrl}/refresh-token`,
+      {},
+      { withCredentials: true }
+    );
   }
 
-  requestPasswordReset(data: PasswordResetRequest): Observable<HttpResponse<string>> {
-    return this.http.post(`${this.baseUrl}/request-reset`, data, { observe: 'response', responseType: 'text' });
+  /* REQUEST PASSWORD RESET */
+  requestPasswordReset(data: PasswordResetRequest): Observable<MessageResponse> {
+    return this.http.post<{ message: string }>(
+      `${this.baseUrl}/request-reset`,
+      data
+    );
   }
 
-  resetPassword(data: PasswordResetResponse): Observable<string> {
-    return this.http.post(`${this.baseUrl}/reset-password`, data, { responseType: 'text' });
+  /* RESET PASSWORD  */
+  resetPassword(data: PasswordResetResponse): Observable<MessageResponse> {
+    return this.http.post<{ message: string }>(
+      `${this.baseUrl}/reset-password`,
+      data
+    );
   }
 
-  verifyEmail(token: string): Observable<{ message: string }> {
-    return this.http.get<{ message: string }>(`${this.baseUrl}/verify`, { params: { token } });
+  /* VERIFY EMAIL */
+  verifyEmail(token: string) :Observable<MessageResponse> {
+    return this.http.get<{ message: string }>(
+      `${this.baseUrl}/verify`,
+      { params: { token } }
+    );
   }
 }

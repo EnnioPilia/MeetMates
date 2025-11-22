@@ -2,11 +2,9 @@ import { Component, ChangeDetectionStrategy, ChangeDetectorRef, DestroyRef, inje
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Validators, NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { finalize, catchError, EMPTY } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { AuthService } from '../../../core/services/auth/auth.service';
+import { AuthFacade } from '../../../core/facades/auth/auth.facade';
 import { NotificationService } from '../../../core/services/notification/notification.service';
-import { ErrorHandlerService } from '../../../core/services/error-handler/error-handler.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
@@ -30,15 +28,12 @@ import { CguDialogComponent } from '../../../shared-components/cgu-dialog/cgu-di
 })
 export class RegisterComponent {
   private fb = inject(NonNullableFormBuilder);
-  private authService = inject(AuthService);
+  private authFacade = inject(AuthFacade);
   private notification = inject(NotificationService);
-  private errorHandler = inject(ErrorHandlerService);
-  private router = inject(Router);
-  private cdr = inject(ChangeDetectorRef);
   private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
-
-  isSubmitting = false;
+  private cdr = inject(ChangeDetectorRef);
+  private router = inject(Router);
 
   form = this.fb.group({
     firstName: ['', Validators.required],
@@ -48,6 +43,10 @@ export class RegisterComponent {
     confirmPassword: ['', Validators.required],
     acceptCgu: [false, Validators.requiredTrue],
   });
+
+  get isSubmitting() {
+    return this.authFacade.isSubmitting;
+  }
 
   onSubmit(): void {
     if (this.form.invalid) {
@@ -70,24 +69,10 @@ export class RegisterComponent {
       dateAcceptationCGU: new Date().toISOString(),
     };
 
-    this.isSubmitting = true;
-
-    this.authService
+    this.authFacade
       .register(payload)
-      .pipe(
-        catchError((err) => {
-          this.errorHandler.handle(err);
-          this.cdr.markForCheck();
-          return EMPTY;
-        }),
-        finalize(() => (this.isSubmitting = false)),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe(() => {
-        this.notification.showSuccess('✅ Inscription réussie ! Vérifiez votre email pour activer votre compte.');
-        this.router.navigate(['/login']);
-        this.cdr.markForCheck();
-      });
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.cdr.markForCheck());
   }
 
   openCguDialog(event: Event): void {

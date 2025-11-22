@@ -37,22 +37,37 @@ export class ErrorHandlerService {
   }
 
   // Extraction fiable du message backend
-  private extractBackendMessage(err: HttpErrorResponse): string | null {
-    try {
-      if (typeof err.error === 'string') {
-        const parsed = JSON.parse(err.error);
-        return parsed.message || parsed.error || null;
-      }
+private extractBackendMessage(err: HttpErrorResponse): string | null {
+  try {
+    const e = err.error;
 
-      if (typeof err.error === 'object' && err.error !== null) {
-        return err.error.message || err.error.error || null;
+    // 🔹 cas : string JSON envoyé par le back
+    if (typeof e === 'string') {
+      try {
+        const parsed = JSON.parse(e);
+        return parsed.message || parsed.error || parsed.msg || null;
+      } catch {
+        return e; // string simple envoyée par le back
       }
-
-      return null;
-    } catch {
-      return null;
     }
+
+    // 🔹 cas : object
+    if (typeof e === 'object' && e !== null) {
+      return (
+        e.message ||
+        e.error ||
+        e.msg ||
+        (typeof e.error === 'object' ? e.error.message : null) ||
+        null
+      );
+    }
+
+    return null;
+  } catch {
+    return null;
   }
+}
+
 
   private getDefaultMessage(status: number): string {
     switch (status) {

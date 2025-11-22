@@ -23,6 +23,7 @@ import { SettingsMenuComponent } from '../profile/components/settings-menu.compo
 import { LoadingSpinnerComponent } from '../../shared-components/loading-spinner/loading-spinner.component';
 import { EventResponse } from '../../core/models/event-response.model';
 import { User } from '../../core/models/user.model';
+import { AuthFacade } from '../../core/facades/auth/auth.facade';
 
 @Component({
   selector: 'app-profile',
@@ -52,6 +53,7 @@ export class ProfileComponent {
   private notification = inject(NotificationService);
   private errorHandler = inject(ErrorHandlerService);
   private destroyRef = inject(DestroyRef);
+  private authFacade = inject(AuthFacade);
 
   readonly user = signal<User | null>(null);
   readonly eventsParticipating = signal<EventResponse[]>([]);
@@ -100,16 +102,18 @@ export class ProfileComponent {
   }
 
   onLogout(): void {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, { data: { title: 'Déconnexion', message: 'Voulez-vous vraiment vous déconnecter ?' } });
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: { title: 'Déconnexion', message: 'Voulez-vous vraiment vous déconnecter ?' }
+    });
+
     dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(confirmed => {
         if (!confirmed) return;
-        this.authService.logout().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-          this.signals.clearCurrentUser();
-          this.router.navigate(['/login']);
-        });
+        this.authFacade.logout().pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe();
       });
   }
+
 
   onDeleteAccount(): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
@@ -135,12 +139,15 @@ export class ProfileComponent {
     return this.eventsOrganized();
   }
 
-  openCguDialog(): void { 
-    this.dialog.open(CguDialogComponent, { width: '600px', autoFocus: false, data: { type: 'cgu' } });}
+  openCguDialog(): void {
+    this.dialog.open(CguDialogComponent, { width: '600px', autoFocus: false, data: { type: 'cgu' } });
+  }
 
-  openMentionsDialog(): void { 
-    this.dialog.open(CguDialogComponent, { width: '600px', autoFocus: false, data: { type: 'mentions' } });}
+  openMentionsDialog(): void {
+    this.dialog.open(CguDialogComponent, { width: '600px', autoFocus: false, data: { type: 'mentions' } });
+  }
 
-  onEditProfile(): void { 
-    this.router.navigate(['/edit-profile']);}
+  onEditProfile(): void {
+    this.router.navigate(['/edit-profile']);
+  }
 }
