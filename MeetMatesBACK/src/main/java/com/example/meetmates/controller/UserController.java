@@ -67,7 +67,7 @@ public class UserController {
         String email = authentication.getName();
 
         User user = userService.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("❌ Utilisateur non trouvé"));
+                .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé"));
 
         return ResponseEntity.ok(userMapper.toDto(user));
     }
@@ -86,7 +86,7 @@ public class UserController {
         }
 
         User user = userService.findByEmail(userDetails.getUsername())
-                .orElseThrow(() -> new UserNotFoundException("❌ Utilisateur introuvable"));
+                .orElseThrow(() -> new UserNotFoundException("Utilisateur introuvable"));
 
         String imageUrl = pictureService.uploadProfilePicture(file);
         user.setProfilePictureUrl(imageUrl);
@@ -130,7 +130,7 @@ public class UserController {
         log.info("[USER] Suppression de la photo de profil");
 
         User user = userService.findByEmail(userDetails.getUsername())
-                .orElseThrow(() -> new UserNotFoundException("❌ Utilisateur introuvable"));
+                .orElseThrow(() -> new UserNotFoundException("Utilisateur introuvable"));
 
         pictureService.deleteUserProfilePicture(user);
         return ResponseEntity.noContent().build();

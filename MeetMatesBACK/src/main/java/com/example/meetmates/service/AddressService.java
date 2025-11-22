@@ -36,7 +36,7 @@ public class AddressService {
 
         return addressRepository.findById(id)
                 .orElseThrow(() ->
-                        new AddressNotFoundException("❌ Adresse introuvable : ")
+                        new AddressNotFoundException("Adresse introuvable : ")
                 );
     }
 
@@ -55,7 +55,7 @@ public class AddressService {
         log.warn("[ADDRESS] Demande de suppression de l'adresse {}", id);
 
         if (!addressRepository.existsById(id)) {
-            throw new AddressNotFoundException("❌ Impossible de supprimer : adresse introuvable.");
+            throw new AddressNotFoundException("Impossible de supprimer : adresse introuvable.");
         }
 
         addressRepository.deleteById(id);
@@ -79,7 +79,7 @@ public class AddressService {
                     return addressRepository.save(address);
                 })
                 .orElseThrow(() ->
-                        new AddressNotFoundException("❌ Adresse introuvable : ")
+                        new AddressNotFoundException("Adresse introuvable : ")
                 );
     }
 }

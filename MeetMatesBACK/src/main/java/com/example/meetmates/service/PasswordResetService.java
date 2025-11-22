@@ -44,7 +44,7 @@ public class PasswordResetService {
     public String createPasswordResetToken(String email) {
 
         User user = userRepository.findByEmail(email.toLowerCase())
-                .orElseThrow(() -> new UserNotFoundException("❌ Aucun utilisateur trouvé avec cet email."));
+                .orElseThrow(() -> new UserNotFoundException("Aucun utilisateur trouvé avec cet email."));
 
         tokenRepository.deleteByUser_IdAndType(user.getId(), TokenType.PASSWORD_RESET);
 
@@ -55,7 +55,7 @@ public class PasswordResetService {
         Token token = new Token(tokenString, user, now, expiresAt, TokenType.PASSWORD_RESET);
         tokenRepository.save(token);
 
-        log.info("[RESET] Token généré pour {} (expire dans {} min)", user.getEmail(), EXPIRATION_MINUTES);
+            log.info("[RESET] Token généré pour {} (expire dans {} min)", user.getEmail(), EXPIRATION_MINUTES);
 
         emailService.sendPasswordResetEmail(user.getEmail(), tokenString);
 
@@ -67,16 +67,16 @@ public class PasswordResetService {
     public String resetPassword(String tokenString, String newPassword) {
 
         Token token = tokenRepository.findByToken(tokenString)
-                .orElseThrow(() -> new TokenNotFoundException("❌ Token invalide."));
+                .orElseThrow(() -> new TokenNotFoundException("Token invalide."));
 
         if (token.getType() != TokenType.PASSWORD_RESET) {
-            throw new InvalidTokenException("❌ Ce token n'est pas un token de réinitialisation.");
+            throw new InvalidTokenException("Ce token n'est pas un token de réinitialisation.");
         }
 
         Instant now = Instant.now();
 
         if (token.getExpiresAt().isBefore(now)) {
-            throw new TokenExpiredException("❌ Le lien de réinitialisation a expiré.");
+            throw new TokenExpiredException("Le lien de réinitialisation a expiré.");
         }
 
         User user = token.getUser();
@@ -85,7 +85,7 @@ public class PasswordResetService {
 
         tokenRepository.delete(token);
 
-        log.info("[RESET] Mot de passe réinitialisé pour {}", user.getEmail());
+            log.info("[RESET] Mot de passe réinitialisé pour {}", user.getEmail());
 
         return "Mot de passe réinitialisé avec succès.";
     }

@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.meetmates.dto.MessageResponseDto;
 import com.example.meetmates.dto.PasswordResetRequestDto;
 import com.example.meetmates.dto.PasswordResetResponseDto;
 import com.example.meetmates.service.PasswordResetService;
@@ -23,39 +24,36 @@ public class PasswordResetController {
         this.passwordResetService = passwordResetService;
     }
 
-
     // * Demande l'envoi d'un email contenant un token de réinitialisation de mot de passe.
     @PostMapping("/request-reset")
-    public ResponseEntity<String> requestReset(@RequestBody PasswordResetRequestDto request) {
-
+    public ResponseEntity<MessageResponseDto> requestReset(@RequestBody PasswordResetRequestDto request) {
         log.info("[PASSWORD] Demande de réinitialisation pour {}", request.getEmail());
 
         try {
             String message = passwordResetService.createPasswordResetToken(request.getEmail());
             log.info("[PASSWORD] Token envoyé à {}", request.getEmail());
-            return ResponseEntity.ok(message);
+            return ResponseEntity.ok(new MessageResponseDto(message));
 
         } catch (RuntimeException e) {
             log.warn("[PASSWORD] Échec de création du token : {}", e.getMessage());
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(new MessageResponseDto(e.getMessage()));
         }
     }
 
-
     // * Réinitialise le mot de passe d'un utilisateur à partir du token envoyé par email.
     @PostMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@RequestBody PasswordResetResponseDto dto) {
-
+    public ResponseEntity<MessageResponseDto> resetPassword(@RequestBody PasswordResetResponseDto dto) {
         log.info("[PASSWORD] Tentative de réinitialisation de mot de passe avec token");
 
         try {
             String message = passwordResetService.resetPassword(dto.getToken(), dto.getNewPassword());
             log.info("[PASSWORD] Mot de passe réinitialisé avec succès");
-            return ResponseEntity.ok(message);
+            return ResponseEntity.ok(new MessageResponseDto(message));
 
         } catch (RuntimeException e) {
             log.warn("[PASSWORD] Échec de la réinitialisation : {}", e.getMessage());
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(new MessageResponseDto(e.getMessage()));
         }
+
     }
-}
+ }

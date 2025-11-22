@@ -49,10 +49,10 @@ public class EventUserService {
     public EventUserDto joinEvent(UUID eventId, UUID userId) {
 
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new EventNotFoundException("❌ Événement introuvable"));
+                .orElseThrow(() -> new EventNotFoundException("Événement introuvable"));
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("❌ Utilisateur introuvable"));
+                .orElseThrow(() -> new UserNotFoundException("Utilisateur introuvable"));
 
         Optional<EventUser> existingOpt = eventUserRepository.findByEventIdAndUserId(eventId, userId);
 
@@ -69,7 +69,7 @@ public class EventUserService {
 
                 case REJECTED, LEFT_REJECTED ->
                     throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                            "❌ Vous ne pouvez pas rejoindre cet événement car vous avez été retiré.");
+                            "Vous ne pouvez pas rejoindre cet événement car vous avez été retiré.");
 
                 case LEFT -> {
                     existing.setParticipationStatus(ParticipationStatus.PENDING);
@@ -166,7 +166,7 @@ public class EventUserService {
     public void removeParticipant(UUID eventId, UUID userId, UUID organizerId) {
 
         EventUser organizer = eventUserRepository.findByEventIdAndUserId(eventId, organizerId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "❌ Accès refusé."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Accès refusé."));
 
         if (organizer.getRole() != ParticipantRole.ORGANIZER) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Seul l'organisateur peut retirer un participant.");

@@ -78,17 +78,17 @@ public class UserService implements UserDetailsService {
         User user = userRepository.findByEmail(email.toLowerCase())
                 .orElseThrow(() -> {
                     logger.warn("Authentication failed: unknown email");
-                    return new UserNotFoundException("❌ Utilisateur non trouvé");
+                    return new UserNotFoundException("Utilisateur non trouvé");
                 });
 
         if (user.getStatus() == UserStatus.BANNED) {
             logger.warn("Authentication blocked: banned user");
-            throw new UserDisabledException("User banned");
+            throw new UserDisabledException("Utilisateur banni");
         }
 
         if (!user.isEnabled()) {
             logger.warn("Authentication blocked: user not activated");
-            throw new UserDisabledException("Account not activated");
+            throw new UserDisabledException("Votre compte n'est pas activé");
         }
 
         return org.springframework.security.core.userdetails.User.builder()
@@ -103,7 +103,7 @@ public class UserService implements UserDetailsService {
     public UserDto updateMyProfile(String email, UpdateUserDto dto) {
 
         User user = userRepository.findByEmailAndDeletedAtIsNull(email.toLowerCase())
-                .orElseThrow(() -> new UserNotFoundException("❌ Utilisateur non trouvé"));
+                .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé"));
 
         logger.info("Profile update for user {}", user.getId());
 

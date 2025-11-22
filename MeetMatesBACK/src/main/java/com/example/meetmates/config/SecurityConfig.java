@@ -87,7 +87,7 @@ public class SecurityConfig {
                     res.setContentType("application/json; charset=UTF-8");
                     res.getWriter().write("""
                     {
-                        "message": "❌ Vous devez être connecté pour accéder à cette ressource."
+                        "message": "Vous devez être connecté pour accéder à cette ressource."
                     }
                     """);
                 })
@@ -96,7 +96,7 @@ public class SecurityConfig {
                     res.setContentType("application/json; charset=UTF-8");
                     res.getWriter().write("""
                     {
-                        "message": "❌ Vous n’avez pas la permission d’accéder à cette ressource."
+                        "message": "Vous n’avez pas la permission d’accéder à cette ressource."
                     }
                     """);
                 })

@@ -82,7 +82,7 @@ public class GlobalExceptionHandler {
     // 401 – Mauvais mot de passe
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorDto> handleBadCredentials(BadCredentialsException ex) {
-        return build(HttpStatus.UNAUTHORIZED, "❌ Mauvais mot de passe.");
+        return build(HttpStatus.UNAUTHORIZED, "Mauvais mot de passe.");
     }
 
     // 404 – Événement introuvable

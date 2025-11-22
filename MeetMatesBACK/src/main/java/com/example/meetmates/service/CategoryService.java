@@ -24,7 +24,7 @@ public class CategoryService {
 
     public Category findById(UUID id) {
         return categoryRepository.findById(id)
-                .orElseThrow(() -> new CategoryNotFoundException("❌ Catégorie introuvable : "));
+                .orElseThrow(() -> new CategoryNotFoundException("Catégorie introuvable : "));
     }
 
     public Category save(Category category) {
@@ -33,7 +33,7 @@ public class CategoryService {
 
     public void delete(UUID id) {
         if (!categoryRepository.existsById(id)) {
-            throw new CategoryNotFoundException("❌ Catégorie introuvable : ");
+            throw new CategoryNotFoundException("Catégorie introuvable : ");
         }
         categoryRepository.deleteById(id);
     }

@@ -58,11 +58,11 @@ public class AuthService {
             User existingUser = existingUserOpt.get();
 
             if (existingUser.getStatus() == UserStatus.BANNED) {
-                throw new IllegalStateException("❌ Cet utilisateur est banni et ne peut pas créer un nouveau compte.");
+                throw new IllegalStateException("Cet utilisateur est banni et ne peut pas créer un nouveau compte.");
             }
 
             if (existingUser.getDeletedAt() == null) {
-                throw new EmailAlreadyUsedException("❌ Email déjà utilisé.");
+                throw new EmailAlreadyUsedException("Email déjà utilisé.");
             }
 
             existingUser.setFirstName(request.getFirstName());
@@ -104,7 +104,7 @@ public class AuthService {
         String verificationToken = verificationService.createVerificationToken(savedUser);
         emailService.sendVerificationEmail(savedUser.getEmail(), verificationToken);
 
-        return "Utilisateur enregistré avec succès. Vérifiez votre email.";
+        return "Utilisateur enregistré avec succès. Vérifiez votre email pour activer votre compte.";
     }
 
     // LOGIN
@@ -117,16 +117,16 @@ public class AuthService {
 
         // Récupère l'utilisateur avant authentification
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("❌ Utilisateur non trouvé."));
+                .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé."));
 
         if (user.getDeletedAt() != null) {
             log.warn("[AUTH] Connexion refusée pour {} : compte supprimé", email);
-            throw new UserDisabledException("❌ Compte supprimé.");
+            throw new UserDisabledException("Compte supprimé.");
         }
 
         if (!user.isEnabled()) {
             log.warn("[AUTH] Connexion refusée pour {} : compte non vérifié", email);
-            throw new UserDisabledException("❌ Compte non vérifié.");
+            throw new UserDisabledException("Compte non vérifié.");
         }
 
         // Authentification
@@ -135,7 +135,7 @@ public class AuthService {
                     new UsernamePasswordAuthenticationToken(email, request.getPassword()));
         } catch (BadCredentialsException e) {
             log.warn("[AUTH] Échec de connexion pour {} : mauvais mot de passe", email);
-            throw new BadCredentialsException("❌ Identifiants invalides.");
+            throw new BadCredentialsException("Identifiants invalides.");
         }
 
         // Génération du JWT

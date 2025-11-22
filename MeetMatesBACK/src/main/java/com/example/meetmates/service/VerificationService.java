@@ -51,10 +51,10 @@ public class VerificationService {
     // * Active le compte utilisateur si le token est valide et non expiré
     public void confirmToken(String tokenString) {
         Token token = tokenRepository.findByToken(tokenString)
-                .orElseThrow(() -> new TokenNotFoundException("❌ Token invalide"));
+                .orElseThrow(() -> new TokenNotFoundException("Token invalide"));
 
         if (token.getExpiresAt().isBefore(Instant.now())) {
-            throw new TokenExpiredException("❌ Le lien de vérification a expiré.");
+            throw new TokenExpiredException("Le lien de vérification a expiré.");
         }
 
         User user = token.getUser();

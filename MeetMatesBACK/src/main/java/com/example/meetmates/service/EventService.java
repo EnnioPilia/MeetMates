@@ -64,10 +64,10 @@ public class EventService {
         log.info("Tentative de création d'événement par {}", auth.getName());
 
         User organizer = userRepository.findByEmail(auth.getName())
-                .orElseThrow(() -> new UserNotFoundException("❌ Utilisateur non trouvé"));
+                .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé"));
 
         var activity = activityRepository.findById(req.getActivityId())
-                .orElseThrow(() -> new ActivityNotFoundException("❌ Activité introuvable"));
+                .orElseThrow(() -> new ActivityNotFoundException("Activité introuvable"));
 
         Address address = addressRepository.save(req.getAddress());
 
@@ -107,7 +107,7 @@ public class EventService {
         var user = userRepository.findByEmail(auth.getName()).orElse(null);
 
         Event event = eventRepository.findByIdWithAllRelations(id)
-                .orElseThrow(() -> new EventNotFoundException("❌ Événement introuvable ou supprimé."));
+                .orElseThrow(() -> new EventNotFoundException("Événement introuvable ou supprimé."));
 
         String participationStatus = null;
         if (user != null) {
@@ -175,7 +175,7 @@ public class EventService {
         log.info("Demande de suppression de l'événement {}", id);
 
         if (!eventRepository.existsById(id)) {
-            throw new EventNotFoundException("❌ Impossible de supprimer : événement introuvable.");
+            throw new EventNotFoundException("Impossible de supprimer : événement introuvable.");
         }
         eventRepository.deleteById(id);
     }
@@ -183,7 +183,7 @@ public class EventService {
     // * Met à jour un événement existant
     public EventResponseDto updateEvent(UUID id, EventRequestDto updatedEvent) {
         Event event = eventRepository.findById(id)
-                .orElseThrow(() -> new EventNotFoundException("❌ Événement introuvable"));
+                .orElseThrow(() -> new EventNotFoundException("Événement introuvable"));
 
         event.setTitle(updatedEvent.getTitle());
         event.setDescription(updatedEvent.getDescription());
@@ -207,7 +207,7 @@ public class EventService {
 
         if (updatedEvent.getActivityId() != null) {
             var activity = activityRepository.findById(updatedEvent.getActivityId())
-                    .orElseThrow(() -> new ActivityNotFoundException("❌ Activité introuvable"));
+                    .orElseThrow(() -> new ActivityNotFoundException("Activité introuvable"));
             event.setActivity(activity);
         }
 

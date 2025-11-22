@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.meetmates.dto.LoginRequestDto;
 import com.example.meetmates.dto.LoginResponseDto;
+import com.example.meetmates.dto.MessageResponseDto;
 import com.example.meetmates.dto.RegisterRequestDto;
+import com.example.meetmates.dto.RegisterResponseDto;
 import com.example.meetmates.service.AuthService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,13 +41,12 @@ public class AuthController {
         String message = authService.register(request);
 
         log.info("[AUTH] Inscription réussie pour {}", request.getEmail());
-        return ResponseEntity.ok(Map.of("message", message));
+        return ResponseEntity.ok(new RegisterResponseDto(message));
     }
 
     // * Connexion d’un utilisateur + génération des tokens.
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDto request, HttpServletResponse response) {
-
         log.info("[AUTH] Tentative de login pour {}", request.getEmail());
 
         LoginResponseDto res = authService.login(request, response);
@@ -57,7 +58,6 @@ public class AuthController {
     // * Vérification du compte via un token envoyé par email.
     @GetMapping("/verify")
     public ResponseEntity<?> verifyUser(@RequestParam String token) {
-
         log.info("[AUTH] Vérification du compte via token");
 
         String res = authService.verifyUser(token);
@@ -69,13 +69,12 @@ public class AuthController {
     // * Déconnexion : suppression du cookie JWT.
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletResponse response) {
-
         log.info("[AUTH] Déconnexion de l'utilisateur");
 
         authService.logout(response);
 
         log.info("[AUTH] Déconnexion réussie");
-        return ResponseEntity.ok(Map.of("message", "Déconnexion réussie"));
+        return ResponseEntity.ok(new MessageResponseDto("Déconnexion réussie"));
     }
 
     // * Retour du refresh token (déjà géré par un filtre).
