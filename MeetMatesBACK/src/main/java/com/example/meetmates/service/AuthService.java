@@ -3,7 +3,6 @@ package com.example.meetmates.service;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -45,6 +44,8 @@ public class AuthService {
     private VerificationService verificationService;
     @Autowired
     private RefreshTokenService refreshTokenService;
+    @Autowired
+    private CookieService cookieService;
 
     // REGISTER
     @Transactional
@@ -143,29 +144,19 @@ public class AuthService {
         String jwt = jwtUtils.generateAccessToken(user.getEmail(), role);
         Token refreshToken = refreshTokenService.createRefreshToken(user);
 
-        // Cookies
-        ResponseCookie authCookie = ResponseCookie.from("authToken", jwt)
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .sameSite("None")
-                .maxAge(jwtUtils.getJwtExpirationMs() / 1000)
-                .build();
-
-        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken.getToken())
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .sameSite("None")
-                .maxAge(7 * 24 * 60 * 60)
-                .build();
-
-        response.addHeader("Set-Cookie", authCookie.toString());
-        response.addHeader("Set-Cookie", refreshCookie.toString());
+        // Cookies via CookieService
+        cookieService.setAuthCookies(
+                response,
+                jwt,
+                refreshToken.getToken(),
+                jwtUtils.getJwtExpirationMs() / 1000,
+                7 * 24 * 60 * 60
+        );
 
         log.info("[AUTH] Connexion réussie pour {}", email);
 
         return new LoginResponseDto("Connexion réussie !", jwt);
+
     }
 
     // VERIFY EMAIL
@@ -177,24 +168,6 @@ public class AuthService {
 
     // LOGOUT
     public void logout(HttpServletResponse response) {
-
-        ResponseCookie authCookie = ResponseCookie.from("authToken", "")
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(0)
-                .sameSite("None")
-                .build();
-
-        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", "")
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(0)
-                .sameSite("None")
-                .build();
-
-        response.addHeader("Set-Cookie", authCookie.toString());
-        response.addHeader("Set-Cookie", refreshCookie.toString());
+        cookieService.clearAuthCookies(response);
     }
 }

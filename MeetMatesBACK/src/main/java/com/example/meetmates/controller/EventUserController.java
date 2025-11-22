@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.meetmates.dto.EventUserDto;
+import com.example.meetmates.exception.AlreadyParticipantException;
+import com.example.meetmates.exception.EventNotFoundException;
+import com.example.meetmates.exception.UserNotFoundException;
 import com.example.meetmates.model.User;
 import com.example.meetmates.repository.UserRepository;
 import com.example.meetmates.service.EventUserService;
@@ -38,16 +41,15 @@ public class EventUserController {
     private User getAuthenticatedUser(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             log.warn("[EVENT-USER] Tentative d'accès sans authentification");
-            throw new RuntimeException("Utilisateur non connecté");
+            throw new UserNotFoundException("Utilisateur non connecté");
         }
 
         return userRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> {
                     log.error("[EVENT-USER] Utilisateur introuvable en base : {}", authentication.getName());
-                    return new RuntimeException("Utilisateur introuvable");
+                    throw new UserNotFoundException("Utilisateur non connecté");
                 });
     }
-
 
     // *  Permet à l'utilisateur connecté de rejoindre un événement.
     @PostMapping("/{eventId}/join")
@@ -55,10 +57,14 @@ public class EventUserController {
         User user = getAuthenticatedUser(authentication);
         log.info("[EVENT-USER] {} rejoint l'événement {}", user.getEmail(), eventId);
 
-        EventUserDto dto = eventUserService.joinEvent(eventId, user.getId());
-        return ResponseEntity.ok(dto);
+        try {
+            EventUserDto dto = eventUserService.joinEvent(eventId, user.getId());
+            return ResponseEntity.ok(dto);
+        } catch (AlreadyParticipantException | EventNotFoundException ex) {
+            log.warn("[EVENT-USER] {}", ex.getMessage());
+            throw ex; // géré par GlobalExceptionHandler
+        }
     }
-
 
     // *  Permet à l'utilisateur connecté de quitter un événement.
     @DeleteMapping("/{eventId}/leave")
@@ -70,7 +76,6 @@ public class EventUserController {
         return ResponseEntity.ok(dto);
     }
 
-
     // * L'organisateur accepte un participant.
     @PutMapping("/{eventUserId}/accept")
     public ResponseEntity<EventUserDto> acceptParticipant(@PathVariable UUID eventUserId, Authentication authentication) {
@@ -80,7 +85,6 @@ public class EventUserController {
         EventUserDto dto = eventUserService.acceptParticipant(eventUserId);
         return ResponseEntity.ok(dto);
     }
-
 
     // * L'organisateur rejette un participant.
     @PutMapping("/{eventUserId}/reject")
@@ -92,7 +96,6 @@ public class EventUserController {
         return ResponseEntity.ok(dto);
     }
 
-
     // * Liste des événements auxquels l'utilisateur connecté participe.
     @GetMapping("/participating")
     public ResponseEntity<List<EventUserDto>> getEventsParticipating(Authentication authentication) {
@@ -103,7 +106,6 @@ public class EventUserController {
         return ResponseEntity.ok(dtos);
     }
 
-
     // * Liste des événements organisés par l'utilisateur connecté.
     @GetMapping("/organized")
     public ResponseEntity<List<EventUserDto>> getEventsOrganized(Authentication authentication) {
@@ -113,7 +115,6 @@ public class EventUserController {
         List<EventUserDto> dtos = eventUserService.findOrganizedByUserId(user.getId());
         return ResponseEntity.ok(dtos);
     }
-
 
     // * L'organisateur retire un participant d'un événement.
     @PreAuthorize("isAuthenticated()")

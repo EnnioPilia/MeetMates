@@ -1,7 +1,7 @@
 package com.example.meetmates.dto;
 
 public class RegisterResponseDto {
-    private String message;
+    private final String message;
 
     public RegisterResponseDto(String message) {
         this.message = message;

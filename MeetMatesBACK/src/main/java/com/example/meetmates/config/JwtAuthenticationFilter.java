@@ -3,7 +3,6 @@ package com.example.meetmates.config;
 import java.io.IOException;
 
 import org.springframework.context.annotation.Lazy;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -14,6 +13,7 @@ import com.example.meetmates.exception.InvalidTokenException;
 import com.example.meetmates.exception.TokenAlreadyUsedException;
 import com.example.meetmates.exception.TokenNotFoundException;
 import com.example.meetmates.model.Token;
+import com.example.meetmates.service.CookieService;
 import com.example.meetmates.service.RefreshTokenService;
 import com.example.meetmates.service.UserService;
 
@@ -31,14 +31,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JWTUtils jwtUtils;
     private final RefreshTokenService refreshTokenService;
     private final UserService userService;
+    private final CookieService cookieService;
 
     public JwtAuthenticationFilter(
             JWTUtils jwtUtils,
             @Lazy UserService userService,
-            RefreshTokenService refreshTokenService) {
+            RefreshTokenService refreshTokenService,
+            CookieService cookieService) {
         this.jwtUtils = jwtUtils;
         this.userService = userService;
         this.refreshTokenService = refreshTokenService;
+        this.cookieService = cookieService;
     }
 
     @Override
@@ -55,8 +58,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain)
+                                    HttpServletResponse response,
+                                    FilterChain filterChain)
             throws ServletException, IOException {
 
         try {
@@ -66,7 +69,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // --- ACCESS TOKEN ---
             if (access != null && jwtUtils.isValidAccessToken(access)) {
                 authenticate(access, request);
-            } // --- REFRESH TOKEN ---
+            } 
+            // --- REFRESH TOKEN ---
             else if (refresh != null) {
                 Token ref = refreshTokenService.findByToken(refresh).orElse(null);
 
@@ -76,8 +80,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     String role = ref.getUser().getRole().name();
                     String newAccess = jwtUtils.generateAccessToken(email, role);
 
-                    sendCookie(response, "authToken", newAccess, jwtUtils.getJwtExpirationMs() / 1000);
-                    sendCookie(response, "refreshToken", newRefresh.getToken(), 7 * 24 * 3600);
+                    // Utilisation du CookieService
+                    cookieService.setAuthCookies(
+                            response,
+                            newAccess,
+                            newRefresh.getToken(),
+                            jwtUtils.getJwtExpirationMs() / 1000,
+                            7 * 24 * 3600
+                    );
 
                     authenticate(newAccess, request);
                 }
@@ -86,15 +96,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
 
         } catch (InvalidTokenException | TokenNotFoundException | TokenAlreadyUsedException ex) {
-            log.warn("Problème avec le token: {}", ex.getMessage());
+                log.warn("Problème avec le token: {}", ex.getMessage());
+            cookieService.clearAuthCookies(response); 
+
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("{\"message\":\"Problème avec le token.\"}");
+
         } catch (NullPointerException ex) {
-            log.error("Erreur inattendue côté sécurité: {}", ex.getMessage(), ex);
+                log.error("Erreur inattendue côté sécurité: {}", ex.getMessage(), ex);
+
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write("{\"message\":\"Erreur inattendue côté sécurité.\"}");
         }
-
     }
 
     // --- Authentifie l'utilisateur depuis le JWT ---
@@ -114,7 +127,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // Charger l'utilisateur depuis la DB
         var userDetails = userService.loadUserByUsername(username);
 
         UsernamePasswordAuthenticationToken auth
@@ -129,17 +141,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         log.debug("Utilisateur authentifié {} avec rôle {}", username, role);
-    }
-
-    private void sendCookie(HttpServletResponse res, String name, String value, long age) {
-        ResponseCookie cookie = ResponseCookie.from(name, value)
-                .httpOnly(true)
-                .secure(false) // true en prod
-                .sameSite("Strict")
-                .path("/")
-                .maxAge(age)
-                .build();
-        res.addHeader("Set-Cookie", cookie.toString());
     }
 
     private String getCookie(HttpServletRequest req, String name) {

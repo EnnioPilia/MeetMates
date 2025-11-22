@@ -35,8 +35,7 @@ public class AuthController {
     // * Inscription d’un nouvel utilisateur.
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequestDto request) {
-
-        log.info("[AUTH] Tentative d'inscription pour {}", request.getEmail());
+         log.info("[AUTH] Tentative d'inscription pour {}", request.getEmail());
 
         String message = authService.register(request);
 

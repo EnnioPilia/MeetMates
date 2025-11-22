@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,11 +21,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.meetmates.dto.MessageResponseDto;
 import com.example.meetmates.dto.UpdateUserDto;
 import com.example.meetmates.dto.UserDto;
 import com.example.meetmates.exception.UserNotFoundException;
 import com.example.meetmates.mapper.UserMapper;
 import com.example.meetmates.model.User;
+import com.example.meetmates.service.CookieService;
 import com.example.meetmates.service.PictureService;
 import com.example.meetmates.service.UserService;
 
@@ -41,13 +42,16 @@ public class UserController {
     private final UserService userService;
     private final PictureService pictureService;
     private final UserMapper userMapper;
+    private final CookieService cookieService;
 
     public UserController(UserService userService,
             PictureService pictureService,
-            UserMapper userMapper) {
+            UserMapper userMapper,
+            CookieService cookieService) {
         this.userService = userService;
         this.pictureService = pictureService;
         this.userMapper = userMapper;
+        this.cookieService = cookieService;
     }
 
     // * Récupère la liste de tous les utilisateurs.
@@ -138,41 +142,26 @@ public class UserController {
 
     // * Suppression du compte de l'utilisateur connecté (soft delete).
     @DeleteMapping("/me")
-    public ResponseEntity<Void> deleteMyAccount(
+    public ResponseEntity<MessageResponseDto> deleteMyAccount(
             @AuthenticationPrincipal UserDetails userDetails,
             HttpServletResponse response) {
+
         log.warn("[USER] Tentative de suppression de son propre compte");
 
         if (userDetails == null) {
             log.warn("[USER] Suppression refusée : utilisateur non authentifié");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new MessageResponseDto("Utilisateur non authentifié"));
         }
 
         boolean deleted = userService.deleteMyAccount(userDetails.getUsername());
 
         if (deleted) {
-            ResponseCookie authCookie = ResponseCookie.from("authToken", "")
-                    .httpOnly(true)
-                    .secure(true)
-                    .path("/")
-                    .maxAge(0)
-                    .sameSite("None") // ou Strict/ Lax selon prod !!!!!!!
-                    .build();
-
-            ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", "")
-                    .httpOnly(true)
-                    .secure(true)
-                    .path("/")
-                    .maxAge(0)
-                    .sameSite("None")
-                    .build();
-
-            response.addHeader("Set-Cookie", authCookie.toString());
-            response.addHeader("Set-Cookie", refreshCookie.toString());
-
-            return ResponseEntity.noContent().build();
+            cookieService.clearAuthCookies(response);
+            return ResponseEntity.ok(new MessageResponseDto("Compte supprimé avec succès"));
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new MessageResponseDto("Utilisateur introuvable"));
         }
     }
 

@@ -28,32 +28,21 @@ public class PasswordResetController {
     @PostMapping("/request-reset")
     public ResponseEntity<MessageResponseDto> requestReset(@RequestBody PasswordResetRequestDto request) {
         log.info("[PASSWORD] Demande de réinitialisation pour {}", request.getEmail());
+        
+        String message = passwordResetService.createPasswordResetToken(request.getEmail());
 
-        try {
-            String message = passwordResetService.createPasswordResetToken(request.getEmail());
-            log.info("[PASSWORD] Token envoyé à {}", request.getEmail());
-            return ResponseEntity.ok(new MessageResponseDto(message));
-
-        } catch (RuntimeException e) {
-            log.warn("[PASSWORD] Échec de création du token : {}", e.getMessage());
-            return ResponseEntity.badRequest().body(new MessageResponseDto(e.getMessage()));
-        }
+        log.info("[PASSWORD] Token de réinitialisation envoyé à {}", request.getEmail());
+        return ResponseEntity.ok(new MessageResponseDto(message));
     }
 
     // * Réinitialise le mot de passe d'un utilisateur à partir du token envoyé par email.
     @PostMapping("/reset-password")
     public ResponseEntity<MessageResponseDto> resetPassword(@RequestBody PasswordResetResponseDto dto) {
-        log.info("[PASSWORD] Tentative de réinitialisation de mot de passe avec token");
+        log.info("[PASSWORD] Tentative de réinitialisation avec token pour un utilisateur");
 
-        try {
-            String message = passwordResetService.resetPassword(dto.getToken(), dto.getNewPassword());
-            log.info("[PASSWORD] Mot de passe réinitialisé avec succès");
-            return ResponseEntity.ok(new MessageResponseDto(message));
+        String message = passwordResetService.resetPassword(dto.getToken(), dto.getNewPassword());
 
-        } catch (RuntimeException e) {
-            log.warn("[PASSWORD] Échec de la réinitialisation : {}", e.getMessage());
-            return ResponseEntity.badRequest().body(new MessageResponseDto(e.getMessage()));
-        }
-
+        log.info("[PASSWORD] Mot de passe réinitialisé avec succès");
+        return ResponseEntity.ok(new MessageResponseDto(message));
     }
- }
+}

@@ -29,6 +29,7 @@ public class PictureService {
     /**
      * * Génère simplement l’URL de l’image stockée (mock pour ton CDN)
      *   Cette méthode correspond EXACTEMENT à ce que ton controller appelle.
+     * Faire des exeption pour remplacer les RuntimeException !!!!
      */
     public String uploadProfilePicture(MultipartFile file) throws IOException {
         if (file == null || file.isEmpty()) {
