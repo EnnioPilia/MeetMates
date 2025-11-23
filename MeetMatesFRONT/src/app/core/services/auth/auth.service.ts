@@ -1,33 +1,8 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-
-export interface RegisterRequest {
-  lastName: string;
-  firstName: string;
-  email: string;
-  password: string;
-  age?: number;
-  role?: string;
-}
-
-export interface PasswordResetRequest {
-  email: string;
-}
-
-export interface PasswordResetResponse {
-  token: string;
-  newPassword: string;
-}
-
-export interface MessageResponse {
-  message: string;
-}
-
-export interface LoginResponse extends MessageResponse {
-  token: string;
-}
+import { RegisterRequest, ApiResponse, PasswordResetRequest, PasswordResetConfirmRequest } from '../../models/auth.model';
 
 @Injectable({
   providedIn: 'root'
@@ -37,8 +12,9 @@ export class AuthService {
   private readonly baseUrl = environment.apiUrl.replace(/\/+$/, '') + '/auth';
   private http = inject(HttpClient);
 
-  login(credentials: { email: string; password: string }): Observable<{ message: string; token: string }> {
-    return this.http.post<{ message: string; token: string }>(
+  /* LOGIN — retourne juste message + cookies */
+  login(credentials: { email: string; password: string }): Observable<ApiResponse<null>> {
+    return this.http.post<ApiResponse<null>>(
       `${this.baseUrl}/login`,
       credentials,
       { withCredentials: true }
@@ -46,8 +22,8 @@ export class AuthService {
   }
 
   /* REGISTER */
-  register(data: RegisterRequest): Observable<MessageResponse>{
-    return this.http.post<{ message: string }>(
+  register(data: RegisterRequest): Observable<ApiResponse<null>> {
+    return this.http.post<ApiResponse<null>>(
       `${this.baseUrl}/register`,
       data,
       { withCredentials: true }
@@ -55,42 +31,42 @@ export class AuthService {
   }
 
   /* LOGOUT */
-  logout(): Observable<MessageResponse> {
-    return this.http.post<MessageResponse>(
+  logout(): Observable<ApiResponse<null>> {
+    return this.http.post<ApiResponse<null>>(
       `${this.baseUrl}/logout`,
       {},
       { withCredentials: true }
     );
   }
 
-  /* REFRESH TOKEN */
-  refreshToken(): Observable<{ accessToken: string }> {
-    return this.http.post<{ accessToken: string }>(
+  /* REFRESH TOKEN — pas d'accessToken dans le JSON */
+  refreshToken(): Observable<ApiResponse<null>> {
+    return this.http.post<ApiResponse<null>>(
       `${this.baseUrl}/refresh-token`,
       {},
       { withCredentials: true }
     );
   }
 
-  /* REQUEST PASSWORD RESET */
-  requestPasswordReset(data: PasswordResetRequest): Observable<MessageResponse> {
-    return this.http.post<{ message: string }>(
+  /* REQUEST RESET PASSWORD */
+  requestPasswordReset(data: PasswordResetRequest): Observable<ApiResponse<null>> {
+    return this.http.post<ApiResponse<null>>(
       `${this.baseUrl}/request-reset`,
       data
     );
   }
 
-  /* RESET PASSWORD  */
-  resetPassword(data: PasswordResetResponse): Observable<MessageResponse> {
-    return this.http.post<{ message: string }>(
+  /* RESET PASSWORD — token + newPassword */
+  resetPassword(data: PasswordResetConfirmRequest): Observable<ApiResponse<null>> {
+    return this.http.post<ApiResponse<null>>(
       `${this.baseUrl}/reset-password`,
       data
     );
   }
 
   /* VERIFY EMAIL */
-  verifyEmail(token: string) :Observable<MessageResponse> {
-    return this.http.get<{ message: string }>(
+  verifyEmail(token: string): Observable<ApiResponse<null>> {
+    return this.http.get<ApiResponse<null>>(
       `${this.baseUrl}/verify`,
       { params: { token } }
     );

@@ -33,13 +33,18 @@ export class SignalsService {
     this.isMenuOpen.update(v => !v);
   }
 
-  updateCurrentUser(user: Partial<User>) {
+  updateCurrentUser(user: User | null) {
+    if (!user) {
+      this.currentUser.set(null);
+      return;
+    }
     this.currentUser.set({
-      id: user.id!,
-      firstName: user.firstName!,
-      lastName: user.lastName!,
-      email: user.email!,
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
       profilePictureUrl: user.profilePictureUrl ?? null
     });
   }
+
 }

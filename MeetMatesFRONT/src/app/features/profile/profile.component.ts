@@ -47,13 +47,12 @@ import { UserFacade } from '../../core/facades/user/user.facade';
 export class ProfileComponent {
   private router = inject(Router);
   private dialog = inject(MatDialog);
-  private userService = inject(UserService);
   private eventUserService = inject(EventUserService);
   private signals = inject(SignalsService);
   private errorHandler = inject(ErrorHandlerService);
   private destroyRef = inject(DestroyRef);
   private authFacade = inject(AuthFacade);
-  private userFacade = inject(UserFacade); 
+  private userFacade = inject(UserFacade);
 
   readonly user = signal<User | null>(null);
   readonly eventsParticipating = signal<EventResponse[]>([]);
@@ -68,7 +67,7 @@ export class ProfileComponent {
 
   private loadProfileData(): void {
     this.loading.set(true);
-    this.userService.getCurrentUser()
+    this.userFacade.getCurrentUser()
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError(err => {
@@ -78,11 +77,19 @@ export class ProfileComponent {
           return EMPTY;
         })
       )
-      .subscribe(user => {
+      .subscribe(res => {
+        const user = res?.data ?? null; // récupère uniquement le User ou null
+        if (!user) {
+          this.error.set('Profil introuvable.');
+          this.loading.set(false);
+          return;
+        }
+
         this.user.set(user);
         this.signals.updateCurrentUser(user);
-        this.fetchEvents();
+        this.fetchEvents(); // loading sera éteint à la fin de fetchEvents()
       });
+
   }
 
   private fetchEvents(): void {

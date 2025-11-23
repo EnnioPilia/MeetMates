@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { User } from '../../models/user.model';
 import { environment } from '../../../../environments/environment';
+import { ApiResponse } from '../../models/api-response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -11,26 +12,37 @@ export class UserService {
   private baseUrl = environment.apiUrl + '/user';
   private http = inject(HttpClient);
 
-  getCurrentUser(): Observable<User> {
-    return this.http.get<User>(`${this.baseUrl}/me`, { withCredentials: true });
+  /** Récupérer le profil utilisateur */
+  getCurrentUser(): Observable<ApiResponse<User>> {
+    return this.http.get<ApiResponse<User>>(`${this.baseUrl}/me`, { withCredentials: true });
   }
 
-  updateMyProfile(user: Partial<User>): Observable<User> {
-    return this.http.put<User>(`${this.baseUrl}/me`, user, { withCredentials: true });
+  /** Mise à jour du profil */
+  updateMyProfile(user: Partial<User>): Observable<ApiResponse<User>> {
+    return this.http.put<ApiResponse<User>>(`${this.baseUrl}/me`, user, { withCredentials: true });
   }
 
-  uploadProfilePicture(file: File): Observable<User> {
+  /** Upload photo de profil */
+  uploadProfilePicture(file: File): Observable<ApiResponse<User>> {
     const formData = new FormData();
     formData.append('file', file);
 
-    return this.http.post<User>(`${this.baseUrl}/me/picture`, formData, { withCredentials: true });
+    return this.http.post<ApiResponse<User>>(`${this.baseUrl}/me/picture`, formData, {
+      withCredentials: true
+    });
   }
 
-  deleteMyAccount(): Observable<{ message: string }> {
-    return this.http.delete<{ message: string }>(`${this.baseUrl}/me`, { withCredentials: true });
+  /** Suppression du compte */
+  deleteMyAccount(): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(`${this.baseUrl}/me`, {
+      withCredentials: true
+    });
   }
 
-  deleteProfilePicture(): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/me/picture`, { withCredentials: true });
+  /** Suppression photo de profil */
+  deleteProfilePicture(): Observable<ApiResponse<User>> {
+    return this.http.delete<ApiResponse<User>>(`${this.baseUrl}/me/picture`, {
+      withCredentials: true
+    });
   }
 }

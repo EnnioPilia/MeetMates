@@ -1,15 +1,9 @@
 export interface User {
   id: string;
-  lastName: string;
   firstName: string;
+  lastName: string;
   email: string;
-  role: string;       
-  enabled: boolean; 
-  age?: number;
-  dateCreation: string;   
-  dateAcceptationCGU?: string;
-  verifiedAt?: string;
-  actif: boolean;
-  avatarUrl?: string; 
-  profilePictureUrl?: string | null;
+  age: number;
+  city: string;
+  profilePictureUrl: string | null;
 }

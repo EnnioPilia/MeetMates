@@ -55,13 +55,15 @@ export class EventListComponent implements OnInit {
   @ViewChildren('eventCard') eventCards!: QueryList<ElementRef>;
 
   ngOnInit(): void {
-    this.userService.getCurrentUser()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (user: User) => this.signals.updateCurrentUser(user),
-        error: (err) => this.errorHandler.handle(err, '❌ Impossible de charger les événements.')
-      });
-
+this.userService.getCurrentUser()
+  .pipe(takeUntilDestroyed(this.destroyRef))
+  .subscribe({
+    next: (res) => {
+      const user = res?.data ?? null; // récupère le User ou null
+      if (user) this.signals.updateCurrentUser(user);
+    },
+    error: (err) => this.errorHandler.handle(err, '❌ Impossible de charger les événements.')
+  });
     const activityId = this.route.snapshot.paramMap.get('activityId');
     if (activityId) {
       this.loadActivityName(activityId);

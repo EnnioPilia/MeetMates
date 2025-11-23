@@ -35,45 +35,48 @@ export class EditProfileComponent implements OnInit {
   readonly user = signal<User | null>(null);
 
   ngOnInit() {
-    this.userFacade.getCurrentUser()
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        catchError(err => {
-          this.error.set('Profil introuvable.');
-          this.loading.set(false);
-          return EMPTY;
-        })
-      )
-      .subscribe(user => {
-        this.user.set(user);
+  this.userFacade.getCurrentUser()
+    .pipe(
+      takeUntilDestroyed(this.destroyRef),
+      catchError(err => {
+        this.error.set('Profil introuvable.');
         this.loading.set(false);
-      });
-  }
+        return EMPTY;
+      })
+    )
+    .subscribe(res => {
+      const user = res?.data ?? null;  // ✅ extraction TS-safe
+      this.user.set(user);
+      this.loading.set(false);
+    });
+}
 
-  onSave(formValue: Partial<User>) {
-    this.userFacade.updateMyProfile(formValue)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(user => {
-        this.user.set(user);
-      });
-  }
+onSave(formValue: Partial<User>) {
+  this.userFacade.updateMyProfile(formValue)
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe(res => {
+      const user = res?.data ?? null;  // ✅ extraction
+      this.user.set(user);
+    });
+}
 
-  onPhotoSelected(file: File) {
-    this.userFacade.uploadProfilePicture(file)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(user => {
-        this.user.set(user);
-      });
-  }
+onPhotoSelected(file: File) {
+  this.userFacade.uploadProfilePicture(file)
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe(res => {
+      const user = res?.data ?? null;  // ✅ extraction
+      this.user.set(user);
+    });
+}
 
-  onPhotoDeleted() {
-    this.userFacade.deleteProfilePicture()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        const current = this.user();
-        if (current) {
-          this.user.set({ ...current, profilePictureUrl: null });
-        }
-      });
-  }
+onPhotoDeleted() {
+  this.userFacade.deleteProfilePicture()
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe(res => {
+      const current = this.user();
+      if (current) {
+        this.user.set({ ...current, profilePictureUrl: null });
+      }
+    });
+}
 }
