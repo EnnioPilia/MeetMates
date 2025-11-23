@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.meetmates.dto.UpdateUserDto;
-import com.example.meetmates.dto.UserDto;
 import com.example.meetmates.exception.UserDisabledException;
 import com.example.meetmates.exception.UserNotFoundException;
 import com.example.meetmates.mapper.UserMapper;
@@ -43,7 +42,6 @@ public class UserService implements UserDetailsService {
         this.userMapper = userMapper;
     }
 
-    // * Récupère tous les utilisateurs
     @Transactional(readOnly = true)
     public List<User> getAllUsers() {
         return userRepository.findAll()
@@ -52,25 +50,28 @@ public class UserService implements UserDetailsService {
                 .toList();
     }
 
-    // * Rechercher un utilisateur par email (normalisé)
     @Transactional(readOnly = true)
     public Optional<User> findByEmail(String email) {
+        if (email == null) return Optional.empty();
         return userRepository.findByEmail(email.toLowerCase());
     }
-    
-    // * Sauvegarde ou met à jour un utilisateur
+
+    @Transactional(readOnly = true)
+    public User findActiveByEmailOrThrow(String email) {
+        return userRepository.findByEmailAndDeletedAtIsNull(email.toLowerCase())
+                .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé"));
+    }
+
     @Transactional
     public User saveUser(User user) {
         return userRepository.save(user);
     }
 
-    // * Recherche un utilisateur par ID
     @Transactional(readOnly = true)
     public Optional<User> findById(UUID id) {
         return userRepository.findById(id);
     }
 
-    // * Méthode utilisée par Spring Security pour authentifier un utilisateur
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -82,12 +83,12 @@ public class UserService implements UserDetailsService {
                 });
 
         if (user.getStatus() == UserStatus.BANNED) {
-            logger.warn("Authentication blocked: banned user");
+            logger.warn("Authentication blocked: banned user {}", user.getId());
             throw new UserDisabledException("Utilisateur banni");
         }
 
         if (!user.isEnabled()) {
-            logger.warn("Authentication blocked: user not activated");
+            logger.warn("Authentication blocked: not activated user {}", user.getId());
             throw new UserDisabledException("Votre compte n'est pas activé");
         }
 
@@ -98,40 +99,35 @@ public class UserService implements UserDetailsService {
                 .build();
     }
 
-    // * Mise à jour du profil utilisateur connecté
+    /* ----- Méthodes métier utilisées par le controller ----- */
+
+    /**
+     * Mise à jour du profil pour l'utilisateur donné (entité).
+     * Le controller récupère l'entité, appelle cette méthode avec le DTO (ou inverse).
+     */
     @Transactional
-    public UserDto updateMyProfile(String email, UpdateUserDto dto) {
-
-        User user = userRepository.findByEmailAndDeletedAtIsNull(email.toLowerCase())
-                .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé"));
-
-        logger.info("Profile update for user {}", user.getId());
-
-        if (dto.getFirstName() != null) {
-            user.setFirstName(dto.getFirstName());
-        }
-        if (dto.getLastName() != null) {
-            user.setLastName(dto.getLastName());
-        }
-        if (dto.getAge() != null && dto.getAge() >= 13) {
-            user.setAge(dto.getAge());
-        }
-        if (dto.getCity() != null) {
-            user.setCity(dto.getCity());
-        }
-        if (dto.getProfilePictureUrl() != null) {
-            user.setProfilePictureUrl(dto.getProfilePictureUrl());
-        }
-
-        userRepository.save(user);
-
-        return userMapper.toDto(user);
+    public User updateProfile(User user, UpdateUserDto dto) {
+        if (user == null) throw new IllegalArgumentException("user must not be null");
+        userMapper.updateFromDto(dto, user);
+        return userRepository.save(user);
     }
 
-    // * Hard delete: Supprime totalement un utilisateur + ses tokens
+    /**
+     * Supprime l'image de profil côté stockage et réinitialise l'url côté user.
+     * La suppression physique du fichier est déléguée à PictureService par le controller habituellement.
+     */
     @Transactional
-    public boolean deleteUserById(UUID userId) {
+    public User clearProfilePicture(User user) {
+        if (user == null) throw new IllegalArgumentException("user must not be null");
+        user.setProfilePictureUrl(null);
+        return userRepository.save(user);
+    }
 
+    /**
+     * Hard delete: supprime l'utilisateur et ses tokens (admin).
+     */
+    @Transactional
+    public boolean hardDeleteById(UUID userId) {
         logger.warn("Hard delete user {}", userId);
 
         tokenRepository.deleteByUser_IdAndType(userId, TokenType.REFRESH);
@@ -145,10 +141,11 @@ public class UserService implements UserDetailsService {
         return false;
     }
 
-    // * Soft delete: désactive le compte de l'utilisateur connecté
+    /**
+     * Soft delete (user désactive son compte) : supprime tokens, marque deletedAt, désactive.
+     */
     @Transactional
-    public boolean deleteMyAccount(String email) {
-
+    public boolean softDeleteByEmail(String email) {
         Optional<User> userOpt = userRepository.findByEmailAndDeletedAtIsNull(email.toLowerCase());
         if (userOpt.isEmpty()) {
             return false;
@@ -158,10 +155,7 @@ public class UserService implements UserDetailsService {
         logger.warn("Soft delete user {}", user.getId());
 
         tokenRepository.deleteByUser_Id(user.getId());
-
-        if (user.getTokens() != null) {
-            user.getTokens().clear();
-        }
+        if (user.getTokens() != null) user.getTokens().clear();
 
         user.setDeletedAt(LocalDateTime.now());
         user.setStatus(UserStatus.DELETED);

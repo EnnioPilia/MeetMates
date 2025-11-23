@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.meetmates.dto.MessageResponseDto;
+import com.example.meetmates.dto.ApiResponse;
 import com.example.meetmates.dto.UpdateUserDto;
 import com.example.meetmates.dto.UserDto;
 import com.example.meetmates.exception.UserNotFoundException;
@@ -54,115 +54,108 @@ public class UserController {
         this.cookieService = cookieService;
     }
 
-    // * Récupère la liste de tous les utilisateurs.
     @GetMapping
-    public ResponseEntity<List<UserDto>> getAllUsers() {
+    public ResponseEntity<ApiResponse<List<UserDto>>> getAllUsers() {
         log.info("[USER] Récupération de tous les utilisateurs");
-
         List<User> users = userService.getAllUsers();
-        return ResponseEntity.ok(users.stream().map(userMapper::toDto).toList());
+        List<UserDto> dtos = users.stream().map(userMapper::toDto).toList();
+        return ResponseEntity.ok(new ApiResponse<>("Liste des utilisateurs", dtos));
     }
 
-    // * Récupère le profil de l'utilisateur connecté.
     @GetMapping("/me")
-    public ResponseEntity<UserDto> getMe(Authentication authentication) {
+    public ResponseEntity<ApiResponse<UserDto>> getMe(Authentication authentication) {
         log.info("[USER] Récupération du profil de l'utilisateur connecté");
 
         String email = authentication.getName();
-
         User user = userService.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé"));
 
-        return ResponseEntity.ok(userMapper.toDto(user));
+        return ResponseEntity.ok(new ApiResponse<>("Profil utilisateur", userMapper.toDto(user)));
     }
 
-    // * Upload une nouvelle photo de profile.
     @PostMapping("/me/picture")
-    public ResponseEntity<UserDto> uploadProfilePicture(
+    public ResponseEntity<ApiResponse<UserDto>> uploadProfilePicture(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam("file") MultipartFile file) throws IOException {
 
-        log.info("[USER] Tentative d'upload de photo de profil");
+        log.info("[USER] Upload photo de profil");
 
         if (userDetails == null) {
             log.warn("[USER] Upload refusé : utilisateur non authentifié");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ApiResponse<>("Utilisateur non authentifié"));
         }
 
-        User user = userService.findByEmail(userDetails.getUsername())
-                .orElseThrow(() -> new UserNotFoundException("Utilisateur introuvable"));
+        User user = userService.findActiveByEmailOrThrow(userDetails.getUsername());
 
         String imageUrl = pictureService.uploadProfilePicture(file);
         user.setProfilePictureUrl(imageUrl);
         userService.saveUser(user);
 
-        log.info("[USER] Photo de profil mise à jour pour {}", user.getEmail());
+        log.info("[USER] Photo mise à jour pour {}", user.getEmail());
 
-        return ResponseEntity.ok(userMapper.toDto(user));
+        return ResponseEntity.ok(new ApiResponse<>("Photo mise à jour", userMapper.toDto(user)));
     }
 
-    // * Mise à jour du profil utilisateur connecté.
     @PutMapping("/me")
-    public ResponseEntity<UserDto> updateMyProfile(
+    public ResponseEntity<ApiResponse<UserDto>> updateMyProfile(
             @RequestBody UpdateUserDto updateUserDto,
             Principal principal) {
 
         log.info("[USER] Mise à jour du profil pour {}", principal.getName());
 
-        UserDto updatedUser = userService.updateMyProfile(principal.getName(), updateUserDto);
-        return ResponseEntity.ok(updatedUser);
+        User user = userService.findActiveByEmailOrThrow(principal.getName());
+        User updated = userService.updateProfile(user, updateUserDto);
+
+        return ResponseEntity.ok(new ApiResponse<>("Profil mis à jour", userMapper.toDto(updated)));
     }
 
-    // * Suppression définitive d'un utilisateur (admin uniquement).
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
-
+    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable UUID id) {
         log.warn("[ADMIN] Suppression de l'utilisateur {}", id);
-
-        boolean deleted = userService.deleteUserById(id);
-
-        return deleted
-                ? ResponseEntity.noContent().build()
-                : ResponseEntity.notFound().build();
+        boolean deleted = userService.hardDeleteById(id);
+        if (deleted) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse<>("Utilisateur introuvable"));
+        }
     }
 
-    // * Supprime la photo de profil de l'utilisateur connecté.
     @DeleteMapping("/me/picture")
-    public ResponseEntity<Void> deleteProfilePicture(
+    public ResponseEntity<ApiResponse<UserDto>> deleteProfilePicture(
             @AuthenticationPrincipal UserDetails userDetails) {
 
-        log.info("[USER] Suppression de la photo de profil");
+        log.info("[USER] Suppression photo de profil");
 
-        User user = userService.findByEmail(userDetails.getUsername())
-                .orElseThrow(() -> new UserNotFoundException("Utilisateur introuvable"));
+        User user = userService.findActiveByEmailOrThrow(userDetails.getUsername());
 
         pictureService.deleteUserProfilePicture(user);
-        return ResponseEntity.noContent().build();
+        User updated = userService.clearProfilePicture(user);
+
+        return ResponseEntity.ok(new ApiResponse<>("Photo supprimée", userMapper.toDto(updated)));
     }
 
-    // * Suppression du compte de l'utilisateur connecté (soft delete).
     @DeleteMapping("/me")
-    public ResponseEntity<MessageResponseDto> deleteMyAccount(
+    public ResponseEntity<ApiResponse<Void>> deleteMyAccount(
             @AuthenticationPrincipal UserDetails userDetails,
             HttpServletResponse response) {
 
-        log.warn("[USER] Tentative de suppression de son propre compte");
+        log.warn("[USER] Suppression du compte demandée");
 
         if (userDetails == null) {
-            log.warn("[USER] Suppression refusée : utilisateur non authentifié");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new MessageResponseDto("Utilisateur non authentifié"));
+                    .body(new ApiResponse<>("Utilisateur non authentifié"));
         }
 
-        boolean deleted = userService.deleteMyAccount(userDetails.getUsername());
+        boolean deleted = userService.softDeleteByEmail(userDetails.getUsername());
 
         if (deleted) {
             cookieService.clearAuthCookies(response);
-            return ResponseEntity.ok(new MessageResponseDto("Compte supprimé avec succès"));
+            return ResponseEntity.ok(new ApiResponse<>("Compte supprimé avec succès"));
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new MessageResponseDto("Utilisateur introuvable"));
+                    .body(new ApiResponse<>("Utilisateur introuvable"));
         }
     }
-
 }

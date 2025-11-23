@@ -1,7 +1,5 @@
 package com.example.meetmates.controller;
 
-import java.util.Map;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -10,11 +8,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.meetmates.dto.ApiResponse;
 import com.example.meetmates.dto.LoginRequestDto;
 import com.example.meetmates.dto.LoginResponseDto;
-import com.example.meetmates.dto.MessageResponseDto;
 import com.example.meetmates.dto.RegisterRequestDto;
-import com.example.meetmates.dto.RegisterResponseDto;
 import com.example.meetmates.service.AuthService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,60 +24,60 @@ import lombok.extern.slf4j.Slf4j;
 public class AuthController {
 
     private final AuthService authService;
+    public AuthController(AuthService authService) { this.authService = authService; }
 
-    public AuthController(AuthService authService) {
-        this.authService = authService;
-    }
-
-    // * Inscription d’un nouvel utilisateur.
+    // REGISTER
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequestDto request) {
-         log.info("[AUTH] Tentative d'inscription pour {}", request.getEmail());
+    public ResponseEntity<ApiResponse<Void>> register(@RequestBody RegisterRequestDto request) {
 
-        String message = authService.register(request);
+        authService.register(request);
 
-        log.info("[AUTH] Inscription réussie pour {}", request.getEmail());
-        return ResponseEntity.ok(new RegisterResponseDto(message));
+        return ResponseEntity.ok(
+                new ApiResponse<>("Iiiiiiiiiiiiinscription réussie — vérifiez votre email", null)
+        );
     }
 
-    // * Connexion d’un utilisateur + génération des tokens.
+    // LOGIN
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequestDto request, HttpServletResponse response) {
-        log.info("[AUTH] Tentative de login pour {}", request.getEmail());
+    public ResponseEntity<ApiResponse<LoginResponseDto>> login(
+            @RequestBody LoginRequestDto request,
+            HttpServletResponse response) {
 
-        LoginResponseDto res = authService.login(request, response);
+        LoginResponseDto dto = authService.login(request, response);
 
-        log.info("[AUTH] Login réussi pour {}", request.getEmail());
-        return ResponseEntity.ok(res);
+        return ResponseEntity.ok(
+                new ApiResponse<>("Ccccccccccccconnexion réussie",null)
+        );
     }
 
-    // * Vérification du compte via un token envoyé par email.
+    // VERIFY
     @GetMapping("/verify")
-    public ResponseEntity<?> verifyUser(@RequestParam String token) {
-        log.info("[AUTH] Vérification du compte via token");
+    public ResponseEntity<ApiResponse<Void>> verifyUser(@RequestParam String token) {
 
-        String res = authService.verifyUser(token);
+        authService.verifyUser(token);
 
-        log.info("[AUTH] Vérification effectuée");
-        return ResponseEntity.ok(Map.of("message", res));
+        return ResponseEntity.ok(
+                new ApiResponse<>("Ccccccccccccccompte vérifié avec succès", null)
+        );
     }
 
-    // * Déconnexion : suppression du cookie JWT.
+    // LOGOUT
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletResponse response) {
-        log.info("[AUTH] Déconnexion de l'utilisateur");
+    public ResponseEntity<ApiResponse<Void>> logout(HttpServletResponse response) {
 
         authService.logout(response);
 
-        log.info("[AUTH] Déconnexion réussie");
-        return ResponseEntity.ok(new MessageResponseDto("Déconnexion réussie"));
+        return ResponseEntity.ok(
+                new ApiResponse<>("Déééééééééééééééconnexion réussie", null)
+        );
     }
 
-    // * Retour du refresh token (déjà géré par un filtre).
-    @PostMapping("/auth/refresh-token")
-    public ResponseEntity<?> refreshToken(HttpServletRequest request) {
+    // REFRESH (filtré)
+    @PostMapping("/refresh-token")
+    public ResponseEntity<ApiResponse<String>> refreshToken(HttpServletRequest request) {
 
-        log.info("[AUTH] Refresh token : requête interceptée et gérée par le filtre");
-        return ResponseEntity.ok("Token traité par le filtre");
+        return ResponseEntity.ok(
+                new ApiResponse<>("Reeeeeeeeeeeeeefresh token traité par le filtre", null)
+        );
     }
 }

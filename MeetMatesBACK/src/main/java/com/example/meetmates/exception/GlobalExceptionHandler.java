@@ -126,6 +126,11 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.CONFLICT, ex.getMessage());
     }
 
+    @ExceptionHandler(UserBannedException.class)
+    public ResponseEntity<ErrorDto> handleUserBanned(UserBannedException ex) {
+        return build(HttpStatus.FORBIDDEN, ex.getMessage()); // HTTP 403
+    }
+
     // Exceptions Spring Security encapsulées
     @ExceptionHandler(InternalAuthenticationServiceException.class)
     public ResponseEntity<ErrorDto> handleInternalAuth(InternalAuthenticationServiceException ex) {
@@ -146,6 +151,10 @@ public class GlobalExceptionHandler {
     // 500 – fallback générique
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorDto> handleRuntime(RuntimeException ex) {
-        return build(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+        String message = "Une erreur interne est survenue, veuillez réessayer plus tard.";
+        if (ex.getMessage() != null && ex.getMessage().contains("orphan deletion")) {
+            message = "Impossible de créer l'utilisateur : un problème interne est survenu.";
+        }
+        return build(HttpStatus.INTERNAL_SERVER_ERROR, message);
     }
 }

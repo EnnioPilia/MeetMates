@@ -15,6 +15,7 @@ import com.example.meetmates.dto.LoginRequestDto;
 import com.example.meetmates.dto.LoginResponseDto;
 import com.example.meetmates.dto.RegisterRequestDto;
 import com.example.meetmates.exception.EmailAlreadyUsedException;
+import com.example.meetmates.exception.UserBannedException;
 import com.example.meetmates.exception.UserDisabledException;
 import com.example.meetmates.exception.UserNotFoundException;
 import com.example.meetmates.model.Token;
@@ -49,63 +50,58 @@ public class AuthService {
 
     // REGISTER
     @Transactional
-    public String register(RegisterRequestDto request) {
+    public void register(RegisterRequestDto request) {
 
         String email = request.getEmail().toLowerCase();
 
         Optional<User> existingUserOpt = userRepository.findByEmail(email);
 
         if (existingUserOpt.isPresent()) {
-            User existingUser = existingUserOpt.get();
+            User user = existingUserOpt.get();
 
-            if (existingUser.getStatus() == UserStatus.BANNED) {
-                throw new IllegalStateException("Cet utilisateur est banni et ne peut pas créer un nouveau compte.");
+            if (user.getStatus() == UserStatus.BANNED) {
+                throw new UserBannedException("Cet utilisateur est banni.");
             }
 
-            if (existingUser.getDeletedAt() == null) {
-                throw new EmailAlreadyUsedException("Email déjà utilisé.");
+            if (user.getDeletedAt() == null) {
+                throw new EmailAlreadyUsedException("Eeeeeeeeeemail déjà utilisé.");
             }
 
-            existingUser.setFirstName(request.getFirstName());
-            existingUser.setLastName(request.getLastName());
-            existingUser.setPassword(passwordEncoder.encode(request.getPassword()));
-            existingUser.setAge(request.getAge());
-            existingUser.setRole(request.getRole() == null
-                    ? UserRole.USER
-                    : UserRole.valueOf(request.getRole().toUpperCase()));
-            existingUser.setEnabled(false);
-            existingUser.setStatus(UserStatus.ACTIVE);
-            existingUser.setAcceptedCguAt(request.getDateAcceptationCGU());
-            existingUser.setDeletedAt(null);
-            existingUser.setDeletedAt(null);
-            existingUser.setTokens(null);
+            // Restore compte supprimé
+            user.setFirstName(request.getFirstName());
+            user.setLastName(request.getLastName());
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+            user.setAge(request.getAge());
+            user.setRole(UserRole.USER);
+            user.setEnabled(false);
+            user.setStatus(UserStatus.ACTIVE);
+            user.setAcceptedCguAt(request.getDateAcceptationCGU());
+            user.setDeletedAt(null);
+            user.setTokens(null);
 
-            userRepository.save(existingUser);
+            userRepository.save(user);
 
-            String verificationToken = verificationService.createVerificationToken(existingUser);
-            emailService.sendVerificationEmail(existingUser.getEmail(), verificationToken);
+            String token = verificationService.createVerificationToken(user);
+            emailService.sendVerificationEmail(user.getEmail(), token);
 
-            return "Compte restauré avec succès. Vérifiez votre email.";
+            return;
         }
 
-        User newUser = new User();
-        newUser.setFirstName(request.getFirstName());
-        newUser.setLastName(request.getLastName());
-        newUser.setEmail(email);
-        newUser.setPassword(passwordEncoder.encode(request.getPassword()));
-        newUser.setAge(request.getAge());
-        newUser.setRole(request.getRole() == null
-                ? UserRole.USER
-                : UserRole.valueOf(request.getRole().toUpperCase()));
-        newUser.setEnabled(false);
-        newUser.setAcceptedCguAt(request.getDateAcceptationCGU());
+        // Nouveau compte
+        User user = new User();
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setEmail(email);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setAge(request.getAge());
+        user.setRole(UserRole.USER);
+        user.setEnabled(false);
+        user.setAcceptedCguAt(request.getDateAcceptationCGU());
 
-        User savedUser = userRepository.save(newUser);
+        userRepository.save(user);
 
-        String verificationToken = verificationService.createVerificationToken(savedUser);
-        emailService.sendVerificationEmail(savedUser.getEmail(), verificationToken);
-
-        return "Utilisateur enregistré avec succès. Vérifiez votre email pour activer votre compte.";
+        String token = verificationService.createVerificationToken(user);
+        emailService.sendVerificationEmail(user.getEmail(), token);
     }
 
     // LOGIN
@@ -114,37 +110,31 @@ public class AuthService {
 
         String email = request.getEmail().toLowerCase();
 
-        log.info("[AUTH] Tentative de connexion pour {}", email);
-
-        // Récupère l'utilisateur avant authentification
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé."));
+                .orElseThrow(() -> new UserNotFoundException("Uuuuuuuuuuuutilisateur non trouvé."));
 
+        if (user.getStatus() == UserStatus.BANNED) {
+            throw new UserBannedException("Uuuuuuuuuuuutilisateur banni.");
+        }
         if (user.getDeletedAt() != null) {
-            log.warn("[AUTH] Connexion refusée pour {} : compte supprimé", email);
-            throw new UserDisabledException("Compte supprimé.");
+            throw new UserDisabledException("Ccccccccccccccompte supprimé.");
         }
 
         if (!user.isEnabled()) {
-            log.warn("[AUTH] Connexion refusée pour {} : compte non vérifié", email);
-            throw new UserDisabledException("Compte non vérifié.");
+            throw new UserDisabledException("Ccccccccccccompte non vérifié.");
         }
 
-        // Authentification
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(email, request.getPassword()));
         } catch (BadCredentialsException e) {
-            log.warn("[AUTH] Échec de connexion pour {} : mauvais mot de passe", email);
-            throw new BadCredentialsException("Identifiants invalides.");
+            throw new BadCredentialsException("Iiiiiiiiiiiiiidentifiants invalides.");
         }
 
-        // Génération du JWT
         String role = user.getRole().name().toLowerCase();
         String jwt = jwtUtils.generateAccessToken(user.getEmail(), role);
         Token refreshToken = refreshTokenService.createRefreshToken(user);
 
-        // Cookies via CookieService
         cookieService.setAuthCookies(
                 response,
                 jwt,
@@ -153,17 +143,13 @@ public class AuthService {
                 7 * 24 * 60 * 60
         );
 
-        log.info("[AUTH] Connexion réussie pour {}", email);
-
-        return new LoginResponseDto("Connexion réussie !", jwt);
-
+        return new LoginResponseDto(jwt);
     }
 
     // VERIFY EMAIL
     @Transactional
-    public String verifyUser(String token) {
+    public void verifyUser(String token) {
         verificationService.confirmToken(token);
-        return "Compte vérifié avec succès !";
     }
 
     // LOGOUT

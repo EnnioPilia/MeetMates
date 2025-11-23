@@ -30,22 +30,28 @@ public class PasswordResetService {
 
     private static final long EXPIRATION_MINUTES = 30;
 
-    public PasswordResetService(TokenRepository tokenRepository,
+    public PasswordResetService(
+            TokenRepository tokenRepository,
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
-            EmailService emailService) {
+            EmailService emailService
+    ) {
         this.tokenRepository = tokenRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.emailService = emailService;
     }
 
-    // * Génère un token et envoie l’email
-    public String createPasswordResetToken(String email) {
+    // ---------------------------------------------
+    // CREATE RESET TOKEN (email → token envoyé)
+    // ---------------------------------------------
+    public void createPasswordResetToken(String email) {
 
         User user = userRepository.findByEmail(email.toLowerCase())
-                .orElseThrow(() -> new UserNotFoundException("Aucun utilisateur trouvé avec cet email."));
+                .orElseThrow(() ->
+                        new UserNotFoundException("Aucun utilisateur trouvé avec cet email."));
 
+        // Supprime les anciens tokens du même type
         tokenRepository.deleteByUser_IdAndType(user.getId(), TokenType.PASSWORD_RESET);
 
         String tokenString = UUID.randomUUID().toString();
@@ -55,26 +61,26 @@ public class PasswordResetService {
         Token token = new Token(tokenString, user, now, expiresAt, TokenType.PASSWORD_RESET);
         tokenRepository.save(token);
 
-            log.info("[RESET] Token généré pour {} (expire dans {} min)", user.getEmail(), EXPIRATION_MINUTES);
+        log.info("[RESET] Token généré pour {} (expire dans {} min)", user.getEmail(), EXPIRATION_MINUTES);
 
         emailService.sendPasswordResetEmail(user.getEmail(), tokenString);
-
-        return "Un email de réinitialisation a été envoyé.";
     }
 
-    // * Vérifie le token et réinitialise le mot de passe
+    // ---------------------------------------------
+    // RESET PASSWORD (token + newPassword)
+    // ---------------------------------------------
     @Transactional
-    public String resetPassword(String tokenString, String newPassword) {
+    public void resetPassword(String tokenString, String newPassword) {
 
         Token token = tokenRepository.findByToken(tokenString)
-                .orElseThrow(() -> new TokenNotFoundException("Token invalide."));
+                .orElseThrow(() ->
+                        new TokenNotFoundException("Token invalide."));
 
         if (token.getType() != TokenType.PASSWORD_RESET) {
             throw new InvalidTokenException("Ce token n'est pas un token de réinitialisation.");
         }
 
         Instant now = Instant.now();
-
         if (token.getExpiresAt().isBefore(now)) {
             throw new TokenExpiredException("Le lien de réinitialisation a expiré.");
         }
@@ -85,9 +91,6 @@ public class PasswordResetService {
 
         tokenRepository.delete(token);
 
-            log.info("[RESET] Mot de passe réinitialisé pour {}", user.getEmail());
-
-        return "Mot de passe réinitialisé avec succès.";
+        log.info("[RESET] Mot de passe réinitialisé pour {}", user.getEmail());
     }
-
 }
