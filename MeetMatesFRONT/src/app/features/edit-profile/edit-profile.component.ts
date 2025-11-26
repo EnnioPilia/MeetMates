@@ -34,7 +34,7 @@ export class EditProfileComponent implements OnInit {
   readonly loading = signal<boolean>(true);
   readonly user = signal<User | null>(null);
 
-  ngOnInit() {
+ngOnInit() {
   this.userFacade.getCurrentUser()
     .pipe(
       takeUntilDestroyed(this.destroyRef),
@@ -44,12 +44,18 @@ export class EditProfileComponent implements OnInit {
         return EMPTY;
       })
     )
-    .subscribe(res => {
-      const user = res?.data ?? null;  // ✅ extraction TS-safe
+    .subscribe(user => {   // ← user est déjà du type User | null
+      if (!user) {
+        this.error.set('Profil introuvable.');
+        this.loading.set(false);
+        return;
+      }
+
       this.user.set(user);
       this.loading.set(false);
     });
 }
+
 
 onSave(formValue: Partial<User>) {
   this.userFacade.updateMyProfile(formValue)

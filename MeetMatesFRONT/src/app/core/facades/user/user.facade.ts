@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, of, tap } from 'rxjs';
+import { catchError, of, tap, map } from 'rxjs';
 import { UserService } from '../../services/user/user.service';
 import { SignalsService } from '../../services/signals/signals.service';
 import { NotificationService } from '../../services/notification/notification.service';
@@ -16,25 +16,26 @@ export class UserFacade {
   private router = inject(Router);
   private errorHandler = inject(ErrorHandlerService);
 
-  /** Charger l'utilisateur connecté */
-  getCurrentUser() {
-    return this.userService.getCurrentUser().pipe(
-      tap((res: ApiResponse<User>) => {
-        this.signals.updateCurrentUser(res.data);
-      }),
-      catchError(err => {
-        this.errorHandler.handle(err);
-        return of(null);
-      })
-    );
-  }
+getCurrentUser() {
+  return this.userService.getCurrentUser().pipe(
+    map((res: ApiResponse<User>) => res.data), // <- ici on retourne le User directement
+    tap(user => {
+      this.signals.updateCurrentUser(user);
+    }),
+    catchError(err => {
+      this.errorHandler.handle(err);
+      return of(null);
+    })
+  );
+}
+
 
   /** Mise à jour du profil */
   updateMyProfile(payload: Partial<User>) {
     return this.userService.updateMyProfile(payload).pipe(
       tap((res: ApiResponse<User>) => {
         this.signals.updateCurrentUser(res.data);
-        this.notification.showSuccess(res.message);
+        this.notification.showSuccess(res.message); // <-- message du backend
         this.router.navigate(['/profile']);
       }),
       catchError(err => {
@@ -49,7 +50,7 @@ export class UserFacade {
     return this.userService.uploadProfilePicture(file).pipe(
       tap((res: ApiResponse<User>) => {
         this.signals.updateCurrentUser(res.data);
-        this.notification.showSuccess(res.message);
+        this.notification.showSuccess(res.message); // <-- message du backend
       }),
       catchError(err => {
         this.errorHandler.handle(err);
@@ -63,7 +64,7 @@ export class UserFacade {
     return this.userService.deleteProfilePicture().pipe(
       tap((res: ApiResponse<User>) => {
         this.signals.updateCurrentUser(res.data);
-        this.notification.showSuccess(res.message);
+        this.notification.showSuccess(res.message); // <-- message du backend
       }),
       catchError(err => {
         this.errorHandler.handle(err);
@@ -76,7 +77,7 @@ export class UserFacade {
   deleteMyAccount() {
     return this.userService.deleteMyAccount().pipe(
       tap((res: ApiResponse<void>) => {
-        this.notification.showSuccess(res.message);
+        this.notification.showSuccess(res.message); // <-- message du backend
         this.signals.clearCurrentUser();
         this.router.navigate(['/login']);
       }),

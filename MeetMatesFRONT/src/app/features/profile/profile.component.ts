@@ -65,32 +65,24 @@ export class ProfileComponent {
     this.loadProfileData();
   }
 
-  private loadProfileData(): void {
-    this.loading.set(true);
-    this.userFacade.getCurrentUser()
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        catchError(err => {
-          this.errorHandler.handle(err, '❌ Impossible de charger le profil utilisateur.');
-          this.error.set('Profil introuvable.');
-          this.loading.set(false);
-          return EMPTY;
-        })
-      )
-      .subscribe(res => {
-        const user = res?.data ?? null; // récupère uniquement le User ou null
-        if (!user) {
-          this.error.set('Profil introuvable.');
-          this.loading.set(false);
-          return;
-        }
+private loadProfileData(): void {
+  this.loading.set(true);
 
-        this.user.set(user);
-        this.signals.updateCurrentUser(user);
-        this.fetchEvents(); // loading sera éteint à la fin de fetchEvents()
-      });
+  this.userFacade.getCurrentUser()
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe(user => {
+      if (!user) {
+        this.error.set('Profil introuvable.');
+        this.loading.set(false);
+        return;
+      }
 
-  }
+      this.user.set(user);
+      // Charger les événements
+      this.fetchEvents();
+    });
+}
+
 
   private fetchEvents(): void {
     forkJoin({

@@ -26,23 +26,16 @@ export class UserService {
   uploadProfilePicture(file: File): Observable<ApiResponse<User>> {
     const formData = new FormData();
     formData.append('file', file);
-
-    return this.http.post<ApiResponse<User>>(`${this.baseUrl}/me/picture`, formData, {
-      withCredentials: true
-    });
+    return this.http.post<ApiResponse<User>>(`${this.baseUrl}/me/picture`, formData, { withCredentials: true });
   }
 
   /** Suppression du compte */
   deleteMyAccount(): Observable<ApiResponse<void>> {
-    return this.http.delete<ApiResponse<void>>(`${this.baseUrl}/me`, {
-      withCredentials: true
-    });
+    return this.http.delete<ApiResponse<void>>(`${this.baseUrl}/me`, { withCredentials: true });
   }
 
   /** Suppression photo de profil */
   deleteProfilePicture(): Observable<ApiResponse<User>> {
-    return this.http.delete<ApiResponse<User>>(`${this.baseUrl}/me/picture`, {
-      withCredentials: true
-    });
+    return this.http.delete<ApiResponse<User>>(`${this.baseUrl}/me/picture`, { withCredentials: true });
   }
 }

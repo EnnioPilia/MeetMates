@@ -3,6 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { EventResponse } from '../../models/event-response.model';
+import { map } from 'rxjs/operators';
+import { ApiResponse } from '../../models/api-response.model'; 
 
 @Injectable({
   providedIn: 'root'
@@ -31,11 +33,21 @@ export class EventUserService {
     return this.http.delete<void>(`${this.baseUrl}/event-user/${eventId}/leave`, { withCredentials: true });
   }
 
-  getOrganizedEvents(): Observable<EventResponse[]> {
-    return this.http.get<EventResponse[]>(`${this.baseUrl}/event-user/organized`, { withCredentials: true });
-  }
+getOrganizedEvents(): Observable<EventResponse[]> {
+  return this.http.get<ApiResponse<EventResponse[]>>(
+      `${this.baseUrl}/event-user/organized`,
+      { withCredentials: true }
+    ).pipe(
+      map(res => res.data ?? []) // retourne un tableau TS-safe
+    );
+}
 
-  getParticipatingEvents(): Observable<EventResponse[]> {
-    return this.http.get<EventResponse[]>(`${this.baseUrl}/event-user/participating`, { withCredentials: true });
-  }
+getParticipatingEvents(): Observable<EventResponse[]> {
+  return this.http.get<ApiResponse<EventResponse[]>>(
+      `${this.baseUrl}/event-user/participating`,
+      { withCredentials: true }
+    ).pipe(
+      map(res => res.data ?? [])
+    );
+}
 }
