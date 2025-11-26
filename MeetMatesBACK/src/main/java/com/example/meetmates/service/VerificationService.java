@@ -5,9 +5,10 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import com.example.meetmates.exception.TokenExpiredException;
-import com.example.meetmates.exception.TokenNotFoundException;
-import com.example.meetmates.exception.UserAlreadyVerifiedException;
+import com.example.meetmates.exception.ConflictException;
+import com.example.meetmates.exception.ErrorCode;
+import com.example.meetmates.exception.NotFoundException;
+import com.example.meetmates.exception.UnauthorizedException;
 import com.example.meetmates.model.Token;
 import com.example.meetmates.model.TokenType;
 import com.example.meetmates.model.User;
@@ -25,10 +26,13 @@ public class VerificationService {
         this.tokenRepository = tokenRepository;
     }
 
-    // * Génère un token de vérification pour un utilisateur non vérifié
+    /**
+     * Génère un token de vérification pour un utilisateur non vérifié.
+     */
     public String createVerificationToken(User user) {
+
         if (user.isEnabled()) {
-            throw new UserAlreadyVerifiedException("Votre compte est déjà vérifié.");
+            throw new ConflictException(ErrorCode.USER_ALREADY_VERIFIED);
         }
 
         tokenRepository.deleteByUser_IdAndType(user.getId(), TokenType.VERIFICATION);
@@ -37,24 +41,26 @@ public class VerificationService {
                 UUID.randomUUID().toString(),
                 user,
                 Instant.now(),
-                Instant.now().plusSeconds(24 * 3600), // * Expire après 24h 
+                Instant.now().plusSeconds(24 * 3600),
                 TokenType.VERIFICATION
         );
 
         tokenRepository.save(token);
-
-        log.info("[VERIFY] Token de vérification créé pour user={}", user.getEmail());
+        log.info("[VERIFY] Token créé pour {}", user.getEmail());
 
         return token.getToken();
     }
 
-    // * Active le compte utilisateur si le token est valide et non expiré
-    public void confirmToken(String tokenString) {
-        Token token = tokenRepository.findByToken(tokenString)
-                .orElseThrow(() -> new TokenNotFoundException("Token invalide"));
+    /**
+     * Valide le token de confirmation.
+     */
+    public void confirmToken(String tokenValue) {
+
+        Token token = tokenRepository.findByToken(tokenValue)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.TOKEN_INVALID));
 
         if (token.getExpiresAt().isBefore(Instant.now())) {
-            throw new TokenExpiredException("Le lien de vérification a expiré.");
+            throw new UnauthorizedException(ErrorCode.TOKEN_EXPIRED);
         }
 
         User user = token.getUser();
@@ -62,6 +68,6 @@ public class VerificationService {
 
         tokenRepository.delete(token);
 
-        log.info("[VERIFY] User {} vérifié avec succès.", user.getEmail());
+        log.info("[VERIFY] Compte vérifié : {}", user.getEmail());
     }
 }

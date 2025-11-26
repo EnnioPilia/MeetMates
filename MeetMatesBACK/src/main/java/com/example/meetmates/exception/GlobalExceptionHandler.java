@@ -1,7 +1,10 @@
 package com.example.meetmates.exception;
 
 import java.time.Instant;
+import java.util.Locale;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -11,6 +14,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 import com.example.meetmates.dto.ErrorDto;
 
@@ -19,9 +23,11 @@ import jakarta.servlet.http.HttpServletRequest;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // * Méthode utilitaire pour construire les réponses JSON
-    private ResponseEntity<ErrorDto> build(HttpStatus status, String message) {
+    @Autowired
+    private MessageSource messageSource;
 
+    private ResponseEntity<ErrorDto> build(HttpStatus status, String code) {
+        String message = messageSource.getMessage(code, null, Locale.getDefault());
         String path = "unknown";
 
         var attributes = RequestContextHolder.getRequestAttributes();
@@ -43,118 +49,61 @@ public class GlobalExceptionHandler {
         );
     }
 
-    // 404 – Utilisateur non trouvé
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorDto> handleUserNotFound(UserNotFoundException ex) {
-        return build(HttpStatus.NOT_FOUND, ex.getMessage());
+    // ---- Exceptions Métier ----
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ErrorDto> handleNotFound(NotFoundException ex) {
+        return build(HttpStatus.NOT_FOUND, ex.getErrorCode().name());
     }
 
-    // 403 – Compte désactivé / non validé
-    @ExceptionHandler(UserDisabledException.class)
-    public ResponseEntity<ErrorDto> handleUserDisabled(UserDisabledException ex) {
-        return build(HttpStatus.FORBIDDEN, ex.getMessage());
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ErrorDto> handleConflict(ConflictException ex) {
+        return build(HttpStatus.CONFLICT, ex.getErrorCode().name());
     }
 
-    // 409 – Email déjà utilisé
-    @ExceptionHandler(EmailAlreadyUsedException.class)
-    public ResponseEntity<ErrorDto> handleEmailAlreadyUsed(EmailAlreadyUsedException ex) {
-        return build(HttpStatus.CONFLICT, ex.getMessage());
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ErrorDto> handleForbidden(ForbiddenException ex) {
+        return build(HttpStatus.FORBIDDEN, ex.getErrorCode().name());
     }
 
-    // 409 – Déjà participant
-    @ExceptionHandler(AlreadyParticipantException.class)
-    public ResponseEntity<ErrorDto> handleAlreadyParticipant(AlreadyParticipantException ex) {
-        return build(HttpStatus.CONFLICT, ex.getMessage());
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ErrorDto> handleUnauthorized(UnauthorizedException ex) {
+        return build(HttpStatus.UNAUTHORIZED, ex.getErrorCode().name());
     }
 
-    // 400 – Token invalide / expiré
-    @ExceptionHandler(InvalidTokenException.class)
-    public ResponseEntity<ErrorDto> handleInvalidToken(InvalidTokenException ex) {
-        return build(HttpStatus.BAD_REQUEST, ex.getMessage());
-    }
-
-    // 400 – Mauvais arguments
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorDto> handleIllegalArgument(IllegalArgumentException ex) {
-        return build(HttpStatus.BAD_REQUEST, ex.getMessage());
-    }
-
-    // 401 – Mauvais mot de passe
+    // ---- Spring Security ----
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorDto> handleBadCredentials(BadCredentialsException ex) {
-        return build(HttpStatus.UNAUTHORIZED, "Mauvais mot de passe.");
+        return build(HttpStatus.UNAUTHORIZED, ErrorCode.AUTH_BAD_PASSWORD.name());
     }
 
-    // 404 – Événement introuvable
-    @ExceptionHandler(EventNotFoundException.class)
-    public ResponseEntity<ErrorDto> handleEventNotFound(EventNotFoundException ex) {
-        return build(HttpStatus.NOT_FOUND, ex.getMessage());
-    }
-
-    // 404 – Activité introuvable
-    @ExceptionHandler(ActivityNotFoundException.class)
-    public ResponseEntity<ErrorDto> handleActivityNotFound(ActivityNotFoundException ex) {
-        return build(HttpStatus.NOT_FOUND, ex.getMessage());
-    }
-
-    // 404 – Catégorie introuvable
-    @ExceptionHandler(CategoryNotFoundException.class)
-    public ResponseEntity<ErrorDto> handleCategoryNotFound(CategoryNotFoundException ex) {
-        return build(HttpStatus.NOT_FOUND, ex.getMessage());
-    }
-
-    // 404 – Adresse introuvable
-    @ExceptionHandler(AddressNotFoundException.class)
-    public ResponseEntity<ErrorDto> handleAddressNotFound(AddressNotFoundException ex) {
-        return build(HttpStatus.NOT_FOUND, ex.getMessage());
-    }
-
-    // 500 – Erreur d'envoi d'email
-    @ExceptionHandler(EmailSendException.class)
-    public ResponseEntity<ErrorDto> handleEmailSend(EmailSendException ex) {
-        return build(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
-    }
-
-    @ExceptionHandler(TokenException.class)
-    public ResponseEntity<ErrorDto> handleToken(TokenException ex) {
-        return build(HttpStatus.BAD_REQUEST, ex.getMessage());
-    }
-
-    // 409 – Utilisateur déjà vérifié
-    @ExceptionHandler(UserAlreadyVerifiedException.class)
-    public ResponseEntity<ErrorDto> handleUserAlreadyVerified(UserAlreadyVerifiedException ex) {
-        return build(HttpStatus.CONFLICT, ex.getMessage());
-    }
-
-    @ExceptionHandler(UserBannedException.class)
-    public ResponseEntity<ErrorDto> handleUserBanned(UserBannedException ex) {
-        return build(HttpStatus.FORBIDDEN, ex.getMessage()); // HTTP 403
-    }
-
-    // Exceptions Spring Security encapsulées
     @ExceptionHandler(InternalAuthenticationServiceException.class)
     public ResponseEntity<ErrorDto> handleInternalAuth(InternalAuthenticationServiceException ex) {
-        Throwable cause = ex.getCause();
-        if (cause instanceof UserNotFoundException unf) {
-            return build(HttpStatus.NOT_FOUND, unf.getMessage());
-        }
-        return build(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+        return build(HttpStatus.UNAUTHORIZED, ErrorCode.AUTH_UNAUTHORIZED.name());
     }
 
-    // Pour capter ResponseStatusException que Spring lance parfois
+    // ---- Exceptions Spring génériques ----
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<ErrorDto> handleResponseStatus(ResponseStatusException ex) {
         HttpStatus status = HttpStatus.resolve(ex.getStatusCode().value());
-        return build(status != null ? status : HttpStatus.INTERNAL_SERVER_ERROR, ex.getReason());
+        return build(status != null ? status : HttpStatus.INTERNAL_SERVER_ERROR,
+                ex.getReason());
     }
 
-    // 500 – fallback générique
+    // ---- Fallback ----
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorDto> handleRuntime(RuntimeException ex) {
-        String message = "Une erreur interne est survenue, veuillez réessayer plus tard.";
-        if (ex.getMessage() != null && ex.getMessage().contains("orphan deletion")) {
-            message = "Impossible de créer l'utilisateur : un problème interne est survenu.";
-        }
-        return build(HttpStatus.INTERNAL_SERVER_ERROR, message);
+        return build(HttpStatus.INTERNAL_SERVER_ERROR, "internal.error");
+    }
+
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<ErrorDto> handleNoHandlerFound(NoHandlerFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ErrorDto(
+                        Instant.now(),
+                        HttpStatus.NOT_FOUND.value(),
+                        HttpStatus.NOT_FOUND.getReasonPhrase(),
+                        "La ressource demandée n'existe pas",
+                        ex.getRequestURL()
+                ));
     }
 }

@@ -5,7 +5,8 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import com.example.meetmates.exception.ActivityNotFoundException;
+import com.example.meetmates.exception.ErrorCode;
+import com.example.meetmates.exception.NotFoundException;
 import com.example.meetmates.model.Activity;
 import com.example.meetmates.repository.ActivityRepository;
 
@@ -14,7 +15,7 @@ public class ActivityService {
 
     private final ActivityRepository activityRepository;
 
-    public ActivityService(ActivityRepository activityRepository, CategoryService categoryService) {
+    public ActivityService(ActivityRepository activityRepository) {
         this.activityRepository = activityRepository;
     }
 
@@ -24,7 +25,7 @@ public class ActivityService {
 
     public Activity findById(UUID id) {
         return activityRepository.findById(id)
-                .orElseThrow(() -> new ActivityNotFoundException("Activité introuvable : "));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.ACTIVITY_NOT_FOUND));
     }
 
     public List<Activity> findByCategory(UUID categoryId) {
@@ -35,10 +36,5 @@ public class ActivityService {
         return activityRepository.save(activity);
     }
 
-    public void delete(UUID id) {
-        if (!activityRepository.existsById(id)) {
-            throw new ActivityNotFoundException("Activité introuvable : ");
-        }
-        activityRepository.deleteById(id);
-    }
+
 }

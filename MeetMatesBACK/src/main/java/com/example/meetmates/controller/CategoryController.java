@@ -1,20 +1,19 @@
 package com.example.meetmates.controller;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
+import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.meetmates.dto.ApiResponse;
 import com.example.meetmates.dto.CategoryDto;
 import com.example.meetmates.mapper.CategoryMapper;
-import com.example.meetmates.model.Category;
 import com.example.meetmates.service.CategoryService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -25,50 +24,41 @@ import lombok.extern.slf4j.Slf4j;
 public class CategoryController {
 
     private final CategoryService categoryService;
+    private final MessageSource messageSource;
 
-    public CategoryController(CategoryService categoryService) {
+    public CategoryController(CategoryService categoryService, MessageSource messageSource) {
         this.categoryService = categoryService;
+        this.messageSource = messageSource;
     }
 
-    // * Récupère toutes les catégories disponibles.
+    private String msg(String code) {
+        return messageSource.getMessage(code, null, Locale.getDefault());
+    }
+
+    // GET all categories
     @GetMapping
-    public ResponseEntity<List<CategoryDto>> getAll() {
+    public ResponseEntity<ApiResponse<List<CategoryDto>>> getAll() {
         log.info("[CATEGORY] Récupération de toutes les catégories");
 
+        var list = categoryService.findAll()
+                .stream()
+                .map(CategoryMapper::toDto)
+                .toList();
+
         return ResponseEntity.ok(
-                categoryService.findAll()
-                        .stream()
-                        .map(CategoryMapper::toDto)
-                        .toList()
+                new ApiResponse<>(msg("CATEGORY_LIST_SUCCESS"), list)
         );
     }
 
-    // * Récupère une catégorie par son ID.
+    // GET category by id
     @GetMapping("/{id}")
-    public ResponseEntity<CategoryDto> getById(@PathVariable UUID id) {
+    public ResponseEntity<ApiResponse<CategoryDto>> getById(@PathVariable UUID id) {
         log.info("[CATEGORY] Récupération de la catégorie {}", id);
 
-        Category category = categoryService.findById(id);
-        return ResponseEntity.ok(CategoryMapper.toDto(category));
-    }
+        var category = CategoryMapper.toDto(categoryService.findById(id));
 
-    // * Crée une nouvelle catégorie.
-    @PostMapping
-    public ResponseEntity<CategoryDto> create(@RequestBody CategoryDto dto) {
-        log.info("[CATEGORY] Création d'une catégorie : {}", dto.getName());
-
-        Category category = CategoryMapper.fromDto(dto);
-        Category saved = categoryService.save(category);
-
-        return ResponseEntity.ok(CategoryMapper.toDto(saved));
-    }
-
-    // * Supprime une catégorie existante.
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        log.warn("[CATEGORY] Suppression de la catégorie {}", id);
-
-        categoryService.delete(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(
+                new ApiResponse<>(msg("CATEGORY_GET_SUCCESS"), category)
+        );
     }
 }

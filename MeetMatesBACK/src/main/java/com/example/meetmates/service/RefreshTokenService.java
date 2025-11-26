@@ -1,14 +1,14 @@
 package com.example.meetmates.service;
 
 import java.time.Instant;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.example.meetmates.exception.InvalidTokenException;
-import com.example.meetmates.exception.TokenExpiredException;
-import com.example.meetmates.exception.TokenNotFoundException;
+import com.example.meetmates.exception.ConflictException;
+import com.example.meetmates.exception.ErrorCode;
+import com.example.meetmates.exception.NotFoundException;
 import com.example.meetmates.model.Token;
 import com.example.meetmates.model.TokenType;
 import com.example.meetmates.model.User;
@@ -26,59 +26,63 @@ public class RefreshTokenService {
         this.tokenRepository = tokenRepository;
     }
 
-    // * Recherche un refresh token avec l'utilisateur chargé (JOIN FETCH)
-    public Optional<Token> findByToken(String token) {
-        return tokenRepository.findByTokenWithUser(token);
-    }
-
-    // * Vérifie si un refresh token est expiré
-    public boolean isExpired(Token token) {
-        return token.getExpiresAt().isBefore(Instant.now());
-    }
-
-    // * Génère un nouveau refresh token 
+    /**
+     * Crée un refresh token unique pour un utilisateur.
+     * (Supprime les anciens pour éviter les doublons)
+     */
+    @Transactional
     public Token createRefreshToken(User user) {
+
+        // Efface les refresh tokens précédents
+        tokenRepository.deleteByUser_IdAndType(user.getId(), TokenType.REFRESH);
+
         Token token = new Token(
                 UUID.randomUUID().toString(),
                 user,
                 Instant.now(),
-                Instant.now().plusSeconds(7 * 24 * 3600),
+                Instant.now().plusSeconds(7 * 24 * 3600), // 7 jours
                 TokenType.REFRESH
         );
 
         token.setUsed(false);
+
         Token saved = tokenRepository.save(token);
 
         log.info("[REFRESH] Nouveau refresh token créé pour user={}", user.getEmail());
-
         return saved;
     }
 
-    // * Valide un refresh token existant
-    public Token validateRefreshToken(String tokenString) {
+    /**
+     * Retourne un refresh token valide (non expiré, non utilisé).
+     */
+    @Transactional(readOnly = true)
+    public Token getValidRefreshToken(String tokenString) {
 
         Token token = tokenRepository.findByTokenWithUser(tokenString)
-                .orElseThrow(() -> new TokenNotFoundException("Refresh token invalide"));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.TOKEN_NOT_FOUND));
 
         if (token.isUsed()) {
-            throw new InvalidTokenException("Refresh token déjà utilisé.");
+            throw new ConflictException(ErrorCode.TOKEN_INVALID);
         }
-        Instant now = Instant.now();
 
-        if (token.getExpiresAt().isBefore(now)) {
-            throw new TokenExpiredException("Refresh token expiré");
+        if (token.getExpiresAt().isBefore(Instant.now())) {
+            throw new ConflictException(ErrorCode.TOKEN_EXPIRED);
         }
 
         return token;
     }
 
-    // * Invalide l'ancien refresh token et en génère un nouveau
-    public Token rotateToken(Token oldToken) {
+    /**
+     * Rotation : invalide l'ancien refresh token et en génère un nouveau.
+     */
+    @Transactional
+    public Token rotateRefreshToken(Token oldToken) {
+
         oldToken.setUsed(true);
+        oldToken.setConfirmedAt(Instant.now());
         tokenRepository.save(oldToken);
 
-        log.info("[REFRESH] Rotation du refresh token pour user={}",
-                oldToken.getUser().getEmail());
+        log.info("[REFRESH] Rotation du refresh token pour user={}", oldToken.getUser().getEmail());
 
         return createRefreshToken(oldToken.getUser());
     }

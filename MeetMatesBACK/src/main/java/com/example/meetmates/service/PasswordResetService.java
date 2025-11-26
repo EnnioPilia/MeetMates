@@ -7,10 +7,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.meetmates.exception.InvalidTokenException;
-import com.example.meetmates.exception.TokenExpiredException;
-import com.example.meetmates.exception.TokenNotFoundException;
-import com.example.meetmates.exception.UserNotFoundException;
+import com.example.meetmates.exception.ConflictException;
+import com.example.meetmates.exception.ErrorCode;
+import com.example.meetmates.exception.NotFoundException;
 import com.example.meetmates.model.Token;
 import com.example.meetmates.model.TokenType;
 import com.example.meetmates.model.User;
@@ -42,16 +41,16 @@ public class PasswordResetService {
         this.emailService = emailService;
     }
 
-    // ---------------------------------------------
-    // CREATE RESET TOKEN (email → token envoyé)
-    // ---------------------------------------------
+    /**
+     * Génère un token de réinitialisation (PASSWORD_RESET) et envoie l'email.
+     */
+    @Transactional
     public void createPasswordResetToken(String email) {
 
         User user = userRepository.findByEmail(email.toLowerCase())
-                .orElseThrow(() ->
-                        new UserNotFoundException("Aucun utilisateur trouvé avec cet email."));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
 
-        // Supprime les anciens tokens du même type
+        // Supprime les anciens tokens PASSWORD_RESET
         tokenRepository.deleteByUser_IdAndType(user.getId(), TokenType.PASSWORD_RESET);
 
         String tokenString = UUID.randomUUID().toString();
@@ -63,32 +62,39 @@ public class PasswordResetService {
 
         log.info("[RESET] Token généré pour {} (expire dans {} min)", user.getEmail(), EXPIRATION_MINUTES);
 
-        emailService.sendPasswordResetEmail(user.getEmail(), tokenString);
+        try {
+            emailService.sendPasswordResetEmail(user.getEmail(), tokenString);
+        } catch (Exception e) {
+            log.error("[RESET] Erreur envoi email pour {}", user.getEmail(), e);
+            throw new RuntimeException("Erreur lors de l'envoi de l'email de réinitialisation.");
+        }
     }
 
-    // ---------------------------------------------
-    // RESET PASSWORD (token + newPassword)
-    // ---------------------------------------------
+    /**
+     * Réinitialise le mot de passe après validation du token.
+     */
     @Transactional
     public void resetPassword(String tokenString, String newPassword) {
 
         Token token = tokenRepository.findByToken(tokenString)
-                .orElseThrow(() ->
-                        new TokenNotFoundException("Token invalide."));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.TOKEN_NOT_FOUND));
 
+        // Vérifie type
         if (token.getType() != TokenType.PASSWORD_RESET) {
-            throw new InvalidTokenException("Ce token n'est pas un token de réinitialisation.");
+            throw new ConflictException(ErrorCode.TOKEN_INVALID);
         }
 
-        Instant now = Instant.now();
-        if (token.getExpiresAt().isBefore(now)) {
-            throw new TokenExpiredException("Le lien de réinitialisation a expiré.");
+        // Vérifie expiration
+        if (token.getExpiresAt().isBefore(Instant.now())) {
+            throw new ConflictException(ErrorCode.TOKEN_EXPIRED);
         }
 
+        // Met à jour le mot de passe
         User user = token.getUser();
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
 
+        // Supprime le token après utilisation
         tokenRepository.delete(token);
 
         log.info("[RESET] Mot de passe réinitialisé pour {}", user.getEmail());

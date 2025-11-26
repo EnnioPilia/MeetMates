@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.meetmates.dto.ApiResponse;
 import com.example.meetmates.dto.PasswordResetConfirmDto;
 import com.example.meetmates.dto.PasswordResetRequestDto;
+import com.example.meetmates.service.MessageService;
 import com.example.meetmates.service.PasswordResetService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -19,44 +20,31 @@ import lombok.extern.slf4j.Slf4j;
 public class PasswordResetController {
 
     private final PasswordResetService passwordResetService;
+    private final MessageService messageService;
 
-    public PasswordResetController(PasswordResetService passwordResetService) {
+    public PasswordResetController(PasswordResetService passwordResetService,
+                                   MessageService messageService) {
         this.passwordResetService = passwordResetService;
+        this.messageService = messageService;
     }
 
-    // ---------------------------------------------
-    // REQUEST RESET (email → token envoyé)
-    // ---------------------------------------------
     @PostMapping("/request-reset")
-    public ResponseEntity<ApiResponse<Void>> requestReset(
-            @RequestBody PasswordResetRequestDto request) {
-
+    public ResponseEntity<ApiResponse<Void>> requestReset(@RequestBody PasswordResetRequestDto request) {
         log.info("[PASSWORD] Demande de réinitialisation pour {}", request.getEmail());
-
         passwordResetService.createPasswordResetToken(request.getEmail());
+        log.info("[PASSWORD] Token envoyé pour {}", request.getEmail());
 
-        log.info("[PASSWORD] Token de réinitialisation envoyé à {}", request.getEmail());
-
-        return ResponseEntity.ok(
-                new ApiResponse<>("Email envoyé : vérifiez votre boîte mail", null)
-        );
+        String message = messageService.get("password.reset.request_success");
+        return ResponseEntity.ok(new ApiResponse<>(message, null));
     }
 
-    // ---------------------------------------------
-    // RESET PASSWORD (token + newPassword)
-    // ---------------------------------------------
     @PostMapping("/reset-password")
-    public ResponseEntity<ApiResponse<Void>> resetPassword(
-            @RequestBody PasswordResetConfirmDto dto) {
-
+    public ResponseEntity<ApiResponse<Void>> resetPassword(@RequestBody PasswordResetConfirmDto dto) {
         log.info("[PASSWORD] Tentative de réinitialisation du mot de passe");
-
         passwordResetService.resetPassword(dto.getToken(), dto.getNewPassword());
-
         log.info("[PASSWORD] Mot de passe réinitialisé avec succès");
 
-        return ResponseEntity.ok(
-                new ApiResponse<>("Mot de passe réinitialisé avec succès", null)
-        );
+        String message = messageService.get("password.reset.confirm_success");
+        return ResponseEntity.ok(new ApiResponse<>(message, null));
     }
 }

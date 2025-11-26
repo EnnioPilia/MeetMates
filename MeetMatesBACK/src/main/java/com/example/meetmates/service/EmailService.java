@@ -8,7 +8,8 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import com.example.meetmates.exception.EmailSendException;
+import com.example.meetmates.exception.ConflictException;
+import com.example.meetmates.exception.ErrorCode;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -67,23 +68,25 @@ public class EmailService {
 
 
     // * Méthode générique pour envoyer un email HTML
-    private void sendHtmlEmail(String toEmail, String subject, String htmlContent) {
-        try {
-            MimeMessage mimeMessage = mailSender.createMimeMessage();
-            MimeMessageHelper helper =
-                    new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, "UTF-8");
+   private void sendHtmlEmail(String toEmail, String subject, String htmlContent) {
+    try {
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper helper =
+                new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, "UTF-8");
 
-            helper.setFrom(fromEmail);
-            helper.setTo(toEmail);
-            helper.setSubject(subject);
-            helper.setText(htmlContent, true); // true = HTML
+        helper.setFrom(fromEmail);
+        helper.setTo(toEmail);
+        helper.setSubject(subject);
+        helper.setText(htmlContent, true);
 
-            mailSender.send(mimeMessage);
-            log.info("Email HTML envoyé à {}", toEmail);
+        mailSender.send(mimeMessage);
+        log.info("Email HTML envoyé à {}", toEmail);
 
-        } catch (MessagingException | MailException e) {
-            log.error("Erreur lors de l'envoi de l'e-mail HTML à {} : {}", toEmail, e.getMessage());
-            throw new EmailSendException("Impossible d'envoyer l'email à : " + toEmail);
-        }
+    } catch (MessagingException | MailException e) {
+        log.error("Erreur lors de l'envoi de l'e-mail HTML à {} : {}", toEmail, e.getMessage());
+
+        throw new ConflictException(ErrorCode.EMAIL_SEND_FAILED);
     }
+}
+
 }

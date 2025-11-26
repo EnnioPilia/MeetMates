@@ -14,76 +14,98 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.meetmates.dto.ApiResponse;
 import com.example.meetmates.dto.EventDetailsDto;
 import com.example.meetmates.dto.EventRequestDto;
 import com.example.meetmates.dto.EventResponseDto;
 import com.example.meetmates.service.EventService;
+import com.example.meetmates.service.MessageService;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/event")
+@RequiredArgsConstructor
 @Slf4j
 public class EventController {
 
     private final EventService eventService;
+    private final MessageService messageService;
 
-    public EventController(EventService eventService) {
-        this.eventService = eventService;
-    }
-
-    // * Création d’un nouvel événement
+    // ---------------------------------------------------------
+    // CREATE EVENT
+    // ---------------------------------------------------------
     @PostMapping
-    public ResponseEntity<EventResponseDto> createEvent(@RequestBody EventRequestDto req) {
-        log.info("[EVENT CTRL] POST /event – Création d’un événement");
-        return ResponseEntity.ok(eventService.createEvent(req));
+    public ResponseEntity<ApiResponse<EventResponseDto>> create(@RequestBody EventRequestDto request) {
+        EventResponseDto dto = eventService.createEvent(request);
+        log.info("Événement créé : {}");
+        String message = messageService.get("event.create.success");
+        return ResponseEntity.ok(new ApiResponse<>(message, dto));
     }
 
-
-    // * Récupère la liste de tous les événements
+    // ---------------------------------------------------------
+    // GET ALL EVENTS
+    // ---------------------------------------------------------
     @GetMapping
-    public ResponseEntity<List<EventResponseDto>> getAllEvents() {
-        log.info("[EVENT CTRL] GET /event – Récupération de tous les événements");
-        return ResponseEntity.ok(eventService.findAllResponses());
+    public ResponseEntity<ApiResponse<List<EventResponseDto>>> findAll() {
+        List<EventResponseDto> dtos = eventService.findAllResponses();
+        String message = messageService.get("event.list.success");
+        return ResponseEntity.ok(new ApiResponse<>(message, dtos));
     }
 
-
-    // * Récupère un événement par son ID
-    @GetMapping("/{id}")
-    public ResponseEntity<EventDetailsDto> getEventById(@PathVariable UUID id) {
-        log.info("[EVENT CTRL] GET /event/{} – Détails de l’événement", id);
-        return ResponseEntity.ok(eventService.findEventDetailsById(id));
+    // ---------------------------------------------------------
+    // GET EVENT DETAILS BY ID
+    // ---------------------------------------------------------
+    @GetMapping("/{eventId}")
+    public ResponseEntity<ApiResponse<EventDetailsDto>> findById(@PathVariable UUID eventId) {
+        EventDetailsDto dto = eventService.findEventDetailsById(eventId);
+        String message = messageService.get("event.get.success");
+        return ResponseEntity.ok(new ApiResponse<>(message, dto));
     }
 
-
-    // * Récupère tous les événements liés à une activité
+    // ---------------------------------------------------------
+    // GET EVENTS BY ACTIVITY ID
+    // ---------------------------------------------------------
     @GetMapping("/activity/{activityId}")
-    public ResponseEntity<List<EventResponseDto>> getEventsByActivity(@PathVariable UUID activityId) {
-        log.info("[EVENT CTRL] GET /event/activity/{} – Événements par activité", activityId);
-        return ResponseEntity.ok(eventService.getEventResponsesByActivity(activityId));
+    public ResponseEntity<ApiResponse<List<EventResponseDto>>> findByActivity(@PathVariable UUID activityId) {
+        List<EventResponseDto> dtos = eventService.getEventResponsesByActivity(activityId);
+        String message = messageService.get("event.by_activity.success");
+        return ResponseEntity.ok(new ApiResponse<>(message, dtos));
     }
 
-
-    // * Mise à jour d’un événement existant
-    @PutMapping("/{id}")
-    public ResponseEntity<EventResponseDto> updateEvent(
-            @PathVariable UUID id, @RequestBody EventRequestDto updatedEvent) {
-        log.info("[EVENT CTRL] PUT /event/{} – Mise à jour de l’événement", id);
-        return ResponseEntity.ok(eventService.updateEvent(id, updatedEvent));
+    // ---------------------------------------------------------
+    // UPDATE EVENT
+    // ---------------------------------------------------------
+    @PutMapping("/{eventId}")
+    public ResponseEntity<ApiResponse<EventResponseDto>> update(
+            @PathVariable UUID eventId,
+            @RequestBody EventRequestDto request
+    ) {
+        EventResponseDto dto = eventService.updateEvent(eventId, request);
+        log.info("Événement mis à jour : {}");
+        String message = messageService.get("event.update.success");
+        return ResponseEntity.ok(new ApiResponse<>(message, dto));
     }
 
-    // * Suppression d’un événement par ID
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteEvent(@PathVariable UUID id) {
-        log.warn("[EVENT CTRL] DELETE /event/{} – Suppression d’un événement", id);
-        eventService.delete(id);
-        return ResponseEntity.noContent().build();
+    // ---------------------------------------------------------
+    // DELETE EVENT
+    // ---------------------------------------------------------
+    @DeleteMapping("/{eventId}")
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable UUID eventId) {
+        eventService.delete(eventId);
+        log.info("Événement supprimé : {}", eventId);
+        String message = messageService.get("event.delete.success");
+        return ResponseEntity.ok(new ApiResponse<>(message, null));
     }
 
-    // *  Recherche d’événements par mot-clé
+    // ---------------------------------------------------------
+    // SEARCH
+    // ---------------------------------------------------------
     @GetMapping("/search")
-    public ResponseEntity<List<EventResponseDto>> searchEvents(@RequestParam String query) {
-        log.info("[EVENT CTRL] GET /event/search – Recherche : '{}'", query);
-        return ResponseEntity.ok(eventService.searchEvents(query));
+    public ResponseEntity<ApiResponse<List<EventResponseDto>>> search(@RequestParam String query) {
+        List<EventResponseDto> dtos = eventService.searchEvents(query);
+        String message = messageService.get("event.search.success");
+        return ResponseEntity.ok(new ApiResponse<>(message, dtos));
     }
 }

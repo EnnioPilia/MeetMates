@@ -2,9 +2,7 @@ package com.example.meetmates.service;
 
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,10 +12,11 @@ import com.example.meetmates.config.JWTUtils;
 import com.example.meetmates.dto.LoginRequestDto;
 import com.example.meetmates.dto.LoginResponseDto;
 import com.example.meetmates.dto.RegisterRequestDto;
-import com.example.meetmates.exception.EmailAlreadyUsedException;
-import com.example.meetmates.exception.UserBannedException;
-import com.example.meetmates.exception.UserDisabledException;
-import com.example.meetmates.exception.UserNotFoundException;
+import com.example.meetmates.exception.ConflictException;
+import com.example.meetmates.exception.ErrorCode;
+import com.example.meetmates.exception.ForbiddenException;
+import com.example.meetmates.exception.NotFoundException;
+import com.example.meetmates.exception.UnauthorizedException;
 import com.example.meetmates.model.Token;
 import com.example.meetmates.model.User;
 import com.example.meetmates.model.UserRole;
@@ -25,49 +24,59 @@ import com.example.meetmates.model.UserStatus;
 import com.example.meetmates.repository.UserRepository;
 
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Service
 public class AuthService {
 
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
-    private JWTUtils jwtUtils;
-    @Autowired
-    private AuthenticationManager authenticationManager;
-    @Autowired
-    private EmailService emailService;
-    @Autowired
-    private VerificationService verificationService;
-    @Autowired
-    private RefreshTokenService refreshTokenService;
-    @Autowired
-    private CookieService cookieService;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JWTUtils jwtUtils;
+    private final AuthenticationManager authenticationManager;
+    private final EmailService emailService;
+    private final VerificationService verificationService;
+    private final RefreshTokenService refreshTokenService;
+    private final CookieService cookieService;
 
-    // REGISTER
+    public AuthService(UserRepository userRepository,
+                       PasswordEncoder passwordEncoder,
+                       JWTUtils jwtUtils,
+                       AuthenticationManager authenticationManager,
+                       EmailService emailService,
+                       VerificationService verificationService,
+                       RefreshTokenService refreshTokenService,
+                       CookieService cookieService) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtUtils = jwtUtils;
+        this.authenticationManager = authenticationManager;
+        this.emailService = emailService;
+        this.verificationService = verificationService;
+        this.refreshTokenService = refreshTokenService;
+        this.cookieService = cookieService;
+    }
+
+    /**
+     * Enregistre ou restaure un compte.
+     * Retourne la clé de message (ex: "auth.register.success").
+     */
     @Transactional
-    public void register(RegisterRequestDto request) {
-
+    public String register(RegisterRequestDto request) {
         String email = request.getEmail().toLowerCase();
-
         Optional<User> existingUserOpt = userRepository.findByEmail(email);
 
         if (existingUserOpt.isPresent()) {
             User user = existingUserOpt.get();
 
             if (user.getStatus() == UserStatus.BANNED) {
-                throw new UserBannedException("Cet utilisateur est banni.");
+                throw new ForbiddenException(ErrorCode.USER_BANNED);
             }
 
             if (user.getDeletedAt() == null) {
-                throw new EmailAlreadyUsedException("Eeeeeeeeeemail déjà utilisé.");
+                // compte actif et email déjà utilisé
+                throw new ConflictException(ErrorCode.USER_EMAIL_USED);
             }
 
-            // Restore compte supprimé
+            // Restaurer compte supprimé
             user.setFirstName(request.getFirstName());
             user.setLastName(request.getLastName());
             user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -84,7 +93,7 @@ public class AuthService {
             String token = verificationService.createVerificationToken(user);
             emailService.sendVerificationEmail(user.getEmail(), token);
 
-            return;
+            return "auth.register.success";
         }
 
         // Nouveau compte
@@ -102,33 +111,35 @@ public class AuthService {
 
         String token = verificationService.createVerificationToken(user);
         emailService.sendVerificationEmail(user.getEmail(), token);
+
+        return "auth.register.success";
     }
 
-    // LOGIN
+    /**
+     * Authentifie et positionne les cookies. Retourne le DTO contenant l'access token.
+     */
     @Transactional
     public LoginResponseDto login(LoginRequestDto request, HttpServletResponse response) {
-
         String email = request.getEmail().toLowerCase();
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("Uuuuuuuuuuuutilisateur non trouvé."));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
 
         if (user.getStatus() == UserStatus.BANNED) {
-            throw new UserBannedException("Uuuuuuuuuuuutilisateur banni.");
+            throw new ForbiddenException(ErrorCode.USER_BANNED);
         }
         if (user.getDeletedAt() != null) {
-            throw new UserDisabledException("Ccccccccccccccompte supprimé.");
+            throw new ForbiddenException(ErrorCode.USER_DISABLED);
         }
-
         if (!user.isEnabled()) {
-            throw new UserDisabledException("Ccccccccccccompte non vérifié.");
+            throw new ForbiddenException(ErrorCode.USER_DISABLED);
         }
 
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(email, request.getPassword()));
-        } catch (BadCredentialsException e) {
-            throw new BadCredentialsException("Iiiiiiiiiiiiiidentifiants invalides.");
+        } catch (org.springframework.security.authentication.BadCredentialsException ex) {
+            throw new UnauthorizedException(ErrorCode.AUTH_BAD_PASSWORD);
         }
 
         String role = user.getRole().name().toLowerCase();
@@ -146,14 +157,20 @@ public class AuthService {
         return new LoginResponseDto(jwt);
     }
 
-    // VERIFY EMAIL
+    /**
+     * Vérifie le token de confirmation et retourne la clé message.
+     */
     @Transactional
-    public void verifyUser(String token) {
+    public String verifyUser(String token) {
         verificationService.confirmToken(token);
+        return "auth.verify.success";
     }
 
-    // LOGOUT
-    public void logout(HttpServletResponse response) {
+    /**
+     * Logout : supprime cookies et retourne la clé message.
+     */
+    public String logout(HttpServletResponse response) {
         cookieService.clearAuthCookies(response);
+        return "auth.logout.success";
     }
 }

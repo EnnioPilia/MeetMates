@@ -3,9 +3,7 @@ package com.example.meetmates.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,13 +12,14 @@ import com.example.meetmates.dto.EventDetailsDto;
 import com.example.meetmates.dto.EventRequestDto;
 import com.example.meetmates.dto.EventResponseDto;
 import com.example.meetmates.dto.EventUserDto;
-import com.example.meetmates.exception.ActivityNotFoundException;
-import com.example.meetmates.exception.EventNotFoundException;
-import com.example.meetmates.exception.UserNotFoundException;
+import com.example.meetmates.exception.ErrorCode;
+import com.example.meetmates.exception.NotFoundException;
 import com.example.meetmates.mapper.EventMapper;
 import com.example.meetmates.model.Address;
 import com.example.meetmates.model.Event;
 import com.example.meetmates.model.EventUser;
+import com.example.meetmates.model.EventUser.ParticipantRole;
+import com.example.meetmates.model.EventUser.ParticipationStatus;
 import com.example.meetmates.model.User;
 import com.example.meetmates.repository.ActivityRepository;
 import com.example.meetmates.repository.AddressRepository;
@@ -30,8 +29,8 @@ import com.example.meetmates.repository.UserRepository;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Service
+@Slf4j
 public class EventService {
 
     private final EventRepository eventRepository;
@@ -41,14 +40,12 @@ public class EventService {
     private final EventUserRepository eventUserRepository;
     private final EventMapper eventMapper;
 
-    public EventService(
-            EventRepository eventRepository,
-            ActivityRepository activityRepository,
-            AddressRepository addressRepository,
-            UserRepository userRepository,
-            EventUserRepository eventUserRepository,
-            EventMapper eventMapper
-    ) {
+    public EventService(EventRepository eventRepository,
+                        ActivityRepository activityRepository,
+                        AddressRepository addressRepository,
+                        UserRepository userRepository,
+                        EventUserRepository eventUserRepository,
+                        EventMapper eventMapper) {
         this.eventRepository = eventRepository;
         this.activityRepository = activityRepository;
         this.addressRepository = addressRepository;
@@ -57,17 +54,16 @@ public class EventService {
         this.eventMapper = eventMapper;
     }
 
-    // * Crée un nouvel événement
+    // ----------------------------------------------------------------------
+    // CREATE EVENT
+    // ----------------------------------------------------------------------
     @Transactional
     public EventResponseDto createEvent(EventRequestDto req) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        log.info("Tentative de création d'événement par {}", auth.getName());
 
-        User organizer = userRepository.findByEmail(auth.getName())
-                .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé"));
+        User organizer = getAuthenticatedUser();
 
         var activity = activityRepository.findById(req.getActivityId())
-                .orElseThrow(() -> new ActivityNotFoundException("Activité introuvable"));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.ACTIVITY_NOT_FOUND));
 
         Address address = addressRepository.save(req.getAddress());
 
@@ -85,12 +81,15 @@ public class EventService {
         event.setAddress(address);
 
         Event saved = eventRepository.save(event);
+
         addOrganizer(saved, organizer);
 
         return eventMapper.toResponse(saved);
     }
 
-    // * Retourne tous les événements avec leurs détails
+    // ----------------------------------------------------------------------
+    // FIND ALL
+    // ----------------------------------------------------------------------
     @Transactional(readOnly = true)
     public List<EventResponseDto> findAllResponses() {
         return eventRepository.findAllWithDetails()
@@ -99,45 +98,43 @@ public class EventService {
                 .toList();
     }
 
-    // * Retourne les détails complets d'un événement par ID
+    // ----------------------------------------------------------------------
+    // FIND DETAILS BY ID
+    // ----------------------------------------------------------------------
     @Transactional(readOnly = true)
-    public EventDetailsDto findEventDetailsById(UUID id) {
+    public EventDetailsDto findEventDetailsById(UUID eventId) {
 
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        var user = userRepository.findByEmail(auth.getName()).orElse(null);
+        Event event = eventRepository.findByIdWithAllRelations(eventId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.EVENT_NOT_FOUND));
 
-        Event event = eventRepository.findByIdWithAllRelations(id)
-                .orElseThrow(() -> new EventNotFoundException("Événement introuvable ou supprimé."));
+        User user = getAuthenticatedUserOrNull();
 
-        String participationStatus = null;
-        if (user != null) {
-            participationStatus = event.getParticipants().stream()
-                    .filter(p -> p.getUser().getId().equals(user.getId()))
-                    .map(p -> p.getParticipationStatus().name())
-                    .findFirst()
-                    .orElse("NOT_PARTICIPATING");
-        }
+        String participationStatus = event.getParticipants().stream()
+                .filter(p -> user != null && p.getUser().getId().equals(user.getId()))
+                .map(p -> p.getParticipationStatus().name())
+                .findFirst()
+                .orElse("NOT_PARTICIPATING");
 
         String organizerName = event.getParticipants().stream()
-                .filter(p -> p.getRole() == EventUser.ParticipantRole.ORGANIZER)
-                .findFirst()
+                .filter(p -> p.getRole() == ParticipantRole.ORGANIZER)
                 .map(p -> p.getUser().getFirstName() + " " + p.getUser().getLastName())
+                .findFirst()
                 .orElse("Inconnu");
 
         List<EventUserDto> accepted = event.getParticipants().stream()
-                .filter(p -> p.getParticipationStatus() == EventUser.ParticipationStatus.ACCEPTED)
+                .filter(p -> p.getParticipationStatus() == ParticipationStatus.ACCEPTED)
                 .map(eventMapper::EventUserDto)
-                .collect(Collectors.toList());
+                .toList();
 
         List<EventUserDto> pending = event.getParticipants().stream()
-                .filter(p -> p.getParticipationStatus() == EventUser.ParticipationStatus.PENDING)
+                .filter(p -> p.getParticipationStatus() == ParticipationStatus.PENDING)
                 .map(eventMapper::EventUserDto)
-                .collect(Collectors.toList());
+                .toList();
 
         List<EventUserDto> rejected = event.getParticipants().stream()
-                .filter(p -> p.getParticipationStatus() == EventUser.ParticipationStatus.REJECTED)
+                .filter(p -> p.getParticipationStatus() == ParticipationStatus.REJECTED)
                 .map(eventMapper::EventUserDto)
-                .collect(Collectors.toList());
+                .toList();
 
         return new EventDetailsDto(
                 event.getId(),
@@ -149,9 +146,9 @@ public class EventService {
                 event.getAddress() != null ? event.getAddress().getFullAddress() : null,
                 event.getActivity() != null ? event.getActivity().getName() : null,
                 organizerName,
-                event.getLevel().toString(),
-                event.getMaterial().toString(),
-                event.getStatus().toString(),
+                String.valueOf(event.getLevel()),
+                String.valueOf(event.getMaterial()),
+                String.valueOf(event.getStatus()),
                 event.getMaxParticipants(),
                 participationStatus,
                 accepted,
@@ -160,30 +157,41 @@ public class EventService {
         );
     }
 
-    // * Liste tous les événements liés à une activité
+    // ----------------------------------------------------------------------
+    // EVENTS BY ACTIVITY
+    // ----------------------------------------------------------------------
     @Transactional(readOnly = true)
     public List<EventResponseDto> getEventResponsesByActivity(UUID activityId) {
+
+        activityRepository.findById(activityId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.ACTIVITY_NOT_FOUND));
+
         return eventRepository.findByActivityIdWithDetails(activityId)
                 .stream()
                 .map(eventMapper::toResponse)
                 .toList();
     }
 
-    // * Supprime un événement par ID
+    // ----------------------------------------------------------------------
+    // DELETE EVENT
+    // ----------------------------------------------------------------------
     @Transactional
-    public void delete(UUID id) {
-        log.info("Demande de suppression de l'événement {}", id);
+    public void delete(UUID eventId) {
 
-        if (!eventRepository.existsById(id)) {
-            throw new EventNotFoundException("Impossible de supprimer : événement introuvable.");
-        }
-        eventRepository.deleteById(id);
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.EVENT_NOT_FOUND));
+
+        eventRepository.delete(event);
     }
 
-    // * Met à jour un événement existant
-    public EventResponseDto updateEvent(UUID id, EventRequestDto updatedEvent) {
-        Event event = eventRepository.findById(id)
-                .orElseThrow(() -> new EventNotFoundException("Événement introuvable"));
+    // ----------------------------------------------------------------------
+    // UPDATE EVENT
+    // ----------------------------------------------------------------------
+    @Transactional
+    public EventResponseDto updateEvent(UUID eventId, EventRequestDto updatedEvent) {
+
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.EVENT_NOT_FOUND));
 
         event.setTitle(updatedEvent.getTitle());
         event.setDescription(updatedEvent.getDescription());
@@ -196,50 +204,67 @@ public class EventService {
         event.setLevel(updatedEvent.getLevel());
 
         if (updatedEvent.getAddress() != null) {
-            Address existing = event.getAddress() != null ? event.getAddress() : new Address();
-            Address newAddr = updatedEvent.getAddress();
-
-            existing.setStreet(newAddr.getStreet());
-            existing.setPostalCode(newAddr.getPostalCode());
-            existing.setCity(newAddr.getCity());
-            event.setAddress(existing);
+            Address addr = event.getAddress() != null ? event.getAddress() : new Address();
+            addr.setStreet(updatedEvent.getAddress().getStreet());
+            addr.setPostalCode(updatedEvent.getAddress().getPostalCode());
+            addr.setCity(updatedEvent.getAddress().getCity());
+            event.setAddress(addr);
         }
 
         if (updatedEvent.getActivityId() != null) {
             var activity = activityRepository.findById(updatedEvent.getActivityId())
-                    .orElseThrow(() -> new ActivityNotFoundException("Activité introuvable"));
+                    .orElseThrow(() -> new NotFoundException(ErrorCode.ACTIVITY_NOT_FOUND));
             event.setActivity(activity);
         }
 
-        Event saved = eventRepository.save(event);
-        return eventMapper.toResponse(saved);
+        return eventMapper.toResponse(eventRepository.save(event));
     }
 
-    // * Recherche des événements par mot-clé
+    // ----------------------------------------------------------------------
+    // SEARCH
+    // ----------------------------------------------------------------------
+    @Transactional(readOnly = true)
     public List<EventResponseDto> searchEvents(String query) {
-        if (query == null || query.isBlank()) {
-            return List.of();
-        }
+        if (query == null || query.isBlank()) return List.of();
+
         return eventRepository.searchEvents(query.trim().toLowerCase())
                 .stream()
                 .map(eventMapper::toResponse)
                 .toList();
     }
 
-    // * Ajoute l'organisateur d'un événement dans la table EventUser
+    // ----------------------------------------------------------------------
+    // INTERNAL METHODS
+    // ----------------------------------------------------------------------
     private void addOrganizer(Event event, User organizer) {
-        EventUser link = new EventUser();
-        link.setEvent(event);
-        link.setUser(organizer);
-        link.setUserEmail(organizer.getEmail());
-        link.setRole(EventUser.ParticipantRole.ORGANIZER);
-        link.setParticipationStatus(EventUser.ParticipationStatus.ACCEPTED);
 
-        eventUserRepository.save(link);
+        EventUser eu = new EventUser();
+        eu.setEvent(event);
+        eu.setUser(organizer);
+        eu.setUserEmail(organizer.getEmail());
+        eu.setRole(ParticipantRole.ORGANIZER);
+        eu.setParticipationStatus(ParticipationStatus.ACCEPTED);
+
+        eventUserRepository.save(eu);
 
         if (event.getParticipants() == null) {
             event.setParticipants(new ArrayList<>());
         }
-        event.getParticipants().add(link);
+        event.getParticipants().add(eu);
+    }
+
+    private User getAuthenticatedUser() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated())
+            throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
+
+        return userRepository.findByEmail(auth.getName())
+                .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    private User getAuthenticatedUserOrNull() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) return null;
+        return userRepository.findByEmail(auth.getName()).orElse(null);
     }
 }

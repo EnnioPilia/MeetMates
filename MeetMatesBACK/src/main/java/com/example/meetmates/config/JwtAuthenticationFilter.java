@@ -9,9 +9,8 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.example.meetmates.exception.InvalidTokenException;
-import com.example.meetmates.exception.TokenAlreadyUsedException;
-import com.example.meetmates.exception.TokenNotFoundException;
+import com.example.meetmates.exception.ConflictException;
+import com.example.meetmates.exception.NotFoundException;
 import com.example.meetmates.model.Token;
 import com.example.meetmates.service.CookieService;
 import com.example.meetmates.service.RefreshTokenService;
@@ -72,15 +71,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             } 
             // --- REFRESH TOKEN ---
             else if (refresh != null) {
-                Token ref = refreshTokenService.findByToken(refresh).orElse(null);
+                try {
+                    Token ref = refreshTokenService.getValidRefreshToken(refresh);
+                    Token newRefresh = refreshTokenService.rotateRefreshToken(ref);
 
-                if (ref != null && !ref.isUsed() && !refreshTokenService.isExpired(ref)) {
-                    Token newRefresh = refreshTokenService.rotateToken(ref);
                     String email = ref.getUser().getEmail();
                     String role = ref.getUser().getRole().name();
                     String newAccess = jwtUtils.generateAccessToken(email, role);
 
-                    // Utilisation du CookieService
                     cookieService.setAuthCookies(
                             response,
                             newAccess,
@@ -90,27 +88,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     );
 
                     authenticate(newAccess, request);
+
+                } catch (ConflictException | NotFoundException ex) {
+                    log.warn("Problème avec le refresh token: {}", ex.getMessage());
+                    cookieService.clearAuthCookies(response);
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.getWriter().write("{\"message\":\"" + ex.getMessage() + "\"}");
+                    return;
                 }
             }
 
             filterChain.doFilter(request, response);
 
-        } catch (InvalidTokenException | TokenNotFoundException | TokenAlreadyUsedException ex) {
-                log.warn("Problème avec le token: {}", ex.getMessage());
-            cookieService.clearAuthCookies(response); 
-
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("{\"message\":\"Problème avec le token.\"}");
-
-        } catch (NullPointerException ex) {
-                log.error("Erreur inattendue côté sécurité: {}", ex.getMessage(), ex);
-
+        } catch (Exception ex) {
+            log.error("Erreur inattendue côté sécurité: {}", ex.getMessage(), ex);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write("{\"message\":\"Erreur inattendue côté sécurité.\"}");
         }
     }
 
-    // --- Authentifie l'utilisateur depuis le JWT ---
     private void authenticate(String token, HttpServletRequest request) {
         String username = jwtUtils.getUsername(token);
         String role = null;
@@ -137,20 +133,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 );
 
         auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         log.debug("Utilisateur authentifié {} avec rôle {}", username, role);
     }
 
     private String getCookie(HttpServletRequest req, String name) {
-        if (req.getCookies() == null) {
-            return null;
-        }
+        if (req.getCookies() == null) return null;
         for (Cookie c : req.getCookies()) {
-            if (c.getName().equals(name)) {
-                return c.getValue();
-            }
+            if (c.getName().equals(name)) return c.getValue();
         }
         return null;
     }
