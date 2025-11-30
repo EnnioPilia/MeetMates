@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Validators, NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
 import { AuthFacade } from '../../../core/facades/auth/auth.facade';
 import { MatCardModule } from '@angular/material/card';
 import { AppButtonComponent } from '../../../shared-components/button/button.component';
@@ -36,7 +37,7 @@ export class LoginComponent {
   get isSubmitting() {
     return this.authFacade.isSubmitting;
   }
-
+  
   onSubmit(): void {
     if (this.form.invalid) return;
 
@@ -45,7 +46,10 @@ export class LoginComponent {
     this.authFacade
       .login(email.trim().toLowerCase(), password)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.cdr.markForCheck());
+      .subscribe((success) => {
+        // success = null si erreur, pas besoin de gérer
+        this.cdr.markForCheck();
+      });
   }
 
   navigateTo(path: string): void {

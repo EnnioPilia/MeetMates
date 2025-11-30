@@ -1,10 +1,18 @@
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef, DestroyRef, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  DestroyRef,
+  inject
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { Validators, NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
 import { AuthFacade } from '../../../core/facades/auth/auth.facade';
 import { NotificationService } from '../../../core/services/notification/notification.service';
+
 import { MatCardModule } from '@angular/material/card';
 import { AppButtonComponent } from '../../../shared-components/button/button.component';
 import { AppInputComponent } from '../../../shared-components/input/input.component';
@@ -49,6 +57,8 @@ export class ForgotPasswordComponent {
     this.authFacade
       .requestPasswordReset(email)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.cdr.markForCheck());
+      .subscribe(() => {
+        this.cdr.markForCheck();
+      });
   }
 }

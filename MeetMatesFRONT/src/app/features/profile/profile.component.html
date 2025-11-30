@@ -23,13 +23,13 @@
     <mat-tab-group class="w-full mt-4" mat-align-tabs="start" animationDuration="300ms">
       <mat-tab label="Je participe">
         <app-participation-tab 
-          [events]="eventsParticipatingArray">
+          [events]="eventsParticipating()">
         </app-participation-tab>
       </mat-tab>
       
       <mat-tab label="J’organise">
         <app-organization-tab 
-          [events]="eventsOrganizedArray">
+          [events]="eventsOrganized()">
         </app-organization-tab>
       </mat-tab>
     </mat-tab-group>

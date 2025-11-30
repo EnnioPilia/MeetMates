@@ -1,195 +1,98 @@
-// ---------- Angular Core & Utilities ----------
-import { Component, OnInit, inject, DestroyRef, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router, ActivatedRoute } from '@angular/router';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { forkJoin, EMPTY } from 'rxjs';
+import { Component, OnInit, inject, DestroyRef } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError } from 'rxjs/operators';
-
-// ---------- Angular Material ----------
-import { MatCardModule } from '@angular/material/card';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatButtonModule } from '@angular/material/button';
-
-// ---------- Services ----------
-import { EventService } from '../../core/services/event/event.service.service';
-import { NotificationService } from '../../core/services/notification/notification.service';
-import { AddressService, AddressSuggestion } from '../../core/services/address/address.service';
-import { ActivityService } from '../../core/services/activity/activity.service';
-import { ErrorHandlerService } from '../../core/services/error-handler/error-handler.service';
-
-// ---------- Modèles ----------
-import { EventDetails } from '../../core/models/event-details.model';
-import { Activity } from '../../core/models/activity.model';
-
-// ---------- Composants enfant ----------
+import { EditEventFacade } from '../../core/facades/event/edit-event.facade';
 import { EditEventInfoComponent } from './components/edit-event-info.component';
 import { EditEventDetailsComponent } from './components/edit-event-details.component';
 import { EditEventAddressComponent } from './components/edit-event-address.component';
 import { EditEventDateTimeComponent } from './components/edit-event-dateTime.component';
 import { EditEventActivityComponent } from './components/edit-event-activity.component';
-
-// ---------- Composants Shared ----------
 import { AppButtonComponent } from '../../shared-components/button/button.component';
 import { LoadingSpinnerComponent } from '../../shared-components/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-edit-event',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatCardModule,
-    MatProgressSpinnerModule,
-    MatButtonModule,
-    EditEventInfoComponent,
-    EditEventDetailsComponent,
-    EditEventAddressComponent,
-    EditEventDateTimeComponent,
-    EditEventActivityComponent,
-    AppButtonComponent,
-    LoadingSpinnerComponent
-  ],
+imports: [
+  EditEventInfoComponent,
+  EditEventDetailsComponent,
+  EditEventAddressComponent,
+  EditEventDateTimeComponent,
+  EditEventActivityComponent,
+  AppButtonComponent,
+  LoadingSpinnerComponent
+],
   templateUrl: './edit-event.component.html',
   styleUrls: ['./edit-event.component.scss']
 })
 export class EditEventComponent implements OnInit {
+
+  private route = inject(ActivatedRoute);
   private router = inject(Router);
   private fb = inject(FormBuilder);
-  private eventService = inject(EventService);
-  private activityService = inject(ActivityService);
-  private notification = inject(NotificationService);
-  private route = inject(ActivatedRoute);
+  private editEventFacade = inject(EditEventFacade);
   private destroyRef = inject(DestroyRef);
-  private addressService = inject(AddressService);
-  private errorHandler = inject(ErrorHandlerService);
 
-  readonly loading = signal(true);
-  readonly error = signal<string | null>(null);
-  readonly activities = signal<Activity[]>([]);
-  readonly addressSuggestions = signal<AddressSuggestion[]>([]);
-  readonly event = signal<EventDetails | null>(null);
+  readonly loading = this.editEventFacade.loading;
+  readonly error = this.editEventFacade.error;
+  readonly activities = this.editEventFacade.activities;
+  readonly event = this.editEventFacade.event;
+  readonly addressSuggestions = this.editEventFacade.addressSuggestions;
 
-  eventId!: string;
   form!: FormGroup;
+  eventId!: string;
 
-  ngOnInit(): void {
-    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
-      const id = params.get('id');
-      if (!id) {
-        this.error.set('ID de l’événement manquant.');
-        this.loading.set(false);
-        return;
-      }
-      this.eventId = id;
-      this.loadActivitiesAndEvent();
-    });
-  }
+  ngOnInit() {
+    this.route.paramMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
+        const id = params.get('id');
+        if (!id) return;
+        this.eventId = id;
 
-  private loadActivitiesAndEvent(): void {
-    const activities$ = this.activityService.fetchAllActivities();
-    const event$ = this.eventService.fetchEventById(this.eventId);
-
-    forkJoin([activities$, event$])
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        catchError(err => {
-          this.errorHandler.handle(err, '❌ Erreur lors du chargement des données.');
-          this.loading.set(false);
-          this.error.set('Erreur lors du chargement des données.');
-          return EMPTY;
-        })
-      )
-      .subscribe(([activities, event]) => {
-        this.activities.set(activities);
-        this.event.set(event);
-        this.initForm(event);
-        this.loading.set(false);
+        this.editEventFacade.loadEvent(id).subscribe({
+          next: () => this.initForm(),
+          error: () => {}
+        });
       });
   }
 
-  private initForm(event: EventDetails): void {
-    this.form = this.fb.group({
-      title: [event.title],
-      description: [event.description],
-      activityName: [event.activityName || ''],
-      activityId: [null],
-      level: [event.level],
-      maxParticipants: [event.maxParticipants],
-      material: [event.material],
-      eventDate: [this.toLocalDate(event.eventDate)],
-      startTime: [event.startTime],
-      endTime: [event.endTime],
-      addressLabel: [event.addressLabel],
-      status: [event.status]
-    });
+  initForm() {
+    const e = this.event();
+    if (!e) return;
 
-    if (this.activities()?.length && event.activityName) {
-      const match = this.activities().find(a => a.name === event.activityName);
-      if (match) {
-        this.form.patchValue({ activityId: match.id });
-      } else {
-        this.notification.showWarning(`Aucune activité correspondante trouvée pour "${event.activityName}".`);
-      }
-    }
+    this.form = this.fb.group({
+      title: [e.title],
+      description: [e.description],
+      activityName: [e.activityName],
+      activityId: [null],
+      level: [e.level],
+      maxParticipants: [e.maxParticipants],
+      material: [e.material],
+      eventDate: [e.eventDate],
+      startTime: [e.startTime],
+      endTime: [e.endTime],
+      addressLabel: [e.addressLabel],
+      status: [e.status]
+    });
   }
 
-  saveChanges(): void {
-    if (!this.form.valid || !this.eventId) return;
-    const formValue = this.form.value;
+  saveChanges() {
+    if (!this.form.valid) return;
 
-    const updated: EventDetails = {
+    const updated = {
       ...this.event()!,
-      ...this.form.value,
-      id: this.eventId,
-      eventDate: this.toBackendDate(formValue.eventDate),
-      address: this.parseAddress(this.form.value.addressLabel)
+      ...this.form.value
     };
 
-    this.eventService.updateEvent(this.eventId, updated)
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        catchError(err => {
-          this.errorHandler.handle(err, '❌ Erreur lors de la mise à jour.');
-          this.error.set('Erreur lors de la mise à jour.');
-          return EMPTY;
-        })
-      )
-      .subscribe(() => {
-        this.notification.showSuccess('✅ Événement mis à jour avec succès.');
-        this.router.navigate(['/profile']);
-      });
+    this.editEventFacade.updateEvent(this.eventId, updated).subscribe(() => {
+      this.router.navigate(['/profile']);
+    });
   }
 
-  onAddressInput(value: string): void {
-    this.addressService.getAddressSuggestions(value)
-      .subscribe(suggestions => this.addressSuggestions.set(suggestions));
-  }
-
-  private parseAddress(label: string) {
-    if (!label) return { street: '', postalCode: '', city: '' };
-    const match = label.match(/^(.*)\s(\d{5})\s(.+)$/);
-    return match
-      ? { street: match[1].trim(), postalCode: match[2], city: match[3].trim() }
-      : { street: label, postalCode: '', city: '' };
-  }
-
-  private toLocalDate(utcString: string): Date {
-    if (!utcString) return new Date();
-    const date = new Date(utcString);
-
-    return new Date(
-      date.getFullYear(),
-      date.getMonth(),
-      date.getDate()
-    );
-  }
-
-  private toBackendDate(date: Date): string {
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, '0');
-    const d = String(date.getDate()).padStart(2, '0');
-    return `${y}-${m}-${d}`;
+  onAddressInput(query: string) {
+    if (!query) return;
+    this.editEventFacade.getAddressSuggestions(query).subscribe();
   }
 }

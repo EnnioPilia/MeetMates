@@ -2,9 +2,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { catchError } from 'rxjs/operators';
-import { EMPTY } from 'rxjs';
-
 // ---------- Angular Material ----------
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -16,27 +13,19 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-
 // ---------- Services ----------
-import { ActivityService } from '../../core/services/activity/activity.service';
-import { EventService } from '../../core/services/event/event.service.service';
-import { ErrorHandlerService } from '../../core/services/error-handler/error-handler.service';
 import { NotificationService } from '../../core/services/notification/notification.service';
-import { AddressService, AddressSuggestion } from '../../core/services/address/address.service';
-
-// ---------- Models ----------
-import { Activity } from '../../core/models/activity.model';
-
 // ---------- Composants enfant ----------
 import { PostSelectComponent } from './components/post-select.component';
 import { PostTextFieldsComponent } from './components/post-text-fields.component';
 import { PostDateTimeComponent } from './components/post-date-time.component';
 import { PostOptionsComponent } from './components/post-options.component';
 import { PostAddressComponent } from './components/post-address.component';
-
 // ---------- Composants Shared ----------
 import { AppButtonComponent } from '../../shared-components/button/button.component';
 import { MATERIAL_OPTIONS, LEVEL_OPTIONS } from '../../shared-components/constants/event-option';
+import { EventFacade } from '../../core/facades/event/event.facade';
+
 
 @Component({
   selector: 'app-post-event',
@@ -64,35 +53,37 @@ import { MATERIAL_OPTIONS, LEVEL_OPTIONS } from '../../shared-components/constan
   templateUrl: './post-event.component.html',
 })
 export class PostEventComponent implements OnInit {
-  private fb = inject(FormBuilder);
-  private notification = inject(NotificationService);
-  private activityService = inject(ActivityService);
-  private eventService = inject(EventService);
-  private errorHandler = inject(ErrorHandlerService);
 
-  private readonly addressService = inject(AddressService);
-  readonly addressSuggestions = signal<AddressSuggestion[]>([]);
-  readonly loading = signal(false);
-  readonly error = signal<string | null>(null);
+  private fb = inject(FormBuilder);
+  private eventFacade = inject(EventFacade);
+  private notification = inject(NotificationService);
 
   form!: FormGroup;
-  activities: Activity[] = [];
-  previewUrl?: string | null = null;
+
+  activities = this.eventFacade.activities;
+  suggestions = this.eventFacade.addressSuggestions;
+  loading = this.eventFacade.loading;
+  error = this.eventFacade.error;
+
+  previewUrl: string | null = null;
   selectedFile: File | null = null;
-  selectedAddress?: string;
-  isSubmitting = false;
+
   materialOptions = MATERIAL_OPTIONS;
   levelOptions = LEVEL_OPTIONS;
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.buildForm();
-    this.loadActivities();
+    this.eventFacade.loadActivities();
   }
 
-  private buildForm(): void {
+  get isSubmitting() {
+    return this.eventFacade.isSubmitting;
+  }
+  
+  private buildForm() {
     this.form = this.fb.group({
       titre: ['', [Validators.required, Validators.maxLength(20)]],
-      description: ['', [Validators.required]],
+      description: ['', Validators.required],
       date: ['', Validators.required],
       startTime: ['', Validators.required],
       endTime: ['', Validators.required],
@@ -104,102 +95,69 @@ export class PostEventComponent implements OnInit {
     });
   }
 
-  private loadActivities(): void {
-    this.activityService.fetchAllActivities().subscribe({
-      next: (data: Activity[]) => {
-        this.activities = data;
-        this.loading.set(false);
-      },
-      error: (err) => {
-        this.errorHandler.handle(err, '❌ Erreur lors du chargement du formulaire.');
-        this.error.set('Impossible de charger le formulaire.');
-        this.loading.set(false);
-      }
-    });
+  onAddressInput(value: string) {
+    this.eventFacade.searchAddress(value);
   }
 
-  onFileSelected(file: File): void {
-    this.selectedFile = file;
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.previewUrl = reader.result as string;
-    };
-    reader.readAsDataURL(file);
-  }
-
-  removeImage(): void {
-    this.previewUrl = null;
-    this.selectedFile = null;
-  }
-
-  onAddressInput(value: string): void {
-    this.addressService.getAddressSuggestions(value)
-      .subscribe(suggestions => this.addressSuggestions.set(suggestions));
-  }
-
-  onAddressSelect(value: string): void {
-    this.selectedAddress = value;
+  onAddressSelect(value: string) {
     this.form.get('adresse')?.setValue(value);
   }
 
-  async onSubmit() {
-    this.form.markAllAsTouched();
+  onFileSelected(file: File) {
+    this.selectedFile = file;
+    const reader = new FileReader();
+    reader.onload = () => this.previewUrl = reader.result as string;
+    reader.readAsDataURL(file);
+  }
+
+  removeImage() {
+    this.previewUrl = null;
+    this.selectedFile = null;
+  }
+
+  onSubmit() {
     if (this.form.invalid) {
-      this.notification.showError('Veuillez remplir tous les champs correctement.');
+      this.notification.showWarning('Veuillez remplir tous les champs correctement.');
       return;
     }
 
-    this.loading.set(true);
-    this.error.set(null);
+    const payload = this.mapPayload();
 
-    this.isSubmitting = true;
-    const { titre, description, date, startTime, endTime, participants, materiel, niveau, adresse, activityId } = this.form.value;
+    this.eventFacade.createEvent(payload).subscribe(() => {
+      this.resetForm();
+    });
+  }
 
-    const eventPayload = {
-      title: titre,
-      description,
-      eventDate: this.formatDate(date),
-      startTime,
-      endTime,
-      maxParticipants: participants,
-      material: materiel,
-      level: niveau,
+  private mapPayload() {
+    const f = this.form.value;
+
+    return {
+      title: f.titre,
+      description: f.description,
+      eventDate: this.formatDate(f.date),
+      startTime: f.startTime,
+      endTime: f.endTime,
+      maxParticipants: f.participants,
+      material: f.materiel,
+      level: f.niveau,
       status: 'OPEN',
-      activityId,
-      address: { street: adresse, city: '', postalCode: '' },
+      activityId: f.activityId,
+      address: {
+        street: f.adresse,
+        city: '',
+        postalCode: ''
+      }
     };
-
-    this.eventService.createEvent(eventPayload)
-      .pipe(
-        catchError(err => {
-          this.errorHandler.handle(err, '❌ Erreur lors de la création de l’activité.');
-          this.error.set('Impossible de créer l’activité.');
-          this.loading.set(false);
-          return EMPTY;
-        })
-      )
-      .subscribe(() => {
-        this.notification.showSuccess('✅ Activité créée avec succès !');
-        this.resetForm();
-        this.loading.set(false);
-      });
   }
 
-    private formatDate(date: Date | string | null): string {
-    if (!date) return '';
-
+  private formatDate(date: any) {
     const d = new Date(date);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-
-    return `${year}-${month}-${day}`;
+    return `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')}`;
   }
 
-  private resetForm(): void {
+  private resetForm() {
     this.form.reset();
     this.previewUrl = null;
     this.selectedFile = null;
-    this.isSubmitting = false;
   }
 }

@@ -13,25 +13,43 @@ export class EventUserService {
   private http = inject(HttpClient);
   private baseUrl = environment.apiUrl;
 
-  joinEvent(eventId: string): Observable<void> {
-    return this.http.post<void>(`${this.baseUrl}/event-user/${eventId}/join`, {}, { withCredentials: true });
-  }
+joinEvent(eventId: string): Observable<ApiResponse<void>> {
+  return this.http.post<ApiResponse<void>>(
+    `${this.baseUrl}/event-user/${eventId}/join`,
+    {},
+    { withCredentials: true }
+  );
+}
 
-  acceptParticipant(eventUserId: string): Observable<void> {
-    return this.http.put<void>(`${this.baseUrl}/event-user/${eventUserId}/accept`, {}, { withCredentials: true });
-  }
+acceptParticipant(eventUserId: string): Observable<ApiResponse<void>> {
+  return this.http.put<ApiResponse<void>>(
+    `${this.baseUrl}/event-user/${eventUserId}/accept`,
+    {},
+    { withCredentials: true }
+  );
+}
 
-  rejectParticipant(eventUserId: string): Observable<void> {
-    return this.http.put<void>(`${this.baseUrl}/event-user/${eventUserId}/reject`, {}, { withCredentials: true });
-  }
+rejectParticipant(eventUserId: string): Observable<ApiResponse<void>> {
+  return this.http.put<ApiResponse<void>>(
+    `${this.baseUrl}/event-user/${eventUserId}/reject`,
+    {},
+    { withCredentials: true }
+  );
+}
 
-  removeParticipant(eventId: string, userId: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/event-user/${eventId}/participants/${userId}`, { withCredentials: true });
-  }
+removeParticipant(eventId: string, userId: string): Observable<ApiResponse<void>> {
+  return this.http.delete<ApiResponse<void>>(
+    `${this.baseUrl}/event-user/${eventId}/participants/${userId}`,
+    { withCredentials: true }
+  );
+}
 
-  leaveEvent(eventId: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/event-user/${eventId}/leave`, { withCredentials: true });
-  }
+leaveEvent(eventId: string): Observable<ApiResponse<void>> {
+  return this.http.delete<ApiResponse<void>>(
+    `${this.baseUrl}/event-user/${eventId}/leave`,
+    { withCredentials: true }
+  );
+}
 
 getOrganizedEvents(): Observable<EventResponse[]> {
   return this.http.get<ApiResponse<EventResponse[]>>(

@@ -15,14 +15,14 @@ export class NotificationService {
   }
 
   showSuccess(message: string): void {
-    this.show(message, 'success-snackbar', 4000);  //  this.show(`✅ ${message}`, 'success-snackbar', 4000);
+   this.show(`✅ ${message}`, 'success-snackbar', 4000);
   }
 
   showWarning(message: string): void {
-    this.show(message, 'warning-snackbar', 4000);   //  this.show(`⚠️ ${message}`, 'warning-snackbar', 4000);
+    this.show(`⚠️ ${message}`, 'warning-snackbar', 4000);
   }
 
   showError(message: string): void {
-    this.show(message, 'error-snackbar', 4000);  // this.show(`❌ ${message}`, 'error-snackbar', 4000);
+    this.show(`❌ ${message}`, 'error-snackbar', 4000);
   }
 }

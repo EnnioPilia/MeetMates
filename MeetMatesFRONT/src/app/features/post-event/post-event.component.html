@@ -7,7 +7,7 @@
 
         <app-post-select 
           [form]="form" 
-          [activities]="activities">
+          [activities]="activities()">
         </app-post-select>
 
         <app-post-text-fields 
@@ -26,7 +26,7 @@
 
         <app-post-address 
           [form]="form" controlName="adresse" 
-          [suggestions]="addressSuggestions()"
+          [suggestions]="suggestions()"
           (inputChange)="onAddressInput($event)" 
           (optionSelected)="onAddressSelect($event)">
         </app-post-address>

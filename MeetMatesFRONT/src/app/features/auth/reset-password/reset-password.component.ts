@@ -39,14 +39,14 @@ export class ResetPasswordComponent {
     confirmPassword: ['', Validators.required],
   });
 
-  get isSubmitting() {
-    return this.authFacade.isSubmitting;
-  }
-
   ngOnInit(): void {
     this.token = this.route.snapshot.queryParamMap.get('token');
   }
 
+  get isSubmitting() {
+    return this.authFacade.isSubmitting;
+  }
+  
   onSubmit(): void {
     if (this.form.invalid) {
       this.notification.showWarning('Veuillez remplir correctement tous les champs.');
@@ -68,6 +68,9 @@ export class ResetPasswordComponent {
     this.authFacade
       .resetPassword(this.token, newPassword)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.cdr.markForCheck());
+      .subscribe(() => {
+        // notifications + redirection sont déjà faites par la façade
+        this.cdr.markForCheck();
+      });
   }
 }

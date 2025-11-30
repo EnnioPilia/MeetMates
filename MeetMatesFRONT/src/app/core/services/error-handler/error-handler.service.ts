@@ -12,7 +12,7 @@ export class ErrorHandlerService {
 
     switch (err.status) {
       case 0:
-        this.notification.showError('❌ Impossible de contacter le serveur.');
+        this.notification.showError(' Impossible de contacter le serveur.');
         break;
 
       case 400:
@@ -37,47 +37,46 @@ export class ErrorHandlerService {
   }
 
   // Extraction fiable du message backend
-private extractBackendMessage(err: HttpErrorResponse): string | null {
-  try {
-    const e = err.error;
+  private extractBackendMessage(err: HttpErrorResponse): string | null {
+    try {
+      const e = err.error;
 
-    // 🔹 cas : string JSON envoyé par le back
-    if (typeof e === 'string') {
-      try {
-        const parsed = JSON.parse(e);
-        return parsed.message || parsed.error || parsed.msg || null;
-      } catch {
-        return e; // string simple envoyée par le back
+      // 🔹 cas : string JSON envoyé par le back
+      if (typeof e === 'string') {
+        try {
+          const parsed = JSON.parse(e);
+          return parsed.message || parsed.error || parsed.msg || null;
+        } catch {
+          return e; // string simple envoyée par le back
+        }
       }
-    }
 
-    // 🔹 cas : object
-    if (typeof e === 'object' && e !== null) {
-      return (
-        e.message ||
-        e.error ||
-        e.msg ||
-        (typeof e.error === 'object' ? e.error.message : null) ||
-        null
-      );
+      // 🔹 cas : object
+      if (typeof e === 'object' && e !== null) {
+        return (
+          e.message ||
+          e.error ||
+          e.msg ||
+          (typeof e.error === 'object' ? e.error.message : null) ||
+          null
+        );
+      }
+      return null;
+    } catch {
+      return null;
     }
-
-    return null;
-  } catch {
-    return null;
   }
-}
 
 
   private getDefaultMessage(status: number): string {
     switch (status) {
-      case 400: return '❌ La requête est invalide.';
-      case 401: return '❌ Vous devez vous authentifier.';
-      case 403: return '❌ Accès refusé.';
-      case 404: return '❌ Ressource introuvable.';
-      case 409: return '❌ Conflit : modification impossible.';
-      case 500: return '❌ Erreur interne du serveur.';
-      default:  return '❌ Une erreur inattendue est survenue.';
+      case 400: return ' La requête est invalide.';
+      case 401: return ' Vous devez vous authentifier.';
+      case 403: return ' Accès refusé.';
+      case 404: return ' Ressource introuvable.';
+      case 409: return ' Conflit : modification impossible.';
+      case 500: return ' Erreur interne du serveur.';
+      default: return ' Une erreur inattendue est survenue.';
     }
   }
 }

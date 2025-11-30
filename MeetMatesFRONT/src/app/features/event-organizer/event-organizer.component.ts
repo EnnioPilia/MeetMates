@@ -6,13 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatDialog } from '@angular/material/dialog';
-import { EMPTY, catchError } from 'rxjs';
-
-import { EventDetails } from '../../core/models/event-details.model';
-import { EventService } from '../../core/services/event/event.service.service';
-import { EventUserService } from '../../core/services/event-user/event-user.service';
-import { NotificationService } from '../../core/services/notification/notification.service';
-import { ErrorHandlerService } from '../../core/services/error-handler/error-handler.service';
+import { EventFacade } from '../../core/facades/event/event.facade';
 
 import { EventHeaderComponent } from '../../shared-components/event-header/event-header.component';
 import { EventInfoComponent } from '../../shared-components/event-info/event-info.component';
@@ -42,107 +36,64 @@ import { LoadingSpinnerComponent } from '../../shared-components/loading-spinner
   styleUrls: ['./event-organizer.component.scss'],
 })
 export class EventOrganizerComponent implements OnInit {
+
   private route = inject(ActivatedRoute);
-  private eventService = inject(EventService);
-  private eventUserService = inject(EventUserService);
-  private notification = inject(NotificationService);
-  private errorHandler = inject(ErrorHandlerService);
   private router = inject(Router);
   private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
 
-  loading = signal(true);
-  error = signal<string | null>(null);
-  event = signal<EventDetails | null>(null);
+  private eventFacade = inject(EventFacade);
 
-  ngOnInit(): void {
-    const eventId = this.route.snapshot.paramMap.get('eventId');
-    if (eventId) {
-      this.loadEvent(eventId);
-    } else {
-      this.error.set("Événement introuvable.");
-      this.loading.set(false);
-    }
+  event = this.eventFacade.event;
+  loading = this.eventFacade.loading;
+  error = this.eventFacade.error;
+
+ ngOnInit(): void {
+  const id = this.route.snapshot.paramMap.get('eventId');
+  if (!id) return;
+
+  this.eventFacade.load(id).pipe(
+    takeUntilDestroyed(this.destroyRef)
+  ).subscribe();
+}
+
+
+  onAccept(id: string) {
+    this.eventFacade.acceptParticipant(id).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => this.refresh());
   }
 
-  private loadEvent(eventId: string): void {
-    this.loading.set(true);
-    this.error.set(null);
-
-    this.eventService.fetchEventById(eventId)
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        catchError(err => {
-          this.errorHandler.handle(err, '❌ Impossible de charger cet événement.');
-          this.error.set("Événement introuvable ou supprimé.");
-          this.loading.set(false);
-          return EMPTY;
-        })
-      )
-      .subscribe(eventData => {
-        this.event.set(eventData);
-        this.loading.set(false);
-      });
+  onReject(id: string) {
+    this.eventFacade.rejectParticipant(id).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => this.refresh());
   }
 
-  onAccept(eventUserId: string): void {
-    this.eventUserService.acceptParticipant(eventUserId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.notification.showSuccess('✅ Participant accepté avec succès.');
-          this.onRefresh();
-        },
-        error: err => {
-          this.errorHandler.handle(err, "❌ Impossible d'accepter ce participant.");
-        }
-      });
-  }
-
-  onReject(eventUserId: string): void {
-    this.eventUserService.rejectParticipant(eventUserId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.notification.showSuccess('🚫 Participant refusé avec succès.');
-          this.onRefresh();
-        },
-        error: err => {
-          this.errorHandler.handle(err, "❌ Impossible de refuser ce participant.");
-        }
-      });
-  }
-
-  deleteEvent(): void {
+  deleteEvent() {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
-        title: 'Supprimer l’activité',
-        message: 'Êtes-vous sûr de vouloir supprimer cette activité ? Cette action est irréversible.',
-      },
+        title: "Supprimer l’activité",
+        message: "Êtes-vous sûr ?"
+      }
     });
 
-    dialogRef.afterClosed().subscribe(confirmed => {
-      if (!confirmed) return;
+    dialogRef.afterClosed().subscribe(confirm => {
+      if (!confirm) return;
 
-      const currentEvent = this.event();
-      if (!currentEvent) return;
+      const id = this.eventFacade.event()?.id;
+      if (!id) return;
 
-      this.eventService.deleteEvent(currentEvent.id)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: () => {
-            this.notification.showSuccess('✅ Activité supprimée avec succès.');
-            this.router.navigate(['/profile']);
-          },
-          error: err => {
-            this.errorHandler.handle(err, '❌ Impossible de supprimer cette activité.');
-          }
-        });
+      this.eventFacade.deleteEvent(id).pipe(
+        takeUntilDestroyed(this.destroyRef)
+      ).subscribe(() => this.router.navigate(['/profile']));
     });
   }
 
-  onRefresh(): void {
-    const eventId = this.route.snapshot.paramMap.get('eventId');
-    if (eventId) this.loadEvent(eventId);
+  refresh() {
+    const id = this.route.snapshot.paramMap.get('eventId');
+    if (!id) return;
+
+    this.eventFacade.load(id).subscribe();
   }
 }

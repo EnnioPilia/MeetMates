@@ -5,6 +5,7 @@ import { Observable, map } from 'rxjs';
 import { EventResponse } from '../../models/event-response.model';
 import { EventDetails } from '../../models/event-details.model';
 import { EventRequest } from '../../models/event-request.model';
+import { ApiResponse } from '../../models/api-response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -35,23 +36,28 @@ export class EventService {
   }
 
   // CREATE EVENT
-  createEvent(eventPayload: EventRequest): Observable<EventDetails> {
-    return this.http
-      .post<{ message: string; data: EventDetails }>(`${this.baseUrl}/event`, eventPayload, { withCredentials: true })
-      .pipe(map(res => res.data));
+  createEvent(eventPayload: EventRequest) {
+    return this.http.post<{ message: string; data: EventDetails }>(`${this.baseUrl}/event`, eventPayload, { withCredentials: true }
+    );
   }
-  
+
   // DELETE EVENT
-  deleteEvent(eventId: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/event/${eventId}`, { withCredentials: true });
+  deleteEvent(eventId: string): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(
+      `${this.baseUrl}/event/${eventId}`,
+      { withCredentials: true }
+    );
   }
 
   // UPDATE EVENT
-  updateEvent(eventId: string, updatedEvent: Partial<EventDetails>): Observable<EventDetails> {
-    return this.http
-      .put<{ message: string; data: EventDetails }>(`${this.baseUrl}/event/${eventId}`, updatedEvent, { withCredentials: true })
-      .pipe(map(res => res.data));
+  updateEvent(eventId: string, updatedEvent: Partial<EventDetails>) {
+    return this.http.put<{ message: string; data: EventDetails }>(
+      `${this.baseUrl}/event/${eventId}`,
+      updatedEvent,
+      { withCredentials: true }
+    );
   }
+
 
   // SEARCH EVENTS
   searchEvents(query: string): Observable<EventResponse[]> {
