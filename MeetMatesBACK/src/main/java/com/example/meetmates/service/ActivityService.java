@@ -5,8 +5,8 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.example.meetmates.exception.ApiException;
 import com.example.meetmates.exception.ErrorCode;
-import com.example.meetmates.exception.NotFoundException;
 import com.example.meetmates.model.Activity;
 import com.example.meetmates.repository.ActivityRepository;
 
@@ -25,7 +25,7 @@ public class ActivityService {
 
     public Activity findById(UUID id) {
         return activityRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.ACTIVITY_NOT_FOUND));
+                .orElseThrow(() -> new ApiException(ErrorCode.ACTIVITY_NOT_FOUND));
     }
 
     public List<Activity> findByCategory(UUID categoryId) {

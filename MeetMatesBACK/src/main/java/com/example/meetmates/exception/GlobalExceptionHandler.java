@@ -7,8 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -50,24 +52,9 @@ public class GlobalExceptionHandler {
     }
 
     // ---- Exceptions Métier ----
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ErrorDto> handleNotFound(NotFoundException ex) {
+    @ExceptionHandler(ApiException.class)
+    public ResponseEntity<ErrorDto> handleNotFound(ApiException ex) {
         return build(HttpStatus.NOT_FOUND, ex.getErrorCode().name());
-    }
-
-    @ExceptionHandler(ConflictException.class)
-    public ResponseEntity<ErrorDto> handleConflict(ConflictException ex) {
-        return build(HttpStatus.CONFLICT, ex.getErrorCode().name());
-    }
-
-    @ExceptionHandler(ForbiddenException.class)
-    public ResponseEntity<ErrorDto> handleForbidden(ForbiddenException ex) {
-        return build(HttpStatus.FORBIDDEN, ex.getErrorCode().name());
-    }
-
-    @ExceptionHandler(UnauthorizedException.class)
-    public ResponseEntity<ErrorDto> handleUnauthorized(UnauthorizedException ex) {
-        return build(HttpStatus.UNAUTHORIZED, ex.getErrorCode().name());
     }
 
     // ---- Spring Security ----
@@ -78,6 +65,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InternalAuthenticationServiceException.class)
     public ResponseEntity<ErrorDto> handleInternalAuth(InternalAuthenticationServiceException ex) {
+
+        if (ex.getCause() instanceof ApiException cause) {
+            return build(HttpStatus.FORBIDDEN, cause.getErrorCode().name());
+        }
         return build(HttpStatus.UNAUTHORIZED, ErrorCode.AUTH_UNAUTHORIZED.name());
     }
 
@@ -93,6 +84,17 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorDto> handleRuntime(RuntimeException ex) {
         return build(HttpStatus.INTERNAL_SERVER_ERROR, "internal.error");
+    }
+
+    // ---- Spring Security - Access Denied (403) ----
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ErrorDto> handleAuthorizationDenied(AuthorizationDeniedException ex) {
+        return build(HttpStatus.FORBIDDEN, "EVENT_FORBIDDEN");
+    }
+
+    @ExceptionHandler(AccessDeniedException.class) // ancienne version
+    public ResponseEntity<ErrorDto> handleAccessDenied(AccessDeniedException ex) {
+        return build(HttpStatus.FORBIDDEN, "EVENT_FORBIDDEN");
     }
 
     @ExceptionHandler(NoHandlerFoundException.class)

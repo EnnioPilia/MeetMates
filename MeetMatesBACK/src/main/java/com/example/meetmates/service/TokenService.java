@@ -6,9 +6,8 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.meetmates.exception.ConflictException;
+import com.example.meetmates.exception.ApiException;
 import com.example.meetmates.exception.ErrorCode;
-import com.example.meetmates.exception.NotFoundException;
 import com.example.meetmates.model.Token;
 import com.example.meetmates.model.TokenType;
 import com.example.meetmates.model.User;
@@ -59,14 +58,14 @@ public class TokenService {
     @Transactional(readOnly = true)
     public Token getValidToken(String tokenString) {
         Token token = tokenRepository.findByToken(tokenString)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.TOKEN_NOT_FOUND));
+                .orElseThrow(() -> new ApiException(ErrorCode.TOKEN_NOT_FOUND));
 
         if (Boolean.TRUE.equals(token.isUsed())) {
-            throw new ConflictException(ErrorCode.TOKEN_INVALID); // ou TOKEN_ALREADY_USED si tu veux
+            throw new ApiException(ErrorCode.TOKEN_INVALID); // ou TOKEN_ALREADY_USED si tu veux
         }
 
         if (token.getExpiresAt().isBefore(Instant.now())) {
-            throw new ConflictException(ErrorCode.TOKEN_EXPIRED);
+            throw new ApiException(ErrorCode.TOKEN_EXPIRED);
         }
 
         return token;

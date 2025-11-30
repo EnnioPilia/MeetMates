@@ -6,8 +6,8 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.meetmates.exception.ApiException;
 import com.example.meetmates.exception.ErrorCode;
-import com.example.meetmates.exception.NotFoundException;
 import com.example.meetmates.model.Address;
 import com.example.meetmates.repository.AddressRepository;
 
@@ -31,7 +31,7 @@ public class AddressService {
     @Transactional(readOnly = true)
     public Address findById(UUID id) {
         return repo.findById(id)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.ADDRESS_NOT_FOUND));
+                .orElseThrow(() -> new ApiException(ErrorCode.ADDRESS_NOT_FOUND));
     }
 
     @Transactional
@@ -49,13 +49,13 @@ public class AddressService {
                     a.setType(details.getType());
                     return repo.save(a);
                 })
-                .orElseThrow(() -> new NotFoundException(ErrorCode.ADDRESS_NOT_FOUND));
+                .orElseThrow(() -> new ApiException(ErrorCode.ADDRESS_NOT_FOUND));
     }
 
     @Transactional
     public void delete(UUID id) {
         if (!repo.existsById(id)) {
-            throw new NotFoundException(ErrorCode.ADDRESS_NOT_FOUND);
+            throw new ApiException(ErrorCode.ADDRESS_NOT_FOUND);
         }
         repo.deleteById(id);
     }

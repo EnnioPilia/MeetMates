@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,6 +29,8 @@ import com.example.meetmates.service.MessageService;
 import com.example.meetmates.service.PictureService;
 import com.example.meetmates.service.UserService;
 
+import jakarta.servlet.http.HttpServletResponse;
+
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -39,10 +42,10 @@ public class UserController {
     private final MessageService messageService;
 
     public UserController(UserService userService,
-                          PictureService pictureService,
-                          UserMapper userMapper,
-                          CookieService cookieService,
-                          MessageService messageService) {
+            PictureService pictureService,
+            UserMapper userMapper,
+            CookieService cookieService,
+            MessageService messageService) {
         this.userService = userService;
         this.pictureService = pictureService;
         this.userMapper = userMapper;
@@ -50,6 +53,7 @@ public class UserController {
         this.messageService = messageService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<ApiResponse<List<UserDto>>> getAllUsers() {
         List<UserDto> dtos = userService.getAllUsers()
@@ -61,6 +65,7 @@ public class UserController {
         return ResponseEntity.ok(new ApiResponse<>(message, dtos));
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<UserDto>> getMe(
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -70,6 +75,7 @@ public class UserController {
         return ResponseEntity.ok(new ApiResponse<>(message, userMapper.toDto(user)));
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/me/picture")
     public ResponseEntity<ApiResponse<UserDto>> uploadProfilePicture(
             @AuthenticationPrincipal UserDetails userDetails,
@@ -85,6 +91,7 @@ public class UserController {
         return ResponseEntity.ok(new ApiResponse<>(message, userMapper.toDto(user)));
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PutMapping("/me")
     public ResponseEntity<ApiResponse<UserDto>> updateMyProfile(
             @RequestBody UpdateUserDto dto,
@@ -97,6 +104,7 @@ public class UserController {
         return ResponseEntity.ok(new ApiResponse<>(message, userMapper.toDto(updated)));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable UUID id) {
         userService.hardDeleteById(id);
@@ -104,6 +112,7 @@ public class UserController {
         return ResponseEntity.ok(new ApiResponse<>(message, null));
     }
 
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/me/picture")
     public ResponseEntity<ApiResponse<UserDto>> deleteProfilePicture(
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -116,14 +125,18 @@ public class UserController {
         return ResponseEntity.ok(new ApiResponse<>(message, userMapper.toDto(updated)));
     }
 
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/me")
     public ResponseEntity<ApiResponse<Void>> deleteMyAccount(
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @AuthenticationPrincipal UserDetails userDetails,
+            HttpServletResponse response) {
 
         userService.softDeleteByEmail(userDetails.getUsername());
-        cookieService.clearAuthCookies(null);
+
+        cookieService.clearAuthCookies(response);
 
         String message = messageService.get("user.delete_account.success");
         return ResponseEntity.ok(new ApiResponse<>(message, null));
     }
+
 }

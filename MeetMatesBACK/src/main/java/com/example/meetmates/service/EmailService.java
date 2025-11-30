@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import com.example.meetmates.exception.ConflictException;
+import com.example.meetmates.exception.ApiException;
 import com.example.meetmates.exception.ErrorCode;
 
 import jakarta.mail.MessagingException;
@@ -85,7 +85,7 @@ public class EmailService {
     } catch (MessagingException | MailException e) {
         log.error("Erreur lors de l'envoi de l'e-mail HTML à {} : {}", toEmail, e.getMessage());
 
-        throw new ConflictException(ErrorCode.EMAIL_SEND_FAILED);
+        throw new ApiException(ErrorCode.EMAIL_SEND_FAILED);
     }
 }
 

@@ -12,8 +12,8 @@ import com.example.meetmates.dto.EventDetailsDto;
 import com.example.meetmates.dto.EventRequestDto;
 import com.example.meetmates.dto.EventResponseDto;
 import com.example.meetmates.dto.EventUserDto;
+import com.example.meetmates.exception.ApiException;
 import com.example.meetmates.exception.ErrorCode;
-import com.example.meetmates.exception.NotFoundException;
 import com.example.meetmates.mapper.EventMapper;
 import com.example.meetmates.model.Address;
 import com.example.meetmates.model.Event;
@@ -63,7 +63,7 @@ public class EventService {
         User organizer = getAuthenticatedUser();
 
         var activity = activityRepository.findById(req.getActivityId())
-                .orElseThrow(() -> new NotFoundException(ErrorCode.ACTIVITY_NOT_FOUND));
+                .orElseThrow(() -> new ApiException(ErrorCode.ACTIVITY_NOT_FOUND));
 
         Address address = addressRepository.save(req.getAddress());
 
@@ -105,7 +105,7 @@ public class EventService {
     public EventDetailsDto findEventDetailsById(UUID eventId) {
 
         Event event = eventRepository.findByIdWithAllRelations(eventId)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.EVENT_NOT_FOUND));
+                .orElseThrow(() -> new ApiException(ErrorCode.EVENT_NOT_FOUND));
 
         User user = getAuthenticatedUserOrNull();
 
@@ -164,7 +164,7 @@ public class EventService {
     public List<EventResponseDto> getEventResponsesByActivity(UUID activityId) {
 
         activityRepository.findById(activityId)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.ACTIVITY_NOT_FOUND));
+                .orElseThrow(() -> new ApiException(ErrorCode.ACTIVITY_NOT_FOUND));
 
         return eventRepository.findByActivityIdWithDetails(activityId)
                 .stream()
@@ -176,22 +176,22 @@ public class EventService {
     // DELETE EVENT
     // ----------------------------------------------------------------------
     @Transactional
-    public void delete(UUID eventId) {
+    public void deleteEvent(UUID eventId) {
 
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.EVENT_NOT_FOUND));
+                .orElseThrow(() -> new ApiException(ErrorCode.EVENT_NOT_FOUND));
 
         eventRepository.delete(event);
     }
 
-    // ----------------------------------------------------------------------
+    // --------------------------------- -------------------------------------
     // UPDATE EVENT
     // ----------------------------------------------------------------------
     @Transactional
     public EventResponseDto updateEvent(UUID eventId, EventRequestDto updatedEvent) {
 
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.EVENT_NOT_FOUND));
+                .orElseThrow(() -> new ApiException(ErrorCode.EVENT_NOT_FOUND));
 
         event.setTitle(updatedEvent.getTitle());
         event.setDescription(updatedEvent.getDescription());
@@ -213,7 +213,7 @@ public class EventService {
 
         if (updatedEvent.getActivityId() != null) {
             var activity = activityRepository.findById(updatedEvent.getActivityId())
-                    .orElseThrow(() -> new NotFoundException(ErrorCode.ACTIVITY_NOT_FOUND));
+                    .orElseThrow(() -> new ApiException(ErrorCode.ACTIVITY_NOT_FOUND));
             event.setActivity(activity);
         }
 
@@ -256,10 +256,10 @@ public class EventService {
     private User getAuthenticatedUser() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated())
-            throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
+            throw new ApiException(ErrorCode.USER_NOT_FOUND);
 
         return userRepository.findByEmail(auth.getName())
-                .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
     }
 
     private User getAuthenticatedUserOrNull() {

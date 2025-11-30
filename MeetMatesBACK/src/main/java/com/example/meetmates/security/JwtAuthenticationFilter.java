@@ -1,4 +1,4 @@
-package com.example.meetmates.config;
+package com.example.meetmates.security;
 
 import java.io.IOException;
 
@@ -9,8 +9,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.example.meetmates.exception.ConflictException;
-import com.example.meetmates.exception.NotFoundException;
+import com.example.meetmates.exception.ApiException;
 import com.example.meetmates.model.Token;
 import com.example.meetmates.service.CookieService;
 import com.example.meetmates.service.RefreshTokenService;
@@ -57,8 +56,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain)
+            HttpServletResponse response,
+            FilterChain filterChain)
             throws ServletException, IOException {
 
         try {
@@ -68,8 +67,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // --- ACCESS TOKEN ---
             if (access != null && jwtUtils.isValidAccessToken(access)) {
                 authenticate(access, request);
-            } 
-            // --- REFRESH TOKEN ---
+            } // --- REFRESH TOKEN ---
             else if (refresh != null) {
                 try {
                     Token ref = refreshTokenService.getValidRefreshToken(refresh);
@@ -89,7 +87,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                     authenticate(newAccess, request);
 
-                } catch (ConflictException | NotFoundException ex) {
+                } catch (ApiException ex) {
                     log.warn("Problème avec le refresh token: {}", ex.getMessage());
                     cookieService.clearAuthCookies(response);
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -109,39 +107,51 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private void authenticate(String token, HttpServletRequest request) {
         String username = jwtUtils.getUsername(token);
-        String role = null;
+        String role;
 
         try {
             role = jwtUtils.getClaims(token).get("role", String.class);
         } catch (Exception e) {
-            log.warn("Impossible de récupérer le rôle depuis le JWT: {}", e.getMessage());
-        }
-
-        if (username == null || role == null) {
+            log.warn("Impossible de récupérer le rôle depuis le JWT");
             SecurityContextHolder.clearContext();
-            log.warn("JWT invalide, contexte de sécurité non défini");
             return;
         }
 
-        var userDetails = userService.loadUserByUsername(username);
+        if (username == null) {
+            SecurityContextHolder.clearContext();
+            return;
+        }
 
-        UsernamePasswordAuthenticationToken auth
-                = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
+        try {
+            var userDetails = userService.loadUserByUsername(username);
 
-        auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-        SecurityContextHolder.getContext().setAuthentication(auth);
+            UsernamePasswordAuthenticationToken auth
+                    = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities()
+                    );
 
-        log.debug("Utilisateur authentifié {} avec rôle {}", username, role);
+            auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(auth);
+
+        } catch (ApiException ex) {
+            log.warn("Utilisateur introuvable : {}", username);
+            SecurityContextHolder.clearContext();
+        } catch (Exception ex) {
+            log.error("Erreur d'authentification : {}", ex.getMessage());
+            SecurityContextHolder.clearContext();
+        }
     }
 
     private String getCookie(HttpServletRequest req, String name) {
-        if (req.getCookies() == null) return null;
+        if (req.getCookies() == null) {
+            return null;
+        }
         for (Cookie c : req.getCookies()) {
-            if (c.getName().equals(name)) return c.getValue();
+            if (c.getName().equals(name)) {
+                return c.getValue();
+            }
         }
         return null;
     }

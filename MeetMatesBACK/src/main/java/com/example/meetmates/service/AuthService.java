@@ -8,20 +8,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.meetmates.config.JWTUtils;
 import com.example.meetmates.dto.LoginRequestDto;
 import com.example.meetmates.dto.LoginResponseDto;
 import com.example.meetmates.dto.RegisterRequestDto;
-import com.example.meetmates.exception.ConflictException;
+import com.example.meetmates.exception.ApiException;
 import com.example.meetmates.exception.ErrorCode;
-import com.example.meetmates.exception.ForbiddenException;
-import com.example.meetmates.exception.NotFoundException;
-import com.example.meetmates.exception.UnauthorizedException;
 import com.example.meetmates.model.Token;
 import com.example.meetmates.model.User;
 import com.example.meetmates.model.UserRole;
 import com.example.meetmates.model.UserStatus;
 import com.example.meetmates.repository.UserRepository;
+import com.example.meetmates.security.JWTUtils;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -68,12 +65,12 @@ public class AuthService {
             User user = existingUserOpt.get();
 
             if (user.getStatus() == UserStatus.BANNED) {
-                throw new ForbiddenException(ErrorCode.USER_BANNED);
+                throw new ApiException(ErrorCode.USER_BANNED);
             }
 
             if (user.getDeletedAt() == null) {
                 // compte actif et email déjà utilisé
-                throw new ConflictException(ErrorCode.USER_EMAIL_USED);
+                throw new ApiException(ErrorCode.USER_EMAIL_USED);
             }
 
             // Restaurer compte supprimé
@@ -123,23 +120,23 @@ public class AuthService {
         String email = request.getEmail().toLowerCase();
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
 
         if (user.getStatus() == UserStatus.BANNED) {
-            throw new ForbiddenException(ErrorCode.USER_BANNED);
+            throw new ApiException(ErrorCode.USER_BANNED);
         }
         if (user.getDeletedAt() != null) {
-            throw new ForbiddenException(ErrorCode.USER_DISABLED);
+            throw new ApiException(ErrorCode.USER_DELETD);
         }
         if (!user.isEnabled()) {
-            throw new ForbiddenException(ErrorCode.USER_DISABLED);
+            throw new ApiException(ErrorCode.USER_DISABLED);
         }
 
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(email, request.getPassword()));
         } catch (org.springframework.security.authentication.BadCredentialsException ex) {
-            throw new UnauthorizedException(ErrorCode.AUTH_BAD_PASSWORD);
+            throw new ApiException(ErrorCode.AUTH_BAD_PASSWORD);
         }
 
         String role = user.getRole().name().toLowerCase();

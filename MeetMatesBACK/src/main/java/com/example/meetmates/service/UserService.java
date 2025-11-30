@@ -10,9 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.meetmates.dto.UpdateUserDto;
+import com.example.meetmates.exception.ApiException;
 import com.example.meetmates.exception.ErrorCode;
-import com.example.meetmates.exception.ForbiddenException;
-import com.example.meetmates.exception.NotFoundException;
 import com.example.meetmates.mapper.UserMapper;
 import com.example.meetmates.model.TokenType;
 import com.example.meetmates.model.User;
@@ -48,7 +47,7 @@ public class UserService implements UserDetailsService {
     @Transactional(readOnly = true)
     public User findActiveByEmailOrThrow(String email) {
         return userRepository.findByEmailAndDeletedAtIsNull(email.toLowerCase())
-                .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
     }
 
     @Transactional
@@ -60,14 +59,14 @@ public class UserService implements UserDetailsService {
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String email) {
         User user = userRepository.findByEmail(email.toLowerCase())
-                .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
 
         if (user.getStatus() == UserStatus.BANNED) {
-            throw new ForbiddenException(ErrorCode.USER_BANNED);
+            throw new ApiException(ErrorCode.USER_BANNED);
         }
 
         if (!user.isEnabled()) {
-            throw new ForbiddenException(ErrorCode.USER_DISABLED);
+            throw new ApiException(ErrorCode.USER_DISABLED);
         }
 
         return org.springframework.security.core.userdetails.User.builder()
@@ -80,7 +79,7 @@ public class UserService implements UserDetailsService {
     @Transactional
     public User updateProfile(User user, UpdateUserDto dto) {
         if (user == null) {
-            throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
+            throw new ApiException(ErrorCode.USER_NOT_FOUND);
         }
         userMapper.updateFromDto(dto, user);
         return userRepository.save(user);
@@ -89,7 +88,7 @@ public class UserService implements UserDetailsService {
     @Transactional
     public User clearProfilePicture(User user) {
         if (user == null) {
-            throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
+            throw new ApiException(ErrorCode.USER_NOT_FOUND);
         }
         user.setProfilePictureUrl(null);
         return userRepository.save(user);
@@ -99,7 +98,7 @@ public class UserService implements UserDetailsService {
     public boolean hardDeleteById(UUID userId) {
 
         if (!userRepository.existsById(userId)) {
-            throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
+            throw new ApiException(ErrorCode.USER_NOT_FOUND);
         }
 
         tokenRepository.deleteByUser_IdAndType(userId, TokenType.REFRESH);
@@ -113,7 +112,7 @@ public class UserService implements UserDetailsService {
     @Transactional
     public boolean softDeleteByEmail(String email) {
         User user = userRepository.findByEmailAndDeletedAtIsNull(email.toLowerCase())
-                .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
 
         tokenRepository.deleteByUser_Id(user.getId());
         if (user.getTokens() != null) user.getTokens().clear();

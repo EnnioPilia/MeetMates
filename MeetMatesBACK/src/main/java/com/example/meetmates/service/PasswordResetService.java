@@ -7,9 +7,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.meetmates.exception.ConflictException;
+import com.example.meetmates.exception.ApiException;
 import com.example.meetmates.exception.ErrorCode;
-import com.example.meetmates.exception.NotFoundException;
 import com.example.meetmates.model.Token;
 import com.example.meetmates.model.TokenType;
 import com.example.meetmates.model.User;
@@ -48,7 +47,7 @@ public class PasswordResetService {
     public void createPasswordResetToken(String email) {
 
         User user = userRepository.findByEmail(email.toLowerCase())
-                .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
 
         // Supprime les anciens tokens PASSWORD_RESET
         tokenRepository.deleteByUser_IdAndType(user.getId(), TokenType.PASSWORD_RESET);
@@ -77,16 +76,16 @@ public class PasswordResetService {
     public void resetPassword(String tokenString, String newPassword) {
 
         Token token = tokenRepository.findByToken(tokenString)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.TOKEN_NOT_FOUND));
+                .orElseThrow(() -> new ApiException(ErrorCode.TOKEN_NOT_FOUND));
 
         // Vérifie type
         if (token.getType() != TokenType.PASSWORD_RESET) {
-            throw new ConflictException(ErrorCode.TOKEN_INVALID);
+            throw new ApiException(ErrorCode.TOKEN_INVALID);
         }
 
         // Vérifie expiration
         if (token.getExpiresAt().isBefore(Instant.now())) {
-            throw new ConflictException(ErrorCode.TOKEN_EXPIRED);
+            throw new ApiException(ErrorCode.TOKEN_EXPIRED);
         }
 
         // Met à jour le mot de passe

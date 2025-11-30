@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,6 +37,7 @@ public class EventController {
     // ---------------------------------------------------------
     // CREATE EVENT
     // ---------------------------------------------------------
+    @PreAuthorize("isAuthenticated()")
     @PostMapping
     public ResponseEntity<ApiResponse<EventResponseDto>> create(@RequestBody EventRequestDto request) {
         EventResponseDto dto = eventService.createEvent(request);
@@ -77,6 +79,7 @@ public class EventController {
     // ---------------------------------------------------------
     // UPDATE EVENT
     // ---------------------------------------------------------
+    @PreAuthorize("@eventSecurity.isOrganizer(#eventId)")
     @PutMapping("/{eventId}")
     public ResponseEntity<ApiResponse<EventResponseDto>> update(
             @PathVariable UUID eventId,
@@ -91,9 +94,10 @@ public class EventController {
     // ---------------------------------------------------------
     // DELETE EVENT
     // ---------------------------------------------------------
+    @PreAuthorize("@eventSecurity.isOrganizer(#eventId)")
     @DeleteMapping("/{eventId}")
-    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable UUID eventId) {
-        eventService.delete(eventId);
+    public ResponseEntity<ApiResponse<Void>> deleteEvent(@PathVariable UUID eventId) {
+        eventService.deleteEvent(eventId);
         log.info("Événement supprimé : {}", eventId);
         String message = messageService.get("event.delete.success");
         return ResponseEntity.ok(new ApiResponse<>(message, null));

@@ -1,10 +1,10 @@
 package com.example.meetmates.exception;
 
-public class NotFoundException extends RuntimeException {
+public class ApiException extends RuntimeException {
 
     private final ErrorCode errorCode;
 
-    public NotFoundException(ErrorCode errorCode) {
+    public ApiException(ErrorCode errorCode) {
         super(errorCode.name());
         this.errorCode = errorCode;
     }

@@ -1,4 +1,4 @@
-package com.example.meetmates.config;
+package com.example.meetmates.security;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
