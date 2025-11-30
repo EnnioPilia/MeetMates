@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { catchError, EMPTY, tap } from 'rxjs';
+import { catchError, EMPTY, tap, throwError, finalize } from 'rxjs';
 
 import { ActivityService } from '../../services/activity/activity.service';
 import { ErrorHandlerService } from '../../services/error-handler/error-handler.service';
@@ -44,14 +44,16 @@ export class ActivityFacade {
     return this.activityService.fetchActivitiesByCategory(categoryId).pipe(
       tap(res => {
         this.activities.set(res);
-        this.loading.set(false);
       }),
       catchError(err => {
         this.errorHandler.handle(err);
         this.error.set("Impossible de charger les activités.");
+        return throwError(() => err);
+      }),
+      finalize(() => {
         this.loading.set(false);
-        return EMPTY;
       })
     );
   }
+
 }

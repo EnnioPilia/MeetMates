@@ -32,7 +32,7 @@ export class ActivityComponent implements OnInit {
 
   ngOnInit(): void {
     const categoryId = this.route.snapshot.paramMap.get('categoryId');
-
+    
     if (!categoryId) {
       return;
     }
@@ -41,6 +41,7 @@ export class ActivityComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe();
   }
+
 
   goToEvents(activityId: string) {
     this.router.navigate(['/events', activityId]);
