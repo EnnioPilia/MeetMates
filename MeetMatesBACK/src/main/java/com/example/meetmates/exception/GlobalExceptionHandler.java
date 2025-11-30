@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.NoHandlerFoundException;
 
 import com.example.meetmates.dto.ErrorDto;
 
@@ -64,15 +62,6 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.UNAUTHORIZED, ErrorCode.AUTH_BAD_PASSWORD.name());
     }
 
-    @ExceptionHandler(InternalAuthenticationServiceException.class)
-    public ResponseEntity<ErrorDto> handleInternalAuth(InternalAuthenticationServiceException ex) {
-
-        if (ex.getCause() instanceof ApiException cause) {
-            return build(HttpStatus.FORBIDDEN, cause.getErrorCode().name());
-        }
-        return build(HttpStatus.UNAUTHORIZED, ErrorCode.AUTH_UNAUTHORIZED.name());
-    }
-
     // ---- Exceptions Spring génériques ----
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<ErrorDto> handleResponseStatus(ResponseStatusException ex) {
@@ -93,22 +82,22 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.FORBIDDEN, "EVENT_FORBIDDEN");
     }
 
-    @ExceptionHandler(AccessDeniedException.class) // ancienne version
+    @ExceptionHandler(AccessDeniedException.class) 
     public ResponseEntity<ErrorDto> handleAccessDenied(AccessDeniedException ex) {
         return build(HttpStatus.FORBIDDEN, "EVENT_FORBIDDEN");
     }
 
-    @ExceptionHandler(NoHandlerFoundException.class)
-    public ResponseEntity<ErrorDto> handleNoHandlerFound(NoHandlerFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ErrorDto(
-                        Instant.now(),
-                        HttpStatus.NOT_FOUND.value(),
-                        HttpStatus.NOT_FOUND.getReasonPhrase(),
-                        "La ressource demandée n'existe pas",
-                        ex.getRequestURL()
-                ));
-    }
+    // @ExceptionHandler(NoHandlerFoundException.class)
+    // public ResponseEntity<ErrorDto> handleNoHandlerFound(NoHandlerFoundException ex) {
+    //     return ResponseEntity.status(HttpStatus.NOT_FOUND)
+    //             .body(new ErrorDto(
+    //                     Instant.now(),
+    //                     HttpStatus.NOT_FOUND.value(),
+    //                     HttpStatus.NOT_FOUND.getReasonPhrase(),
+    //                     "La ressource demandée n'existe pas",
+    //                     ex.getRequestURL()
+    //             ));
+    // }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorDto> handleValidationErrors(MethodArgumentNotValidException ex) {

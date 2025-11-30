@@ -19,8 +19,6 @@ import com.example.meetmates.model.UserStatus;
 import com.example.meetmates.repository.TokenRepository;
 import com.example.meetmates.repository.UserRepository;
 
-
-
 @Service
 public class UserService implements UserDetailsService {
 
@@ -29,8 +27,8 @@ public class UserService implements UserDetailsService {
     private final UserMapper userMapper;
 
     public UserService(UserRepository userRepository,
-                       TokenRepository tokenRepository,
-                       UserMapper userMapper) {
+            TokenRepository tokenRepository,
+            UserMapper userMapper) {
         this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
         this.userMapper = userMapper;
@@ -115,7 +113,9 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
 
         tokenRepository.deleteByUser_Id(user.getId());
-        if (user.getTokens() != null) user.getTokens().clear();
+        if (user.getTokens() != null) {
+            user.getTokens().clear();
+        }
 
         user.setDeletedAt(LocalDateTime.now());
         user.setStatus(UserStatus.DELETED);
