@@ -73,7 +73,7 @@ public class GlobalExceptionHandler {
     // ---- Fallback ----
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorDto> handleRuntime(RuntimeException ex) {
-        return build(HttpStatus.INTERNAL_SERVER_ERROR, "internal.error");
+        return build(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL.ERROR");
     }
 
     // ---- Spring Security - Access Denied (403) ----

@@ -42,7 +42,7 @@ public class EventController {
     public ResponseEntity<ApiResponse<EventResponseDto>> create(@RequestBody EventRequestDto request) {
         EventResponseDto dto = eventService.createEvent(request);
         log.info("Événement créé : {}");
-        String message = messageService.get("event.create.success");
+        String message = messageService.get("EVENT.CREATE.SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, dto));
     }
 
@@ -52,7 +52,7 @@ public class EventController {
     @GetMapping
     public ResponseEntity<ApiResponse<List<EventResponseDto>>> findAll() {
         List<EventResponseDto> dtos = eventService.findAllResponses();
-        String message = messageService.get("event.list.success");
+        String message = messageService.get("EVENT.LIST.SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, dtos));
     }
 
@@ -62,7 +62,7 @@ public class EventController {
     @GetMapping("/{eventId}")
     public ResponseEntity<ApiResponse<EventDetailsDto>> findById(@PathVariable UUID eventId) {
         EventDetailsDto dto = eventService.findEventDetailsById(eventId);
-        String message = messageService.get("event.get.success");
+        String message = messageService.get("EVENT.GET.SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, dto));
     }
 
@@ -72,7 +72,7 @@ public class EventController {
     @GetMapping("/activity/{activityId}")
     public ResponseEntity<ApiResponse<List<EventResponseDto>>> findByActivity(@PathVariable UUID activityId) {
         List<EventResponseDto> dtos = eventService.getEventResponsesByActivity(activityId);
-        String message = messageService.get("event.by_activity.success");
+        String message = messageService.get("EVENT.BY_ACTIVITY.SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, dtos));
     }
 
@@ -87,7 +87,7 @@ public class EventController {
     ) {
         EventResponseDto dto = eventService.updateEvent(eventId, request);
         log.info("Événement mis à jour : {}");
-        String message = messageService.get("event.update.success");
+        String message = messageService.get("EVENT.UPDATE.SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, dto));
     }
 
@@ -99,7 +99,7 @@ public class EventController {
     public ResponseEntity<ApiResponse<Void>> deleteEvent(@PathVariable UUID eventId) {
         eventService.deleteEvent(eventId);
         log.info("Événement supprimé : {}", eventId);
-        String message = messageService.get("event.delete.success");
+        String message = messageService.get("EVENT.DELETE.SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, null));
     }
 
@@ -109,7 +109,7 @@ public class EventController {
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<List<EventResponseDto>>> search(@RequestParam String query) {
         List<EventResponseDto> dtos = eventService.searchEvents(query);
-        String message = messageService.get("event.search.success");
+        String message = messageService.get("EVENT.SEARCH.SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, dtos));
     }
 }

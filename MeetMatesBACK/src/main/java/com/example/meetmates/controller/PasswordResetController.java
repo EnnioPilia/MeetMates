@@ -34,7 +34,7 @@ public class PasswordResetController {
         passwordResetService.createPasswordResetToken(request.getEmail());
         log.info("[PASSWORD] Token envoyé pour {}", request.getEmail());
 
-        String message = messageService.get("password.reset.request_success");
+        String message = messageService.get("PASSWORD.RESET.REQUEST_SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, null));
     }
 
@@ -44,7 +44,7 @@ public class PasswordResetController {
         passwordResetService.resetPassword(dto.getToken(), dto.getNewPassword());
         log.info("[PASSWORD] Mot de passe réinitialisé avec succès");
 
-        String message = messageService.get("password.reset.confirm_success");
+        String message = messageService.get("PASSWORD.RESET.CONFIRM_SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, null));
     }
 }

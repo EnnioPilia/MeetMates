@@ -48,7 +48,7 @@ public class AuthController {
             HttpServletResponse response) {
 
         LoginResponseDto dto = authService.login(request, response);
-        String message = messageService.get("auth.login.success");
+        String message = messageService.get("AUTH.LOGIN.SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, dto));
     }
 
@@ -71,7 +71,7 @@ public class AuthController {
     // REFRESH TOKEN (géré par le filtre JWT)
     @PostMapping("/refresh-token")
     public ResponseEntity<ApiResponse<String>> refreshToken(HttpServletRequest request) {
-        String message = messageService.get("auth.refresh.handled_by_filter");
+        String message = messageService.get("AUTH.REFRESH.HANDLED_BY_FILTER");
         return ResponseEntity.ok(new ApiResponse<>(message, null));
     }
 }

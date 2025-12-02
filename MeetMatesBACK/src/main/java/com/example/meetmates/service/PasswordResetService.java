@@ -40,16 +40,14 @@ public class PasswordResetService {
         this.emailService = emailService;
     }
 
-    /**
-     * Génère un token de réinitialisation (PASSWORD_RESET) et envoie l'email.
-     */
+    
+    // * Génère un token de réinitialisation (PASSWORD_RESET) et envoie l'email.
     @Transactional
     public void createPasswordResetToken(String email) {
 
         User user = userRepository.findByEmail(email.toLowerCase())
                 .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
 
-        // Supprime les anciens tokens PASSWORD_RESET
         tokenRepository.deleteByUser_IdAndType(user.getId(), TokenType.PASSWORD_RESET);
 
         String tokenString = UUID.randomUUID().toString();
@@ -65,35 +63,30 @@ public class PasswordResetService {
             emailService.sendPasswordResetEmail(user.getEmail(), tokenString);
         } catch (Exception e) {
             log.error("[RESET] Erreur envoi email pour {}", user.getEmail(), e);
-            throw new RuntimeException("Erreur lors de l'envoi de l'email de réinitialisation.");
+            throw new ApiException(ErrorCode.EMAIL_SEND_FAILED);
         }
     }
 
-    /**
-     * Réinitialise le mot de passe après validation du token.
-     */
+
+    // * Réinitialise le mot de passe après validation du token.
     @Transactional
     public void resetPassword(String tokenString, String newPassword) {
 
         Token token = tokenRepository.findByToken(tokenString)
                 .orElseThrow(() -> new ApiException(ErrorCode.TOKEN_NOT_FOUND));
 
-        // Vérifie type
         if (token.getType() != TokenType.PASSWORD_RESET) {
             throw new ApiException(ErrorCode.TOKEN_INVALID);
         }
 
-        // Vérifie expiration
         if (token.getExpiresAt().isBefore(Instant.now())) {
             throw new ApiException(ErrorCode.TOKEN_EXPIRED);
         }
 
-        // Met à jour le mot de passe
         User user = token.getUser();
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
 
-        // Supprime le token après utilisation
         tokenRepository.delete(token);
 
         log.info("[RESET] Mot de passe réinitialisé pour {}", user.getEmail());

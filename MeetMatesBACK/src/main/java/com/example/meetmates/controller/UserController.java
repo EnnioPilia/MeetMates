@@ -61,7 +61,7 @@ public class UserController {
                 .map(userMapper::toDto)
                 .toList();
 
-        String message = messageService.get("user.get_all.success");
+        String message = messageService.get("USER.GET_ALL.SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, dtos));
     }
 
@@ -71,7 +71,7 @@ public class UserController {
             @AuthenticationPrincipal UserDetails userDetails) {
 
         User user = userService.findActiveByEmailOrThrow(userDetails.getUsername());
-        String message = messageService.get("user.get_me.success");
+        String message = messageService.get("USER.GET_ME.SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, userMapper.toDto(user)));
     }
 
@@ -87,7 +87,7 @@ public class UserController {
         user.setProfilePictureUrl(imageUrl);
         userService.saveUser(user);
 
-        String message = messageService.get("user.picture.upload.success");
+        String message = messageService.get("USER.PITCURE.UPLOAD.SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, userMapper.toDto(user)));
     }
 
@@ -100,7 +100,7 @@ public class UserController {
         User user = userService.findActiveByEmailOrThrow(userDetails.getUsername());
         User updated = userService.updateProfile(user, dto);
 
-        String message = messageService.get("user.profile.update.success");
+        String message = messageService.get("USER.PROFILE.UPDATE.SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, userMapper.toDto(updated)));
     }
 
@@ -108,7 +108,7 @@ public class UserController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable UUID id) {
         userService.hardDeleteById(id);
-        String message = messageService.get("user.delete.success");
+        String message = messageService.get("USER.DELETE.SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, null));
     }
 
@@ -121,7 +121,7 @@ public class UserController {
         pictureService.deleteUserProfilePicture(user);
         User updated = userService.clearProfilePicture(user);
 
-        String message = messageService.get("user.picture.delete.success");
+        String message = messageService.get("USER.PITCURE.DELETE.SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, userMapper.toDto(updated)));
     }
 
@@ -135,7 +135,7 @@ public class UserController {
 
         cookieService.clearAuthCookies(response);
 
-        String message = messageService.get("user.delete_account.success");
+        String message = messageService.get("USER.DELETE_ACCOUNT.SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, null));
     }
 

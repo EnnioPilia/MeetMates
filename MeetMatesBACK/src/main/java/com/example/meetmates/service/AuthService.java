@@ -52,10 +52,8 @@ public class AuthService {
         this.cookieService = cookieService;
     }
 
-    /**
-     * Enregistre ou restaure un compte.
-     * Retourne la clé de message (ex: "auth.register.success").
-     */
+
+    // * Enregistre ou restaure un compte.
     @Transactional
     public String register(RegisterRequestDto request) {
         String email = request.getEmail().toLowerCase();
@@ -69,7 +67,6 @@ public class AuthService {
             }
 
             if (user.getDeletedAt() == null) {
-                // compte actif et email déjà utilisé
                 throw new ApiException(ErrorCode.USER_EMAIL_USED);
             }
 
@@ -90,10 +87,9 @@ public class AuthService {
             String token = verificationService.createVerificationToken(user);
             emailService.sendVerificationEmail(user.getEmail(), token);
 
-            return "auth.register.success";
+            return "AUTH.REGISTER.SUCCESS";
         }
 
-        // Nouveau compte
         User user = new User();
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
@@ -109,12 +105,10 @@ public class AuthService {
         String token = verificationService.createVerificationToken(user);
         emailService.sendVerificationEmail(user.getEmail(), token);
 
-        return "auth.register.success";
+        return "AUTH.REGISTER.SUCCESS";
     }
 
-    /**
-     * Authentifie et positionne les cookies. Retourne le DTO contenant l'access token.
-     */
+    // * Authentifie et positionne les cookies. Retourne le DTO contenant l'access token.
     @Transactional
     public LoginResponseDto login(LoginRequestDto request, HttpServletResponse response) {
         String email = request.getEmail().toLowerCase();
@@ -126,7 +120,7 @@ public class AuthService {
             throw new ApiException(ErrorCode.USER_BANNED);
         }
         if (user.getDeletedAt() != null) {
-            throw new ApiException(ErrorCode.USER_DELETD);
+            throw new ApiException(ErrorCode.USER_DELETED);
         }
         if (!user.isEnabled()) {
             throw new ApiException(ErrorCode.USER_DISABLED);
@@ -154,20 +148,16 @@ public class AuthService {
         return new LoginResponseDto(jwt);
     }
 
-    /**
-     * Vérifie le token de confirmation et retourne la clé message.
-     */
+    // * Vérifie le token de confirmation et retourne la clé message
     @Transactional
     public String verifyUser(String token) {
         verificationService.confirmToken(token);
-        return "auth.verify.success";
+        return "AUTH.VERIFY.SUCCESS";
     }
 
-    /**
-     * Logout : supprime cookies et retourne la clé message.
-     */
+    // * Logout : supprime cookies et retourne la clé message
     public String logout(HttpServletResponse response) {
         cookieService.clearAuthCookies(response);
-        return "auth.logout.success";
+        return "AUTH.LOGOUT.SUCCESS";
     }
 }

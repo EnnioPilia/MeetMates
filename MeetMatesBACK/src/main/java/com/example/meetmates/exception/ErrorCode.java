@@ -5,7 +5,7 @@ public enum ErrorCode {
     USER_NOT_FOUND,
     USER_BANNED,
     USER_DISABLED,
-    USER_DELETD,
+    USER_DELETED,
     USER_EMAIL_USED,
     USER_ALREADY_VERIFIED,
 
