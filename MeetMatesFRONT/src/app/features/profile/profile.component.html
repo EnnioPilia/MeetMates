@@ -1,11 +1,11 @@
 <div class="layout-container flex flex-col items-center justify-start min-h-screen px-8 pt-16 pb-10 overflow-y-auto">
-  @if (loading()) {
-    <app-loading-spinner message="Chargement du profil..."></app-loading-spinner>
-  } 
-  @else if (error()) {
-    <p class="text-red-600 mt-10">{{ error() }}</p>
-  } 
-  @else if (user()) {
+  
+  <app-state-handler 
+    [loading]="loading"
+    [error]="error">
+  </app-state-handler>
+
+  @if (user()) {
     <div class="w-full flex flex-col">
 
       <app-settings-menu

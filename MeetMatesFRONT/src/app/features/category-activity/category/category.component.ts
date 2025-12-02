@@ -5,7 +5,7 @@ import { IconCardComponent } from '../../../shared-components/icon-card/icon-car
 import { ActivityFacade } from '../../../core/facades/activity/activity.facade';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { LoadingSpinnerComponent } from '../../../shared-components/loading-spinner/loading-spinner.component'; 
+import { StateHandlerComponent } from '../../../shared-components/state-handler.component/state-handler.component';
 
 @Component({
   selector: 'app-category',
@@ -14,7 +14,7 @@ import { LoadingSpinnerComponent } from '../../../shared-components/loading-spin
     CommonModule,
     IconCardComponent,
     MatProgressSpinnerModule,
-    LoadingSpinnerComponent
+    StateHandlerComponent
   ],
   templateUrl: './category.component.html',
   styleUrls: ['./category.component.scss']

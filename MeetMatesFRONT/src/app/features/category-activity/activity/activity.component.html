@@ -1,11 +1,12 @@
 <div class="pt-[40px] pb-[60px] mt-2">
-  @if (loading()) {
-    <app-loading-spinner></app-loading-spinner>
-  } 
-  @else if (error()) {
-    <p class="text-red-600 text-center mt-10">{{ error() }}</p>
-  } 
-  @else {
+
+  <app-state-handler 
+    class="!mt-10"
+    [loading]="loading"
+    [error]="error">
+  </app-state-handler>
+
+  @if (!loading() && !error()){
     <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 justify-items-center gap-6 p-6">
       @for (activity of activities(); track activity.id) {
 

@@ -9,7 +9,7 @@ import { EditEventAddressComponent } from './components/edit-event-address.compo
 import { EditEventDateTimeComponent } from './components/edit-event-dateTime.component';
 import { EditEventActivityComponent } from './components/edit-event-activity.component';
 import { AppButtonComponent } from '../../shared-components/button/button.component';
-import { LoadingSpinnerComponent } from '../../shared-components/loading-spinner/loading-spinner.component';
+import { StateHandlerComponent } from '../../shared-components/state-handler.component/state-handler.component';
 
 @Component({
   selector: 'app-edit-event',
@@ -21,7 +21,7 @@ imports: [
   EditEventDateTimeComponent,
   EditEventActivityComponent,
   AppButtonComponent,
-  LoadingSpinnerComponent
+  StateHandlerComponent
 ],
   templateUrl: './edit-event.component.html',
   styleUrls: ['./edit-event.component.scss']

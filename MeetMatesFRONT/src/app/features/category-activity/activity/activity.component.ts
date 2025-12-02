@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { IconCardComponent } from '../../../shared-components/icon-card/icon-card.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { LoadingSpinnerComponent } from '../../../shared-components/loading-spinner/loading-spinner.component';
+import { StateHandlerComponent } from '../../../shared-components/state-handler.component/state-handler.component';
 import { ActivityFacade } from '../../../core/facades/activity/activity.facade';
 
 @Component({
@@ -14,7 +14,7 @@ import { ActivityFacade } from '../../../core/facades/activity/activity.facade';
     CommonModule,
     IconCardComponent,
     MatProgressSpinnerModule,
-    LoadingSpinnerComponent
+    StateHandlerComponent
   ],
   templateUrl: './activity.component.html',
   styleUrls: ['./activity.component.scss']

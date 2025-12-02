@@ -9,12 +9,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { ConfirmDialogComponent } from '../../shared-components/confirm-dialog/confirm-dialog.component';
 import { CguDialogComponent } from '../../shared-components/cgu-dialog/cgu-dialog.component';
-
 import { ProfileCardComponent } from './components/profile-card.component';
 import { ParticipationTabComponent } from './components/participation-tab.component';
 import { OrganizationTabComponent } from './components/organization-tab.component';
 import { SettingsMenuComponent } from './components/settings-menu.component';
-import { LoadingSpinnerComponent } from '../../shared-components/loading-spinner/loading-spinner.component';
+import { StateHandlerComponent } from '../../shared-components/state-handler.component/state-handler.component';
 import { ProfileFacade } from '../../core/facades/profile/profile.facade';
 
 @Component({
@@ -29,7 +28,7 @@ import { ProfileFacade } from '../../core/facades/profile/profile.facade';
     ParticipationTabComponent,
     OrganizationTabComponent,
     SettingsMenuComponent,
-    LoadingSpinnerComponent
+    StateHandlerComponent
   ],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],

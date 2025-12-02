@@ -6,7 +6,7 @@ import { User } from '../../core/models/user.model';
 
 import { EditProfilePictureComponent } from './components/edit-profile-picture.component';
 import { EditProfileFormComponent } from './components/edit-profile-form.component';
-import { LoadingSpinnerComponent } from '../../shared-components/loading-spinner/loading-spinner.component';
+import { StateHandlerComponent } from '../../shared-components/state-handler.component/state-handler.component';
 
 @Component({
   selector: 'app-edit-profile',
@@ -15,7 +15,7 @@ import { LoadingSpinnerComponent } from '../../shared-components/loading-spinner
     CommonModule,
     EditProfilePictureComponent,
     EditProfileFormComponent,
-    LoadingSpinnerComponent
+    StateHandlerComponent
   ],
   templateUrl: './edit-profile.component.html',
   styleUrls: ['./edit-profile.component.scss']

@@ -11,9 +11,10 @@ import { ErrorHandlerService } from '../../services/error-handler/error-handler.
 
 import { User } from '../../models/user.model';
 import { EventResponse } from '../../models/event-response.model';
+import { BaseFacade } from '../base/base.facade'; 
 
 @Injectable({ providedIn: 'root' })
-export class ProfileFacade {
+export class ProfileFacade extends BaseFacade{
 
   private userFacade = inject(UserFacade);
   private authFacade = inject(AuthFacade);
@@ -24,26 +25,24 @@ export class ProfileFacade {
   readonly user = signal<User | null>(null);
   readonly eventsOrganized = signal<EventResponse[]>([]);
   readonly eventsParticipating = signal<EventResponse[]>([]);
-  readonly loading = signal(true);
-  readonly error = signal<string | null>(null);
+
 
   loadProfile() {
-    this.loading.set(true);
-    this.error.set(null);
+    this.startLoading();
 
     this.userFacade.getCurrentUser()
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError(err => {
           this.errorHandler.handle(err);
-          this.error.set('Impossible de charger le profil.');
+          this.setError('Impossible de charger le profil.');
           return EMPTY;
         })
       )
       .subscribe(user => {
         if (!user) {
-          this.error.set('Profil introuvable.');
-          this.loading.set(false);
+          this.setError('Profil introuvable.');
+          this.stopLoading();
           return;
         }
 
@@ -64,7 +63,7 @@ export class ProfileFacade {
           this.errorHandler.handle(err);
           return EMPTY;
         }),
-        finalize(() => this.loading.set(false))
+        finalize(() => this.stopLoading())
       )
       .subscribe(({ organized, participating }) => {
         const orgIds = new Set(organized.map(e => e.eventId ?? e.id));

@@ -1,7 +1,8 @@
 import { Injectable, inject, signal, DestroyRef } from '@angular/core';
 import { catchError, EMPTY, tap, Observable, map } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { of } from 'rxjs';
+
+import { BaseFacade } from '../base/base.facade'; 
 import { ApiResponse } from '../../models/api-response.model'; 
 
 import { EventService } from '../../services/event/event.service';
@@ -18,7 +19,7 @@ import { EventResponse } from '../../models/event-response.model';
 import { User } from '../../models/user.model';
 
 @Injectable({ providedIn: 'root' })
-export class EventListFacade {
+export class EventListFacade extends BaseFacade{
 
   private eventService = inject(EventService);
   private eventUserService = inject(EventUserService);
@@ -35,10 +36,8 @@ export class EventListFacade {
   readonly events = signal<EventResponse[]>([]);
   readonly currentUser = signal<User | null>(null);
 
-  readonly loading = signal(false);
-  readonly error = signal<string | null>(null);
-
   constructor() {
+    super();
     this.loadCurrentUser();
   }
 
@@ -58,43 +57,42 @@ export class EventListFacade {
 
   /** Charger tous les événements */
   loadAllEvents() {
-    this.loading.set(true);
-    this.error.set(null);
+    this.startLoading()
 
     this.eventService.fetchAllEvents()
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError(err => {
           this.errorHandler.handle(err);
-          this.error.set("Impossible de charger les événements.");
-          this.loading.set(false);
+          this.setError("Impossible de charger les événements.");
+          this.stopLoading();
           return EMPTY;
         })
       )
       .subscribe(events => {
         this.events.set(events);
-        this.loading.set(false);
+        this.stopLoading();
       });
   }
 
   /** Charger événements par activité */
   loadEventsByActivity(activityId: string) {
-    this.loading.set(true);
-    this.error.set(null);
+        this.startLoading()
+
 
     this.eventService.fetchEventsByActivity(activityId)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError(err => {
           this.errorHandler.handle(err);
-          this.error.set("Impossible de charger les événements.");
-          this.loading.set(false);
+          this.setError("Impossible de charger les événements.");
+          this.stopLoading();
           return EMPTY;
         })
       )
       .subscribe(events => {
         this.events.set(events);
-        this.loading.set(false);
+        this.stopLoading();
       });
   }
 

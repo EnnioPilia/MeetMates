@@ -10,7 +10,6 @@ import { RegisterRequest } from '../../models/auth.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthFacade {
-
   private authService = inject(AuthService);
   private users = inject(UserService);
   private signals = inject(SignalsService);
@@ -18,10 +17,8 @@ export class AuthFacade {
   private errorHandler = inject(ErrorHandlerService);
   private router = inject(Router);
 
-  /** ⛔ Ajout ici */
   isSubmitting = false;
 
-  /** Helper interne */
   private start() { this.isSubmitting = true; }
   private stop() { this.isSubmitting = false; }
 

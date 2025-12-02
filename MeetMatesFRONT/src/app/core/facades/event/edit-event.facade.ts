@@ -10,9 +10,10 @@ import { catchError, tap } from 'rxjs/operators';
 import { EventDetails } from '../../models/event-details.model';
 import { Activity } from '../../models/activity.model';
 import { AddressSuggestion } from '../../services/address/address.service';
+import { BaseFacade } from '../base/base.facade'; 
 
 @Injectable({ providedIn: 'root' })
-export class EditEventFacade {
+export class EditEventFacade extends BaseFacade{
 
   private eventService = inject(EventService);
   private activityService = inject(ActivityService);
@@ -21,15 +22,12 @@ export class EditEventFacade {
   private successHandler = inject(SuccessHandlerService);
   private destroyRef = inject(DestroyRef);
 
-  readonly loading = signal(false);
-  readonly error = signal<string | null>(null);
   readonly activities = signal<Activity[]>([]);
   readonly event = signal<EventDetails | null>(null);
   addressSuggestions = signal<AddressSuggestion[]>([]);
 
   loadEvent(eventId: string) {
-    this.loading.set(true);
-    this.error.set(null);
+    this.startLoading()
 
     return forkJoin([
       this.activityService.fetchAllActivities(),
@@ -39,28 +37,29 @@ export class EditEventFacade {
       tap(([activities, event]) => {
         this.activities.set(activities);
         this.event.set(event);
-        this.loading.set(false);
+        this.stopLoading();
       }),
       catchError(err => {
         this.errorHandler.handle(err);
-        this.error.set('Erreur lors du chargement.');
-        this.loading.set(false);
+        this.setError('Erreur lors du chargement.');
+        this.stopLoading();
         return EMPTY;
       })
     );
   }
 
   updateEvent(eventId: string, payload: EventDetails) {
-    this.loading.set(true);
+    this.startLoading()
+
     return this.eventService.updateEvent(eventId, payload).pipe(
       takeUntilDestroyed(this.destroyRef),
       tap(res => {
         this.successHandler.handle(res);
-        this.loading.set(false);
+        this.stopLoading();
       }),
       catchError(err => {
         this.errorHandler.handle(err);
-        this.loading.set(false);
+        this.stopLoading();
         return EMPTY;
       })
     );

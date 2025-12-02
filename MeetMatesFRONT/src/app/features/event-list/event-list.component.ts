@@ -21,7 +21,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { EventHeaderComponent } from '../../shared-components/event-header/event-header.component';
 import { EventInfoComponent } from '../../shared-components/event-info/event-info.component';
 import { AppButtonComponent } from '../../shared-components/button/button.component';
-import { LoadingSpinnerComponent } from '../../shared-components/loading-spinner/loading-spinner.component';
+import { StateHandlerComponent } from '../../shared-components/state-handler.component/state-handler.component';
 
 import { EventResponse } from '../../core/models/event-response.model';
 import { getStatusLabel, getLevelLabel, getMaterialLabel } from '../../core/utils/labels.util';
@@ -39,7 +39,7 @@ import { getStatusLabel, getLevelLabel, getMaterialLabel } from '../../core/util
     EventHeaderComponent,
     EventInfoComponent,
     AppButtonComponent,
-    LoadingSpinnerComponent
+    StateHandlerComponent
   ]
 })
 export class EventListComponent implements OnInit {

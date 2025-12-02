@@ -1,6 +1,8 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { catchError, EMPTY, tap } from 'rxjs';
 
+import { BaseFacade } from '../base/base.facade'; 
+
 import { ActivityService } from '../../services/activity/activity.service';
 import { EventService } from '../../services/event/event.service';
 import { EventUserService } from '../../services/event-user/event-user.service';
@@ -12,7 +14,7 @@ import { Activity } from '../../models/activity.model';
 import { AddressSuggestion } from '../../services/address/address.service';
 
 @Injectable({ providedIn: 'root' })
-export class EventFacade {
+export class EventFacade extends BaseFacade{
 
     private activityService = inject(ActivityService);
     private eventService = inject(EventService);
@@ -23,26 +25,23 @@ export class EventFacade {
 
     readonly activities = signal<Activity[]>([]);
     readonly addressSuggestions = signal<AddressSuggestion[]>([]);
-    readonly loading = signal(false);
-    readonly error = signal<string | null>(null);
     readonly event = signal<any | null>(null);
 
     isSubmitting = false;
 
     // Charger toutes les activités
     loadActivities() {
-        this.loading.set(true);
-        this.error.set(null);
+        this.startLoading()
 
         this.activityService.fetchAllActivities().subscribe({
             next: (data) => {
                 this.activities.set(data);
-                this.loading.set(false);
+                this.stopLoading();
             },
             error: (err) => {
                 this.errorHandler.handle(err);
-                this.error.set("Impossible de charger les activités.");
-                this.loading.set(false);
+                this.setError("Impossible de charger les activités.");
+                this.stopLoading();
             }
         });
     }
@@ -59,17 +58,16 @@ export class EventFacade {
 
     // Créer un événement
     createEvent(payload: any) {
-        this.loading.set(true);
-        this.error.set(null);
+        this.startLoading()
 
         return this.eventService.createEvent(payload).pipe(
             tap(res => {
                 this.successHandler.handle(res);
-                this.loading.set(false);
+                this.stopLoading();
             }),
             catchError(err => {
                 this.errorHandler.handle(err);
-                this.loading.set(false);
+                this.stopLoading();
                 return EMPTY;
             })
         );
@@ -112,18 +110,17 @@ export class EventFacade {
     }
 
     load(eventId: string) {
-        this.loading.set(true);
-        this.error.set(null);
+        this.startLoading()
 
         return this.eventService.fetchEventById(eventId).pipe(
             tap(event => {
                 (this as any).event?.set(event)
-                this.loading.set(false);
+                this.stopLoading();
             }),
             catchError(err => {
                 this.errorHandler.handle(err);
-                this.error.set('Impossible de charger les événements');
-                this.loading.set(false);
+                this.setError('Impossible de charger les événements');
+                this.stopLoading();
                 return EMPTY;
             })
         );

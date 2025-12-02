@@ -1,0 +1,8 @@
+@if (loading()) {
+  <app-loading-spinner></app-loading-spinner>
+}
+@else if (error()) {
+  <p class="text-red-600 text-center mt-10">
+    {{ error() }}
+  </p>
+}

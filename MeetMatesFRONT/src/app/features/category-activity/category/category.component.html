@@ -1,15 +1,14 @@
 <div class="pt-[40px] pb-[60px] mt-2">
-  @if (loading()) {
-    <app-loading-spinner></app-loading-spinner>
-  }
-  @else if (error()) {
-    <p class="text-red-600 text-center mt-10">{{ error() }}</p>
-  }
-  @else {
+
+  <app-state-handler 
+    [loading]="loading"
+    [error]="error">
+  </app-state-handler>
+
+  @if (!loading() && !error()){
     <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 justify-items-center gap-6 p-6">
+      @for (category of categories(); track category.id) {
       
-  @for (category of categories(); track category.id) {
-  
         <app-icon-card
           class="icon-card"
           [title]="category.name"
@@ -19,5 +18,5 @@
 
       }
     </div>
-  }
+    }
 </div>

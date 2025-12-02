@@ -13,7 +13,7 @@ import { ParticipantListComponent } from './components/participant-list';
 import { EventHeaderComponent } from '../../shared-components/event-header/event-header.component';
 import { EventInfoComponent } from '../../shared-components/event-info/event-info.component';
 import { AppButtonComponent } from '../../shared-components/button/button.component';
-import { LoadingSpinnerComponent } from '../../shared-components/loading-spinner/loading-spinner.component';
+import { StateHandlerComponent } from '../../shared-components/state-handler.component/state-handler.component';
 
 import { getStatusLabel, getLevelLabel, getMaterialLabel, getParticipationLabel } from '../../core/utils/labels.util';
 import { EventFacade } from '../../core/facades/event/event.facade';
@@ -32,8 +32,8 @@ import { EventFacade } from '../../core/facades/event/event.facade';
     EventHeaderComponent,
     EventInfoComponent,
     AppButtonComponent,
-    LoadingSpinnerComponent
-  ],
+    StateHandlerComponent
+    ],
   templateUrl: './event-participant.component.html',
   styleUrls: ['./event-participant.component.scss']
 })
