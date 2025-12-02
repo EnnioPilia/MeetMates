@@ -9,7 +9,7 @@ import { EditEventAddressComponent } from './components/edit-event-address.compo
 import { EditEventDateTimeComponent } from './components/edit-event-dateTime.component';
 import { EditEventActivityComponent } from './components/edit-event-activity.component';
 import { AppButtonComponent } from '../../shared-components/button/button.component';
-import { StateHandlerComponent } from '../../shared-components/state-handler.component/state-handler.component';
+import { StateHandlerComponent } from '../../shared-components/state-handler/state-handler.component';
 
 @Component({
   selector: 'app-edit-event',

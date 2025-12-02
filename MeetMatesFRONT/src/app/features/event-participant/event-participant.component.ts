@@ -4,16 +4,15 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDialog } from '@angular/material/dialog';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { ConfirmDialogComponent } from '../../shared-components/confirm-dialog/confirm-dialog.component';
+import { DialogService } from '../../core/services/dialog.service/dialog.service';
 import { EventStatusComponent } from './components/event-status';
 import { ParticipantListComponent } from './components/participant-list';
 import { EventHeaderComponent } from '../../shared-components/event-header/event-header.component';
 import { EventInfoComponent } from '../../shared-components/event-info/event-info.component';
 import { AppButtonComponent } from '../../shared-components/button/button.component';
-import { StateHandlerComponent } from '../../shared-components/state-handler.component/state-handler.component';
+import { StateHandlerComponent } from '../../shared-components/state-handler/state-handler.component';
 
 import { getStatusLabel, getLevelLabel, getMaterialLabel, getParticipationLabel } from '../../core/utils/labels.util';
 import { EventFacade } from '../../core/facades/event/event.facade';
@@ -41,7 +40,7 @@ export class EventParticipantComponent implements OnInit {
 
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private dialog = inject(MatDialog);
+  private dialogService = inject(DialogService);
   private destroyRef = inject(DestroyRef);
 
   private eventFacade = inject(EventFacade);
@@ -60,23 +59,20 @@ export class EventParticipantComponent implements OnInit {
   }
 
   cancelParticipation(eventId: string): void {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: {
-        title: 'Confirmer l’annulation',
-        message: "Êtes-vous sûr de vouloir annuler votre participation ?"
-      }
-    });
+  this.dialogService
+    .confirm(
+      'Confirmer l’annulation',
+      "Êtes-vous sûr de vouloir annuler votre participation ?"
+    )
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe((confirmed: boolean) => {
+      if (!confirmed) return;
 
-    dialogRef.afterClosed().subscribe(confirm => {
-      if (!confirm) return;
-
-      this.eventFacade.leave(eventId).pipe(
-        takeUntilDestroyed(this.destroyRef)
-      ).subscribe(() => {
-        this.router.navigate(['/profile']);
-      });
+      this.eventFacade.leave(eventId)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => this.router.navigate(['/profile']));
     });
-  }
+}
 
   getStatusLabel(status?: string): string {
     return status ? getStatusLabel(status) : '';

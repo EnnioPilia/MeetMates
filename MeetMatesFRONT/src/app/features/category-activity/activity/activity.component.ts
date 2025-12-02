@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { IconCardComponent } from '../../../shared-components/icon-card/icon-card.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { StateHandlerComponent } from '../../../shared-components/state-handler.component/state-handler.component';
+import { StateHandlerComponent } from '../../../shared-components/state-handler/state-handler.component';
 import { ActivityFacade } from '../../../core/facades/activity/activity.facade';
 
 @Component({

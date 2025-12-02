@@ -7,14 +7,16 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog } from '@angular/material/dialog';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { ConfirmDialogComponent } from '../../shared-components/confirm-dialog/confirm-dialog.component';
+import { DialogService } from '../../core/services/dialog.service/dialog.service';
+
 import { CguDialogComponent } from '../../shared-components/cgu-dialog/cgu-dialog.component';
 import { ProfileCardComponent } from './components/profile-card.component';
 import { ParticipationTabComponent } from './components/participation-tab.component';
 import { OrganizationTabComponent } from './components/organization-tab.component';
 import { SettingsMenuComponent } from './components/settings-menu.component';
-import { StateHandlerComponent } from '../../shared-components/state-handler.component/state-handler.component';
+import { StateHandlerComponent } from '../../shared-components/state-handler/state-handler.component';
 import { ProfileFacade } from '../../core/facades/profile/profile.facade';
+
 
 @Component({
   selector: 'app-profile',
@@ -40,6 +42,7 @@ export class ProfileComponent {
   private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
   private profileFacade = inject(ProfileFacade);
+  private dialogService = inject(DialogService);
 
   readonly user = this.profileFacade.user;
   readonly eventsParticipating = this.profileFacade.eventsParticipating;
@@ -52,13 +55,8 @@ export class ProfileComponent {
   }
 
   onLogout(): void {
-    this.dialog.open(ConfirmDialogComponent, {
-      data: {
-        title: 'Déconnexion',
-        message: 'Voulez-vous vraiment vous déconnecter ?'
-      }
-    })
-      .afterClosed()
+    this.dialogService
+      .confirm('Déconnexion', 'Voulez-vous vraiment vous déconnecter ?')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(confirmed => {
         if (confirmed) {
@@ -68,13 +66,8 @@ export class ProfileComponent {
   }
 
   onDeleteAccount(): void {
-    this.dialog.open(ConfirmDialogComponent, {
-      data: {
-        title: 'Suppression du compte',
-        message: 'Voulez-vous vraiment supprimer définitivement votre compte ?'
-      }
-    })
-      .afterClosed()
+    this.dialogService
+      .confirm('Suppression du compte', 'Voulez-vous vraiment supprimer définitivement votre compte ?')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(confirmed => {
         if (confirmed) {
@@ -88,19 +81,12 @@ export class ProfileComponent {
   }
 
   openCguDialog(): void {
-    this.dialog.open(CguDialogComponent, {
-      width: '600px',
-      autoFocus: false,
-      data: { type: 'cgu' }
-    });
+    this.dialogService.openCgu();
   }
 
   openMentionsDialog(): void {
-    this.dialog.open(CguDialogComponent, {
-      width: '600px',
-      autoFocus: false,
-      data: { type: 'mentions' }
-    });
+    this.dialogService.openMentions();
   }
+
 }
 

@@ -12,7 +12,7 @@ export class ErrorHandlerService {
 
     switch (err.status) {
       case 0:
-        this.notification.showError(' Impossible de contacter le serveur.');
+        this.notification.showError('Impossible de contacter le serveur.');
         break;
 
       case 400:
@@ -41,17 +41,17 @@ export class ErrorHandlerService {
     try {
       const e = err.error;
 
-      // 🔹 cas : string JSON envoyé par le back
+      // cas : string JSON envoyé par le back
       if (typeof e === 'string') {
         try {
           const parsed = JSON.parse(e);
           return parsed.message || parsed.error || parsed.msg || null;
         } catch {
-          return e; // string simple envoyée par le back
+          return e; 
         }
       }
 
-      // 🔹 cas : object
+      // cas : object
       if (typeof e === 'object' && e !== null) {
         return (
           e.message ||

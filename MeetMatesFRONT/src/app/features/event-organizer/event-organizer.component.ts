@@ -13,8 +13,8 @@ import { EventInfoComponent } from '../../shared-components/event-info/event-inf
 import { AppButtonComponent } from '../../shared-components/button/button.component';
 import { EventTabAcceptedComponent } from './components/event-tab-accepted.component';
 import { EventTabPendingComponent } from './components/event-tab-pending.component';
-import { ConfirmDialogComponent } from '../../shared-components/confirm-dialog/confirm-dialog.component';
-import { StateHandlerComponent } from '../../shared-components/state-handler.component/state-handler.component';
+import { DialogService } from '../../core/services/dialog.service/dialog.service';
+import { StateHandlerComponent } from '../../shared-components/state-handler/state-handler.component';
 
 @Component({
   selector: 'app-event-organizer',
@@ -39,7 +39,7 @@ export class EventOrganizerComponent implements OnInit {
 
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private dialog = inject(MatDialog);
+  private dialogService = inject(DialogService);
   private destroyRef = inject(DestroyRef);
 
   private eventFacade = inject(EventFacade);
@@ -71,24 +71,21 @@ export class EventOrganizerComponent implements OnInit {
   }
 
   deleteEvent() {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: {
-        title: "Supprimer l’activité",
-        message: "Êtes-vous sûr ?"
-      }
-    });
-
-    dialogRef.afterClosed().subscribe(confirm => {
-      if (!confirm) return;
+  this.dialogService
+    .confirm("Supprimer l’activité", "Êtes-vous sûr ?")
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe((confirmed: boolean) => {
+      if (!confirmed) return;
 
       const id = this.eventFacade.event()?.id;
       if (!id) return;
 
-      this.eventFacade.deleteEvent(id).pipe(
-        takeUntilDestroyed(this.destroyRef)
-      ).subscribe(() => this.router.navigate(['/profile']));
+      this.eventFacade.deleteEvent(id)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => this.router.navigate(['/profile']));
     });
-  }
+}
+
 
   refresh() {
     const id = this.route.snapshot.paramMap.get('eventId');

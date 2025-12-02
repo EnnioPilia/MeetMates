@@ -14,11 +14,10 @@ import { AuthFacade } from '../../../core/facades/auth/auth.facade';
 import { NotificationService } from '../../../core/services/notification/notification.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatDialog } from '@angular/material/dialog';
+import { DialogService } from '../../../core/services/dialog.service/dialog.service';
 
 import { AppButtonComponent } from '../../../shared-components/button/button.component';
 import { AppInputComponent } from '../../../shared-components/input/input.component';
-import { CguDialogComponent } from '../../../shared-components/cgu-dialog/cgu-dialog.component';
 
 @Component({
   selector: 'app-register',
@@ -38,7 +37,7 @@ export class RegisterComponent {
   private fb = inject(NonNullableFormBuilder);
   private authFacade = inject(AuthFacade);
   private notification = inject(NotificationService);
-  private dialog = inject(MatDialog);
+  private dialogService = inject(DialogService);
   private destroyRef = inject(DestroyRef);
   private cdr = inject(ChangeDetectorRef);
   private router = inject(Router);
@@ -51,7 +50,7 @@ export class RegisterComponent {
     confirmPassword: ['', Validators.required],
     acceptCgu: [false, Validators.requiredTrue],
   });
-  
+
   get isSubmitting() {
     return this.authFacade.isSubmitting;
   }
@@ -81,16 +80,15 @@ export class RegisterComponent {
       .register(payload)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
-        // success = null si erreur → rien à gérer
         this.cdr.markForCheck();
       });
   }
 
   openCguDialog(event: Event): void {
     event.preventDefault();
-    this.dialog.open(CguDialogComponent, { width: '600px', autoFocus: false });
+    this.dialogService.openCgu();
   }
-
+  
   navigateTo(path: string): void {
     this.router.navigate([`/${path}`]);
   }

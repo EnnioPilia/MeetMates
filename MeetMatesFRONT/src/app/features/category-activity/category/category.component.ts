@@ -5,7 +5,7 @@ import { IconCardComponent } from '../../../shared-components/icon-card/icon-car
 import { ActivityFacade } from '../../../core/facades/activity/activity.facade';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { StateHandlerComponent } from '../../../shared-components/state-handler.component/state-handler.component';
+import { StateHandlerComponent } from '../../../shared-components/state-handler/state-handler.component';
 
 @Component({
   selector: 'app-category',

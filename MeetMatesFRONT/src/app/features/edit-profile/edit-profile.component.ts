@@ -6,7 +6,7 @@ import { User } from '../../core/models/user.model';
 
 import { EditProfilePictureComponent } from './components/edit-profile-picture.component';
 import { EditProfileFormComponent } from './components/edit-profile-form.component';
-import { StateHandlerComponent } from '../../shared-components/state-handler.component/state-handler.component';
+import { StateHandlerComponent } from '../../shared-components/state-handler/state-handler.component';
 
 @Component({
   selector: 'app-edit-profile',
