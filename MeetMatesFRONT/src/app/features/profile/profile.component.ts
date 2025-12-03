@@ -50,9 +50,9 @@ export class ProfileComponent {
   readonly loading = this.profileFacade.loading;
   readonly error = this.profileFacade.error;
 
-  ngOnInit(): void {
-    this.profileFacade.loadProfile();
-  }
+ngOnInit() {
+  this.profileFacade.loadProfile().subscribe();
+}
 
   onLogout(): void {
     this.dialogService

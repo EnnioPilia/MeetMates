@@ -28,7 +28,7 @@ export class EditProfileComponent implements OnInit {
   readonly error = this.userFacade.error;
 
   ngOnInit() {
-    this.userFacade.loadUser();
+    this.userFacade.loadUser().subscribe();
   }
 
   onSave(formValue: Partial<User>) {

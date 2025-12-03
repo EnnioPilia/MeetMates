@@ -55,35 +55,49 @@ export class EventListComponent implements OnInit {
   @ViewChildren('eventCard') eventCards!: QueryList<ElementRef>;
 
   ngOnInit(): void {
+  // 1️⃣ Charger d’abord l’utilisateur
+  this.eventListFacade.loadCurrentUser()
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe(() => {
 
-    const activityId = this.route.snapshot.paramMap.get('activityId');
+      // 2️⃣ Ensuite charger les events
+      const activityId = this.route.snapshot.paramMap.get('activityId');
 
-    if (activityId) {
-      this.eventListFacade.loadActivityName(activityId);
-      this.eventListFacade.loadEventsByActivity(activityId);
-    } else {
-      this.eventListFacade.loadAllEvents();
-    }
+      if (activityId) {
+        this.eventListFacade.loadActivityName(activityId)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe();
 
-    // Scroll depuis query param
-    this.route.queryParams
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(params => {
-        const eventId = params['eventId'];
-        if (eventId) this.scrollToEventWhenReady(eventId);
-      });
-  }
+        this.eventListFacade.loadEventsByActivity(activityId)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe();
+      } else {
+        this.eventListFacade.loadAllEvents()
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe();
+      }
+    });
+
+  // 3️⃣ Scroll param
+  this.route.queryParams
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe(params => {
+      const eventId = params['eventId'];
+      if (eventId) this.scrollToEventWhenReady(eventId);
+    });
+}
+
 
   // ---------------------------
   // JOIN EVENT (façade only)
   // ---------------------------
-// ----------------------------------
-// Parent component
-joinEvent(eventId: string) {
-  this.eventListFacade.joinEvent(eventId)
-    .pipe(takeUntilDestroyed(this.destroyRef))
-    .subscribe();
-}
+  // ----------------------------------
+  // Parent component
+  joinEvent(eventId: string) {
+    this.eventListFacade.joinEvent(eventId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
+  }
 
   // ---------------------------
   // SCROLL

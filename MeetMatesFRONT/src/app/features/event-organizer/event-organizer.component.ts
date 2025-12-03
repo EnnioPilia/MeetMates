@@ -89,7 +89,7 @@ export class EventOrganizerComponent implements OnInit {
 
   refresh() {
     const id = this.route.snapshot.paramMap.get('eventId');
-    if (!id) return;
+      if (!id) return;
 
     this.eventFacade.load(id).subscribe();
   }

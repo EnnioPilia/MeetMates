@@ -17,27 +17,48 @@ export class EventService {
   // FETCH ALL EVENTS
   fetchAllEvents(): Observable<EventResponse[]> {
     return this.http
-      .get<{ message: string; data: EventResponse[] }>(`${this.baseUrl}/event`, { withCredentials: true })
-      .pipe(map(res => res.data));
+      .get<ApiResponse<EventResponse[]>>(
+        `${this.baseUrl}/event`,
+        { withCredentials: true }
+      )
+      .pipe(map(res => res.data ?? []));
   }
 
   // FETCH EVENTS BY ACTIVITY
   fetchEventsByActivity(activityId: string): Observable<EventResponse[]> {
     return this.http
-      .get<{ message: string; data: EventResponse[] }>(`${this.baseUrl}/event/activity/${activityId}`, { withCredentials: true })
-      .pipe(map(res => res.data));
+      .get<ApiResponse<EventResponse[]>>(
+        `${this.baseUrl}/event/activity/${activityId}`,
+        { withCredentials: true }
+      )
+      .pipe(map(res => res.data ?? []));
   }
 
   // FETCH EVENT DETAILS BY ID
   fetchEventById(id: string): Observable<EventDetails> {
     return this.http
-      .get<{ message: string; data: EventDetails }>(`${this.baseUrl}/event/${id}`, { withCredentials: true })
+      .get<ApiResponse<EventDetails>>(
+        `${this.baseUrl}/event/${id}`,
+        { withCredentials: true }
+      )
       .pipe(map(res => res.data));
   }
 
   // CREATE EVENT
-  createEvent(eventPayload: EventRequest) {
-    return this.http.post<{ message: string; data: EventDetails }>(`${this.baseUrl}/event`, eventPayload, { withCredentials: true }
+  createEvent(eventPayload: EventRequest): Observable<ApiResponse<EventDetails>> {
+    return this.http.post<ApiResponse<EventDetails>>(
+      `${this.baseUrl}/event`,
+      eventPayload,
+      { withCredentials: true }
+    );
+  }
+
+  // UPDATE EVENT
+  updateEvent(eventId: string, updatedEvent: Partial<EventDetails>) {
+    return this.http.put<ApiResponse<EventDetails>>(
+      `${this.baseUrl}/event/${eventId}`,
+      updatedEvent,
+      { withCredentials: true }
     );
   }
 
@@ -49,20 +70,13 @@ export class EventService {
     );
   }
 
-  // UPDATE EVENT
-  updateEvent(eventId: string, updatedEvent: Partial<EventDetails>) {
-    return this.http.put<{ message: string; data: EventDetails }>(
-      `${this.baseUrl}/event/${eventId}`,
-      updatedEvent,
-      { withCredentials: true }
-    );
-  }
-
-
   // SEARCH EVENTS
   searchEvents(query: string): Observable<EventResponse[]> {
     return this.http
-      .get<{ message: string; data: EventResponse[] }>(`${this.baseUrl}/event/search`, { params: { query }, withCredentials: true })
-      .pipe(map(res => res.data));
+      .get<ApiResponse<EventResponse[]>>(
+        `${this.baseUrl}/event/search`,
+        { params: { query }, withCredentials: true }
+      )
+      .pipe(map(res => res.data ?? []));
   }
 }

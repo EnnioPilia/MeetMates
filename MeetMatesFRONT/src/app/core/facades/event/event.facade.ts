@@ -1,141 +1,140 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { catchError, EMPTY, tap } from 'rxjs';
-
-import { BaseFacade } from '../base/base.facade'; 
+import { tap, finalize } from 'rxjs';
+import { BaseFacade } from '../base/base.facade';
+import { EventRequest } from '../../models/event-request.model';
 
 import { ActivityService } from '../../services/activity/activity.service';
 import { EventService } from '../../services/event/event.service';
 import { EventUserService } from '../../services/event-user/event-user.service';
 import { AddressService } from '../../services/address/address.service';
-import { ErrorHandlerService } from '../../services/error-handler/error-handler.service';
 import { SuccessHandlerService } from '../../services/success-handler/success-handler.service';
+import { EventDetails } from '../../models/event-details.model';
 
 import { Activity } from '../../models/activity.model';
 import { AddressSuggestion } from '../../services/address/address.service';
 
 @Injectable({ providedIn: 'root' })
-export class EventFacade extends BaseFacade{
+export class EventFacade extends BaseFacade {
 
     private activityService = inject(ActivityService);
     private eventService = inject(EventService);
     private addressService = inject(AddressService);
-    private successHandler = inject(SuccessHandlerService);
-    private errorHandler = inject(ErrorHandlerService);
     private eventUserService = inject(EventUserService);
+    private successHandler = inject(SuccessHandlerService);
 
     readonly activities = signal<Activity[]>([]);
     readonly addressSuggestions = signal<AddressSuggestion[]>([]);
-    readonly event = signal<any | null>(null);
+    readonly event = signal<EventDetails | null>(null);
 
+    // ⭐ EXACTEMENT comme AuthFacade
     isSubmitting = false;
+    private start() { this.isSubmitting = true; }
+    private stop() { this.isSubmitting = false; }
 
-    // Charger toutes les activités
+    /** Charger toutes les activités */
     loadActivities() {
-        this.startLoading()
+        this.startLoading();
 
-        this.activityService.fetchAllActivities().subscribe({
-            next: (data) => {
+        return this.activityService.fetchAllActivities().pipe(
+            this.handleError("Impossible de charger les activités."),
+            tap(data => {
+                if (!data) return;
                 this.activities.set(data);
-                this.stopLoading();
-            },
-            error: (err) => {
-                this.errorHandler.handle(err);
-                this.setError("Impossible de charger les activités.");
-                this.stopLoading();
-            }
-        });
+            }),
+            finalize(() => this.stopLoading())
+        );
     }
 
-    // Suggestions d'adresses
+
+    /** Suggestions d'adresses */
     searchAddress(query: string) {
-        this.addressService.getAddressSuggestions(query).subscribe({
-            next: (suggestions) => this.addressSuggestions.set(suggestions),
-            error: (err) => {
-                this.errorHandler.handle(err);
-            }
-        });
-    }
+  return this.addressService.getAddressSuggestions(query).pipe(
+    this.handleError(),
+    tap(suggestions => {
+      if (!suggestions) return;
+      this.addressSuggestions.set(suggestions);
+    })
+  );
+}
 
-    // Créer un événement
-    createEvent(payload: any) {
-        this.startLoading()
+
+    /** Créer un événement */
+    createEvent(payload: EventRequest) {
+        this.start();
+        this.startLoading();
 
         return this.eventService.createEvent(payload).pipe(
             tap(res => {
                 this.successHandler.handle(res);
+                this.stop();
                 this.stopLoading();
             }),
-            catchError(err => {
-                this.errorHandler.handle(err);
-                this.stopLoading();
-                return EMPTY;
-            })
+            this.handleError()
         );
     }
 
+    /** Accepter participant */
     acceptParticipant(eventUserId: string) {
+        this.start();
+
         return this.eventUserService.acceptParticipant(eventUserId).pipe(
             tap(res => {
                 this.successHandler.handle(res);
+                this.stop();
             }),
-            catchError(err => {
-                this.errorHandler.handle(err);
-                return EMPTY;
-            })
+            this.handleError()
         );
     }
 
+    /** Refuser participant */
     rejectParticipant(eventUserId: string) {
+        this.start();
+
         return this.eventUserService.rejectParticipant(eventUserId).pipe(
             tap(res => {
                 this.successHandler.handle(res);
+                this.stop();
             }),
-            catchError(err => {
-                this.errorHandler.handle(err);
-                return EMPTY;
-            })
+            this.handleError()
         );
     }
 
+    /** Supprimer un événement */
     deleteEvent(eventId: string) {
+        this.start();
+
         return this.eventService.deleteEvent(eventId).pipe(
             tap(res => {
                 this.successHandler.handle(res);
+                this.stop();
             }),
-            catchError(err => {
-                this.errorHandler.handle(err);
-                return EMPTY;
-            })
+            this.handleError()
         );
     }
 
+    /** Charger un événement */
     load(eventId: string) {
-        this.startLoading()
+        this.startLoading();
 
         return this.eventService.fetchEventById(eventId).pipe(
             tap(event => {
-                (this as any).event?.set(event)
+                this.event.set(event);
                 this.stopLoading();
             }),
-            catchError(err => {
-                this.errorHandler.handle(err);
-                this.setError('Impossible de charger les événements');
-                this.stopLoading();
-                return EMPTY;
-            })
+            this.handleError("Impossible de charger l'événements")
         );
     }
 
+    /** Quitter un événement */
     leave(eventId: string) {
+        this.start();
+
         return this.eventUserService.leaveEvent(eventId).pipe(
             tap(res => {
                 this.successHandler.handle(res);
+                this.stop();
             }),
-            catchError(err => {
-                this.errorHandler.handle(err);
-                return EMPTY;
-            })
+            this.handleError()
         );
     }
-
 }

@@ -56,7 +56,7 @@ getOrganizedEvents(): Observable<EventResponse[]> {
       `${this.baseUrl}/event-user/organized`,
       { withCredentials: true }
     ).pipe(
-      map(res => res.data ?? []) // retourne un tableau TS-safe
+      map(res => res.data ?? []) 
     );
 }
 

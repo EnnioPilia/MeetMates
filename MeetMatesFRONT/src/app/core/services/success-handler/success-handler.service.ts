@@ -6,15 +6,15 @@ import { ApiResponse } from '../../models/api-response.model';
 export class SuccessHandlerService {
   private notification = inject(NotificationService);
 
-  handle<T>(
-    res: ApiResponse<T> | null | undefined,
+  handle(
+    res: unknown,
     fallbackMessage?: string,
     options?: { silent?: boolean }
   ): void {
     if (!res || options?.silent) return;
 
     const backendMessage =
-      res.message ||
+      (res as any)?.message ||
       (res as any)?.msg ||
       (res as any)?.detail ||
       null;
