@@ -24,11 +24,33 @@ public class EventSecurity {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
         User user = userRepository.findByEmail(email).orElse(null);
-        if (user == null) return false;
+        if (user == null) {
+            return false;
+        }
 
         return eventUserRepository
                 .findByEventIdAndUserId(eventId, user.getId())
                 .map(eu -> eu.getRole() == ParticipantRole.ORGANIZER)
                 .orElse(false);
     }
+
+    public boolean isOrganizerByEventUserId(UUID eventUserId) {
+        
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null) {
+            return false;
+        }
+
+        var eu = eventUserRepository.findById(eventUserId).orElse(null);
+        if (eu == null) {
+            return false;
+        }
+
+        return eventUserRepository
+                .findByEventIdAndUserId(eu.getEvent().getId(), user.getId())
+                .map(link -> link.getRole() == ParticipantRole.ORGANIZER)
+                .orElse(false);
+    }
+
 }

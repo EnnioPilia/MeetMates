@@ -69,7 +69,7 @@ public class EventUserController {
         return ResponseEntity.ok(new ApiResponse<>(message, dto));
     }
 
-    @PreAuthorize("@eventSecurity.isOrganizer(#eventId)")
+    @PreAuthorize("@eventSecurity.isOrganizerByEventUserId(#eventUserId)")
     @PutMapping("/{eventUserId}/accept")
     public ResponseEntity<ApiResponse<EventUserDto>> acceptParticipant(@PathVariable UUID eventUserId) {
         EventUserDto dto = eventUserService.acceptParticipant(eventUserId);
@@ -77,7 +77,7 @@ public class EventUserController {
         return ResponseEntity.ok(new ApiResponse<>(message, dto));
     }
 
-    @PreAuthorize("@eventSecurity.isOrganizer(#eventId)")
+    @PreAuthorize("@eventSecurity.isOrganizerByEventUserId(#eventUserId)")
     @PutMapping("/{eventUserId}/reject")
     public ResponseEntity<ApiResponse<EventUserDto>> rejectParticipant(@PathVariable UUID eventUserId) {
         EventUserDto dto = eventUserService.rejectParticipant(eventUserId);

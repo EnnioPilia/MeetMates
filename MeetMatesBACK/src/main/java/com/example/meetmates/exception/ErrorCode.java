@@ -1,6 +1,13 @@
 package com.example.meetmates.exception;
 
 public enum ErrorCode {
+    
+    AUTH_BAD_PASSWORD,
+    AUTH_UNAUTHORIZED,
+    
+    TOKEN_INVALID,
+    TOKEN_EXPIRED,
+    TOKEN_NOT_FOUND,
 
     USER_NOT_FOUND,
     USER_BANNED,
@@ -8,6 +15,8 @@ public enum ErrorCode {
     USER_DELETED,
     USER_EMAIL_USED,
     USER_ALREADY_VERIFIED,
+    EMAIL_SEND_FAILED,
+    ADDRESS_NOT_FOUND,
 
     ACTIVITY_NOT_FOUND,
     CATEGORY_NOT_FOUND,
@@ -21,17 +30,4 @@ public enum ErrorCode {
     EVENT_INVALID_STATUS,
     EVENT_ORGANIZER_CANNOT_BE_REMOVED,
     PARTICIPANT_NOT_FOUND,
-
-    TOKEN_INVALID,
-    TOKEN_EXPIRED,
-    TOKEN_NOT_FOUND,
-
-    AUTH_BAD_PASSWORD,
-    AUTH_UNAUTHORIZED,
-
-    EMAIL_SEND_FAILED,
-
-    ADDRESS_NOT_FOUND,
-    
-
 }

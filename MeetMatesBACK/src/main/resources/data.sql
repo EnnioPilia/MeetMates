@@ -16,7 +16,6 @@ INSERT INTO category (category_id, name, image_url) VALUES
 -- ================================
 INSERT INTO activity (activity_id, name, category_id, created_at) VALUES
 (UUID(), 'Football', '10ad56ab-9d31-11f0-9a36-047c1653ad92', NOW()),
-(UUID(), 'Rugby touch', '10ad56ab-9d31-11f0-9a36-047c1653ad92', NOW()),
 (UUID(), 'Basketball', '10ad56ab-9d31-11f0-9a36-047c1653ad92', NOW()),
 (UUID(), 'Ultimate frisbee', '10ad56ab-9d31-11f0-9a36-047c1653ad92', NOW()),
 (UUID(), 'Volleyball', '10ad56ab-9d31-11f0-9a36-047c1653ad92', NOW());
@@ -82,5 +81,4 @@ INSERT INTO activity (activity_id, name, category_id, created_at) VALUES
 (UUID(), 'Escape Game', '30ad5d49-9d31-11f0-9a36-047c1653ad92', NOW()),
 (UUID(), 'PaintBall', '30ad5d49-9d31-11f0-9a36-047c1653ad92', NOW()),
 (UUID(), 'Laser Game', '30ad5d49-9d31-11f0-9a36-047c1653ad92', NOW()),
-(UUID(), 'Bowling', '30ad5d49-9d31-11f0-9a36-047c1653ad92', NOW()),
-(UUID(), 'VR', '30ad5d49-9d31-11f0-9a36-047c1653ad92', NOW());
+(UUID(), 'Bowling', '30ad5d49-9d31-11f0-9a36-047c1653ad92', NOW());
