@@ -46,7 +46,6 @@ public class AddressService {
                     a.setStreet(details.getStreet());
                     a.setCity(details.getCity());
                     a.setPostalCode(details.getPostalCode());
-                    a.setType(details.getType());
                     return repo.save(a);
                 })
                 .orElseThrow(() -> new ApiException(ErrorCode.ADDRESS_NOT_FOUND));

@@ -18,6 +18,15 @@ import com.example.meetmates.service.CategoryService;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Contrôleur responsable de la gestion des catégories.
+ *
+ * Il permet :
+ * - de récupérer toutes les catégories,
+ * - de récupérer une catégorie particulière via son identifiant.
+ *
+ * Toutes les réponses sont encapsulées dans ApiResponse pour garantir une structure homogène des retours de l'API.
+ */
 @Slf4j
 @RestController
 @RequestMapping("/category")
@@ -26,16 +35,32 @@ public class CategoryController {
     private final CategoryService categoryService;
     private final MessageSource messageSource;
 
+    /**
+     * Injection des dépendances nécessaires.
+     *
+     * @param categoryService service gérant la logique métier des catégories
+     * @param messageSource gestionnaire des messages (i18n)
+     */
     public CategoryController(CategoryService categoryService, MessageSource messageSource) {
         this.categoryService = categoryService;
         this.messageSource = messageSource;
     }
 
+    /**
+     * Permet de récupérer un message localisé depuis messages.properties.
+     *
+     * @param code clé du message
+     * @return message localisé associé
+     */
     private String msg(String code) {
         return messageSource.getMessage(code, null, Locale.getDefault());
     }
 
-    // GET all categories
+    /**
+     * Récupère l'ensemble des catégories disponibles.
+     *
+     * @return liste des CategoryDto encapsulée dans ApiResponse
+     */
     @GetMapping
     public ResponseEntity<ApiResponse<List<CategoryDto>>> getAll() {
         log.info("[CATEGORY] Récupération de toutes les catégories");
@@ -49,8 +74,13 @@ public class CategoryController {
                 new ApiResponse<>(msg("CATEGORY_LIST_SUCCESS"), list)
         );
     }
-
-    // GET category by id
+    
+    /**
+     * Récupère une catégorie à partir de son identifiant.
+     *
+     * @param id identifiant UUID de la catégorie recherchée
+     * @return CategoryDto correspondant à l'identifiant
+     */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<CategoryDto>> getById(@PathVariable UUID id) {
         log.info("[CATEGORY] Récupération de la catégorie {}", id);

@@ -31,6 +31,18 @@ import com.example.meetmates.service.UserService;
 
 import jakarta.servlet.http.HttpServletResponse;
 
+/**
+ * Contrôleur gérant les opérations liées aux utilisateurs.
+ *
+ * Fournit plusieurs endpoints pour :
+ *  - consulter son profil ou la liste des utilisateurs (admin)
+ *  - mettre à jour ses informations personnelles
+ *  - gérer sa photo de profil
+ *  - supprimer son compte ou un utilisateur (admin)
+ *
+ * Utilise ApiResponse pour garantir une structure uniforme des retours.
+ * Les messages utilisateurs sont centralisés via MessageService, lequel lit les codes dans le fichier messages.properties (i18n).
+ */
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -41,6 +53,15 @@ public class UserController {
     private final CookieService cookieService;
     private final MessageService messageService;
 
+    /**
+     * Injection des services nécessaires.
+     *
+     * @param userService gestion des utilisateurs
+     * @param pictureService gestion des photos de profil
+     * @param userMapper conversion entité/DTO
+     * @param cookieService gestion des cookies d’authentification
+     * @param messageService gestionnaire des messages utilisateurs
+     */
     public UserController(UserService userService,
             PictureService pictureService,
             UserMapper userMapper,
@@ -53,6 +74,12 @@ public class UserController {
         this.messageService = messageService;
     }
 
+    /**
+     * Récupère tous les utilisateurs (admin uniquement).
+     * Sécurisé par une règle custom : seul un administrateur peut effectuer cette action.
+     * 
+     * @return liste complète des utilisateurs
+     */
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<ApiResponse<List<UserDto>>> getAllUsers() {
@@ -65,6 +92,12 @@ public class UserController {
         return ResponseEntity.ok(new ApiResponse<>(message, dtos));
     }
 
+    /**
+     * Récupère les informations de l’utilisateur connecté.
+     *
+     * @param userDetails utilisateur authentifié
+     * @return informations du profil
+     */
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<UserDto>> getMe(
@@ -75,6 +108,13 @@ public class UserController {
         return ResponseEntity.ok(new ApiResponse<>(message, userMapper.toDto(user)));
     }
 
+    /**
+     * Met à jour la photo de profil de l’utilisateur.
+     *
+     * @param userDetails utilisateur connecté
+     * @param file fichier image envoyé
+     * @return utilisateur mis à jour
+     */
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/me/picture")
     public ResponseEntity<ApiResponse<UserDto>> uploadProfilePicture(
@@ -91,6 +131,13 @@ public class UserController {
         return ResponseEntity.ok(new ApiResponse<>(message, userMapper.toDto(user)));
     }
 
+    /**
+     * Met à jour les informations du profil utilisateur.
+     *
+     * @param dto données modifiées
+     * @param userDetails utilisateur connecté
+     * @return profil mis à jour
+     */
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/me")
     public ResponseEntity<ApiResponse<UserDto>> updateMyProfile(
@@ -104,6 +151,13 @@ public class UserController {
         return ResponseEntity.ok(new ApiResponse<>(message, userMapper.toDto(updated)));
     }
 
+    /**
+     * Supprime définitivement un utilisateur.
+     * Sécurisé par une règle custom : seul un administrateur peut effectuer cette action.
+     * 
+     * @param id identifiant de l’utilisateur à supprimer
+     * @return confirmation de suppression
+     */
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable UUID id) {
@@ -112,6 +166,12 @@ public class UserController {
         return ResponseEntity.ok(new ApiResponse<>(message, null));
     }
 
+    /**
+     * Supprime la photo de profil de l’utilisateur connecté.
+     *
+     * @param userDetails utilisateur connecté
+     * @return profil mis à jour sans photo
+     */
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/me/picture")
     public ResponseEntity<ApiResponse<UserDto>> deleteProfilePicture(
@@ -125,6 +185,13 @@ public class UserController {
         return ResponseEntity.ok(new ApiResponse<>(message, userMapper.toDto(updated)));
     }
 
+    /**
+     * Supprime le compte de l’utilisateur connecté (soft delete) et invalide les cookies d’authentification.
+     *
+     * @param userDetails utilisateur connecté
+     * @param response contexte HTTP pour nettoyer les cookies
+     * @return confirmation de suppression
+     */
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/me")
     public ResponseEntity<ApiResponse<Void>> deleteMyAccount(

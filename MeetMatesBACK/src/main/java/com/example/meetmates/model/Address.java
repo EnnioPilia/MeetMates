@@ -9,8 +9,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -43,20 +41,6 @@ public class Address {
         }
         return sb.toString().trim();
     }
-    @Enumerated(EnumType.STRING)
-    private AddressType type;
-
-
-    // ENUM
-    public enum AddressType {
-        PARC,
-        CITY_STADE,
-        BOULODROME,
-        TERRAIN_PUBLIC,
-        SALLE_DE_SPORT,
-        AUTRE
-    }
-
 
     // GETTERS & SETTERS
     public UUID getId() { return id; }
@@ -70,7 +54,4 @@ public class Address {
 
     public String getPostalCode() { return postalCode; }
     public void setPostalCode(String postalCode) { this.postalCode = postalCode; }
-
-    public AddressType getType() { return type; }
-    public void setType(AddressType type) { this.type = type; }
 }

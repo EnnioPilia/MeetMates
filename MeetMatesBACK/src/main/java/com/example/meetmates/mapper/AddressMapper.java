@@ -11,19 +11,19 @@ public class AddressMapper {
         AddressDto dto = new AddressDto();
         dto.setId(address.getId());
         dto.setStreet(address.getStreet());
-        dto.setCity(address.getCity());
         dto.setPostalCode(address.getPostalCode());
-
+        dto.setCity(address.getCity());
         return dto;
     }
 
-    public static Address fromDto(AddressDto dto) {
+    public static Address toEntity(AddressDto dto) {
+        if (dto == null) return null;
+
         Address address = new Address();
-
+        address.setId(dto.getId()); // ⚠️ seulement si ton entity permet setId()
         address.setStreet(dto.getStreet());
-        address.setCity(dto.getCity());
         address.setPostalCode(dto.getPostalCode());
-
+        address.setCity(dto.getCity());
         return address;
     }
 }

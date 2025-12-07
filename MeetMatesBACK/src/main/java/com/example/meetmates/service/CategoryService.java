@@ -31,8 +31,9 @@ public class CategoryService {
                 .orElseThrow(() -> new ApiException(ErrorCode.CATEGORY_NOT_FOUND));
     }
 
-    @Transactional
-    public Category save(Category category) {
-        return categoryRepository.save(category);
+     @Transactional
+    public String save(Category category) {
+        categoryRepository.save(category);
+        return "CATEGORY_CREATE_SUCCESS"; // 🔥 renvoie un CODE et non la phrase
     }
 }
