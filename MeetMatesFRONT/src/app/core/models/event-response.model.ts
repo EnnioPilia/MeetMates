@@ -19,5 +19,10 @@ export interface EventResponse {
   eventTitle?: string;            
   eventStatus?: string;           
   participationStatus?: string | null;
-  imageUrl?: string | null;       
+  imageUrl?: string | null;
+  address?: {
+    street: string;
+    city: string;
+    postalCode: string;
+  };
 }

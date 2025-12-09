@@ -8,6 +8,11 @@ export interface EventDetails {
   startTime: string;
   endTime: string;
   addressLabel: string;
+    address: {
+    street: string;
+    city: string;
+    postalCode: string;
+  };
   activityName: string;
   organizerName: string;
   level: string;

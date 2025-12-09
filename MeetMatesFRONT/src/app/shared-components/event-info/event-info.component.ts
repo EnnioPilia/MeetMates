@@ -2,19 +2,8 @@ import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StatusColorPipe } from '../pipes/statusColor.pipe';
 import { getStatusLabel, getLevelLabel, getMaterialLabel } from '../../core/utils/labels.util';
-
-interface EventData {
-  status?: string;
-  activityName?: string;
-  eventDate?: string;
-  startTime?: string;
-  endTime?: string;
-  addressLabel?: string;
-  level?: string;
-  material?: string;
-  maxParticipants?: number;
-  organizerName?: string;
-}
+import { EventDetails } from '../../core/models/event-details.model';
+import { EventResponse } from '../../core/models/event-response.model';
 
 @Component({
   selector: 'app-event-info',
@@ -24,8 +13,7 @@ interface EventData {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EventInfoComponent {
-
-  @Input() event: EventData = {};
+  @Input() event!: EventResponse | EventDetails;
   @Input() showStatus = false;
   @Input() showOrganizer = true;
 

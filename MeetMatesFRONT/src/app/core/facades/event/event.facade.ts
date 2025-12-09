@@ -15,7 +15,6 @@ import { AddressSuggestion } from '../../services/address/address.service';
 
 @Injectable({ providedIn: 'root' })
 export class EventFacade extends BaseFacade {
-
     private activityService = inject(ActivityService);
     private eventService = inject(EventService);
     private addressService = inject(AddressService);
@@ -26,8 +25,8 @@ export class EventFacade extends BaseFacade {
     readonly addressSuggestions = signal<AddressSuggestion[]>([]);
     readonly event = signal<EventDetails | null>(null);
 
-    // ⭐ EXACTEMENT comme AuthFacade
     isSubmitting = false;
+    
     private start() { this.isSubmitting = true; }
     private stop() { this.isSubmitting = false; }
 
@@ -48,14 +47,14 @@ export class EventFacade extends BaseFacade {
 
     /** Suggestions d'adresses */
     searchAddress(query: string) {
-  return this.addressService.getAddressSuggestions(query).pipe(
-    this.handleError(),
-    tap(suggestions => {
-      if (!suggestions) return;
-      this.addressSuggestions.set(suggestions);
-    })
-  );
-}
+        return this.addressService.getAddressSuggestions(query).pipe(
+            this.handleError(),
+            tap(suggestions => {
+                if (!suggestions) return;
+                this.addressSuggestions.set(suggestions);
+            })
+        );
+    }
 
 
     /** Créer un événement */

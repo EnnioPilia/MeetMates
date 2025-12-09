@@ -55,53 +55,42 @@ export class EventListComponent implements OnInit {
   @ViewChildren('eventCard') eventCards!: QueryList<ElementRef>;
 
   ngOnInit(): void {
-  // 1️⃣ Charger d’abord l’utilisateur
-  this.eventListFacade.loadCurrentUser()
-    .pipe(takeUntilDestroyed(this.destroyRef))
-    .subscribe(() => {
+    this.eventListFacade.loadCurrentUser()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
 
-      // 2️⃣ Ensuite charger les events
-      const activityId = this.route.snapshot.paramMap.get('activityId');
+        const activityId = this.route.snapshot.paramMap.get('activityId');
 
-      if (activityId) {
-        this.eventListFacade.loadActivityName(activityId)
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe();
+        if (activityId) {
+          this.eventListFacade.loadActivityName(activityId)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe();
 
-        this.eventListFacade.loadEventsByActivity(activityId)
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe();
-      } else {
-        this.eventListFacade.loadAllEvents()
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe();
-      }
-    });
+          this.eventListFacade.loadEventsByActivity(activityId)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe();
+        } else {
+          this.eventListFacade.loadAllEvents()
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe();
+        }
+      });
 
-  // 3️⃣ Scroll param
-  this.route.queryParams
-    .pipe(takeUntilDestroyed(this.destroyRef))
-    .subscribe(params => {
-      const eventId = params['eventId'];
-      if (eventId) this.scrollToEventWhenReady(eventId);
-    });
-}
+    this.route.queryParams
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
+        const eventId = params['eventId'];
+        if (eventId) this.scrollToEventWhenReady(eventId);
+      });
+  }
 
 
-  // ---------------------------
-  // JOIN EVENT (façade only)
-  // ---------------------------
-  // ----------------------------------
-  // Parent component
   joinEvent(eventId: string) {
     this.eventListFacade.joinEvent(eventId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe();
   }
 
-  // ---------------------------
-  // SCROLL
-  // ---------------------------
   private scrollToEventWhenReady(eventId: string) {
     const checkLoaded = setInterval(() => {
       if (!this.loading() && this.eventCards?.length > 0) {
@@ -124,9 +113,6 @@ export class EventListComponent implements OnInit {
     }
   }
 
-  // ---------------------------
-  // LABEL HELPERS
-  // ---------------------------
   getStatusLabel(status?: string) {
     return status ? getStatusLabel(status) : '';
   }

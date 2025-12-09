@@ -19,6 +19,12 @@ export class EventMapperService {
       material: response.material,
       level: response.level,
       addressLabel: response.addressLabel,
+       address: response.address ?? {
+      street: '',
+      city: '',
+      postalCode: ''
+    },
+
       activityName: response.activityName,
       organizerName: response.organizerName,
       participationStatus: null,
@@ -42,11 +48,22 @@ export class EventMapperService {
       status: response.eventStatus ?? response.status ?? '',
       participationStatus: response.participationStatus ?? null,
       activityName: response.activityName ?? '',
-      addressLabel: response.addressLabel ?? '',
+      addressLabel: this.formatAddress(response.address),
       imageUrl: response.imageUrl ?? null,
       activityId: String(response.activityId ?? ''),
     };
   }
+
+  private formatAddress(addr: any): string {
+    if (!addr) return '';
+
+    const street = addr.street ?? '';
+    const postal = addr.postalCode ?? '';
+    const city = addr.city ?? '';
+
+    return `${street}, ${postal} ${city}`.trim();
+  }
+
 
   toEventList(responses: EventResponse[]): EventListItem[] {
     return responses.map(r => this.toEventListItem(r));

@@ -13,9 +13,6 @@ export class ActivityService {
   private http = inject(HttpClient);
   private readonly baseUrl = environment.apiUrl;
 
-  // -----------------------------
-  // ACTIVITIES
-  // -----------------------------
   fetchAllActivities(): Observable<Activity[]> {
     return this.http.get<ApiResponse<Activity[]>>(`${this.baseUrl}/activity`, { withCredentials: true })
       .pipe(map(res => res.data));
@@ -31,9 +28,6 @@ export class ActivityService {
       .pipe(map(res => res.data));
   }
 
-  // -----------------------------
-  // CATEGORIES
-  // -----------------------------
   fetchAllCategories(): Observable<Category[]> {
     return this.http.get<ApiResponse<Category[]>>(`${this.baseUrl}/category`, { withCredentials: true })
       .pipe(map(res => res.data));
