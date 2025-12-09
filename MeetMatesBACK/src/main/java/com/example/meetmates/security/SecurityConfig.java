@@ -27,24 +27,29 @@ import com.example.meetmates.service.UserService;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Configuration centrale de la sécurité de l'application.
+ *
+ * Cette classe configure :
+ * - Les filtres JWT
+ * - Les règles d'accès (routes publiques / protégées)
+ * - Le CORS
+ * - Les gestionnaires d’exception (401 / 403)
+ * - Le mode Stateless pour une API REST
+ */
 @Slf4j
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
-/**
- * Configuration principale de la sécurité Spring Security. Déclare les filtres,
- * les points d'entrée, les règles d'accès, les routes publiques, le CORS et
- * l'intégration du filtre JWT.
- */
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     /**
-     * Injecte le filtre JWT personnalisé utilisé pour authentifier les requêtes
-     * à partir du token dans les headers.
+     * Constructeur injectant le filtre JWT chargé d'extraire et valider
+     * les tokens présents dans les en-têtes HTTP.
      *
-     * @param jwtAuthenticationFilter filtre JWT
+     * @param jwtAuthenticationFilter filtre d'authentification JWT
      */
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
@@ -71,7 +76,10 @@ public class SecurityConfig {
     private static final String ROLE_USER = "USER";
     private static final String ROLE_ADMIN = "ADMIN";
 
-    // * URL frontend autorisée pour le CORS. Cette valeur est injectée depuis les fichiers de configuration.
+    /**
+     * URL du frontend autorisée pour le CORS.
+     * La valeur est injectée depuis les fichiers de configuration (application.properties).
+     */    
     @Value("${app.frontend.url}")
     private String frontendUrl;
 
