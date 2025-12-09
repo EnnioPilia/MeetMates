@@ -84,8 +84,7 @@ public class SecurityConfig {
     private String frontendUrl;
 
     /**
-     * Configuration CORS de l'application. Définit les origines, méthodes et
-     * headers autorisés.
+     * Configuration CORS de l'application. Définit les origines, méthodes et headers autorisés.
      *
      * @return configuration CORS pour Spring Security
      */
@@ -105,8 +104,7 @@ public class SecurityConfig {
     /**
      * Chaîne de filtres principale de Spring Security. Configure : -
      * Désactivation de CSRF - Activation du CORS - Gestion des routes publiques
-     * et protégées - Gestion des erreurs 401 et 403 - Ajout du filtre JWT -
-     * Mode stateless (pas de session)
+     * et protégées - Gestion des erreurs 401 et 403 - Ajout du filtre JWT - Mode stateless (pas de session)
      *
      * @param http configuration HTTP
      * @param userService service utilisateur pour l’authentification
@@ -155,8 +153,9 @@ public class SecurityConfig {
     }
 
     /**
-     * Provider d’authentification basé sur : - UserService (chargement
-     * utilisateur) - BCrypt pour encoder les mots de passe
+     * Provider d’authentification basé sur : 
+     * - UserService (chargement utilisateur) 
+     * - BCrypt pour encoder les mots de passe
      *
      * @param userService service de gestion des utilisateurs
      * @return un AuthenticationProvider configuré
