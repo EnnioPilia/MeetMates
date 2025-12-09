@@ -15,6 +15,10 @@ import com.example.meetmates.repository.TokenRepository;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Service pour la gestion des refresh tokens JWT.
+ * Permet de créer, valider et faire la rotation des refresh tokens.
+ */
 @Slf4j
 @Service
 public class RefreshTokenService {
@@ -27,7 +31,10 @@ public class RefreshTokenService {
 
     /**
      * Crée un refresh token unique pour un utilisateur.
-     * (Supprime les anciens pour éviter les doublons)
+     * Supprime les anciens tokens pour éviter les doublons.
+     *
+     * @param user l’utilisateur pour lequel créer le refresh token
+     * @return le refresh token créé
      */
     @Transactional
     public Token createRefreshToken(User user) {
@@ -47,12 +54,17 @@ public class RefreshTokenService {
 
         Token saved = tokenRepository.save(token);
 
-        log.info("[REFRESH] Nouveau refresh token créé pour user={}", user.getEmail());
+        log.info("Nouveau refresh token créé pour user={}", user.getEmail());
         return saved;
     }
 
     /**
-     * Retourne un refresh token valide (non expiré, non utilisé).
+     * Retourne un refresh token valide.
+     * Vérifie que le token n’est pas expiré et qu’il n’a pas déjà été utilisé.
+     *
+     * @param tokenString la valeur du refresh token
+     * @return le token valide
+     * @throws ApiException si le token est introuvable, expiré ou déjà utilisé
      */
     @Transactional(readOnly = true)
     public Token getValidRefreshToken(String tokenString) {
@@ -61,10 +73,12 @@ public class RefreshTokenService {
                 .orElseThrow(() -> new ApiException(ErrorCode.TOKEN_NOT_FOUND));
 
         if (token.isUsed()) {
+            log.warn("Tentative d'utilisation d'un refresh token déjà utilisé pour user={}", token.getUser().getEmail());
             throw new ApiException(ErrorCode.TOKEN_INVALID);
         }
 
         if (token.getExpiresAt().isBefore(Instant.now())) {
+            log.warn("Tentative d'utilisation d'un refresh token expiré pour user={}", token.getUser().getEmail());
             throw new ApiException(ErrorCode.TOKEN_EXPIRED);
         }
 
@@ -72,7 +86,11 @@ public class RefreshTokenService {
     }
 
     /**
-     * Rotation : invalide l'ancien refresh token et en génère un nouveau.
+     * Rotation du refresh token.
+     * Invalide l’ancien token et en génère un nouveau.
+     *
+     * @param oldToken le refresh token existant à invalider
+     * @return le nouveau refresh token
      */
     @Transactional
     public Token rotateRefreshToken(Token oldToken) {
@@ -81,7 +99,7 @@ public class RefreshTokenService {
         oldToken.setConfirmedAt(Instant.now());
         tokenRepository.save(oldToken);
 
-        log.info("[REFRESH] Rotation du refresh token pour user={}", oldToken.getUser().getEmail());
+        log.info("Rotation du refresh token pour user={}", oldToken.getUser().getEmail());
 
         return createRefreshToken(oldToken.getUser());
     }

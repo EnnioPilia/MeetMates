@@ -2,6 +2,7 @@ package com.example.meetmates.security;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -24,13 +25,27 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.example.meetmates.service.UserService;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true)   
+@EnableMethodSecurity(prePostEnabled = true)
+/**
+ * Configuration principale de la sécurité Spring Security. Déclare les filtres,
+ * les points d'entrée, les règles d'accès, les routes publiques, le CORS et
+ * l'intégration du filtre JWT.
+ */
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    /**
+     * Injecte le filtre JWT personnalisé utilisé pour authentifier les requêtes
+     * à partir du token dans les headers.
+     *
+     * @param jwtAuthenticationFilter filtre JWT
+     */
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
@@ -56,11 +71,20 @@ public class SecurityConfig {
     private static final String ROLE_USER = "USER";
     private static final String ROLE_ADMIN = "ADMIN";
 
-    // * Configuration CORS de l’application
+    // * URL frontend autorisée pour le CORS. Cette valeur est injectée depuis les fichiers de configuration.
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
+
+    /**
+     * Configuration CORS de l'application. Définit les origines, méthodes et
+     * headers autorisés.
+     *
+     * @return configuration CORS pour Spring Security
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:4200")); // à remplacer par var d'env prod !!!!!!!
+        config.setAllowedOrigins(List.of(frontendUrl));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
@@ -70,10 +94,21 @@ public class SecurityConfig {
         return source;
     }
 
-    // * Chaîne de filtres de sécurité 
+    /**
+     * Chaîne de filtres principale de Spring Security. Configure : -
+     * Désactivation de CSRF - Activation du CORS - Gestion des routes publiques
+     * et protégées - Gestion des erreurs 401 et 403 - Ajout du filtre JWT -
+     * Mode stateless (pas de session)
+     *
+     * @param http configuration HTTP
+     * @param userService service utilisateur pour l’authentification
+     * @return une SecurityFilterChain prête à l’emploi
+     * @throws Exception en cas d’erreur de configuration
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, UserService userService) throws Exception {
-        http
+        log.info("SecurityFilterChain initialisée, routes publiques : {}", PUBLIC_URLS);
+            http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
@@ -89,19 +124,19 @@ public class SecurityConfig {
                     res.setStatus(HttpStatus.UNAUTHORIZED.value());
                     res.setContentType("application/json; charset=UTF-8");
                     res.getWriter().write("""
-                    {
-                        "message": "Vous devez être connecté pour accéder à cette ressource."
-                    }
-                    """);
+                            {
+                                "message": "Vous devez être connecté pour accéder à cette ressource."
+                            }
+                            """);
                 })
                 .accessDeniedHandler((req, res, accessDeniedException) -> {
                     res.setStatus(HttpStatus.FORBIDDEN.value());
                     res.setContentType("application/json; charset=UTF-8");
                     res.getWriter().write("""
-                    {
-                        "message": "Vous n’avez pas la permission d’accéder à cette ressource."
-                    }
-                    """);
+                            {
+                                "message": "Vous n’avez pas la permission d’accéder à cette ressource."
+                            }
+                            """);
                 })
                 )
                 .authenticationProvider(authenticationProvider(userService))
@@ -111,7 +146,13 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // * Provider d’authentification utilisant UserService + BCrypt
+    /**
+     * Provider d’authentification basé sur : - UserService (chargement
+     * utilisateur) - BCrypt pour encoder les mots de passe
+     *
+     * @param userService service de gestion des utilisateurs
+     * @return un AuthenticationProvider configuré
+     */
     @Bean
     public AuthenticationProvider authenticationProvider(UserService userService) {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -120,13 +161,24 @@ public class SecurityConfig {
         return provider;
     }
 
-    // * Encoder des mots de passe (BCrypt)
+    /**
+     * Encoder BCrypt utilisé pour hasher les mots de passe
+     *
+     * @return encodeur de mots de passe BCrypt
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // * AuthenticationManager utilisé par Spring Security
+    /**
+     * Fournit l’AuthenticationManager utilisé par Spring Security. Il s’appuie
+     * automatiquement sur les AuthenticationProvider déclarés.
+     *
+     * @param config configuration Spring Security
+     * @return AuthenticationManager prêt à l’emploi
+     * @throws Exception si la récupération échoue
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();

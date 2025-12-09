@@ -88,9 +88,10 @@ public class AddressController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<AddressDto>> getById(@PathVariable UUID id) {
-
+        log.info("GET request pour id={}", id);
         var dto = AddressMapper.toDto(service.findById(id));
 
+        log.info("Adresse trouvée pour id={}", id);
         return ResponseEntity.ok(
                 new ApiResponse<>(msg("ADDRESS_FOUND_OK"), dto)
         );
@@ -104,9 +105,10 @@ public class AddressController {
      */
     @PostMapping
     public ResponseEntity<ApiResponse<AddressDto>> create(@RequestBody AddressDto dto) {
-
+        log.info("Création d'une nouvelle adresse pour street={}", dto.getStreet());
         Address saved = service.create(AddressMapper.toEntity(dto));
 
+        log.info("Adresse créée avec id={}", saved.getId());
         return ResponseEntity.ok(
                 new ApiResponse<>(msg("ADDRESS_CREATED_OK"), AddressMapper.toDto(saved))
         );
@@ -122,11 +124,12 @@ public class AddressController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<AddressDto>> update(
             @PathVariable UUID id,
-            @RequestBody AddressDto dto
-    ) {
+            @RequestBody AddressDto dto) {
 
+        log.info("Update request pour id={} avec street={}", id, dto.getStreet());
         Address updated = service.update(id, AddressMapper.toEntity(dto));
 
+        log.info("Adresse mise à jour pour id={}", id);
         return ResponseEntity.ok(
                 new ApiResponse<>(msg("ADDRESS_UPDATED_OK"), AddressMapper.toDto(updated))
         );
@@ -140,9 +143,10 @@ public class AddressController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable UUID id) {
-
+        log.info("Suppression request pour id={}", id);
         service.delete(id);
 
+        log.info("Adresse supprimée pour id={}", id);
         return ResponseEntity.ok(
                 new ApiResponse<>(msg("ADDRESS_DELETED_OK"))
         );

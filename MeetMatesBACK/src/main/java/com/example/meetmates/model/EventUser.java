@@ -21,6 +21,16 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
+/**
+ * Entité représentant la relation entre un utilisateur et un événement.
+ *
+ * Cette table associative permet de suivre :
+ * - les participants d’un événement
+ * - leur rôle (organisateur ou simple participant)
+ * - leur statut de participation (en attente, accepté, refusé, etc.)
+ *
+ * Chaque combinaison (event_id + user_id) est unique.
+ */
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity
 @Table(
@@ -31,40 +41,74 @@ import jakarta.persistence.UniqueConstraint;
 )
 public class EventUser {
 
+    /**
+     * Identifiant UUID unique de la relation participant–événement .
+     * Généré automatiquement par Hibernate via un générateur UUID.
+     * et stocké en tant que chaîne de caractères (CHAR 36).
+     */
     @Id
     @GeneratedValue
     @JdbcTypeCode(SqlTypes.CHAR)
     @Column(name = "event_user_id", length = 36, updatable = false, nullable = false)
     private UUID id;
 
+    /**
+     * L’événement auquel l’utilisateur est associé.
+     * Relation Many-To-One : plusieurs EventUser peuvent pointer vers le même Event
+     */
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
 
+    /**
+     * L’utilisateur participant à l’événement.
+     * Relation Many-To-One : chaque participant correspond à un user unique
+     */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    /**
+     * Rôle du participant dans l’événement.
+     * Peut être organisateur ou participant simple.
+     */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ParticipantRole role = ParticipantRole.PARTICIPANT;
 
+    /**
+     * Statut de participation de l’utilisateur.
+     * Permet de gérer les demandes, refus, départs, etc.
+     */
     @Enumerated(EnumType.STRING)
     @Column(name = "participation_status", nullable = false)
     private ParticipationStatus participationStatus = ParticipationStatus.PENDING;
 
+    /**
+     * Date et heure auxquelles l’utilisateur a rejoint l’événement.
+     * Défini automatiquement à la création.
+     */
     @Column(name = "joined_at", nullable = false)
     private LocalDateTime joinedAt = LocalDateTime.now();
 
+    /**
+     * Email de l’utilisateur au moment de l’inscription.
+     * Redondant mais utile pour éviter de joindre la table user pour des affichages simples.
+     */
     @Column(name = "user_email", nullable = false)
     private String userEmail;
 
-    // ENUMS 
+
+    // -- ENUMS ---
+
+    /** Rôle du participant dans l’événement. */
     public enum ParticipantRole {
-        ORGANIZER, PARTICIPANT
+        ORGANIZER,
+        PARTICIPANT
     }
 
+    /** Différents états possibles pour la participation de l’utilisateur. */
     public enum ParticipationStatus {
         PENDING,
         ACCEPTED,
@@ -73,25 +117,26 @@ public class EventUser {
         LEFT_REJECTED
     }
 
-    // GETTERS & SETTERS
-    public UUID getId() { return id; } 
+
+    // --- GETTERS & SETTERS ---
+    public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
 
-    public Event getEvent() { return event; } 
+    public Event getEvent() { return event; }
     public void setEvent(Event event) { this.event = event; }
 
-    public User getUser() { return user; } 
+    public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
 
-    public ParticipantRole getRole() { return role; } 
+    public ParticipantRole getRole() { return role; }
     public void setRole(ParticipantRole role) { this.role = role; }
 
-    public LocalDateTime getJoinedAt() { return joinedAt; } 
+    public LocalDateTime getJoinedAt() { return joinedAt; }
     public void setJoinedAt(LocalDateTime joinedAt) { this.joinedAt = joinedAt; }
 
-    public ParticipationStatus getParticipationStatus() { return participationStatus; } 
+    public ParticipationStatus getParticipationStatus() { return participationStatus; }
     public void setParticipationStatus(ParticipationStatus participationStatus) { this.participationStatus = participationStatus; }
 
-    public String getUserEmail() { return userEmail; } 
+    public String getUserEmail() { return userEmail; }
     public void setUserEmail(String userEmail) { this.userEmail = userEmail; }
 }

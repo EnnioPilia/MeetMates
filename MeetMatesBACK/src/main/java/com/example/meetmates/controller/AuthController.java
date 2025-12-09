@@ -19,6 +19,7 @@ import com.example.meetmates.service.MessageService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Contrôleur gérant toutes les opérations d'authentification :
@@ -32,6 +33,7 @@ import jakarta.validation.Valid;
  * Utilise ApiResponse pour garantir une structure uniforme des retours.
  * Les messages utilisateurs sont centralisés via MessageService, lequel lit les codes dans le fichier messages.properties (i18n).
  */
+@Slf4j
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -58,9 +60,12 @@ public class AuthController {
      */
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<Void>> register(@Valid @RequestBody RegisterRequestDto request) {
+        log.info("[AUTH] register request received");
+
         String code = authService.register(request); 
         String message = messageService.get(code); 
-
+        
+        log.info("[AUTH][REGISTER] register successful");
         return ResponseEntity.status(HttpStatus.CREATED)
                              .body(new ApiResponse<>(message, null));
     }
@@ -78,9 +83,11 @@ public class AuthController {
             @Valid @RequestBody LoginRequestDto request,
             HttpServletResponse response) {
 
+        log.info("Login request received");
         LoginResponseDto dto = authService.login(request, response);
         String message = messageService.get("AUTH.LOGIN.SUCCESS");
 
+        log.info("Login successful");
         return ResponseEntity.ok(new ApiResponse<>(message, dto));
     }
 
@@ -92,9 +99,12 @@ public class AuthController {
      */
     @GetMapping("/verify")
     public ResponseEntity<ApiResponse<Void>> verifyUser(@RequestParam String token) {
+        log.info("VerifyUser request received");
+
         String code = authService.verifyUser(token);
         String message = messageService.get(code);
 
+        log.info("VerifyUser successful");
         return ResponseEntity.ok(new ApiResponse<>(message, null));
     }
 
@@ -105,9 +115,12 @@ public class AuthController {
      * @return message de déconnexion réussie
      */    @PostMapping("/logout")
     public ResponseEntity<ApiResponse<Void>> logout(HttpServletResponse response) {
+        log.info("Logout request received");
+
         String code = authService.logout(response);
         String message = messageService.get(code);
 
+        log.info("Logout successful");
         return ResponseEntity.ok(new ApiResponse<>(message, null));
     }
     
@@ -119,7 +132,10 @@ public class AuthController {
      */
     @PostMapping("/refresh-token")
     public ResponseEntity<ApiResponse<String>> refreshToken(HttpServletRequest request) {
+        log.info("RefreshToken request received");
+
         String message = messageService.get("AUTH.REFRESH.HANDLED_BY_FILTER");
+        log.info("RefreshToken handled by filter");
 
         return ResponseEntity.ok(new ApiResponse<>(message, null));
     }

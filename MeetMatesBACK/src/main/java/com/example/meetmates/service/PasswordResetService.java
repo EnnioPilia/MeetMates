@@ -17,6 +17,10 @@ import com.example.meetmates.repository.UserRepository;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Service pour la gestion de la réinitialisation des mots de passe.
+ * Permet de générer un token de réinitialisation et de changer le mot de passe après validation du token.
+ */
 @Slf4j
 @Service
 public class PasswordResetService {
@@ -40,8 +44,14 @@ public class PasswordResetService {
         this.emailService = emailService;
     }
 
-    
-    // * Génère un token de réinitialisation (PASSWORD_RESET) et envoie l'email.
+    /**
+     * Génère un token de réinitialisation de mot de passe (PASSWORD_RESET) pour l'utilisateur
+     * identifié par son email et envoie un email contenant ce token.
+     * Si l'utilisateur n'existe pas, lance une ApiException USER_NOT_FOUND.
+     *
+     * @param email adresse email de l'utilisateur
+     * @throws ApiException si l'utilisateur n'existe pas ou si l'envoi de l'email échoue
+     */
     @Transactional
     public void createPasswordResetToken(String email) {
 
@@ -57,18 +67,25 @@ public class PasswordResetService {
         Token token = new Token(tokenString, user, now, expiresAt, TokenType.PASSWORD_RESET);
         tokenRepository.save(token);
 
-        log.info("[RESET] Token généré pour {} (expire dans {} min)", user.getEmail(), EXPIRATION_MINUTES);
+        log.info("Token généré pour {} (expire dans {} min)", user.getEmail(), EXPIRATION_MINUTES);
 
         try {
             emailService.sendPasswordResetEmail(user.getEmail(), tokenString);
         } catch (Exception e) {
-            log.error("[RESET] Erreur envoi email pour {}", user.getEmail(), e);
+            log.error("Erreur envoi email pour {}", user.getEmail(), e);
             throw new ApiException(ErrorCode.EMAIL_SEND_FAILED);
         }
     }
 
-
-    // * Réinitialise le mot de passe après validation du token.
+    /**
+     * Réinitialise le mot de passe de l'utilisateur après validation du token.
+     * Vérifie que le token existe, qu'il est du type PASSWORD_RESET et qu'il n'est pas expiré.
+     * Supprime ensuite le token pour éviter toute réutilisation.
+     *
+     * @param tokenString le token de réinitialisation
+     * @param newPassword le nouveau mot de passe à enregistrer
+     * @throws ApiException si le token est invalide, expiré ou introuvable
+     */
     @Transactional
     public void resetPassword(String tokenString, String newPassword) {
 
@@ -76,10 +93,12 @@ public class PasswordResetService {
                 .orElseThrow(() -> new ApiException(ErrorCode.TOKEN_NOT_FOUND));
 
         if (token.getType() != TokenType.PASSWORD_RESET) {
+            log.warn("Token invalide utilisé pour {}", token.getUser().getEmail());
             throw new ApiException(ErrorCode.TOKEN_INVALID);
         }
 
         if (token.getExpiresAt().isBefore(Instant.now())) {
+            log.warn("Token invalide utilisé pour {}", token.getUser().getEmail());
             throw new ApiException(ErrorCode.TOKEN_EXPIRED);
         }
 
@@ -89,6 +108,6 @@ public class PasswordResetService {
 
         tokenRepository.delete(token);
 
-        log.info("[RESET] Mot de passe réinitialisé pour {}", user.getEmail());
+        log.info("Mot de passe réinitialisé pour {}", user.getEmail());
     }
 }

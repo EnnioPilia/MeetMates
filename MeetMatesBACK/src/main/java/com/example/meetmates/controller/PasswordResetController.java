@@ -52,10 +52,10 @@ public class PasswordResetController {
      */
     @PostMapping("/request-reset")
     public ResponseEntity<ApiResponse<Void>> requestReset(@RequestBody PasswordResetRequestDto request) {
-        log.info("[PASSWORD] Demande de réinitialisation pour {}", request.getEmail());
+    log.info("Demande de réinitialisation de mot de passe reçue");
         passwordResetService.createPasswordResetToken(request.getEmail());
-        log.info("[PASSWORD] Token envoyé pour {}", request.getEmail());
 
+    log.info("Token de réinitialisation envoyé");
         String message = messageService.get("PASSWORD.RESET.REQUEST_SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, null));
     }
@@ -68,10 +68,10 @@ public class PasswordResetController {
      */
     @PostMapping("/reset-password")
     public ResponseEntity<ApiResponse<Void>> resetPassword(@RequestBody PasswordResetConfirmDto dto) {
-        log.info("[PASSWORD] Tentative de réinitialisation du mot de passe");
+        log.info("Tentative de réinitialisation du mot de passe");
         passwordResetService.resetPassword(dto.getToken(), dto.getNewPassword());
-        log.info("[PASSWORD] Mot de passe réinitialisé avec succès");
-
+        
+        log.info("Mot de passe réinitialisé avec succès");
         String message = messageService.get("PASSWORD.RESET.CONFIRM_SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, null));
     }

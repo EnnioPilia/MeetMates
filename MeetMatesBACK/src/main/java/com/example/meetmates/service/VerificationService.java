@@ -14,6 +14,10 @@ import com.example.meetmates.repository.TokenRepository;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Service pour la gestion de la vérification des comptes utilisateurs.
+ * Permet de générer des tokens de vérification et de confirmer les comptes.
+ */
 @Slf4j
 @Service
 public class VerificationService {
@@ -26,10 +30,16 @@ public class VerificationService {
 
     /**
      * Génère un token de vérification pour un utilisateur non vérifié.
+     * Supprime les anciens tokens de vérification pour le même utilisateur.
+     *
+     * @param user l’utilisateur à vérifier
+     * @return le token de vérification généré
+     * @throws ApiException si l’utilisateur est déjà vérifié
      */
     public String createVerificationToken(User user) {
 
         if (user.isEnabled()) {
+            log.warn("Création token échouée : utilisateur déjà vérifié user={}", user.getEmail());
             throw new ApiException(ErrorCode.USER_ALREADY_VERIFIED);
         }
 
@@ -44,20 +54,28 @@ public class VerificationService {
         );
 
         tokenRepository.save(token);
-        log.info("[VERIFY] Token créé pour {}", user.getEmail());
+        log.info("Token créé pour {}", user.getEmail());
 
         return token.getToken();
     }
 
     /**
-     * Valide le token de confirmation.
+     * Valide le token de confirmation et active le compte utilisateur.
+     * Supprime le token une fois utilisé.
+     *
+     * @param tokenValue la valeur du token de vérification
+     * @throws ApiException si le token est invalide ou expiré
      */
     public void confirmToken(String tokenValue) {
 
         Token token = tokenRepository.findByToken(tokenValue)
-                .orElseThrow(() -> new ApiException(ErrorCode.TOKEN_INVALID));
+            .orElseThrow(() -> {
+                log.warn("Confirmation échouée token={} : token invalide", tokenValue);
+                return new ApiException(ErrorCode.TOKEN_INVALID);
+            });
 
         if (token.getExpiresAt().isBefore(Instant.now())) {
+            log.warn("Confirmation échouée token={} : token expiré", tokenValue);
             throw new ApiException(ErrorCode.TOKEN_EXPIRED);
         }
 
@@ -66,6 +84,6 @@ public class VerificationService {
 
         tokenRepository.delete(token);
 
-        log.info("[VERIFY] Compte vérifié : {}", user.getEmail());
+        log.info("Compte vérifié : {}", user.getEmail());
     }
 }

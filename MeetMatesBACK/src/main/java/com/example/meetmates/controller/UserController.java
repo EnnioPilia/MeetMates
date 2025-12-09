@@ -30,6 +30,7 @@ import com.example.meetmates.service.PictureService;
 import com.example.meetmates.service.UserService;
 
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Contrôleur gérant les opérations liées aux utilisateurs.
@@ -43,6 +44,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * Utilise ApiResponse pour garantir une structure uniforme des retours.
  * Les messages utilisateurs sont centralisés via MessageService, lequel lit les codes dans le fichier messages.properties (i18n).
  */
+@Slf4j
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -83,11 +85,13 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<ApiResponse<List<UserDto>>> getAllUsers() {
+        log.info("Demande de récupération de tous les utilisateurs reçue");
         List<UserDto> dtos = userService.getAllUsers()
                 .stream()
                 .map(userMapper::toDto)
                 .toList();
 
+        log.info("Liste des utilisateurs récupérée ({} utilisateurs)", dtos.size());
         String message = messageService.get("USER.GET_ALL.SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, dtos));
     }
@@ -103,7 +107,9 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserDto>> getMe(
             @AuthenticationPrincipal UserDetails userDetails) {
 
+        log.info("Demande de récupération du profil utilisateur");
         User user = userService.findActiveByEmailOrThrow(userDetails.getUsername());
+
         String message = messageService.get("USER.GET_ME.SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, userMapper.toDto(user)));
     }
@@ -121,12 +127,14 @@ public class UserController {
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam("file") MultipartFile file) throws IOException {
 
+        log.info("Demande de mise à jour de la photo de profil reçue");
         User user = userService.findActiveByEmailOrThrow(userDetails.getUsername());
 
         String imageUrl = pictureService.uploadProfilePicture(file);
         user.setProfilePictureUrl(imageUrl);
         userService.saveUser(user);
 
+        log.info("Photo de profil mise à jour");
         String message = messageService.get("USER.PITCURE.UPLOAD.SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, userMapper.toDto(user)));
     }
@@ -144,9 +152,11 @@ public class UserController {
             @RequestBody UpdateUserDto dto,
             @AuthenticationPrincipal UserDetails userDetails) {
 
+        log.info("Demande de mise à jour du profil utilisateur");
         User user = userService.findActiveByEmailOrThrow(userDetails.getUsername());
         User updated = userService.updateProfile(user, dto);
 
+        log.info("Profil utilisateur mis à jour");
         String message = messageService.get("USER.PROFILE.UPDATE.SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, userMapper.toDto(updated)));
     }
@@ -161,7 +171,10 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable UUID id) {
+        log.info("Demande de suppression d’un utilisateur reçue");
         userService.hardDeleteById(id);
+
+        log.info("Utilisateur supprimé définitivement");
         String message = messageService.get("USER.DELETE.SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, null));
     }
@@ -177,10 +190,13 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserDto>> deleteProfilePicture(
             @AuthenticationPrincipal UserDetails userDetails) {
 
+        log.info("Demande de suppression de la photo de profil reçue");
         User user = userService.findActiveByEmailOrThrow(userDetails.getUsername());
+
         pictureService.deleteUserProfilePicture(user);
         User updated = userService.clearProfilePicture(user);
 
+        log.info("Photo de profil supprimée");
         String message = messageService.get("USER.PITCURE.DELETE.SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, userMapper.toDto(updated)));
     }
@@ -198,10 +214,11 @@ public class UserController {
             @AuthenticationPrincipal UserDetails userDetails,
             HttpServletResponse response) {
 
+        log.info("Demande de suppression du compte reçue");
         userService.softDeleteByEmail(userDetails.getUsername());
-
         cookieService.clearAuthCookies(response);
-
+        
+        log.info("Compte supprimé (soft delete) et cookies d’authentification nettoyés");
         String message = messageService.get("USER.DELETE_ACCOUNT.SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, null));
     }

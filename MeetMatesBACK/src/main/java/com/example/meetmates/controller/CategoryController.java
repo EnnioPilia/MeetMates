@@ -63,7 +63,7 @@ public class CategoryController {
      */
     @GetMapping
     public ResponseEntity<ApiResponse<List<CategoryDto>>> getAll() {
-        log.info("[CATEGORY] Récupération de toutes les catégories");
+        log.info("Récupération de toutes les catégories");
 
         var list = categoryService.findAll()
                 .stream()
@@ -83,7 +83,7 @@ public class CategoryController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<CategoryDto>> getById(@PathVariable UUID id) {
-        log.info("[CATEGORY] Récupération de la catégorie {}", id);
+        log.info("Récupération de la catégorie {}", id);
 
         var category = CategoryMapper.toDto(categoryService.findById(id));
 

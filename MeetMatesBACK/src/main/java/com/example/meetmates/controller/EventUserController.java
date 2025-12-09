@@ -91,6 +91,8 @@ public class EventUserController {
     public ResponseEntity<ApiResponse<EventUserDto>> joinEvent(@PathVariable UUID eventId, Authentication authentication) {
         User user = getAuthenticatedUser(authentication);
         EventUserDto dto = eventUserService.joinEvent(eventId, user.getId());
+
+        log.info("L’utilisateur a rejoint l’événement, eventId={}", eventId);
         String message = messageService.get("EVENT.JOIN.SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, dto));
     }
@@ -107,6 +109,8 @@ public class EventUserController {
     public ResponseEntity<ApiResponse<EventUserDto>> leaveEvent(@PathVariable UUID eventId, Authentication authentication) {
         User user = getAuthenticatedUser(authentication);
         EventUserDto dto = eventUserService.leaveEvent(eventId, user.getId());
+
+        log.info("L’utilisateur a quitté l’événement, eventId={}", eventId);
         String message = messageService.get("EVENT.LEAVE.SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, dto));
     }
@@ -122,6 +126,8 @@ public class EventUserController {
     @PutMapping("/{eventUserId}/accept")
     public ResponseEntity<ApiResponse<EventUserDto>> acceptParticipant(@PathVariable UUID eventUserId) {
         EventUserDto dto = eventUserService.acceptParticipant(eventUserId);
+
+        log.info("Participant accepté, eventUserId={}", eventUserId);
         String message = messageService.get("EVENT.PARTICIPANT.ACCEPT.SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, dto));
     }
@@ -137,6 +143,8 @@ public class EventUserController {
     @PutMapping("/{eventUserId}/reject")
     public ResponseEntity<ApiResponse<EventUserDto>> rejectParticipant(@PathVariable UUID eventUserId) {
         EventUserDto dto = eventUserService.rejectParticipant(eventUserId);
+
+        log.info("Participant refusé, eventUserId={}", eventUserId);
         String message = messageService.get("EVENT.PARTICIPANT.REJECT.SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, dto));
     }
@@ -152,6 +160,8 @@ public class EventUserController {
     public ResponseEntity<ApiResponse<List<EventUserDto>>> getEventsParticipating(Authentication authentication) {
         User user = getAuthenticatedUser(authentication);
         List<EventUserDto> dtos = eventUserService.findByUserId(user.getId());
+
+        log.info("Événements auxquels l’utilisateur participe récupérés");
         String message = messageService.get("EVENT.PARTICIPATING.LIST.SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, dtos));
     }
@@ -167,6 +177,8 @@ public class EventUserController {
     public ResponseEntity<ApiResponse<List<EventUserDto>>> getEventsOrganized(Authentication authentication) {
         User user = getAuthenticatedUser(authentication);
         List<EventUserDto> dtos = eventUserService.findOrganizedByUserId(user.getId());
+
+        log.info("Événements organisés par l’utilisateur récupérés");
         String message = messageService.get("EVENT.ORGANIZED.LIST.SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, dtos));
     }
@@ -189,6 +201,8 @@ public class EventUserController {
 
         User organizer = getAuthenticatedUser(authentication);
         eventUserService.removeParticipant(eventId, userId, organizer.getId());
+        
+        log.info("Participant retiré de l’événement, eventId={}", eventId);
         String message = messageService.get("EVENT.PARTICIPANT.REMOVE.SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, null));
     }

@@ -12,9 +12,25 @@ import com.example.meetmates.model.Event;
 import com.example.meetmates.model.EventUser;
 import com.example.meetmates.model.User;
 
+/**
+ * Mapper responsable de la conversion des entités {@link Event} et {@link EventUser}
+ * vers leurs DTOs {@link EventResponseDto} et {@link EventUserDto}.
+ *
+ * Les mappers permettent de séparer les entités JPA internes des objets exposés via l'API.
+ */
 @Component
 public class EventMapper {
 
+    /**
+     * Convertit une entité {@link Event} en un {@link EventResponseDto}.
+     * Cette méthode extrait également :
+     * - l'organisateur de l'événement,
+     * - son nom complet,
+     * - la liste des noms des participants.
+     *
+     * @param e l'événement à convertir
+     * @return un DTO contenant les informations publiques d'un événement
+     */
     public EventResponseDto toResponse(Event e) {
 
         var organizerOpt = e.getParticipants().stream()
@@ -47,13 +63,25 @@ public class EventMapper {
                 e.getLevel(),
                 e.getActivity() != null ? e.getActivity().getId() : null,
                 e.getActivity() != null ? e.getActivity().getName() : null,
-                e.getAddress() != null ? e.getAddress().getFullAddress() : null,
-                organizerId,          
+                AddressMapper.toDto(e.getAddress()),
+                organizerId,
                 organizerName,
                 participantNames
         );
     }
 
+    /**
+     * Convertit une entité {@link EventUser} en un {@link EventUserDto}.
+     *
+     * Ce mapper extrait :
+     * - les informations principales de l'événement,
+     * - les informations de l'utilisateur lié,
+     * - le rôle et le statut de participation,
+     * - les informations d'adresse et d'activité associées.
+     *
+     * @param eu l'association événement-utilisateur à convertir
+     * @return un DTO contenant les informations complètes d'un lien Event/User
+     */
     public EventUserDto EventUserDto(EventUser eu) {
         Event event = eu.getEvent();
         User user = eu.getUser();
@@ -72,7 +100,7 @@ public class EventMapper {
                 eu.getJoinedAt() != null ? eu.getJoinedAt().toString() : null,
                 event.getStatus().name(),
                 event.getEventDate().toString(),
-                event.getAddress() != null ? event.getAddress().getFullAddress() : null,
+                AddressMapper.toDto(event.getAddress()),
                 event.getActivity() != null ? event.getActivity().getName() : null
         );
     }

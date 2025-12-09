@@ -2,17 +2,33 @@ package com.example.meetmates.dto;
 
 import java.util.UUID;
 
+/**
+ * DTO représentant une catégorie d’activités dans l'application.
+ * 
+ * Utilisé pour transférer des données entre les couches sans exposer l'entité JPA.
+ * 
+ * Une catégorie regroupe plusieurs activités, identifiée par son UUID.
+ */
 public class CategoryDto {
+
+    /** Identifiant unique de la catégorie. */
     private UUID id;
+
+    /** Nom de la catégorie. */
     private String name;
 
+    /**
+     * Construit un DTO représentant une catégorie.
+     * @param id identifiant unique de la catégorie
+     * @param name nom de la catégorie
+     */
     public CategoryDto(UUID id, String name) {
         this.id = id;
         this.name = name;
     }
 
 
-    // GETTERS & SETTERS
+    // --- GETTERS & SETTERS ---
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
 

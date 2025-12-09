@@ -4,9 +4,9 @@ import java.util.UUID;
 
 /**
  * DTO représentant une activité disponible dans l'application.
- *
- * Ce modèle est utilisé pour transférer les données d’une activité entre les couches de l'application (service, contrôleur, API).
- *
+ * 
+ * Utilisé pour transférer des données entre les couches sans exposer l'entité JPA.
+ * 
  * Une activité appartient toujours à une catégorie, identifiée par son UUID.
  */
 public class ActivityDto {
@@ -21,8 +21,7 @@ public class ActivityDto {
     private UUID categoryId;
 
     /**
-     * Constructeur principal.
-     *
+     * Construit un DTO représentant une activité.
      * @param id identifiant unique de l’activité
      * @param name nom de l’activité
      * @param categoryId identifiant de la catégorie associée
@@ -33,21 +32,13 @@ public class ActivityDto {
         this.categoryId = categoryId;
     }
 
-    /** @return identifiant unique de l’activité */
+    // --- GETTERS & SETTERS ---
     public UUID getId() { return id; }
-
-    /** @param id identifiant unique de l’activité */
     public void setId(UUID id) { this.id = id; }
 
-    /** @return nom de l’activité */
     public String getName() { return name; }
-
-    /** @param name nom de l’activité */
     public void setName(String name) { this.name = name; }
 
-    /** @return identifiant de la catégorie associée */
     public UUID getCategoryId() { return categoryId; }
-
-    /** @param categoryId identifiant de la catégorie associée */
     public void setCategoryId(UUID categoryId) { this.categoryId = categoryId; }
 }

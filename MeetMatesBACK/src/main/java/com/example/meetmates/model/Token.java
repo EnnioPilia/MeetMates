@@ -14,34 +14,74 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
+/**
+ * Entité représentant un token sécurisé utilisé pour :
+ * - la vérification d’email
+ * - la réinitialisation de mot de passe
+ * - d’autres actions nécessitant une validation temporaire
+ *
+ * Le token est associé à un utilisateur et possède :
+ * - une date de création
+ * - une date d’expiration
+ * - un statut (utilisé ou non)
+ * - un type (email verification, password reset, etc.)
+ */
 @Entity
 public class Token {
 
+    /**
+     * Identifiant UUID unique du token.
+     * Généré automatiquement par Hibernate via un générateur UUID.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
+    /**
+     * Valeur du token, stockée sous forme de chaîne unique.
+     */
     @Column(nullable = false, unique = true)
     private String token;
 
+    /**
+     * Relation Many-To-One : plusieurs tokens peuvent appartenir au même utilisateur.
+     * Utilisé pour lier le token à l’utilisateur concerné.
+     */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    /**
+     * Date et heure de création du token.
+     */
     @Column(nullable = false)
     private Instant createdAt;
 
+    /**
+     * Date d’expiration du token.
+     * Une fois dépassée, le token n’est plus valide.
+     */
     private Instant expiresAt;
 
-    private Instant confirmedAt; // pour les tokens de vérification
+    /**
+     * Date de confirmation (utilisée pour les tokens de vérification d’email).
+     */
+    private Instant confirmedAt;
 
-    private boolean used = false; // pour les tokens de reset mot de passe
+    /**
+     * Indique si le token a déjà été utilisé.
+     * Pratique pour les tokens de réinitialisation de mot de passe.
+     */
+    private boolean used = false;
 
+    /**
+     * Type du token (RESET_PASSWORD, VERIFY_EMAIL, etc.).
+     */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TokenType type;
 
-    // Constructeurs
+    // --- CONSTRUCTEURS ---
     public Token() {}
 
     public Token(String token, User user, Instant createdAt, Instant expiresAt, TokenType type) {
@@ -52,7 +92,7 @@ public class Token {
         this.type = type;
     }
 
-    // Getters & Setters
+    // --- GETTERS & SETTERS ---
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
 

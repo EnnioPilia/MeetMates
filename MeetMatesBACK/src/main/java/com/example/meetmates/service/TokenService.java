@@ -15,6 +15,10 @@ import com.example.meetmates.repository.TokenRepository;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Service pour la gestion générique des tokens (verification, reset, refresh...).
+ * Fournit des méthodes pour créer, valider, marquer comme utilisé et supprimer des tokens.
+ */
 @Slf4j
 @Service
 public class TokenService {
@@ -26,8 +30,13 @@ public class TokenService {
     }
 
     /**
-     * Crée un token générique (verification, reset, refresh...). Supprime les
-     * anciens tokens du même type pour garder un historique propre.
+     * Crée un token générique pour un utilisateur.
+     * Supprime les anciens tokens du même type pour garder un historique propre.
+     *
+     * @param user l’utilisateur pour lequel créer le token
+     * @param type le type de token (VERIFICATION, PASSWORD_RESET, REFRESH, etc.)
+     * @param durationSeconds durée de validité du token en secondes
+     * @return le token créé
      */
     @Transactional
     public Token createToken(User user, TokenType type, long durationSeconds) {
@@ -43,17 +52,24 @@ public class TokenService {
                 type
         );
 
-        token.setUsed(false); // même si ton constructeur a déjà false par défaut
+        token.setUsed(false); 
 
         Token saved = tokenRepository.save(token);
 
-        log.info("[TOKEN] Token créé pour user={} type={}", user.getEmail(), type);
+        log.info("Token créé pour user={} type={}", user.getEmail(), type);
         return saved;
     }
 
     /**
-     * Récupère un token et vérifie: - qu'il existe - qu'il n'est pas utilisé -
-     * qu'il n'est pas expiré
+     * Récupère un token et vérifie qu'il est valide.
+     * La validation inclut :
+     * - existence
+     * - non-utilisation
+     * - non-expiration
+     *
+     * @param tokenString la valeur du token
+     * @return le token valide
+     * @throws ApiException si le token est introuvable, déjà utilisé ou expiré
      */
     @Transactional(readOnly = true)
     public Token getValidToken(String tokenString) {
@@ -61,10 +77,12 @@ public class TokenService {
                 .orElseThrow(() -> new ApiException(ErrorCode.TOKEN_NOT_FOUND));
 
         if (Boolean.TRUE.equals(token.isUsed())) {
-            throw new ApiException(ErrorCode.TOKEN_INVALID); // ou TOKEN_ALREADY_USED si tu veux
+            log.warn("Tentative d'utilisation d'un token déjà utilisé pour user={} type={}", token.getUser().getEmail(), token.getType());
+            throw new ApiException(ErrorCode.TOKEN_INVALID); 
         }
 
         if (token.getExpiresAt().isBefore(Instant.now())) {
+            log.warn("Tentative d'utilisation d'un token expiré pour user={} type={}", token.getUser().getEmail(), token.getType());
             throw new ApiException(ErrorCode.TOKEN_EXPIRED);
         }
 
@@ -72,7 +90,9 @@ public class TokenService {
     }
 
     /**
-     * Marque un token comme utilisé.
+     * Marque un token comme utilisé et enregistre la date de confirmation.
+     *
+     * @param token le token à marquer comme utilisé
      */
     @Transactional
     public void markTokenAsUsed(Token token) {
@@ -80,15 +100,18 @@ public class TokenService {
         token.setConfirmedAt(Instant.now());
         tokenRepository.save(token);
 
-        log.info("[TOKEN] Token utilisé pour user={} type={}", token.getUser().getEmail(), token.getType());
+        log.info("Token utilisé pour user={} type={}", token.getUser().getEmail(), token.getType());
     }
 
     /**
-     * Supprime tous les tokens d’un utilisateur pour un type.
+     * Supprime tous les tokens d’un utilisateur pour un type donné.
+     *
+     * @param userId l’identifiant de l’utilisateur
+     * @param type le type de tokens à supprimer
      */
     @Transactional
     public void deleteTokenByUserAndType(UUID userId, TokenType type) {
         tokenRepository.deleteByUser_IdAndType(userId, type);
-        log.info("[TOKEN] Suppression tokens type={} user={}", type, userId);
+        log.info("Suppression tokens type={} user={}", type, userId);
     }
 }

@@ -13,6 +13,13 @@ import com.example.meetmates.model.User;
 import com.example.meetmates.repository.PictureUserRepository;
 import com.example.meetmates.repository.UserRepository;
 
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * Service pour la gestion des photos de profil des utilisateurs. Permet de
+ * générer l’URL d’une image, d’uploader, sauvegarder ou supprimer les photos de profil.
+ */
+@Slf4j
 @Service
 public class PictureService {
 
@@ -27,9 +34,11 @@ public class PictureService {
     }
 
     /**
-     * * Génère simplement l’URL de l’image stockée (mock pour ton CDN)
-     *   Cette méthode correspond EXACTEMENT à ce que ton controller appelle.
-     * Faire des exeption pour remplacer les RuntimeException !!!!
+     * Génère l'URL de l’image stockée sur le CDN. Cette méthode est utilisée pour simuler l’upload vers un CDN.
+     *
+     * @param file le fichier image à uploader
+     * @return l’URL complète de l’image
+     * @throws IOException si le fichier est vide
      */
     public String uploadProfilePicture(MultipartFile file) throws IOException {
         if (file == null || file.isEmpty()) {
@@ -39,6 +48,14 @@ public class PictureService {
         return "https://cdn.meetmates.com/profiles/" + file.getOriginalFilename();
     }
 
+    /**
+     * Upload et sauvegarde la photo de profil pour un utilisateur dans la table
+     * PictureUser. Si une photo existe déjà, elle est mise à jour.
+     *
+     * @param user l’utilisateur pour lequel la photo est uploadée
+     * @param file le fichier image
+     * @return l’entité PictureUser mise à jour ou créée
+     */
     @Transactional
     public PictureUser uploadUserProfilePicture(User user, MultipartFile file) {
         try {
@@ -51,6 +68,7 @@ public class PictureService {
                 pictureUser = existing.get();
                 pictureUser.setUrl(imageUrl);
                 pictureUser.setUpdatedAt(LocalDateTime.now());
+                log.info("[PICTURE] Photo de profil mise à jour pour user={}", user.getEmail());
             } else {
                 pictureUser = new PictureUser();
                 pictureUser.setUser(user);
@@ -58,22 +76,44 @@ public class PictureService {
                 pictureUser.setPublicId(file.getOriginalFilename());
                 pictureUser.setMain(true);
                 pictureUser.setCreatedAt(LocalDateTime.now());
+                log.info("Nouvelle photo de profil créée pour user={}", user.getEmail());
             }
 
             return pictureUserRepository.save(pictureUser);
         } catch (Exception e) {
+            log.error("Erreur lors de l’upload de la photo pour user={}", user.getEmail(), e);
             throw new RuntimeException("Erreur lors de l’ajout de la photo de profil", e);
         }
     }
 
+    /**
+     * Sauvegarde l’URL de la photo de profil directement dans l’entité User.
+     *
+     * @param user l’utilisateur à mettre à jour
+     * @param file le fichier image
+     * @return l’utilisateur mis à jour
+     * @throws IOException si le fichier est invalide
+     */
     @Transactional
     public User saveUserProfilePicture(User user, MultipartFile file) throws IOException {
-        String imageUrl = "https://cdn.meetmates.com/profiles/" + file.getOriginalFilename();
-
-        user.setProfilePictureUrl(imageUrl);
-        return userRepository.save(user);
+        try {
+            String imageUrl = "https://cdn.meetmates.com/profiles/" + file.getOriginalFilename();
+            user.setProfilePictureUrl(imageUrl);
+            User saved = userRepository.save(user);
+            log.info("Photo de profil sauvegardée dans User pour user={}", user.getEmail());
+            return saved;
+        } catch (Exception e) {
+            log.error("Erreur lors de la sauvegarde de la photo dans User pour user={}", user.getEmail(), e);
+            throw e;
+        }
     }
 
+    /**
+     * Supprime la photo de profil de l’utilisateur. Supprime également l’entité
+     * PictureUser associée si elle existe.
+     *
+     * @param user l’utilisateur dont la photo doit être supprimée
+     */
     @Transactional
     public void deleteUserProfilePicture(User user) {
         try {
@@ -81,14 +121,13 @@ public class PictureService {
                     .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
 
             Optional<PictureUser> existingPicture = pictureUserRepository.findByUser(existingUser);
-            if (existingPicture.isPresent()) {
-                pictureUserRepository.delete(existingPicture.get());
-            }
+            existingPicture.ifPresent(pictureUserRepository::delete);
 
             existingUser.setProfilePictureUrl(null);
 
             userRepository.saveAndFlush(existingUser);
         } catch (Exception e) {
+            log.error("Erreur lors de la suppression de la photo pour user={}", user.getEmail(), e);
             throw new RuntimeException("Erreur lors de la suppression de la photo de profil", e);
         }
     }

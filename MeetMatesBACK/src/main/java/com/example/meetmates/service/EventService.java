@@ -14,6 +14,7 @@ import com.example.meetmates.dto.EventResponseDto;
 import com.example.meetmates.dto.EventUserDto;
 import com.example.meetmates.exception.ApiException;
 import com.example.meetmates.exception.ErrorCode;
+import com.example.meetmates.mapper.AddressMapper;
 import com.example.meetmates.mapper.EventMapper;
 import com.example.meetmates.model.Address;
 import com.example.meetmates.model.Event;
@@ -29,8 +30,13 @@ import com.example.meetmates.repository.UserRepository;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Service
+/**
+ * Service de gestion des événements.
+ * Fournit les fonctionnalités de création, mise à jour, suppression, recherche et récupération des événements.
+ * Gère également l'ajout de participants et la récupération des détails liés aux événements.
+ */
 @Slf4j
+@Service
 public class EventService {
 
     private final EventRepository eventRepository;
@@ -54,13 +60,17 @@ public class EventService {
         this.eventMapper = eventMapper;
     }
 
-    // ----------------------------------------------------------------------
-    // CREATE EVENT
-    // ----------------------------------------------------------------------
+    /**
+     * Crée un nouvel événement et l'associe à l'utilisateur authentifié en tant qu'organisateur.
+     *
+     * @param req DTO contenant les informations de l'événement
+     * @return DTO de réponse de l'événement créé
+     * @throws ApiException si l'activité liée n'existe pas
+     */
     @Transactional
     public EventResponseDto createEvent(EventRequestDto req) {
-
         User organizer = getAuthenticatedUser();
+        log.info("Utilisateur {} crée un événement '{}'", organizer.getEmail(), req.getTitle());
 
         var activity = activityRepository.findById(req.getActivityId())
                 .orElseThrow(() -> new ApiException(ErrorCode.ACTIVITY_NOT_FOUND));
@@ -87,9 +97,11 @@ public class EventService {
         return eventMapper.toResponse(saved);
     }
 
-    // ----------------------------------------------------------------------
-    // FIND ALL
-    // ----------------------------------------------------------------------
+    /**
+     * Récupère la liste de tous les événements avec leurs détails.
+     *
+     * @return liste des DTO d'événements
+     */
     @Transactional(readOnly = true)
     public List<EventResponseDto> findAllResponses() {
         return eventRepository.findAllWithDetails()
@@ -98,12 +110,15 @@ public class EventService {
                 .toList();
     }
 
-    // ----------------------------------------------------------------------
-    // FIND DETAILS BY ID
-    // ----------------------------------------------------------------------
+    /**
+     * Récupère les détails d'un événement spécifique par son ID.
+     *
+     * @param eventId ID de l'événement
+     * @return DTO détaillé de l'événement
+     * @throws ApiException si l'événement n'existe pas
+     */
     @Transactional(readOnly = true)
     public EventDetailsDto findEventDetailsById(UUID eventId) {
-
         Event event = eventRepository.findByIdWithAllRelations(eventId)
                 .orElseThrow(() -> new ApiException(ErrorCode.EVENT_NOT_FOUND));
 
@@ -143,7 +158,7 @@ public class EventService {
                 event.getEventDate().toString(),
                 event.getStartTime().toString(),
                 event.getEndTime().toString(),
-                event.getAddress() != null ? event.getAddress().getFullAddress() : null,
+                event.getAddress() != null ? AddressMapper.toDto(event.getAddress()) : null,
                 event.getActivity() != null ? event.getActivity().getName() : null,
                 organizerName,
                 String.valueOf(event.getLevel()),
@@ -157,41 +172,55 @@ public class EventService {
         );
     }
 
-    // ----------------------------------------------------------------------
-    // EVENTS BY ACTIVITY
-    // ----------------------------------------------------------------------
+    /**
+     * Récupère les événements associés à une activité donnée.
+     *
+     * @param activityId ID de l'activité
+     * @return liste des DTO d'événements
+     * @throws ApiException si l'activité n'existe pas
+     */
     @Transactional(readOnly = true)
     public List<EventResponseDto> getEventResponsesByActivity(UUID activityId) {
-
+        
         activityRepository.findById(activityId)
                 .orElseThrow(() -> new ApiException(ErrorCode.ACTIVITY_NOT_FOUND));
 
+        log.info("Récupération des événements pour l'activité {}", activityId);
         return eventRepository.findByActivityIdWithDetails(activityId)
                 .stream()
                 .map(eventMapper::toResponse)
                 .toList();
     }
 
-    // ----------------------------------------------------------------------
-    // DELETE EVENT
-    // ----------------------------------------------------------------------
+    /**
+     * Supprime un événement par son ID.
+     *
+     * @param eventId ID de l'événement
+     * @throws ApiException si l'événement n'existe pas
+     */
     @Transactional
     public void deleteEvent(UUID eventId) {
-
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ApiException(ErrorCode.EVENT_NOT_FOUND));
-
+                
+        log.info("Utilisateur {} supprime l'événement {}", getAuthenticatedUser().getEmail(), eventId);
         eventRepository.delete(event);
     }
 
-    // --------------------------------- -------------------------------------
-    // UPDATE EVENT
-    // ----------------------------------------------------------------------
+    /**
+     * Met à jour un événement existant avec les informations fournies.
+     *
+     * @param eventId      ID de l'événement
+     * @param updatedEvent DTO contenant les nouvelles informations
+     * @return DTO de réponse de l'événement mis à jour
+     * @throws ApiException si l'événement ou l'activité associée n'existe pas
+     */
     @Transactional
     public EventResponseDto updateEvent(UUID eventId, EventRequestDto updatedEvent) {
-
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ApiException(ErrorCode.EVENT_NOT_FOUND));
+
+        log.info("Utilisateur {} met à jour l'événement {}", getAuthenticatedUser().getEmail(), eventId);
 
         event.setTitle(updatedEvent.getTitle());
         event.setDescription(updatedEvent.getDescription());
@@ -220,24 +249,30 @@ public class EventService {
         return eventMapper.toResponse(eventRepository.save(event));
     }
 
-    // ----------------------------------------------------------------------
-    // SEARCH
-    // ----------------------------------------------------------------------
+    /**
+     * Recherche des événements contenant le texte fourni.
+     *
+     * @param query texte de recherche
+     * @return liste des DTO d'événements correspondant à la recherche
+     */
     @Transactional(readOnly = true)
     public List<EventResponseDto> searchEvents(String query) {
         if (query == null || query.isBlank()) return List.of();
 
+        log.info("Recherche d'événements avec le texte '{}'", query.trim().toLowerCase());
         return eventRepository.searchEvents(query.trim().toLowerCase())
                 .stream()
                 .map(eventMapper::toResponse)
                 .toList();
     }
 
-    // ----------------------------------------------------------------------
-    // INTERNAL METHODS
-    // ----------------------------------------------------------------------
+    /**
+     * Ajoute l'organisateur à un événement.
+     *
+     * @param event     événement
+     * @param organizer utilisateur organisateur
+     */
     private void addOrganizer(Event event, User organizer) {
-
         EventUser eu = new EventUser();
         eu.setEvent(event);
         eu.setUser(organizer);
@@ -253,6 +288,12 @@ public class EventService {
         event.getParticipants().add(eu);
     }
 
+    /**
+     * Récupère l'utilisateur actuellement authentifié.
+     *
+     * @return utilisateur authentifié
+     * @throws ApiException si aucun utilisateur n'est authentifié
+     */
     private User getAuthenticatedUser() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated())
@@ -262,6 +303,11 @@ public class EventService {
                 .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
     }
 
+    /**
+     * Récupère l'utilisateur authentifié ou retourne null si non authentifié.
+     *
+     * @return utilisateur authentifié ou null
+     */
     private User getAuthenticatedUserOrNull() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) return null;

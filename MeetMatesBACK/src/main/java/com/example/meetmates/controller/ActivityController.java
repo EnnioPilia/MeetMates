@@ -73,12 +73,13 @@ public class ActivityController {
      */
     @GetMapping
     public ResponseEntity<ApiResponse<List<ActivityDto>>> getAll() {
-        log.info("[ACTIVITY] getAll");
 
         var list = activityService.findAll()
                 .stream()
                 .map(activityMapper::toDto)
                 .toList();
+
+        log.info("getAll, total={}", list.size());
 
         return ResponseEntity.ok(
                 new ApiResponse<>(msg("ACTIVITY_LIST_SUCCESS"), list)
@@ -93,9 +94,9 @@ public class ActivityController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ActivityDto>> getById(@PathVariable UUID id) {
-        log.info("[ACTIVITY] getById {}", id);
-
         var activity = activityMapper.toDto(activityService.findById(id));
+
+        log.info("getById, id={}", id);
 
         return ResponseEntity.ok(
                 new ApiResponse<>(msg("ACTIVITY_GET_SUCCESS"), activity)
@@ -110,12 +111,12 @@ public class ActivityController {
      */
     @GetMapping("/category/{categoryId}")
     public ResponseEntity<ApiResponse<List<ActivityDto>>> getByCategory(@PathVariable UUID categoryId) {
-        log.info("[ACTIVITY] getByCategory {}", categoryId);
-
         var list = activityService.findByCategory(categoryId)
                 .stream()
                 .map(activityMapper::toDto)
                 .toList();
+
+        log.info("getByCategory, categoryId={}, total={}", categoryId, list.size());
 
         return ResponseEntity.ok(
                 new ApiResponse<>(msg("ACTIVITY_BY_CATEGORY_SUCCESS"), list)
