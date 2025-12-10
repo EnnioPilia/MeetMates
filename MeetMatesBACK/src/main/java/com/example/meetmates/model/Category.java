@@ -19,11 +19,23 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 /**
- * Entité représentant une catégorie d’activités.
+ * Entité représentant une catégorie d’activités dans l'application.
  *
- * Une catégorie regroupe plusieurs activités du même type
- * Elle permet de classer les événements et d'offrir une navigation cohérente dans l'application.
+ * Une catégorie permet de regrouper plusieurs activités partageant un même thème.
+ * Elle sert à structurer et organiser les événements, afin de faciliter la
+ * navigation, le filtrage et la recherche pour les utilisateurs.
+ *
+ * L’entité stocke :
+ * - un identifiant UUID unique
+ * - un nom obligatoire et unique
+ * - une image illustrative optionnelle
+ * - la liste des activités qui lui sont associées
+ *
+ * La relation One-To-Many assure qu’une catégorie peut regrouper plusieurs
+ * activités, et la suppression d’une catégorie entraîne également la
+ * suppression des activités liées (orphan removal).
  */
+
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity
 @Table(name = "category")
@@ -32,6 +44,7 @@ public class Category {
     /**
      * Identifiant UUID unique de la catégorie.
      * Généré automatiquement par Hibernate via un générateur UUID.
+     * et stocké en tant que chaîne de caractères (CHAR 36).
      */
     @Id
     @GeneratedValue(generator = "UUID")

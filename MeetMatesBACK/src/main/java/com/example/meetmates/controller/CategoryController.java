@@ -25,7 +25,9 @@ import lombok.extern.slf4j.Slf4j;
  * - de récupérer toutes les catégories,
  * - de récupérer une catégorie particulière via son identifiant.
  *
- * Toutes les réponses sont encapsulées dans ApiResponse pour garantir une structure homogène des retours de l'API.
+ * Utilise ApiResponse pour garantir une structure uniforme des retours.
+ * Les messages utilisateurs sont centralisés via MessageService, 
+ * lequel lit les codes dans le fichier messages.properties (i18n
  */
 @Slf4j
 @RestController

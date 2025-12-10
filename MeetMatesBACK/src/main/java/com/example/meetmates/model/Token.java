@@ -15,16 +15,22 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
 /**
- * Entité représentant un token sécurisé utilisé pour :
- * - la vérification d’email
- * - la réinitialisation de mot de passe
- * - d’autres actions nécessitant une validation temporaire
+ * Entité représentant un token sécurisé utilisé pour des opérations sensibles :
+ * - vérification d’adresse email
+ * - réinitialisation de mot de passe
+ * - actions nécessitant une validation temporaire
  *
- * Le token est associé à un utilisateur et possède :
- * - une date de création
- * - une date d’expiration
- * - un statut (utilisé ou non)
- * - un type (email verification, password reset, etc.)
+ * Relations :
+ * - Many-to-One avec {@link User} : un utilisateur peut posséder plusieurs tokens
+ *
+ * Le token contient :
+ * - une valeur unique (string)
+ * - des métadonnées temporelles (création, expiration, confirmation)
+ * - un statut d’utilisation (utilisé ou non)
+ * - un type fonctionnel ({@link TokenType})
+ *
+ * Cette entité sert de base à tous les flux de sécurité nécessitant un code
+ * temporaire ou un lien signé.
  */
 @Entity
 public class Token {

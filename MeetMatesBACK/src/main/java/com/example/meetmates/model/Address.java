@@ -14,11 +14,19 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 /**
- * Entité représentant une adresse dans l'application.
+ * Entité représentant une adresse géographique utilisée dans l'application.
  *
- * Une adresse contient une rue, une ville et un code postal, ainsi qu’un
- * identifiant unique généré automatiquement. Cette entité est utilisée
- * notamment pour localiser les événements.
+ * Cette entité stocke les informations nécessaires à la localisation :
+ * - la rue
+ * - la ville
+ * - le code postal
+ * - un identifiant UUID unique généré automatiquement
+ *
+ * L’entité est notamment utilisée pour associer une localisation
+ * aux événements, mais peut être réutilisée dans d’autres contextes.
+ *
+ * Elle fournit également une méthode utilitaire permettant
+ * de générer une adresse complète formatée.
  */
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity

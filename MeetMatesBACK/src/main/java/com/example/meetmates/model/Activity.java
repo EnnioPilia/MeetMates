@@ -21,11 +21,23 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 /**
- * Entité représentant une activité disponible dans l'application.
- * Une activité appartient à une catégorie et contient des métadonnées
- * d'audit telles que la date de création et de mise à jour.
+ * Entité représentant une activité proposée dans l’application.
  *
- * L'entité est stockée dans la table "activity" et utilise un UUID comme identifiant unique.
+ * Une activité correspond à un type d’événement. 
+ * Elle est obligatoirement rattachée à une catégorie.
+ *
+ * L’entité stocke :
+ * - un identifiant UUID unique
+ * - un nom obligatoire
+ * - sa catégorie parente
+ * - les dates de création et de mise à jour
+ *
+ * Les champs createdAt et updatedAt sont gérés automatiquement via les
+ * callbacks JPA @PrePersist et @PreUpdate.
+ *
+ * L’activité est rattachée à une catégorie via une relation Many-to-One.
+ * La suppression d’une activité n’impacte pas la catégorie, et inversement,
+ * sauf si la suppression provient du côté Category (orphanRemoval).
  */
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity

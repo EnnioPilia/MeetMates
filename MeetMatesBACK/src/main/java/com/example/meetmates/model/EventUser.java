@@ -22,14 +22,21 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 /**
- * Entité représentant la relation entre un utilisateur et un événement.
+ * Entité associative représentant la participation d’un utilisateur à un événement.
  *
- * Cette table associative permet de suivre :
- * - les participants d’un événement
- * - leur rôle (organisateur ou simple participant)
- * - leur statut de participation (en attente, accepté, refusé, etc.)
+ * Elle permet de gérer :
+ * - le rôle du participant (organisateur, participant)
+ * - le statut de participation (en attente, accepté, refusé, parti…)
+ * - l’historique d’inscription (date de join)
+ * - des informations redondantes utiles (email à l’inscription)
  *
- * Chaque combinaison (event_id + user_id) est unique.
+ * Relations :
+ * - Many-to-One avec {@link Event} : événement concerné
+ * - Many-to-One avec {@link User} : utilisateur participant
+ *
+ * Particularités :
+ * - La combinaison (event_id + user_id) est unique
+ * - L’entité sert de pivot pour la gestion des rôles et des statuts
  */
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity

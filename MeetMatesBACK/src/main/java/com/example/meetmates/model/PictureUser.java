@@ -15,13 +15,19 @@ import jakarta.persistence.Table;
 /**
  * Entité représentant la photo principale d’un utilisateur.
  *
- * Cette table stocke :
- * - l’URL de l’image de profil
- * - l’identifiant public du fichier 
- * - le statut de l’image 
+ * Cette entité stocke les informations liées à une image de profil :
+ * - l’URL publique de l’image
+ * - l’identifiant public dans le service de stockage
+ * - le statut (ex : ACTIVE, DELETED)
+ * - l’indicateur d’image principale
  * - les dates de création et de mise à jour
  *
- * La relation One-To-One garantit qu’un utilisateur ne peut avoir qu’une seule image principale dans cette table.
+ * Relations :
+ * - One-To-One avec {@link User} : chaque utilisateur possède au maximum
+ *   une image principale associée dans cette table.
+ *
+ * Cette entité permet de gérer proprement la photo de profil sans mélanger
+ * les données de stockage avec la table User.
  */
 @Entity
 @Table(name = "picture_user")

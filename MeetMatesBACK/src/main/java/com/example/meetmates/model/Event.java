@@ -30,14 +30,20 @@ import jakarta.persistence.Table;
 /**
  * Entité représentant un événement créé par les utilisateurs.
  *
- * Un événement dispose d'un titre, d'une description, d’une date, d’un créneau horaire,
- * d’un nombre maximal de participants et d’un statut indiquant son état actuel.
- * Il est associé à :
- * - une adresse ({@link Address})
- * - une activité ({@link Activity})
- * - une liste de participants ({@link EventUser})
+ * L’entité stocke :
+ * - un titre, une description et une date
+ * - un créneau horaire (début / fin)
+ * - un nombre maximal de participants (optionnel)
+ * - plusieurs propriétés métier (niveau, matériel requis, statut)
  *
- * L’entité gère aussi des métadonnées (création, mise à jour, suppression logique).
+ * Relations :
+ * - One-to-One avec {@link Address} : adresse complète de l’événement
+ * - Many-to-One avec {@link Activity} : catégorie / type d’activité
+ * - One-to-Many avec {@link EventUser} : participants inscrits ou en attente
+ *
+ * L’entité gère également :
+ * - les métadonnées (création, mise à jour, suppression logique)
+ * - le soft delete via {@code deletedAt}
  */
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity
