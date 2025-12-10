@@ -24,7 +24,7 @@ import { PostAddressComponent } from './components/post-address.component';
 // ---------- Composants Shared ----------
 import { AppButtonComponent } from '../../shared-components/button/button.component';
 import { MATERIAL_OPTIONS, LEVEL_OPTIONS } from '../../shared-components/constants/event-option';
-import { EventFacade } from '../../core/facades/event/event.facade';
+import { EventFacade } from '../../core/facades/events/event/event.facade';
 
 
 @Component({

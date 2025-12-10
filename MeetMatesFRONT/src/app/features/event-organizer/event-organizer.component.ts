@@ -6,7 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatDialog } from '@angular/material/dialog';
-import { EventFacade } from '../../core/facades/event/event.facade';
+import { EventFacade } from '../../core/facades/events/event/event.facade';
 
 import { EventHeaderComponent } from '../../shared-components/event-header/event-header.component';
 import { EventInfoComponent } from '../../shared-components/event-info/event-info.component';

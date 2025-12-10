@@ -3,32 +3,51 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin } from 'rxjs';
 import { tap, finalize, switchMap } from 'rxjs/operators';
 
+import { BaseFacade } from '../base/base.facade';
 import { UserFacade } from '../../facades/user/user.facade';
 import { AuthFacade } from '../../facades/auth/auth.facade';
+
 import { EventUserService } from '../../services/event-user/event-user.service';
 
 import { User } from '../../models/user.model';
 import { EventResponse } from '../../models/event-response.model';
-import { BaseFacade } from '../base/base.facade';
 
+/** Données complètes du profil utilisateur */
 export interface ProfileLoadResult {
   user: User;
   organized: EventResponse[];
   participating: EventResponse[];
 }
 
+/**
+ * Facade responsable de la gestion du profil utilisateur :
+ * - chargement du profil
+ * - récupération des événements organisés et participés
+ * - filtrage des événements dupliqués
+ * - déconnexion
+ * - suppression du compte
+ * - exposition d’états via signals
+ */
 @Injectable({ providedIn: 'root' })
 export class ProfileFacade extends BaseFacade {
-
   private userFacade = inject(UserFacade);
   private authFacade = inject(AuthFacade);
   private eventUserService = inject(EventUserService);
   private destroyRef = inject(DestroyRef);
 
+  /** Utilisateur courant */
   readonly user = signal<User | null>(null);
+
+  /** Événements organisés par l'utilisateur */
   readonly eventsOrganized = signal<EventResponse[]>([]);
+
+  /** Événements auxquels l'utilisateur participe */
   readonly eventsParticipating = signal<EventResponse[]>([]);
 
+  /**
+  * Charge le profil complet de l'utilisateur.
+  * @returns Observable<ProfileLoadResult> observable contenant les informations du profil et les événements
+  */
   private resetState(): void {
     this.user.set(null);
     this.eventsOrganized.set([]);
@@ -36,7 +55,10 @@ export class ProfileFacade extends BaseFacade {
     this.stopLoading();
   }
 
-  /** Chargement du profil */
+  /**
+  * Charge le profil complet de l'utilisateur.
+  * @returns Observable<ProfileLoadResult> observable contenant les informations du profil et les événements
+  */
   loadProfile() {
     this.resetState();
     this.startLoading();
@@ -56,7 +78,11 @@ export class ProfileFacade extends BaseFacade {
     );
   }
 
-  /** Charge événements */
+  /**
+  * Charge les événements organisés et participés par l'utilisateur.
+  * Les événements organisés sont exclus de la liste des événements participés.
+  * @returns Observable<ProfileLoadResult> observable contenant les événements filtrés
+  */
   private loadUserEvents() {
     return forkJoin({
       organized: this.eventUserService.getOrganizedEvents(),
@@ -74,16 +100,21 @@ export class ProfileFacade extends BaseFacade {
     );
   }
 
-  /** Déconnexion */
+  /**
+  * Déconnecte l'utilisateur.
+  * @returns Observable<any> observable de la réponse de déconnexion
+  */
   logout() {
     this.resetState();
     return this.authFacade.logout();
   }
 
-  /** Suppression du compte */
+  /**
+  * Supprime le compte de l'utilisateur.
+  * @returns Observable<any> observable de la réponse de suppression
+  */
   deleteAccount() {
     return this.userFacade.deleteMyAccount();
   }
-
 
 }

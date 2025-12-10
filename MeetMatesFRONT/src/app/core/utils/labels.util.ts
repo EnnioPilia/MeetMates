@@ -1,3 +1,19 @@
+/**
+ * Utilitaires de conversion des codes internes vers des libellés lisibles.
+ *
+ * Ces fonctions sont centralisées afin d’assurer une cohérence d'affichage
+ * dans toute l'application (statuts, niveaux, matériel, participation, etc.).
+ * 
+ * Chaque fonction reçoit un code provenant du backend et retourne
+ * automatiquement son équivalent lisible en français.
+ */
+
+/**
+ * Retourne le libellé lisible correspondant à un statut d’atelier.
+ *
+ * @param status Code du statut (ex. : "OPEN", "FULL", "CANCELLED", "FINISHED")
+ * @returns Libellé lisible en français ou la valeur brute si inconnue
+ */
 export function getStatusLabel(status: string): string {
   switch (status) {
     case 'OPEN': return 'Ouvert';
@@ -8,6 +24,12 @@ export function getStatusLabel(status: string): string {
   }
 }
 
+/**
+ * Retourne le libellé lisible correspondant à un niveau de difficulté.
+ *
+ * @param level Code du niveau (ex. : "BEGINNER", "INTERMEDIATE", "EXPERT", "ALL_LEVELS")
+ * @returns Libellé en français ou la valeur brute si inconnue
+ */
 export function getLevelLabel(level: string): string {
   switch (level) {
     case 'BEGINNER': return 'Débutant';
@@ -18,6 +40,12 @@ export function getLevelLabel(level: string): string {
   }
 }
 
+/**
+ * Retourne le libellé lisible correspondant au type de matériel requis.
+ *
+ * @param material Code du matériel (ex. : "YOUR_OWN", "PROVIDED", "NOT_REQUIRED")
+ * @returns Libellé en français ou la valeur brute si inconnue
+ */
 export function getMaterialLabel(material: string): string {
   switch (material) {
     case 'YOUR_OWN': return 'Apporter votre matériel';
@@ -27,6 +55,12 @@ export function getMaterialLabel(material: string): string {
   }
 }
 
+/**
+ * Retourne le libellé lisible correspondant au statut de participation d’un utilisateur.
+ *
+ * @param status Code du statut (ex. : "ACCEPTED", "PENDING", "REJECTED")
+ * @returns Libellé en français ou "Statut inconnu" si indéfini
+ */
 export function getParticipationLabel(status: string | null | undefined): string {
   switch (status) {
     case 'ACCEPTED': return 'Accepté';

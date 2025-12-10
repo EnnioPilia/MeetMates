@@ -12,7 +12,7 @@ import { ActivatedRoute } from '@angular/router';
 
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { EventListFacade } from '../../core/facades/event/event-list.facade';
+import { EventListFacade } from '../../core/facades/events/event-list/event-list.facade';
 
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';

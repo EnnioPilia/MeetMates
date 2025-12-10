@@ -1,18 +1,33 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../../environments/environment';
-import { RegisterRequest, ApiResponse, PasswordResetRequest, PasswordResetConfirmRequest } from '../../models/auth.model';
 
+import { environment } from '../../../../environments/environment';
+
+import { RegisterRequest, PasswordResetRequest, PasswordResetConfirmRequest } from '../../models/auth.model';
+import { ApiResponse } from '../../models/api-response.model';
+
+/**
+ * Service responsable de la communication avec l'API d'authentification.
+ *
+ * Rôle :
+ * - Gérer l'inscription, la connexion et la déconnexion
+ * - Gérer la réinitialisation du mot de passe
+ * - Vérifier les emails
+ * - Utiliser les cookies HTTPOnly (withCredentials) pour les sessions
+ */
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-
   private readonly baseUrl = environment.apiUrl.replace(/\/+$/, '') + '/auth';
   private http = inject(HttpClient);
 
-  /* LOGIN — retourne juste message + cookies */
+  /**
+   * Authentifie un utilisateur à partir de ses identifiants.
+   * @param credentials email + mot de passe
+   * @returns Observable contenant un message et les cookies de session
+   */
   login(credentials: { email: string; password: string }): Observable<ApiResponse<null>> {
     return this.http.post<ApiResponse<null>>(
       `${this.baseUrl}/login`,
@@ -21,7 +36,10 @@ export class AuthService {
     );
   }
 
-  /* REGISTER */
+  /**
+  * Enregistre un nouvel utilisateur.
+  * @param data données du formulaire d'inscription
+  */
   register(data: RegisterRequest): Observable<ApiResponse<null>> {
     return this.http.post<ApiResponse<null>>(
       `${this.baseUrl}/register`,
@@ -30,7 +48,9 @@ export class AuthService {
     );
   }
 
-  /* LOGOUT */
+  /**
+   * Déconnecte l'utilisateur et détruit la session serveur.
+   */
   logout(): Observable<ApiResponse<null>> {
     return this.http.post<ApiResponse<null>>(
       `${this.baseUrl}/logout`,
@@ -39,7 +59,10 @@ export class AuthService {
     );
   }
 
-  /* REFRESH TOKEN — pas d'accessToken dans le JSON */
+  /**
+   * Rafraîchit la session via les cookies HttpOnly.
+   * @returns Observable contenant un message (aucun accessToken dans le JSON)
+   */
   refreshToken(): Observable<ApiResponse<null>> {
     return this.http.post<ApiResponse<null>>(
       `${this.baseUrl}/refresh-token`,
@@ -48,7 +71,10 @@ export class AuthService {
     );
   }
 
-  /* REQUEST RESET PASSWORD */
+  /**
+   * Demande l’envoi d’un email contenant un lien de réinitialisation.
+   * @param data email de l'utilisateur
+   */
   requestPasswordReset(data: PasswordResetRequest): Observable<ApiResponse<null>> {
     return this.http.post<ApiResponse<null>>(
       `${this.baseUrl}/request-reset`,
@@ -56,7 +82,10 @@ export class AuthService {
     );
   }
 
-  /* RESET PASSWORD — token + newPassword */
+  /**
+   * Réinitialise le mot de passe via le token reçu par email.
+   * @param data token + nouveau mot de passe
+   */
   resetPassword(data: PasswordResetConfirmRequest): Observable<ApiResponse<null>> {
     return this.http.post<ApiResponse<null>>(
       `${this.baseUrl}/reset-password`,
@@ -64,7 +93,10 @@ export class AuthService {
     );
   }
 
-  /* VERIFY EMAIL */
+  /**
+   * Vérifie le token envoyé par email après l'inscription.
+   * @param token jeton de validation
+   */
   verifyEmail(token: string): Observable<ApiResponse<null>> {
     return this.http.get<ApiResponse<null>>(
       `${this.baseUrl}/verify`,

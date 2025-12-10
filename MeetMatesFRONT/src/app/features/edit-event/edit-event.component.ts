@@ -2,7 +2,7 @@ import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { EditEventFacade } from '../../core/facades/event/edit-event.facade';
+import { EditEventFacade } from '../../core/facades/events/edit-event/edit-event.facade';
 import { EditEventInfoComponent } from './components/edit-event-info.component';
 import { EditEventDetailsComponent } from './components/edit-event-details.component';
 import { EditEventAddressComponent } from './components/edit-event-address.component';

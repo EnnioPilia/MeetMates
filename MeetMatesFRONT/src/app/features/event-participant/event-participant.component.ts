@@ -15,7 +15,7 @@ import { AppButtonComponent } from '../../shared-components/button/button.compon
 import { StateHandlerComponent } from '../../shared-components/state-handler/state-handler.component';
 
 import { getStatusLabel, getLevelLabel, getMaterialLabel, getParticipationLabel } from '../../core/utils/labels.util';
-import { EventFacade } from '../../core/facades/event/event.facade';
+import { EventFacade } from '../../core/facades/events/event/event.facade';
 
 @Component({
   selector: 'app-event-participant',
