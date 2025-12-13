@@ -53,7 +53,6 @@ public class Event {
     /**
      * Identifiant unique UUID de l’événement.
      * Généré automatiquement par Hibernate via un générateur UUID.
-     * et stocké en tant que chaîne de caractères (CHAR 36).
      */
     @Id
     @GeneratedValue
@@ -61,40 +60,21 @@ public class Event {
     @Column(name = "event_id", length = 36, updatable = false, nullable = false)
     private UUID id;
 
-    /**
-     * Titre de l’événement.
-     */
     @Column(nullable = false)
     private String title;
 
-    /**
-     * Description complète de l’événement.
-     */
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    /**
-     * Date à laquelle l’événement se déroule.
-     */
     @Column(name = "event_date", nullable = false)
     private LocalDate eventDate;
 
-    /**
-     * Heure de début de l’événement.
-     */
     @Column(name = "start_time", nullable = false)
     private LocalTime startTime;
 
-    /**
-     * Heure de fin de l’événement.
-     */
     @Column(name = "end_time", nullable = false)
     private LocalTime endTime;
 
-    /**
-     * Nombre maximal de participants autorisés.
-     * Peut être null si aucune limite n’est définie.
-     */
     @Column(name = "max_participants")
     private Integer maxParticipants;
 
@@ -145,39 +125,25 @@ public class Event {
     @JsonManagedReference
     private List<EventUser> participants = new ArrayList<>();
 
-    /**
-     * Date et heure de création de l’événement.
-     */
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    /**
-     * Date et heure de dernière mise à jour de l’événement.
-     */
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    /**
-     * Date de suppression logique de l’événement.
-     * N’est jamais supprimé réellement de la base.
-     */
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
 
     // --- ENUMS ---
-
-    /** Statuts possibles d’un événement. */
     public enum EventStatus {
         OPEN, FULL, CANCELLED, FINISHED
     }
 
-    /** Gestion du matériel nécessaire à l’événement. */
     public enum MaterialOption {
         PROVIDED, YOUR_OWN, NOT_REQUIRED
     }
 
-    /** Niveau d’expérience requis pour participer. */
     public enum Level {
         BEGINNER, INTERMEDIATE, EXPERT, ALL_LEVELS
     }

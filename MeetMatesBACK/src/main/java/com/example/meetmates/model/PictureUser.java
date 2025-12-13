@@ -3,88 +3,77 @@ package com.example.meetmates.model;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.hibernate.annotations.Where;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 /**
- * Entité représentant la photo principale d’un utilisateur.
+ * Entité représentant une photo de profil d’un utilisateur.
  *
- * Cette entité stocke les informations liées à une image de profil :
+ * Cette entité stocke les informations liées à une image :
  * - l’URL publique de l’image
  * - l’identifiant public dans le service de stockage
- * - le statut (ex : ACTIVE, DELETED)
- * - l’indicateur d’image principale
- * - les dates de création et de mise à jour
+ * - l’indicateur de photo principale
+ * - les dates de création, mise à jour et suppression logique
  *
- * Relations :
- * - One-To-One avec {@link User} : chaque utilisateur possède au maximum
- *   une image principale associée dans cette table.
+ * Relation :
+ * - Many-To-One avec {@link User} :
+ *   un utilisateur peut posséder plusieurs photos (historique),
+ *   mais une seule photo active à la fois (main = true).
  *
- * Cette entité permet de gérer proprement la photo de profil sans mélanger
- * les données de stockage avec la table User.
+ * Les suppressions sont gérées via un soft delete (deletedAt).
  */
 @Entity
 @Table(name = "picture_user")
+@Where(clause = "deleted_at IS NULL")
 public class PictureUser {
 
     /**
-     * Identifiant UUID unique de l’image .
+     * Identifiant UUID unique de la relation participant–événement .
      * Généré automatiquement par Hibernate via un générateur UUID.
      */
     @Id
     @GeneratedValue
     private UUID id;
 
-    /**
-     * URL de l’image hébergée.
-     */
     @Column(nullable = false)
     private String url;
 
     /**
-     * Identifiant public du fichier dans le service de stockage .
+     * Identifiant public du fichier dans le service de stockage.
      */
-    @Column(name = "public_id")
+    @Column(name = "public_id", nullable = false)
     private String publicId;
 
     /**
-     * Indique si cette image est l’image principale du profil.
+     * Indique si cette image est la photo principale active.
      */
     @Column(name = "is_main", nullable = false)
-    private boolean isMain = true;
+    private boolean main;
 
-    /**
-     * Statut de l’image (ACTIVE, DELETED, etc.).
-     */
-    @Column(nullable = false)
-    private String status = "ACTIVE";
-
-    /**
-     * Date de création de l’image.
-     */
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
 
-    /**
-     * Date de dernière mise à jour.
-     */
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    /**
-     * Relation One-To-One : une seule image principale par utilisateur.
-     * Chaque PictureUser est associé à un seul User, et ce user ne peut avoir qu’une seule image principale.
-     */
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, unique = true)
-    private User user;
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
+    /**
+     * Relation Many-To-One :
+     * un utilisateur peut avoir plusieurs photos dans l’historique.
+     */
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     // --- GETTERS & SETTERS ---
     public UUID getId() { return id; }
@@ -96,11 +85,8 @@ public class PictureUser {
     public String getPublicId() { return publicId; }
     public void setPublicId(String publicId) { this.publicId = publicId; }
 
-    public boolean isMain() { return isMain; }
-    public void setMain(boolean main) { isMain = main; }
-
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public boolean isMain() { return main; }
+    public void setMain(boolean main) { this.main = main; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
@@ -108,6 +94,10 @@ public class PictureUser {
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 
+    public LocalDateTime getDeletedAt() { return deletedAt; }
+    public void setDeletedAt(LocalDateTime deletedAt) { this.deletedAt = deletedAt; }
+
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
+
 }

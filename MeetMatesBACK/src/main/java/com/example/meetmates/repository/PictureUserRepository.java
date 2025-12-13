@@ -1,6 +1,8 @@
 package com.example.meetmates.repository;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -10,21 +12,41 @@ import com.example.meetmates.model.User;
 /**
  * Repository dédié à la gestion des entités {@link PictureUser}.
  *
- * Fournit les opérations CRUD standard via {@link JpaRepository},
- * ainsi qu'une méthode permettant de récupérer l’image associée à un utilisateur.
+ * Cette interface fournit les opérations CRUD standard via
+ * {@link JpaRepository}, ainsi que des méthodes spécifiques permettant de gérer
+ * les photos de profil des utilisateurs.
  *
- * Ce repository permet notamment de gérer la photo principale d'un utilisateur
- * et son lien direct avec l’entité User.
+ * Elle permet notamment : - de récupérer l’historique complet des photos d’un
+ * utilisateur, - d’identifier la photo principale actuellement active (main =
+ * true).
  *
- * L’implémentation est automatiquement assurée par Spring Data JPA.
+ * Les photos supprimées logiquement (soft delete) sont automatiquement exclues
+ * des résultats grâce à l’annotation {@code @Where} définie sur l’entité
+ * {@link PictureUser}.
+ *
+ * L’implémentation est automatiquement fournie par Spring Data JPA.
  */
-public interface PictureUserRepository extends JpaRepository<PictureUser, java.util.UUID> {
+public interface PictureUserRepository extends JpaRepository<PictureUser, UUID> {
 
     /**
-     * Recherche la photo associée à un utilisateur donné.
+     * Récupère l’ensemble des photos associées à un utilisateur donné.
      *
-     * @param user l'utilisateur dont on souhaite récupérer l'image
-     * @return un Optional contenant la photo si elle existe
+     * Cette méthode retourne l’historique des photos de profil encore actives
+     * (non supprimées logiquement).
+     *
+     * @param user l’utilisateur concerné
+     * @return la liste des photos de profil de l’utilisateur
      */
-    Optional<PictureUser> findByUser(User user);
+    List<PictureUser> findAllByUser(User user);
+
+    /**
+     * Récupère la photo principale actuellement active d’un utilisateur.
+     *
+     * Une seule photo doit être marquée comme principale (main = true) à un
+     * instant donné.
+     *
+     * @param user l’utilisateur concerné
+     * @return un Optional contenant la photo principale si elle existe
+     */
+    Optional<PictureUser> findByUserAndMainTrue(User user);
 }

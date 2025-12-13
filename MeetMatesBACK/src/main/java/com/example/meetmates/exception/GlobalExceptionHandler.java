@@ -22,18 +22,17 @@ import com.example.meetmates.dto.ErrorDto;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
- * Gestionnaire global des exceptions pour l'application.
- * Centralise la capture des erreurs afin de produire une réponse JSON standardisée
- * contenant la date, le code HTTP, le message localisé et le chemin de la requête.
+ * Gestionnaire global des exceptions pour l'application. Centralise la capture
+ * des erreurs afin de produire une réponse JSON standardisée contenant la date,
+ * le code HTTP, le message localisé et le chemin de la requête.
  *
- * Ce handler intercepte :
- * - les exceptions métier {@link ApiException}
- * - les exceptions Spring Security (401, 403)
- * - les erreurs génériques Spring (ResponseStatusException)
- * - les erreurs de validation (MethodArgumentNotValidException)
- * - toutes les erreurs Runtime en fallback
+ * Ce handler intercepte : - les exceptions métier {@link ApiException} - les
+ * exceptions Spring Security (401, 403) - les erreurs génériques Spring
+ * (ResponseStatusException) - les erreurs de validation
+ * (MethodArgumentNotValidException) - toutes les erreurs Runtime en fallback
  *
- * Les messages d'erreur renvoyés sont automatiquement récupérés depuis le fichier messages.properties via {@link MessageSource}.
+ * Les messages d'erreur renvoyés sont automatiquement récupérés depuis le
+ * fichier messages.properties via {@link MessageSource}.
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -42,11 +41,13 @@ public class GlobalExceptionHandler {
     private MessageSource messageSource;
 
     /**
-     * Construit une réponse d'erreur standardisée à partir d'un statut HTTP et d'un code message.
-     * Le code est utilisé pour récupérer le message localisé dans messages.properties.
+     * Construit une réponse d'erreur standardisée à partir d'un statut HTTP et
+     * d'un code message. Le code est utilisé pour récupérer le message localisé
+     * dans messages.properties.
      *
      * @param status le statut HTTP renvoyé au client
-     * @param code le code du message d'erreur (clé du fichier messages.properties)
+     * @param code le code du message d'erreur (clé du fichier
+     * messages.properties)
      * @return un {@link ResponseEntity} contenant un {@link ErrorDto}
      */
     private ResponseEntity<ErrorDto> build(HttpStatus status, String code) {
@@ -74,18 +75,39 @@ public class GlobalExceptionHandler {
 
     /**
      * Gestion des exceptions métier personnalisées {@link ApiException}.
-     * Renvoie systématiquement un HTTP 404 afin de masquer les différences de statut.
+     *
+     * Le statut HTTP retourné dépend du {@link ErrorCode} associé afin de
+     * fournir une réponse cohérente tout en restant maîtrisée.
+     *
+     * Les messages d’erreur sont résolus via messages.properties (i18n).
      *
      * @param ex l'exception métier déclenchée
      * @return une réponse d'erreur formatée
      */
     @ExceptionHandler(ApiException.class)
-    public ResponseEntity<ErrorDto> handleNotFound(ApiException ex) {
-        return build(HttpStatus.NOT_FOUND, ex.getErrorCode().name());
+    public ResponseEntity<ErrorDto> handleApiException(ApiException ex) {
+
+        HttpStatus status = switch (ex.getErrorCode()) {
+
+            case INVALID_FILE, FILE_TOO_LARGE, INVALID_FILE_TYPE ->
+                HttpStatus.BAD_REQUEST;
+
+            case USER_NOT_FOUND ->
+                HttpStatus.NOT_FOUND;
+
+            case USER_BANNED, USER_DISABLED ->
+                HttpStatus.FORBIDDEN;
+
+            default ->
+                HttpStatus.INTERNAL_SERVER_ERROR;
+        };
+
+        return build(status, ex.getErrorCode().name());
     }
 
     /**
-     * Gestion des erreurs d'authentification lorsque le mot de passe est incorrect.
+     * Gestion des erreurs d'authentification lorsque le mot de passe est
+     * incorrect.
      *
      * @param ex l'exception Spring Security
      * @return une réponse HTTP 401 Unauthorized
@@ -96,7 +118,8 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Gestion des exceptions génériques Spring pouvant contenir un statut personnalisé.
+     * Gestion des exceptions génériques Spring pouvant contenir un statut
+     * personnalisé.
      *
      * @param ex l'exception représentant une erreur HTTP
      * @return une réponse avec le statut contenu dans l'exception
@@ -121,31 +144,25 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Gestion des erreurs d'autorisation lorsque l'utilisateur n'a pas les droits
-     * pour accéder à une ressource (403 Forbidden).
+     * Gestion des erreurs d'autorisation (403 Forbidden).
      *
-     * @param ex exception de Spring Security
-     * @return une réponse 403 Forbidden
+     * Couvre : - AuthorizationDeniedException (Spring Security 6+) -
+     * AccessDeniedException (Spring Security générique)
+     *
+     * Utilisé lorsqu'un utilisateur authentifié n'a pas les droits suffisants
+     * pour accéder à une ressource.
      */
-    @ExceptionHandler(AuthorizationDeniedException.class)
-    public ResponseEntity<ErrorDto> handleAuthorizationDenied(AuthorizationDeniedException ex) {
-        return build(HttpStatus.FORBIDDEN, "EVENT_FORBIDDEN");
+    @ExceptionHandler({
+        AuthorizationDeniedException.class,
+        AccessDeniedException.class
+    })
+    public ResponseEntity<ErrorDto> handleForbidden(Exception ex) {
+        return build(HttpStatus.FORBIDDEN, "ACCESS_FORBIDDEN");
     }
 
     /**
-     * Gestion des cas où l'accès est explicitement interdit par Spring Security.
-     *
-     * @param ex exception Spring Security
-     * @return une réponse 403 Forbidden
-     */
-    @ExceptionHandler(AccessDeniedException.class) 
-    public ResponseEntity<ErrorDto> handleAccessDenied(AccessDeniedException ex) {
-        return build(HttpStatus.FORBIDDEN, "EVENT_FORBIDDEN");
-    }
-
-    /**
-     * Gestion des erreurs de validation des DTOs (annotations @Valid).
-     * Renvoie uniquement le message de la première erreur détectée.
+     * Gestion des erreurs de validation des DTOs (annotations @Valid). Renvoie
+     * uniquement le message de la première erreur détectée.
      *
      * @param ex exception contenant les erreurs de validation
      * @return une réponse 400 Bad Request avec message personnalisé

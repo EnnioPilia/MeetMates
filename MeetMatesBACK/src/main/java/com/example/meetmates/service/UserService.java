@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.meetmates.dto.UpdateUserDto;
 import com.example.meetmates.exception.ApiException;
@@ -23,10 +24,13 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * Service pour la gestion des utilisateurs.
- * Fournit des méthodes pour :
- * - récupérer, créer et mettre à jour des utilisateurs
- * - gérer la suppression soft et hard
- * - charger un utilisateur pour Spring Security
+ *
+ * Ce service centralise la logique métier liée aux utilisateurs et orchestre
+ * les traitements en s’appuyant sur des services spécialisés.
+ *
+ * Il permet notamment de : -récupérer et mettre à jour des utilisateurs -gérer
+ * la photo de profil (via délégation au {@link PictureService}) -effectuer des
+ * suppressions soft et hard -charger un utilisateur pour Spring Security
  */
 @Slf4j
 @Service
@@ -35,13 +39,16 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
     private final UserMapper userMapper;
+    private final PictureService pictureService;
 
     public UserService(UserRepository userRepository,
-                       TokenRepository tokenRepository,
-                       UserMapper userMapper) {
+            TokenRepository tokenRepository,
+            UserMapper userMapper,
+            PictureService pictureService) {
         this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
         this.userMapper = userMapper;
+        this.pictureService = pictureService;
     }
 
     /**
@@ -86,7 +93,8 @@ public class UserService implements UserDetailsService {
      *
      * @param email l’email de l’utilisateur
      * @return UserDetails utilisé par Spring Security
-     * @throws ApiException si l’utilisateur n’existe pas, est banni ou désactivé
+     * @throws ApiException si l’utilisateur n’existe pas, est banni ou
+     * désactivé (stratégie applicative personnalisée, hors exceptions Spring standards)
      */
     @Override
     @Transactional(readOnly = true)
@@ -127,24 +135,8 @@ public class UserService implements UserDetailsService {
     }
 
     /**
-     * Supprime l’URL de la photo de profil d’un utilisateur.
-     *
-     * @param user l’utilisateur concerné
-     * @return l’utilisateur mis à jour
-     * @throws ApiException si l’utilisateur est null
-     */
-    @Transactional
-    public User clearProfilePicture(User user) {
-        if (user == null) {
-            throw new ApiException(ErrorCode.USER_NOT_FOUND);
-        }
-        user.setProfilePictureUrl(null);
-        return userRepository.save(user);
-    }
-
-    /**
-     * Supprime définitivement un utilisateur par son ID (hard delete).
-     * Supprime aussi tous ses tokens associés.
+     * Supprime définitivement un utilisateur par son ID (hard delete). Supprime
+     * aussi tous ses tokens associés.
      *
      * @param userId l’ID de l’utilisateur
      * @return true si la suppression a réussi
@@ -166,9 +158,51 @@ public class UserService implements UserDetailsService {
     }
 
     /**
-     * Supprime un utilisateur de façon logique (soft delete) en marquant la date
-     * de suppression et en désactivant son compte.
-     * Supprime également tous les tokens existants.
+     * Met à jour la photo de profil d’un utilisateur.
+     *
+     * Cette méthode délègue la gestion du fichier image au
+     * {@link PictureService}, puis met à jour l’URL de la photo de profil dans
+     * l’entité {@link User}.
+     *
+     * @param user l’utilisateur concerné
+     * @param file le fichier image uploadé
+     * @return l’utilisateur mis à jour
+     * @throws ApiException si l’utilisateur est null ou si le fichier est
+     * invalide
+     */
+    @Transactional
+    public User updateProfilePicture(User user, MultipartFile file) {
+
+        String imageUrl = pictureService.updateProfilePicture(user, file);
+        user.setProfilePictureUrl(imageUrl);
+
+        return userRepository.save(user);
+    }
+
+    /**
+     * Supprime la photo de profil d’un utilisateur.
+     *
+     * Cette méthode supprime la photo associée via le {@link PictureService} et
+     * nettoie l’URL de la photo de profil dans l’entité {@link User}.
+     *
+     * @param user l’utilisateur concerné
+     * @return l’utilisateur mis à jour sans photo de profil
+     * @throws ApiException si l’utilisateur est null
+     */
+    @Transactional
+    public User deleteProfilePicture(User user) {
+
+        pictureService.deleteProfilePicture(user);
+
+        user.setProfilePictureUrl(null);
+
+        return userRepository.save(user);
+    }
+
+    /**
+     * Supprime un utilisateur de façon logique (soft delete) 
+     * et en désactivant son compte. Supprime également tous
+     * les tokens existants.
      *
      * @param email l’email de l’utilisateur à supprimer
      * @return true si la suppression a réussi

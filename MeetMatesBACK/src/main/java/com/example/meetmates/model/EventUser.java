@@ -51,7 +51,6 @@ public class EventUser {
     /**
      * Identifiant UUID unique de la relation participant–événement .
      * Généré automatiquement par Hibernate via un générateur UUID.
-     * et stocké en tant que chaîne de caractères (CHAR 36).
      */
     @Id
     @GeneratedValue
@@ -92,10 +91,6 @@ public class EventUser {
     @Column(name = "participation_status", nullable = false)
     private ParticipationStatus participationStatus = ParticipationStatus.PENDING;
 
-    /**
-     * Date et heure auxquelles l’utilisateur a rejoint l’événement.
-     * Défini automatiquement à la création.
-     */
     @Column(name = "joined_at", nullable = false)
     private LocalDateTime joinedAt = LocalDateTime.now();
 
@@ -108,20 +103,12 @@ public class EventUser {
 
 
     // -- ENUMS ---
-
-    /** Rôle du participant dans l’événement. */
     public enum ParticipantRole {
-        ORGANIZER,
-        PARTICIPANT
+        ORGANIZER, PARTICIPANT
     }
 
-    /** Différents états possibles pour la participation de l’utilisateur. */
     public enum ParticipationStatus {
-        PENDING,
-        ACCEPTED,
-        REJECTED,
-        LEFT,
-        LEFT_REJECTED
+        PENDING, ACCEPTED, REJECTED, LEFT, LEFT_REJECTED
     }
 
 

@@ -43,13 +43,10 @@ public class Address {
     @Column(length = 36, updatable = false, nullable = false)
     private UUID id;
 
-    /** Rue de l’adresse. */
     private String street;
 
-    /** Ville de l’adresse. */
     private String city;
 
-    /** Code postal de l’adresse. */
     private String postalCode;
 
     /**

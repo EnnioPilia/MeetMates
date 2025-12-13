@@ -43,4 +43,9 @@ public enum ErrorCode {
 
     // Participants
     PARTICIPANT_NOT_FOUND,
+    
+    // Fichiers / images
+    INVALID_FILE,
+    FILE_TOO_LARGE,
+    INVALID_FILE_TYPE
 }

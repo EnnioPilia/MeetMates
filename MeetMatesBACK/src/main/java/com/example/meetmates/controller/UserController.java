@@ -1,6 +1,5 @@
 package com.example.meetmates.controller;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,7 +25,6 @@ import com.example.meetmates.mapper.UserMapper;
 import com.example.meetmates.model.User;
 import com.example.meetmates.service.CookieService;
 import com.example.meetmates.service.MessageService;
-import com.example.meetmates.service.PictureService;
 import com.example.meetmates.service.UserService;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -35,15 +33,16 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Contrôleur gérant les opérations liées aux utilisateurs.
  *
- * Fournit plusieurs endpoints pour :
- *  - consulter son profil ou la liste des utilisateurs (admin)
- *  - mettre à jour ses informations personnelles
- *  - gérer sa photo de profil
- *  - supprimer son compte ou un utilisateur (admin)
+ * Fournit plusieurs endpoints pour : - consulter son profil ou la liste des
+ * utilisateurs (admin) - mettre à jour ses informations personnelles - gérer sa
+ * photo de profil - supprimer son compte ou un utilisateur (admin)
  *
- * Utilise ApiResponse pour garantir une structure uniforme des retours.
- * Les messages utilisateurs sont centralisés via MessageService, 
- * lequel lit les codes dans le fichier messages.properties (i18n).
+ * Ce contrôleur se limite à la gestion des requêtes HTTP et délègue l’ensemble
+ * de la logique métier aux services applicatifs.
+ *
+ * Utilise ApiResponse pour garantir une structure uniforme des retours. Les
+ * messages utilisateurs sont centralisés via MessageService, lequel lit les
+ * codes dans le fichier messages.properties (i18n).
  */
 @Slf4j
 @RestController
@@ -51,36 +50,33 @@ import lombok.extern.slf4j.Slf4j;
 public class UserController {
 
     private final UserService userService;
-    private final PictureService pictureService;
     private final UserMapper userMapper;
     private final CookieService cookieService;
     private final MessageService messageService;
 
     /**
-     * Injection des services nécessaires.
+     * Injection des dépendances nécessaires au contrôleur.
      *
-     * @param userService gestion des utilisateurs
-     * @param pictureService gestion des photos de profil
-     * @param userMapper conversion entité/DTO
+     * @param userService service métier de gestion des utilisateurs
+     * @param userMapper mapper entité / DTO
      * @param cookieService gestion des cookies d’authentification
-     * @param messageService gestionnaire des messages utilisateurs
+     * @param messageService gestion des messages utilisateurs (i18n)
      */
-    public UserController(UserService userService,
-            PictureService pictureService,
+    public UserController(
+            UserService userService,
             UserMapper userMapper,
             CookieService cookieService,
             MessageService messageService) {
         this.userService = userService;
-        this.pictureService = pictureService;
         this.userMapper = userMapper;
         this.cookieService = cookieService;
         this.messageService = messageService;
     }
 
     /**
-     * Récupère tous les utilisateurs (admin uniquement).
-     * Sécurisé par une règle custom : seul un administrateur peut effectuer cette action.
-     * 
+     * Récupère tous les utilisateurs (admin uniquement). Sécurisé par une règle
+     * custom : seul un administrateur peut effectuer cette action.
+     *
      * @return liste complète des utilisateurs
      */
     @PreAuthorize("hasRole('ADMIN')")
@@ -116,28 +112,34 @@ public class UserController {
     }
 
     /**
-     * Met à jour la photo de profil de l’utilisateur.
+     * Upload une nouvelle photo de profil pour l’utilisateur connecté.
      *
-     * @param userDetails utilisateur connecté
+     * L’ancienne photo principale est désactivée (historique conservé), et une
+     * nouvelle entité PictureUser est créée et définie comme photo principale.
+     *
+     * La validation du fichier et la gestion du stockage sont entièrement
+     * déléguées au service métier.
+     *
+     * @param userDetails utilisateur authentifié
      * @param file fichier image envoyé
-     * @return utilisateur mis à jour
+     * @return profil utilisateur mis à jour
      */
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/me/picture")
     public ResponseEntity<ApiResponse<UserDto>> uploadProfilePicture(
             @AuthenticationPrincipal UserDetails userDetails,
-            @RequestParam("file") MultipartFile file) throws IOException {
+            @RequestParam("file") MultipartFile file) {
 
         log.info("Demande de mise à jour de la photo de profil reçue");
-        User user = userService.findActiveByEmailOrThrow(userDetails.getUsername());
 
-        String imageUrl = pictureService.uploadProfilePicture(file);
-        user.setProfilePictureUrl(imageUrl);
-        userService.saveUser(user);
+        User updated = userService.updateProfilePicture(
+                userService.findActiveByEmailOrThrow(userDetails.getUsername()),
+                file
+        );
 
         log.info("Photo de profil mise à jour");
         String message = messageService.get("USER.PITCURE.UPLOAD.SUCCESS");
-        return ResponseEntity.ok(new ApiResponse<>(message, userMapper.toDto(user)));
+        return ResponseEntity.ok(new ApiResponse<>(message, userMapper.toDto(updated)));
     }
 
     /**
@@ -163,9 +165,9 @@ public class UserController {
     }
 
     /**
-     * Supprime définitivement un utilisateur.
-     * Sécurisé par une règle custom : seul un administrateur peut effectuer cette action.
-     * 
+     * Supprime définitivement un utilisateur. Sécurisé par une règle custom :
+     * seul un administrateur peut effectuer cette action.
+     *
      * @param id identifiant de l’utilisateur à supprimer
      * @return confirmation de suppression
      */
@@ -181,7 +183,11 @@ public class UserController {
     }
 
     /**
-     * Supprime la photo de profil de l’utilisateur connecté.
+     * Désactive la photo de profil principale de l’utilisateur connecté (soft
+     * delete).
+     *
+     * La photo n’est pas supprimée de la base de données : elle est simplement
+     * marquée comme inactive afin de conserver l’historique.
      *
      * @param userDetails utilisateur connecté
      * @return profil mis à jour sans photo
@@ -192,10 +198,10 @@ public class UserController {
             @AuthenticationPrincipal UserDetails userDetails) {
 
         log.info("Demande de suppression de la photo de profil reçue");
-        User user = userService.findActiveByEmailOrThrow(userDetails.getUsername());
 
-        pictureService.deleteUserProfilePicture(user);
-        User updated = userService.clearProfilePicture(user);
+        User updated = userService.deleteProfilePicture(
+                userService.findActiveByEmailOrThrow(userDetails.getUsername())
+        );
 
         log.info("Photo de profil supprimée");
         String message = messageService.get("USER.PITCURE.DELETE.SUCCESS");
@@ -203,7 +209,8 @@ public class UserController {
     }
 
     /**
-     * Supprime le compte de l’utilisateur connecté (soft delete) et invalide les cookies d’authentification.
+     * Supprime le compte de l’utilisateur connecté (soft delete) et invalide
+     * les cookies d’authentification.
      *
      * @param userDetails utilisateur connecté
      * @param response contexte HTTP pour nettoyer les cookies
@@ -218,7 +225,7 @@ public class UserController {
         log.info("Demande de suppression du compte reçue");
         userService.softDeleteByEmail(userDetails.getUsername());
         cookieService.clearAuthCookies(response);
-        
+
         log.info("Compte supprimé (soft delete) et cookies d’authentification nettoyés");
         String message = messageService.get("USER.DELETE_ACCOUNT.SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, null));

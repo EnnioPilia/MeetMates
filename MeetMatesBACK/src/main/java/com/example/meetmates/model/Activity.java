@@ -47,7 +47,6 @@ public class Activity {
     /**
      * Identifiant UUID unique de l'activité.
      * Généré automatiquement par Hibernate via un générateur UUID.
-     * et stocké en tant que chaîne de caractères (CHAR 36).
      */
     @Id
     @GeneratedValue(generator = "UUID")
@@ -56,9 +55,6 @@ public class Activity {
     @Column(name = "activity_id", length = 36, updatable = false, nullable = false)
     private UUID id;
 
-    /**
-     * Nom de l’activité. Ne peut pas être nul.
-     */
     @Column(nullable = false)
     private String name;
 
@@ -71,25 +67,17 @@ public class Activity {
     @JsonBackReference
     private Category category;
 
-    /**
-     * Date et heure de création de l’activité.
-     * Définie automatiquement lors de la première persistance.
-     */
+    /** Date et heure de création de l’activité (initialisée automatiquement). */
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    /**
-     * Date et heure de la dernière mise à jour de l’activité.
-     * Mise à jour automatiquement lors de toute modification de l'entité.
-     */
+    /** Date et heure de dernière mise à jour (mise à jour automatiquement). */
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    /** Initialise automatiquement la date de création avant l'insertion en base de données. */
     @PrePersist
     protected void onCreate() { this.createdAt = LocalDateTime.now(); }
 
-    /** Met à jour automatiquement la date de modification avant toute mise à jour de l'entité. */
     @PreUpdate
     protected void onUpdate() { this.updatedAt = LocalDateTime.now(); }
 

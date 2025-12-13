@@ -43,9 +43,6 @@ public class Token {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    /**
-     * Valeur du token, stockée sous forme de chaîne unique.
-     */
     @Column(nullable = false, unique = true)
     private String token;
 
@@ -57,9 +54,7 @@ public class Token {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    /**
-     * Date et heure de création du token.
-     */
+
     @Column(nullable = false)
     private Instant createdAt;
 
@@ -87,9 +82,7 @@ public class Token {
     @Column(nullable = false)
     private TokenType type;
 
-    // --- CONSTRUCTEURS ---
     public Token() {}
-
     public Token(String token, User user, Instant createdAt, Instant expiresAt, TokenType type) {
         this.token = token;
         this.user = user;

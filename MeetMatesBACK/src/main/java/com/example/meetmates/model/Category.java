@@ -44,7 +44,6 @@ public class Category {
     /**
      * Identifiant UUID unique de la catégorie.
      * Généré automatiquement par Hibernate via un générateur UUID.
-     * et stocké en tant que chaîne de caractères (CHAR 36).
      */
     @Id
     @GeneratedValue(generator = "UUID")
@@ -56,16 +55,9 @@ public class Category {
     @Column(name = "category_id", updatable = false, nullable = false, length = 36)
     private UUID categoryId;
 
-    /**
-     * Nom de la catégorie.
-     */
     @Column(nullable = false, unique = true)
     private String name;
 
-    /**
-     * URL d’une image représentant la catégorie.
-     * Optionnelle : peut être null si aucune image n’est fournie.
-     */
     @Column(name = "image_url")
     private String imageUrl;
 
