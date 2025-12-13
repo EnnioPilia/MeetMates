@@ -16,11 +16,11 @@
         [form]="form" 
         [activities]="activities()">
       </app-edit-event-activity>
-
+      
       <app-edit-event-address
-        [form]="form"
         [suggestions]="addressSuggestions()"
-        (inputChange)="onAddressInput($event)">
+        (inputChange)="onAddressInput($event)"
+        (optionSelected)="onAddressSelect($event)">
       </app-edit-event-address>
 
       <app-edit-event-date-time 

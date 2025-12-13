@@ -7,13 +7,23 @@ import { Observable, map, catchError, of } from 'rxjs';
  */
 export interface AddressSuggestion {
   label: string;
+  street: string;
+  city: string;
+  postalCode: string;
 }
 
 /**
  * Structure interne de la réponse retournée par api-adresse.data.gouv.fr.
  */
 interface ApiAdresseResponse {
-  features: { properties: { label: string } }[];
+  features: {
+    properties: {
+      label: string;
+      name: string;
+      city: string;
+      postcode: string;
+    };
+  }[];
 }
 
 /**
@@ -50,7 +60,10 @@ export class AddressService {
     return this.http.get<ApiAdresseResponse>(this.apiUrl, { params: { q: query, limit } }).pipe(
       map((data) =>
         data.features.map((f) => ({
-          label: f.properties.label
+          label: f.properties.label,
+          street: f.properties.name,
+          city: f.properties.city,
+          postalCode: f.properties.postcode
         }))
       ),
       catchError(() => of<AddressSuggestion[]>([]))

@@ -19,47 +19,46 @@ import { AddressSuggestion } from '../../../core/services/address/address.servic
     MatIconModule,
   ],
   template: `
+  
+    <div class="w-80">
+      <mat-form-field class="w-full">
+        <mat-label>Adresse</mat-label>
 
-    <div [formGroup]="form">
-      <div class="w-80">
-        <mat-form-field class="w-full">
-          <mat-label>Adresse</mat-label>
+        <input
+          matInput
+          [matAutocomplete]="auto"
+          (input)="onInputChange($event)" />
 
-          <input
-            matInput
-            formControlName="addressLabel"
-            [matAutocomplete]="auto"
-            (input)="onInputChange($event)"
-            (keyup)="onInputChange($event)"/>
-          
-          <mat-autocomplete #auto="matAutocomplete"
-            (optionSelected)="onOptionSelected($event.option.value)">
-              @for (suggestion of suggestions; track suggestion.label) {
-                <mat-option [value]="suggestion.label">
-                  {{ suggestion.label }}
-                </mat-option>
-              }
-          </mat-autocomplete>
-        </mat-form-field>
-      </div>
+        <mat-autocomplete
+          #auto="matAutocomplete"
+          [displayWith]="displayLabel"
+          (optionSelected)="onOptionSelected($event.option.value)">
+          @for (suggestion of suggestions; track suggestion.label) {
+            <mat-option [value]="suggestion">
+              {{ suggestion.label }}
+            </mat-option>
+          }
+        </mat-autocomplete>
+      </mat-form-field>
     </div>
   `,
 })
 export class EditEventAddressComponent {
-  @Input({ required: true }) form!: FormGroup;
+  
   @Input() suggestions: AddressSuggestion[] = [];
-
   @Output() inputChange = new EventEmitter<string>();
-  @Output() optionSelected = new EventEmitter<string>();
+  @Output() optionSelected = new EventEmitter<AddressSuggestion>();
 
-  onInputChange(event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
-    this.inputChange.emit(value);
+  onInputChange(event: Event) {
+    this.inputChange.emit(
+      (event.target as HTMLInputElement).value
+    );
   }
 
-  onOptionSelected(value: string): void {
-    this.form.get('addressLabel')?.setValue(value);
-    this.form.get('addressLabel')?.updateValueAndValidity();
-    this.optionSelected.emit(value);
+  onOptionSelected(suggestion: AddressSuggestion) {
+    this.optionSelected.emit(suggestion);
   }
+
+  displayLabel = (value: AddressSuggestion | string) =>
+    typeof value === 'string' ? value : value?.label ?? '';
 }

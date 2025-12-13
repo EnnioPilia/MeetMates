@@ -11,6 +11,7 @@ import { EditEventActivityComponent } from './components/edit-event-activity.com
 import { AppButtonComponent } from '../../shared-components/button/button.component';
 import { StateHandlerComponent } from '../../shared-components/state-handler/state-handler.component';
 import { parseLocalDate, formatLocalDate } from '../../core/utils/date.utils';
+import { AddressSuggestion } from '../../core/services/address/address.service';
 
 @Component({
   selector: 'app-edit-event',
@@ -75,8 +76,12 @@ export class EditEventComponent implements OnInit {
       level: [e.level],
       activityName: [e.activityName],
       activityId: [null],
-      addressLabel: [e.addressLabel],
-      status: [e.status]
+      status: [e.status],
+      address: this.fb.group({
+        street: [e.address.street, Validators.required],
+        city: [e.address.city, Validators.required],
+        postalCode: [e.address.postalCode, Validators.required],
+      })
     });
   }
 
@@ -84,7 +89,8 @@ export class EditEventComponent implements OnInit {
     const updated = {
       ...this.event()!,
       ...this.form.value,
-      eventDate: formatLocalDate(this.form.value.eventDate)
+      eventDate: formatLocalDate(this.form.value.eventDate),
+      address: this.form.value.address
     };
 
     this.editEventFacade.updateEvent(this.eventId, updated).subscribe(() => {
@@ -95,5 +101,15 @@ export class EditEventComponent implements OnInit {
   onAddressInput(query: string) {
     if (!query) return;
     this.editEventFacade.getAddressSuggestions(query).subscribe();
+  }
+
+  onAddressSelect(address: AddressSuggestion) {
+    this.form.patchValue({
+      address: {
+        street: address.street,
+        city: address.city,
+        postalCode: address.postalCode
+      }
+    });
   }
 }

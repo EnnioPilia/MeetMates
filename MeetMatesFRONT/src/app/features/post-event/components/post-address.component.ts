@@ -30,13 +30,16 @@ import { AddressSuggestion } from '../../../core/services/address/address.servic
           [matAutocomplete]="auto"
           (input)="onInputChange($event)"/>
 
-        <mat-autocomplete #auto="matAutocomplete"
-          (optionSelected)="onOptionSelected($event.option.value)">
-            @for (suggestion of suggestions; track suggestion.label) {
-              <mat-option [value]="suggestion.label">
-                {{ suggestion.label }}
-              </mat-option>
-              }
+        <mat-autocomplete
+          #auto="matAutocomplete"
+          [displayWith]="displayAddress"
+          (optionSelected)="onOptionSelected($event.option.value)"
+        >
+          @for (suggestion of suggestions; track suggestion.label) {
+            <mat-option [value]="suggestion">
+              {{ suggestion.label }}
+            </mat-option>
+          }
         </mat-autocomplete>
 
         @if (form.get('adresse')?.hasError('required') && (form.get('adresse')?.touched || form.get('adresse')?.dirty)) {
@@ -52,7 +55,11 @@ export class PostAddressComponent {
   @Input() controlName = 'adresse';
   @Input() suggestions: AddressSuggestion[] = [];
   @Output() inputChange = new EventEmitter<string>();
-  @Output() optionSelected = new EventEmitter<string>();
+  @Output() optionSelected = new EventEmitter<{
+    street: string;
+    city: string;
+    postalCode: string;
+  }>();
 
   get control(): FormControl {
     return this.form.get(this.controlName) as FormControl;
@@ -63,7 +70,15 @@ export class PostAddressComponent {
     this.inputChange.emit(value);
   }
 
-  onOptionSelected(value: string): void {
-    this.optionSelected.emit(value);
+  onOptionSelected(suggestion: AddressSuggestion): void {
+    this.optionSelected.emit({
+      street: suggestion.street,
+      city: suggestion.city,
+      postalCode: suggestion.postalCode
+    });
   }
+
+  displayAddress = (address: any): string => {
+    return address?.label ?? '';
+  };
 }

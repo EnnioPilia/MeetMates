@@ -94,7 +94,11 @@ export class PostEventComponent implements OnInit {
       participants: ['', [Validators.required, Validators.min(2)]],
       materiel: ['', Validators.required],
       niveau: ['', Validators.required],
-      adresse: ['', Validators.required],
+      address: this.fb.group({
+        street: ['', Validators.required],
+        postalCode: ['', Validators.required],
+        city: ['', Validators.required],
+      }),
       activityId: ['', Validators.required]
     });
   }
@@ -103,8 +107,14 @@ export class PostEventComponent implements OnInit {
     this.eventFacade.searchAddress(value).subscribe();
   }
 
-  onAddressSelect(value: string) {
-    this.form.get('adresse')?.setValue(value);
+  onAddressSelect(value: {
+    street: string;
+    city: string;
+    postalCode: string;
+  }) {
+    this.form.patchValue({
+      address: value
+    });
   }
 
   onFileSelected(file: File) {
@@ -147,9 +157,9 @@ export class PostEventComponent implements OnInit {
       status: 'OPEN',
       activityId: f.activityId,
       address: {
-        street: f.adresse,
-        city: '',
-        postalCode: ''
+        street: f.address.street,
+        city: f.address.city,
+        postalCode: f.address.postalCode
       }
     };
   }
