@@ -116,8 +116,8 @@ public class User {
     @Column(name = "profile_picture_url")
     private String profilePictureUrl;
 
-    // --- GETTERS & SETTERS ---
 
+    // --- GETTERS & SETTERS ---
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
 

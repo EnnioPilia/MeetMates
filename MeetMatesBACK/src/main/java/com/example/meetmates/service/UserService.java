@@ -94,7 +94,8 @@ public class UserService implements UserDetailsService {
      * @param email l’email de l’utilisateur
      * @return UserDetails utilisé par Spring Security
      * @throws ApiException si l’utilisateur n’existe pas, est banni ou
-     * désactivé (stratégie applicative personnalisée, hors exceptions Spring standards)
+     * désactivé (stratégie applicative personnalisée, hors exceptions Spring
+     * standards)
      */
     @Override
     @Transactional(readOnly = true)
@@ -171,8 +172,11 @@ public class UserService implements UserDetailsService {
      * invalide
      */
     @Transactional
-    public User updateProfilePicture(User user, MultipartFile file) {
+    public User updateMyProfilePicture(String email, MultipartFile file) {
+        // Récupère l'utilisateur actif
+        User user = findActiveByEmailOrThrow(email);
 
+        // Met à jour la photo via PictureService et sauvegarde l'URL
         String imageUrl = pictureService.updateProfilePicture(user, file);
         user.setProfilePictureUrl(imageUrl);
 
@@ -190,19 +194,20 @@ public class UserService implements UserDetailsService {
      * @throws ApiException si l’utilisateur est null
      */
     @Transactional
-    public User deleteProfilePicture(User user) {
+    public User deleteMyProfilePicture(String email) {
+        // Récupère l'utilisateur actif
+        User user = findActiveByEmailOrThrow(email);
 
+        // Supprime la photo via PictureService et nettoie l'URL
         pictureService.deleteProfilePicture(user);
-
         user.setProfilePictureUrl(null);
 
         return userRepository.save(user);
     }
 
     /**
-     * Supprime un utilisateur de façon logique (soft delete) 
-     * et en désactivant son compte. Supprime également tous
-     * les tokens existants.
+     * Supprime un utilisateur de façon logique (soft delete) et en désactivant
+     * son compte. Supprime également tous les tokens existants.
      *
      * @param email l’email de l’utilisateur à supprimer
      * @return true si la suppression a réussi

@@ -187,7 +187,7 @@ public class EventUserController {
     /**
      * Permet à un organisateur de retirer un participant d’un événement.
      * Sécurisé par une règle custom : seul l'organisateur peut retirer un participant.
-
+     * 
      * @param eventId identifiant de l’événement
      * @param userId identifiant du participant à retirer
      * @param authentication organisateur exécutant l'action

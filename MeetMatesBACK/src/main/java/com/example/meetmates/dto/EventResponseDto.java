@@ -70,7 +70,6 @@ public record EventResponseDto(
     public static EventResponseDto from(Event e) {
         if (e == null) return null;
 
-        // --- Récupération de l'organisateur ---
         var organizerOpt = e.getParticipants().stream()
                 .filter(p -> p.getRole() == ParticipantRole.ORGANIZER)
                 .findFirst();
@@ -83,17 +82,14 @@ public record EventResponseDto(
                 .map(p -> p.getUser().getFirstName() + " " + p.getUser().getLastName())
                 .orElse("Inconnu");
 
-        // --- Récupération des participants ---
         List<String> participantNames = e.getParticipants().stream()
                 .filter(p -> p.getRole() == ParticipantRole.PARTICIPANT)
                 .map(p -> p.getUser().getFirstName() + " " + p.getUser().getLastName())
                 .collect(Collectors.toList());
 
-        // --- Activité ---
         UUID activityId = e.getActivity() != null ? e.getActivity().getId() : null;
         String activityName = e.getActivity() != null ? e.getActivity().getName() : null;
 
-        // --- Adresse ---
         AddressDto addressDto = e.getAddress() != null ? AddressMapper.toDto(e.getAddress()) : null;
 
         // Construction finale du DTO

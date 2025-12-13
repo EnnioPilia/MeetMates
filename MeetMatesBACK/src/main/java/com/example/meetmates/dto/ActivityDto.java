@@ -11,13 +11,8 @@ import java.util.UUID;
  */
 public class ActivityDto {
 
-    /** Identifiant unique de l’activité. */
     private UUID id;
-
-    /** Nom de l’activité (ex. : "Football", "Randonnée"). */
     private String name;
-
-    /** Identifiant unique de la catégorie à laquelle appartient l’activité. */
     private UUID categoryId;
 
     /**

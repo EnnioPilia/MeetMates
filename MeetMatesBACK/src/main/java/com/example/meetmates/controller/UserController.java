@@ -33,9 +33,10 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Contrôleur gérant les opérations liées aux utilisateurs.
  *
- * Fournit plusieurs endpoints pour : - consulter son profil ou la liste des
- * utilisateurs (admin) - mettre à jour ses informations personnelles - gérer sa
- * photo de profil - supprimer son compte ou un utilisateur (admin)
+ * Fournit plusieurs endpoints pour : 
+ * - consulter son profil ou la liste des utilisateurs (admin) 
+ * - mettre à jour ses informations personnelles 
+ * - gérer sa photo de profil - supprimer son compte ou un utilisateur (admin)
  *
  * Ce contrôleur se limite à la gestion des requêtes HTTP et délègue l’ensemble
  * de la logique métier aux services applicatifs.
@@ -132,13 +133,11 @@ public class UserController {
 
         log.info("Demande de mise à jour de la photo de profil reçue");
 
-        User updated = userService.updateProfilePicture(
-                userService.findActiveByEmailOrThrow(userDetails.getUsername()),
-                file
-        );
+        // Toute la logique est maintenant dans le service
+        User updated = userService.updateMyProfilePicture(userDetails.getUsername(), file);
 
         log.info("Photo de profil mise à jour");
-        String message = messageService.get("USER.PITCURE.UPLOAD.SUCCESS");
+        String message = messageService.get("USER.PICTURE.UPLOAD.SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, userMapper.toDto(updated)));
     }
 
@@ -199,12 +198,10 @@ public class UserController {
 
         log.info("Demande de suppression de la photo de profil reçue");
 
-        User updated = userService.deleteProfilePicture(
-                userService.findActiveByEmailOrThrow(userDetails.getUsername())
-        );
+        User updated = userService.deleteMyProfilePicture(userDetails.getUsername());
 
         log.info("Photo de profil supprimée");
-        String message = messageService.get("USER.PITCURE.DELETE.SUCCESS");
+        String message = messageService.get("USER.PICTURE.DELETE.SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, userMapper.toDto(updated)));
     }
 

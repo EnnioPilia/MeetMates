@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  * Utilise ApiResponse pour garantir une structure uniforme des retours.
  * Les messages utilisateurs sont centralisés via MessageService, 
- * lequel lit les codes dans le fichier messages.properties (i18n
+ * lequel lit les codes dans le fichier messages.properties (i18n)
  */
 @Slf4j
 @RestController

@@ -9,16 +9,9 @@ import java.util.UUID;
  */
 public class AddressDto {
 
-    /** Identifiant unique de l’adresse. */
     private UUID id;
-
-    /** Rue associée à l’adresse. */
     private String street;
-
-    /** Ville associée à l’adresse. */
     private String city;
-
-    /** Code postal de l’adresse. */
     private String postalCode;
 
     public AddressDto() {}

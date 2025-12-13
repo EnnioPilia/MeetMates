@@ -11,10 +11,7 @@ import java.util.UUID;
  */
 public class CategoryDto {
 
-    /** Identifiant unique de la catégorie. */
     private UUID id;
-
-    /** Nom de la catégorie. */
     private String name;
 
     /**
@@ -26,7 +23,6 @@ public class CategoryDto {
         this.id = id;
         this.name = name;
     }
-
 
     // --- GETTERS & SETTERS ---
     public UUID getId() { return id; }

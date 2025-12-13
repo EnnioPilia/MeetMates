@@ -28,31 +28,9 @@ public class PasswordResetConfirmDto {
         this.newPassword = newPassword;
     }
 
-    /** Retourne le jeton de réinitialisation.
-     * @return token
-     */
-    public String getToken() {
-        return token;
-    }
+    public String getToken() { return token; }
+    public void setToken(String token) { this.token = token; }
 
-    /** Définit le jeton de réinitialisation.
-     * @param token jeton reçu par email
-     */
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    /** Retourne le nouveau mot de passe.
-     * @return nouveau mot de passe
-     */
-    public String getNewPassword() {
-        return newPassword;
-    }
-
-    /** Définit le nouveau mot de passe.
-     * @param newPassword mot de passe choisi
-     */
-    public void setNewPassword(String newPassword) {
-        this.newPassword = newPassword;
-    }
+    public String getNewPassword() { return newPassword; }
+    public void setNewPassword(String newPassword) { this.newPassword = newPassword; }
 }

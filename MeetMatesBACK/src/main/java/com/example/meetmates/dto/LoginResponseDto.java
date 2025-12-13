@@ -19,9 +19,6 @@ public class LoginResponseDto {
         this.message = message;
     }
 
-    /** Retourne le message renvoyé par l'API.
-     * @return message
-     */
     public String getMessage() {
         return message;
     }
