@@ -13,8 +13,8 @@ import { NotificationService } from '../notification/notification.service';
  * - les statuts HTTP courants (400, 401, 403, 404, 409, 500) 
  * - les erreurs de connexion au serveur
  *
-* Pour chaque erreur, il tente d’extraire le champ `message` envoyé par l’API 
-* si aucun message n’est trouvé, un message par défaut est affiché.
+ * Pour chaque erreur, il tente d’extraire le champ `message` envoyé par l’API 
+ * si aucun message n’est trouvé, un message par défaut est affiché.
  */
 @Injectable({ providedIn: 'root' })
 export class ErrorHandlerService {

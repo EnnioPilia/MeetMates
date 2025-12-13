@@ -17,7 +17,7 @@ export interface CurrentUser {
 /**
  * Service centralisant l’état global de l’application (via Angular Signals).
  *
- * Gère :
+ * Rôle :
  * - Le titre de la page
  * - Le mode sombre
  * - L’état d’ouverture du menu

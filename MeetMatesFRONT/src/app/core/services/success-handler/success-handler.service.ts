@@ -3,13 +3,17 @@ import { Injectable, inject } from '@angular/core';
 import { NotificationService } from '../notification/notification.service';
 
 /**
- * Service centralisé pour gérer l’affichage des messages de succès.
+ * Service centralisé chargé d'afficher les messages de succès renvoyés
+ * par le backend et d'assurer une expérience utilisateur cohérente.
  *
- * Rôle :
- * - Extraire automatiquement le message renvoyé par le backend
- * - Afficher une notification de succès cohérente dans toute l’application
- * - Permettre un fallback si aucun message n’est présent
- * - Possibilité de désactiver l'affichage (mode silencieux)
+ * Il gère automatiquement :
+ * - les réponses API standardisées contenant un champ `message`
+ * - les variations de structure possibles (`message`, `msg`, `detail`, etc.)
+ * - le fallback automatique si aucun message n'est fourni
+ * - la désactivation volontaire de la notification (mode silencieux)
+ * 
+ * Pour chaque succès, il tente d’extraire le champ `message` envoyé par l’API 
+ * si aucun message n’est trouvé, un message par défaut est affiché.
  */
 @Injectable({ providedIn: 'root' })
 export class SuccessHandlerService {

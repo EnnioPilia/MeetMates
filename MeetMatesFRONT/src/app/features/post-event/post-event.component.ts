@@ -2,6 +2,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+
 // ---------- Angular Material ----------
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -13,14 +14,17 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
 // ---------- Services ----------
 import { NotificationService } from '../../core/services/notification/notification.service';
+
 // ---------- Composants enfant ----------
 import { PostSelectComponent } from './components/post-select.component';
 import { PostTextFieldsComponent } from './components/post-text-fields.component';
 import { PostDateTimeComponent } from './components/post-date-time.component';
 import { PostOptionsComponent } from './components/post-options.component';
 import { PostAddressComponent } from './components/post-address.component';
+
 // ---------- Composants Shared ----------
 import { AppButtonComponent } from '../../shared-components/button/button.component';
 import { MATERIAL_OPTIONS, LEVEL_OPTIONS } from '../../shared-components/constants/event-option';
