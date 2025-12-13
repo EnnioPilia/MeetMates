@@ -23,7 +23,6 @@ import com.example.meetmates.model.EventUser.ParticipantRole;
 import com.example.meetmates.model.EventUser.ParticipationStatus;
 import com.example.meetmates.model.User;
 import com.example.meetmates.repository.ActivityRepository;
-import com.example.meetmates.repository.AddressRepository;
 import com.example.meetmates.repository.EventRepository;
 import com.example.meetmates.repository.EventUserRepository;
 import com.example.meetmates.repository.UserRepository;
@@ -31,9 +30,10 @@ import com.example.meetmates.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Service de gestion des événements.
- * Fournit les fonctionnalités de création, mise à jour, suppression, recherche et récupération des événements.
- * Gère également l'ajout de participants et la récupération des détails liés aux événements.
+ * Service de gestion des événements. Fournit les fonctionnalités de création,
+ * mise à jour, suppression, recherche et récupération des événements. Gère
+ * également l'ajout de participants et la récupération des détails liés aux
+ * événements.
  */
 @Slf4j
 @Service
@@ -41,27 +41,25 @@ public class EventService {
 
     private final EventRepository eventRepository;
     private final ActivityRepository activityRepository;
-    private final AddressRepository addressRepository;
     private final UserRepository userRepository;
     private final EventUserRepository eventUserRepository;
     private final EventMapper eventMapper;
 
     public EventService(EventRepository eventRepository,
-                        ActivityRepository activityRepository,
-                        AddressRepository addressRepository,
-                        UserRepository userRepository,
-                        EventUserRepository eventUserRepository,
-                        EventMapper eventMapper) {
+            ActivityRepository activityRepository,
+            UserRepository userRepository,
+            EventUserRepository eventUserRepository,
+            EventMapper eventMapper) {
         this.eventRepository = eventRepository;
         this.activityRepository = activityRepository;
-        this.addressRepository = addressRepository;
         this.userRepository = userRepository;
         this.eventUserRepository = eventUserRepository;
         this.eventMapper = eventMapper;
     }
 
     /**
-     * Crée un nouvel événement et l'associe à l'utilisateur authentifié en tant qu'organisateur.
+     * Crée un nouvel événement et l'associe à l'utilisateur authentifié en tant
+     * qu'organisateur.
      *
      * @param req DTO contenant les informations de l'événement
      * @return DTO de réponse de l'événement créé
@@ -75,7 +73,7 @@ public class EventService {
         var activity = activityRepository.findById(req.getActivityId())
                 .orElseThrow(() -> new ApiException(ErrorCode.ACTIVITY_NOT_FOUND));
 
-        Address address = addressRepository.save(req.getAddress());
+        Address address = AddressMapper.toEntity(req.getAddress());
 
         Event event = new Event();
         event.setTitle(req.getTitle());
@@ -111,7 +109,14 @@ public class EventService {
     }
 
     /**
-     * Récupère les détails d'un événement spécifique par son ID.
+     * Récupère les détails complets d'un événement par son identifiant.
+     * 
+     * Inclut :
+     *  -Les informations générales de l'événement
+     *  -L'adresse associée<
+     *  -Le nom de l'organisateur
+     *  -Les listes de participants par statut
+     *  -Le statut de participation de l'utilisateur connecté
      *
      * @param eventId ID de l'événement
      * @return DTO détaillé de l'événement
@@ -181,7 +186,7 @@ public class EventService {
      */
     @Transactional(readOnly = true)
     public List<EventResponseDto> getEventResponsesByActivity(UUID activityId) {
-        
+
         activityRepository.findById(activityId)
                 .orElseThrow(() -> new ApiException(ErrorCode.ACTIVITY_NOT_FOUND));
 
@@ -202,7 +207,7 @@ public class EventService {
     public void deleteEvent(UUID eventId) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ApiException(ErrorCode.EVENT_NOT_FOUND));
-                
+
         log.info("Utilisateur {} supprime l'événement {}", getAuthenticatedUser().getEmail(), eventId);
         eventRepository.delete(event);
     }
@@ -210,7 +215,13 @@ public class EventService {
     /**
      * Met à jour un événement existant avec les informations fournies.
      *
-     * @param eventId      ID de l'événement
+     * Si une adresse est présente dans la requête, celle-ci est mise à jour ou
+     * créée si l'événement n'en possédait pas auparavant.
+     *
+     * Si un identifiant d'activité est fourni, l'activité associée à
+     * l'événement est également mise à jour.
+     *
+     * @param eventId ID de l'événement
      * @param updatedEvent DTO contenant les nouvelles informations
      * @return DTO de réponse de l'événement mis à jour
      * @throws ApiException si l'événement ou l'activité associée n'existe pas
@@ -233,10 +244,14 @@ public class EventService {
         event.setLevel(updatedEvent.getLevel());
 
         if (updatedEvent.getAddress() != null) {
-            Address addr = event.getAddress() != null ? event.getAddress() : new Address();
+            Address addr = event.getAddress() != null
+                    ? event.getAddress()
+                    : new Address();
+
             addr.setStreet(updatedEvent.getAddress().getStreet());
-            addr.setPostalCode(updatedEvent.getAddress().getPostalCode());
             addr.setCity(updatedEvent.getAddress().getCity());
+            addr.setPostalCode(updatedEvent.getAddress().getPostalCode());
+
             event.setAddress(addr);
         }
 
@@ -257,7 +272,9 @@ public class EventService {
      */
     @Transactional(readOnly = true)
     public List<EventResponseDto> searchEvents(String query) {
-        if (query == null || query.isBlank()) return List.of();
+        if (query == null || query.isBlank()) {
+            return List.of();
+        }
 
         log.info("Recherche d'événements avec le texte '{}'", query.trim().toLowerCase());
         return eventRepository.searchEvents(query.trim().toLowerCase())
@@ -269,7 +286,7 @@ public class EventService {
     /**
      * Ajoute l'organisateur à un événement.
      *
-     * @param event     événement
+     * @param event événement
      * @param organizer utilisateur organisateur
      */
     private void addOrganizer(Event event, User organizer) {
@@ -296,8 +313,9 @@ public class EventService {
      */
     private User getAuthenticatedUser() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated())
+        if (auth == null || !auth.isAuthenticated()) {
             throw new ApiException(ErrorCode.USER_NOT_FOUND);
+        }
 
         return userRepository.findByEmail(auth.getName())
                 .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
@@ -310,7 +328,9 @@ public class EventService {
      */
     private User getAuthenticatedUserOrNull() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated()) return null;
+        if (auth == null || !auth.isAuthenticated()) {
+            return null;
+        }
         return userRepository.findByEmail(auth.getName()).orElse(null);
     }
 }

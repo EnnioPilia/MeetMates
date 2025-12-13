@@ -1,25 +1,34 @@
 package com.example.meetmates.mapper;
 
 import com.example.meetmates.dto.AddressDto;
+import com.example.meetmates.dto.AddressRequestDto;
 import com.example.meetmates.model.Address;
 
 /**
- * Mapper utilitaire permettant de convertir entre l'entité {@link Address}
- * et son DTO {@link AddressDto}.
+ * Mapper utilitaire permettant de convertir entre l'entité {@link Address} et
+ * ses différents DTOs utilisés par l'application.
  *
- * Les mappers permettent de séparer les modèles persistants (entités JPA)
- * des objets échangés avec le front (DTO).
+ * Ce mapper permet notamment : -la conversion d'une entité {@link Address} vers
+ * un {@link AddressDto} destiné aux réponses envoyées au front</li>
+ * -la conversion d'un {@link AddressRequestDto} vers une entité {@link Address}
+ * lors de la création ou mise à jour d'un événement
+ *
+ * Les mappers permettent de séparer les modèles persistants (entités JPA) des
+ * objets échangés avec le front (DTO).
  */
 public class AddressMapper {
 
     /**
-     * Convertit une entité {@link Address} en un objet {@link AddressDto}.
+     * Convertit une entité {@link Address} en un {@link AddressDto}.
      *
      * @param address l'entité Address à convertir (peut être {@code null})
-     * @return un DTO contenant les mêmes données, ou {@code null} si l'entité est null
+     * @return un DTO contenant les données de l'adresse, ou {@code null} si
+     * l'entité est null
      */
     public static AddressDto toDto(Address address) {
-        if (address == null) return null;
+        if (address == null) {
+            return null;
+        }
 
         AddressDto dto = new AddressDto();
         dto.setId(address.getId());
@@ -30,21 +39,25 @@ public class AddressMapper {
     }
 
     /**
-     * Convertit un objet {@link AddressDto} en une entité {@link Address}.
+     * Convertit un {@link AddressRequestDto} en une entité {@link Address}.
+     * 
+     * Cette méthode est utilisée lors de la création ou de la mise à jour d'un
+     * événement.
      *
-     * Note : le champ id est recopié uniquement si l'entité autorise la modification de l'identifiant.
-     *
-     * @param dto le DTO à convertir (peut être {@code null})
-     * @return une entité Address contenant les données du DTO, ou {@code null} si le DTO est null
+     * @param dto le DTO contenant les informations d'adresse (peut être
+     * {@code null})
+     * @return une entité Address contenant les données du DTO, ou {@code null}
+     * si le DTO est null
      */
-    public static Address toEntity(AddressDto dto) {
-        if (dto == null) return null;
+    public static Address toEntity(AddressRequestDto dto) {
+        if (dto == null) {
+            return null;
+        }
 
         Address address = new Address();
-        address.setId(dto.getId()); 
         address.setStreet(dto.getStreet());
-        address.setPostalCode(dto.getPostalCode());
         address.setCity(dto.getCity());
+        address.setPostalCode(dto.getPostalCode());
         return address;
     }
 }

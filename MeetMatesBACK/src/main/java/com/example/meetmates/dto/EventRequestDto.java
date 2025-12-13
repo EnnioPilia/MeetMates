@@ -4,19 +4,20 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.UUID;
 
-import com.example.meetmates.model.Address;
 import com.example.meetmates.model.Event.EventStatus;
 import com.example.meetmates.model.Event.Level;
 import com.example.meetmates.model.Event.MaterialOption;
 
 /**
  * DTO utilisé pour créer ou mettre à jour un événement dans l'application.
- * 
- * Ce DTO représente la structure des données envoyées par le client (front-end)
- * lors de la création (POST) ou de la modification (PUT) d'un événement.
- * 
- * Cette classe regroupe toutes les informations nécessaires à la création
- * d’un événement : titre, description, date, horaires, niveau, matériel, etc.
+ *
+ * Ce DTO représente la structure des données envoyées par le client
+ * (front-end) lors de la création (POST) ou de la modification (PUT)
+ * d'un événement.
+ *
+ * Il regroupe toutes les informations nécessaires à la gestion d’un événement :
+ * titre, description, date, horaires, nombre de participants, statut,
+ * niveau, matériel, activité associée ainsi que l’adresse de l’événement.
  */
 public class EventRequestDto {
 
@@ -30,7 +31,7 @@ public class EventRequestDto {
     private MaterialOption material;
     private Level level;
     private UUID activityId;
-    private Address address;
+    private AddressRequestDto address;
 
 
     // --- GETTERS & SETTERS ---
@@ -64,6 +65,6 @@ public class EventRequestDto {
     public UUID getActivityId() { return activityId; }
     public void setActivityId(UUID activityId) { this.activityId = activityId; }
 
-    public Address getAddress() { return address; }
-    public void setAddress(Address address) { this.address = address; }
+    public AddressRequestDto getAddress() { return address; }
+    public void setAddress(AddressRequestDto address) { this.address = address; }
 }
