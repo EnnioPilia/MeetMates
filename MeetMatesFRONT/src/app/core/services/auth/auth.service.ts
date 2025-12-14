@@ -10,15 +10,14 @@ import { ApiResponse } from '../../models/api-response.model';
 /**
  * Service responsable de la communication avec l'API d'authentification.
  *
- * Rôle :
+ * Responsabilités :
  * - Gérer l'inscription, la connexion et la déconnexion
  * - Gérer la réinitialisation du mot de passe
  * - Vérifier les emails
- * - Utiliser les cookies HTTPOnly (withCredentials) pour les sessions
+ * 
+ * Requêtes authentifiées via cookies HttpOnly (requêtes avec `withCredentials`)
  */
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly baseUrl = environment.apiUrl.replace(/\/+$/, '') + '/auth';
   private http = inject(HttpClient);
@@ -26,7 +25,6 @@ export class AuthService {
   /**
    * Authentifie un utilisateur à partir de ses identifiants.
    * @param credentials email + mot de passe
-   * @returns Observable contenant un message et les cookies de session
    */
   login(credentials: { email: string; password: string }): Observable<ApiResponse<null>> {
     return this.http.post<ApiResponse<null>>(
@@ -48,9 +46,7 @@ export class AuthService {
     );
   }
 
-  /**
-   * Déconnecte l'utilisateur et détruit la session serveur.
-   */
+  /** Déconnecte l'utilisateur et détruit la session serveur. */
   logout(): Observable<ApiResponse<null>> {
     return this.http.post<ApiResponse<null>>(
       `${this.baseUrl}/logout`,
@@ -59,10 +55,7 @@ export class AuthService {
     );
   }
 
-  /**
-   * Rafraîchit la session via les cookies HttpOnly.
-   * @returns Observable contenant un message (aucun accessToken dans le JSON)
-   */
+  /** Rafraîchit la session via les cookies HttpOnly. */
   refreshToken(): Observable<ApiResponse<null>> {
     return this.http.post<ApiResponse<null>>(
       `${this.baseUrl}/refresh-token`,

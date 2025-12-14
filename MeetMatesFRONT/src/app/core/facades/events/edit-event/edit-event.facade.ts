@@ -17,11 +17,13 @@ import { Activity } from '../../../models/activity.model';
 /**
  * Facade dédiée à l’édition d’un événement.
  *
- * Rôle :
- * - charger l'événement et ses données associées (activités)
- * - publier un état réactif (signals)
- * - déléguer les opérations au EventService + ActivityService
- * - centraliser success handler / error handler / loading
+ * Responsabilités :
+ * - orchestration des cas d’usage liés à l’édition d’un événement
+ * - chargement des données nécessaires (événement, activités associées)
+ * - délégation des opérations métier aux services dédiés
+ * - exposition d’un état réactif (signals) destiné à l’interface utilisateur
+ * - centralisation et exposition des effets transverses
+ *   (loading, erreurs, succès) via BaseFacade
  */
 @Injectable({ providedIn: 'root' })
 export class EditEventFacade extends BaseFacade {
@@ -44,8 +46,8 @@ export class EditEventFacade extends BaseFacade {
     * Charge les données nécessaires à l'édition d'un événement :
     * - toutes les activités
     * - les détails de l'événement
+    * 
     * @param eventId ID de l'événement à charger
-    * @returns Observable<[Activity[], EventDetails]> observable contenant les activités et l'événement
     */
     loadEvent(eventId: string) {
         this.startLoading();
@@ -65,9 +67,9 @@ export class EditEventFacade extends BaseFacade {
 
     /**
     * Met à jour un événement et déclenche la notification de succès.
+    * 
     * @param eventId ID de l'événement à mettre à jour
     * @param payload Données complètes de l'événement pour la mise à jour
-    * @returns Observable<any> observable de la réponse du service
     */
     updateEvent(eventId: string, payload: EventDetails) {
         this.startLoading();
@@ -84,8 +86,8 @@ export class EditEventFacade extends BaseFacade {
 
     /**
     * Récupère des suggestions d'adresse pour l'auto-complétion.
+    * 
     * @param query Texte de recherche
-    * @returns Observable<AddressSuggestion[]> observable des suggestions d'adresse
     */
     getAddressSuggestions(query: string) {
         return this.addressService.getAddressSuggestions(query).pipe(

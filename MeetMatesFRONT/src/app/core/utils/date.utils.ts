@@ -21,7 +21,6 @@ export function parseLocalDate(dateString: string): Date {
  * @param date Date à formater
  * @returns Chaîne `YYYY-MM-DD`
  */
-
 export function formatLocalDate(date: Date): string {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, '0');

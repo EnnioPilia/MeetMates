@@ -1,11 +1,27 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+
 import { AppInputComponent } from '../../../shared-components/input/input.component';
 
+/**
+ * Sous-composant de formulaire dédié aux informations
+ * générales de l’événement (status / nom / description).
+ *
+ * Le `FormGroup` est fourni par le parent et doit contenir
+ * les contrôles suivants :
+ * - `status`
+ * - `title`
+ * - `description`
+ *
+ * Ce composant se limite à la présentation et à la
+ * liaison au formulaire parent.
+ *
+ */
 @Component({
   selector: 'app-edit-event-info',
   standalone: true,
@@ -46,8 +62,9 @@ import { AppInputComponent } from '../../../shared-components/input/input.compon
   `
 })
 export class EditEventInfoComponent {
-  @Input() form!: FormGroup;
   
+  @Input({ required: true }) form!: FormGroup;
+
   statusOptions = [
     { value: 'OPEN', label: 'Ouvert' },
     { value: 'FULL', label: 'Complet' },

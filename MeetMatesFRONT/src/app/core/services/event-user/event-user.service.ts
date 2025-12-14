@@ -12,14 +12,14 @@ import { ApiResponse } from '../../models/api-response.model';
  * Service responsable de la gestion des interactions entre les utilisateurs
  * et les événements : participation, acceptation, refus, retrait, etc.
  *
- * Rôle :
+ * Responsabilités :
  * - Rejoindre un événement
  * - Accepter ou rejeter un participant
  * - Retirer un participant d’un événement
  * - Quitter un événement
  * - Récupérer les événements organisés ou ceux auxquels l’utilisateur participe
- *
- * Toutes les requêtes transmettent automatiquement les cookies HttpOnly via `withCredentials`.
+ * 
+ * Requêtes authentifiées via cookies HttpOnly (requêtes avec `withCredentials`)
  */
 @Injectable({
   providedIn: 'root'
@@ -31,7 +31,6 @@ export class EventUserService {
   /**
    * Permet à l'utilisateur connecté de rejoindre un événement.
    * @param eventId Identifiant de l’événement
-   * @returns Observable confirmant l'inscription
    */
   joinEvent(eventId: string): Observable<ApiResponse<void>> {
     return this.http.post<ApiResponse<void>>(
@@ -44,7 +43,6 @@ export class EventUserService {
   /**
    * Accepte la demande de participation d’un utilisateur à un événement.
    * @param eventUserId Identifiant de la relation EventUser
-   * @returns Observable confirmant l'action
    */
   acceptParticipant(eventUserId: string): Observable<ApiResponse<void>> {
     return this.http.put<ApiResponse<void>>(
@@ -57,7 +55,6 @@ export class EventUserService {
   /**
    * Rejette la demande de participation d’un utilisateur.
    * @param eventUserId Identifiant de la relation EventUser
-   * @returns Observable confirmant le rejet
    */
   rejectParticipant(eventUserId: string): Observable<ApiResponse<void>> {
     return this.http.put<ApiResponse<void>>(
@@ -71,7 +68,6 @@ export class EventUserService {
    * Retire un participant d’un événement.
    * @param eventId Identifiant de l’événement
    * @param userId Identifiant de l’utilisateur à retirer
-   * @returns Observable confirmant la suppression
    */
   removeParticipant(eventId: string, userId: string): Observable<ApiResponse<void>> {
     return this.http.delete<ApiResponse<void>>(
@@ -83,7 +79,6 @@ export class EventUserService {
   /**
    * Permet à l’utilisateur de quitter un événement auquel il participe.
    * @param eventId Identifiant de l’événement
-   * @returns Observable confirmant le retrait
    */
   leaveEvent(eventId: string): Observable<ApiResponse<void>> {
     return this.http.delete<ApiResponse<void>>(
@@ -92,10 +87,7 @@ export class EventUserService {
     );
   }
 
-  /**
-   * Récupère les événements organisés par l’utilisateur connecté.
-   * @returns Observable renvoyant la liste des événements organisés
-   */
+  /** Récupère les événements organisés par l’utilisateur connecté. */
   getOrganizedEvents(): Observable<EventResponse[]> {
     return this.http.get<ApiResponse<EventResponse[]>>(
       `${this.baseUrl}/event-user/organized`,

@@ -11,15 +11,17 @@ import { NotificationService } from '../../services/notification/notification.se
 import { RegisterRequest } from '../../models/auth.model';
 
 /**
-* Facade centralisant toutes les actions d'authentification.
-*
-* Cette facade gère :
-* - register / login / logout
-* - reset & verify email
-* - synchronisation UI : loader, messages, redirections, user signals
-*
-* Objectif : permettre aux composants d'être complètement "dumb" en déléguant la logique métier à la facade.
-*/
+ * Facade responsable de la gestion du cycle d’authentification utilisateur.
+ *
+ * Cette facade centralise les cas d’usage liés à l’authentification et expose
+ * une API simple destinée aux composants de l’application.
+ *
+ * Responsabilités :
+ * - gérer l’inscription, la connexion et la déconnexion des utilisateurs
+ * - orchestrer la réinitialisation et la validation des mots de passe
+ * - synchroniser l’état global de l’application après authentification
+ *   (loader, notifications, utilisateur courant, navigation)
+ */
 @Injectable({ providedIn: 'root' })
 export class AuthFacade extends BaseFacade {
   private authService = inject(AuthService);
@@ -35,7 +37,6 @@ export class AuthFacade extends BaseFacade {
   /**
   * Enregistre un nouvel utilisateur
   * @param payload Données de l'utilisateur à enregistrer
-  * @returns Observable<any> observable de la réponse d'inscription
   */
   register(payload: RegisterRequest) {
     this.start();
@@ -52,12 +53,12 @@ export class AuthFacade extends BaseFacade {
     );
   }
 
-
   /**
-  * Authentifie un utilisateur et redirige vers /home
+  * Authentifie un utilisateur à partir de ses identifiants
+  * et redirige vers /home
+  * 
   * @param email Email de l'utilisateur
   * @param password Mot de passe de l'utilisateur
-  * @returns Observable<any> observable de la réponse de connexion
   */
   login(email: string, password: string) {
     this.start();
@@ -76,8 +77,8 @@ export class AuthFacade extends BaseFacade {
 
   /**
   * Demande l'envoi d'un email de réinitialisation de mot de passe
+  * 
   * @param email Email de l'utilisateur
-  * @returns Observable<any> observable de la réponse de demande
   */
   requestPasswordReset(email: string) {
     this.start();
@@ -96,9 +97,9 @@ export class AuthFacade extends BaseFacade {
 
   /**
   * Réinitialise le mot de passe à partir du token
+  * 
   * @param token Token reçu par email
   * @param newPassword Nouveau mot de passe
-  * @returns Observable<any> observable de la réponse de réinitialisation
   */
   resetPassword(token: string, newPassword: string) {
     this.start();
@@ -117,8 +118,8 @@ export class AuthFacade extends BaseFacade {
 
   /**
   * Vérifie le token de validation d'email
+  * 
   * @param token Token de validation
-  * @returns Observable<boolean> observable indiquant si la vérification a réussi
   */
   verifyEmail(token: string) {
     this.start();
@@ -135,10 +136,10 @@ export class AuthFacade extends BaseFacade {
     );
   }
 
-  /**
-  * Déconnecte l'utilisateur, nettoie les données locales et redirige vers /login
-  * @returns Observable<any> observable de la réponse de déconnexion
-  */
+  /** 
+   * Déconnecte l'utilisateur, nettoie les données locales 
+   * et redirige vers /login 
+   */
   logout() {
     this.start();
     this.startLoading();

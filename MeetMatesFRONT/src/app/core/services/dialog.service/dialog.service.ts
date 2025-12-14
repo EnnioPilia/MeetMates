@@ -8,15 +8,13 @@ import { CguDialogComponent } from '../../../shared-components/cgu-dialog/cgu-di
 /**
  * Service centralisé pour la gestion des boîtes de dialogue.
  *
- * Rôle :
+ * Responsabilités :
  * - Ouvrir un popup de confirmation réutilisable
  * - Utilise MatDialog le système de boîtes de dialogue d’Angular Material
  * - Ouvrir les CGU
  * - Ouvrir les Mentions légales
  */
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class DialogService {
 
   private dialog = inject(MatDialog);

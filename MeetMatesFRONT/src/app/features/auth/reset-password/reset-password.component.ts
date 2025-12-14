@@ -14,36 +14,16 @@ import { AppInputComponent } from '../../../shared-components/input/input.compon
 import { AppButtonComponent } from '../../../shared-components/button/button.component';
 
 /**
- * @component ResetPasswordComponent
- * @standalone
- * @public
+ * Composant de réinitialisation du mot de passe.
  *
- * @description
- * Composant UI déclaratif pour la réinitialisation du mot de passe.
- * Récupère le token depuis l’URL, valide les champs et délègue la mise à jour
- * à `AuthFacade`.
+ * Responsabilités :
+ * - récupérer le token de réinitialisation depuis l’URL
+ * - afficher et valider le formulaire de nouveau mot de passe
+ * - déléguer la logique métier à `AuthFacade`
+ * - fournir un retour utilisateur via `NotificationService`
  *
- * @remarks UI:
- * - Change detection strictement OnPush.
- * - Bouton de soumission désactivé pendant la soumission.
- *
- * @remarks Form:
- * - `newPassword` : requis, minimum 6 caractères.
- * - `confirmPassword` : doit correspondre au mot de passe.
- *
- * @remarks Invariant:
- * - `onSubmit()` n’est jamais exécuté si le formulaire est invalide.
- *
- * @security
- * - Données sensibles strictement en mémoire.
- *
- * @remarks Dependencies:
- * - `ActivatedRoute` : récupération du token.
- * - `AuthFacade` : orchestration de la réinitialisation.
- * - `NotificationService` : feedback utilisateur.
- * - `FormBuilder` : création du formulaire fortement typé.
- * - `ChangeDetectorRef` : contrôle manuel du cycle de détection.
- * - `DestroyRef` : gestion déclarative du cycle de vie Angular.
+ * La stratégie de détection `OnPush` est utilisée afin
+ * d’optimiser les performances et limiter les cycles inutiles.
  */
 @Component({
   selector: 'app-reset-password',
@@ -59,6 +39,7 @@ import { AppButtonComponent } from '../../../shared-components/button/button.com
   ],
 })
 export class ResetPasswordComponent {
+  
   private route = inject(ActivatedRoute);
   private fb = inject(FormBuilder);
   private authFacade = inject(AuthFacade);
@@ -66,7 +47,7 @@ export class ResetPasswordComponent {
   private cdr = inject(ChangeDetectorRef);
   private destroyRef = inject(DestroyRef);
 
-  /** Jeton de réinitialisation extrait des query params. */
+  /** Token de réinitialisation extrait des paramètres d’URL. */
   token: string | null = null;
 
   /** Formulaire strict de réinitialisation du mot de passe. */
@@ -76,30 +57,31 @@ export class ResetPasswordComponent {
   });
 
   /**
-   * Récupère le token depuis l’URL.
-   * @returns void
+   * Récupère le token de réinitialisation depuis les query params.
+   * Le token est requis pour autoriser la modification du mot de passe.
    */
   ngOnInit(): void {
     this.token = this.route.snapshot.queryParamMap.get('token');
   }
 
-  /** Indique si une réinitialisation est en cours (désactive les actions UI). */
+  /**
+   * Expose l’état de soumission fourni par la facade
+   * afin de désactiver les actions UI pendant la requête.
+   */
   get isSubmitting() {
     return this.authFacade.isSubmitting;
   }
 
   /**
-    * Soumet le formulaire et déclenche la réinitialisation du mot de passe.
-    *
-    * @remarks
-    * - Vérifie la validité du formulaire.
-    * - Valide la correspondance des mots de passe.
-    * - Vérifie la présence du token.
-    * - Transmet les données à `AuthFacade.resetPassword`.
-    * - Actualise la vue manuellement (`markForCheck`).
-    *
-    * @returns void
-    */
+   * Soumet le formulaire de réinitialisation si valide.
+   *
+   * - Vérifie la validité du formulaire
+   * - Valide la correspondance des mots de passe
+   * - Vérifie la présence du token de réinitialisation
+   * - Délègue la mise à jour du mot de passe à `AuthFacade`
+   * - Déclenche manuellement la détection de changement
+   *   en raison de la stratégie `OnPush`
+   */
   onSubmit(): void {
     if (this.form.invalid) {
       this.notification.showWarning('Veuillez remplir correctement tous les champs.');

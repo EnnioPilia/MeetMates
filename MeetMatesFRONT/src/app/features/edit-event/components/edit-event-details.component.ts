@@ -1,14 +1,28 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { MatRadioModule } from '@angular/material/radio';
+
 import { MATERIAL_OPTIONS, LEVEL_OPTIONS } from '../../../shared-components/constants/event-option';
 
+/**
+ * Sous-composant de formulaire dédié aux informations
+ * générales de l’événement (niveau / materiel).
+ *
+ * Le `FormGroup` est fourni par le parent et doit contenir
+ * les contrôles suivants :
+ * - `level`
+ * - `material`
+ * 
+ * Ce composant se limite à la présentation et à la
+ * liaison au formulaire parent.
+ */
 @Component({
   selector: 'app-edit-event-details',
   standalone: true,
@@ -50,6 +64,7 @@ import { MATERIAL_OPTIONS, LEVEL_OPTIONS } from '../../../shared-components/cons
   `
 })
 export class EditEventDetailsComponent {
+  
   @Input({ required: true }) form!: FormGroup;
 
   materialOptions = MATERIAL_OPTIONS;

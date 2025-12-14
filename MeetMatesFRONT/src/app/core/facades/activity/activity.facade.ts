@@ -9,27 +9,20 @@ import { Activity } from '../../models/activity.model';
 import { Category } from '../../models/category.model';
 
 /**
-* Facade responsable de la gestion des catégories et activités.
-*
-* Cette facade :
-* - Abstrait ActivityService
-* - Fournit des signaux réactifs pour les composants
-* - Gère le loading et les erreurs via BaseFacade
-*/
+ * Facade dédiée à la gestion des activités et des catégories.
+ *
+ * Responsabilités :
+ * - Expose un état applicatif prêt à l’emploi pour l’interface
+ * - Centralise la récupération des données nécessaires à la navigation
+ *   et à la sélection d’activités/catégories.
+ */
 @Injectable({ providedIn: 'root' })
 export class ActivityFacade extends BaseFacade {
   private activityService = inject(ActivityService);
-
-  /** Signal contenant la liste des catégories */
   readonly categories = signal<Category[]>([]);
-
-  /** Signal contenant la liste des activités filtrées par catégorie */
   readonly activities = signal<Activity[]>([]);
 
-  /**
-  * Charge toutes les catégories depuis l'API et met à jour l'état.
-  * @returns Observable<Category[]> observable des catégories
-  */
+  /** Charge toutes les catégories depuis l'API et met à jour l'état. */
   loadCategories() {
     this.startLoading();
 
@@ -38,15 +31,15 @@ export class ActivityFacade extends BaseFacade {
         this.categories.set(categories);
         this.stopLoading();
       }),
-      this.handleError("Impossible de charger les catégories.")
+      this.handleError()
     );
   }
 
   /**
-  * Charge les activités associées à une catégorie.
-  * @param categoryId ID de la catégorie
-  * @returns Observable<Activity[]> observable des activités
-  */
+   * Met à jour la liste des activités associées à une catégorie sélectionnée.
+   *
+   * @param categoryId Identifiant de la catégorie active
+   */
   loadActivities(categoryId: string) {
     this.startLoading();
 
@@ -55,7 +48,7 @@ export class ActivityFacade extends BaseFacade {
         this.activities.set(activities);
         this.stopLoading();
       }),
-      this.handleError("Impossible de charger les activités.")
+      this.handleError()
     );
   }
 }

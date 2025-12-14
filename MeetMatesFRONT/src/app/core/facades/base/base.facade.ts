@@ -4,15 +4,12 @@ import { catchError, of, Observable } from 'rxjs';
 import { ErrorHandlerService } from '../../services/error-handler/error-handler.service';
 
 /**
- * Facade de base utilisée par toutes les autres facades.
+ * Facade de base mutualisant les mécanismes transverses des facades métiers.
  * 
- * Fournit :
- * - gestion du loader (loading)
- * - gestion centralisée des erreurs (error)
- * - intégration avec ErrorHandlerService
- * - opérateur RxJS `handleError()` réutilisable
- *
- * Objectif : éviter la duplication de logique dans les facades métiers.
+ * Elle centralise :
+ * - l’état de chargement global
+ * - la gestion uniforme des erreurs
+ * - la délégation du traitement des erreurs au service dédié
  */
 export abstract class BaseFacade {
   private errorHandler = inject(ErrorHandlerService);
@@ -40,7 +37,7 @@ export abstract class BaseFacade {
   }
 
   /**
-  * Opérateur RxJS standardisé pour centraliser la gestion d'erreurs.
+  * Fournit un pipeline de gestion d’erreurs standardisé pour les facades.
   *
   * - Affiche les messages d'erreur via ErrorHandlerService
   * - Met à jour `error` si un message custom est fourni
@@ -50,7 +47,6 @@ export abstract class BaseFacade {
   *
   * @param message Message d'erreur personnalisé affiché dans le signal `error`
   * @param onFinally Callback optionnel exécuté après la gestion de l'erreur
-  * @returns Fonction qui prend un Observable et retourne un Observable avec gestion d'erreur centralisée
   */
   protected handleError<T>(message?: string, onFinally?: () => void) {
     return (source: Observable<T>) =>

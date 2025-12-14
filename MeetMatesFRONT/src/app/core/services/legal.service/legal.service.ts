@@ -1,7 +1,19 @@
 import { Injectable } from '@angular/core';
 
+/**
+ * Service fournissant les contenus légaux statiques de l'application.
+ *
+ * Centralise :
+ * - les Conditions Générales d’Utilisation (CGU)
+ * - les Mentions légales
+ *
+ * Les contenus sont retournés sous forme de chaînes HTML
+ * destinées à être affichées dans des boîtes de dialogue ou pages dédiées.
+ */
 @Injectable({ providedIn: 'root' })
 export class LegalService {
+  
+  /** Retourne le contenu HTML des Conditions Générales d’Utilisation. */
   getCguContent(): string {
     return `
       <h3 class="mb-2 pb-1 border-b border-black">Conditions Générales d’Utilisation</h3>
@@ -16,6 +28,7 @@ export class LegalService {
     `;
   }
 
+  /** Retourne le contenu HTML des mentions légales. */
   getMentionsLegales(): string {
     return `
       <h3 class="mb-2 pb-1 border-b border-black">Mentions légales</h3>

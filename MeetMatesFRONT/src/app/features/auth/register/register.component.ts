@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef, DestroyRef,  inject} from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Validators, NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 
@@ -16,43 +16,20 @@ import { AppButtonComponent } from '../../../shared-components/button/button.com
 import { AppInputComponent } from '../../../shared-components/input/input.component';
 
 /**
- * @component RegisterComponent
- * @standalone
- * @public
+ * Composant d’inscription utilisateur.
  *
- * @description
- * Composant UI déclaratif pour la création d’un compte utilisateur.
- * Aucune logique métier complexe ; toutes les actions (validation, création de compte)
- * sont orchestrées via `AuthFacade`.
+ * Responsabilités :
+ * - affiche le formulaire de création de compte
+ * - valide les données côté client (Reactive Forms)
+ * - délègue la création de compte à `AuthFacade`
+ * - gère l’acceptation des Conditions Générales d’Utilisation
  *
- * @remarks UI:
- * - Change detection strictement OnPush.
- * - Bouton de soumission désactivé si le formulaire est invalide
- *   ou si une soumission est en cours.
+ * Le composant ne contient aucune logique métier :
+ * l’inscription, les états de chargement et les effets
+ * sont entièrement orchestrés par la facade d’authentification.
  *
- * @remarks Form:
- * - `firstName` et `lastName` : requis.
- * - `email` : requis, conforme RFC, normalisé (`trim + lowercase`).
- * - `password` : requis, min. 6 caractères.
- * - `confirmPassword` : doit correspondre au mot de passe.
- * - `acceptCgu` : doit être true.
- *
- * @remarks Invariant:
- * - `onSubmit()` n’est jamais exécuté si le formulaire est invalide.
- * - Aucun état interne mutable en dehors du formulaire.
- *
- * @security
- * - Données sensibles strictement en mémoire.
- * - Vérification obligatoire des CGU avant soumission.
- *
- * @remarks Dependencies:
- * - `Router` : navigation après inscription.
- * - `AuthFacade` : orchestration de l’inscription.
- * - `NotificationService` : affichage d’alertes.
- * - `DialogService` : affichage des CGU.
- * - `NonNullableFormBuilder` : création de formulaire fortement typé.
- * - `ChangeDetectorRef` : contrôle manuel du cycle de détection.
- * - `DestroyRef` : gestion déclarative du cycle de vie Angular.
+ * La stratégie de détection `OnPush` est utilisée afin
+ * d’optimiser les performances et limiter les cycles inutiles.
  */
 @Component({
   selector: 'app-register',
@@ -69,6 +46,7 @@ import { AppInputComponent } from '../../../shared-components/input/input.compon
   ],
 })
 export class RegisterComponent {
+  
   private router = inject(Router);
   private fb = inject(NonNullableFormBuilder);
   private authFacade = inject(AuthFacade);
@@ -77,7 +55,7 @@ export class RegisterComponent {
   private cdr = inject(ChangeDetectorRef);
   private destroyRef = inject(DestroyRef);
 
-  /** Formulaire strict de création de compte. */
+  /** Formulaire réactif strict de création de compte. */
   form = this.fb.group({
     firstName: ['', Validators.required],
     lastName: ['', Validators.required],
@@ -87,21 +65,22 @@ export class RegisterComponent {
     acceptCgu: [false, Validators.requiredTrue],
   });
 
-  /** Indique si une action d'inscription est en cours (désactive les interactions UI). */
+  /**
+   * Expose l’état de soumission fourni par la facade
+   * afin de désactiver les actions UI pendant la requête.
+   */
   get isSubmitting() {
     return this.authFacade.isSubmitting;
   }
 
   /**
-   * Soumet les données d’inscription si le formulaire est valide.
+   * Soumet le formulaire d’inscription si valide.
    *
-   * @remarks
-   * - Vérifie la correspondance des mots de passe.
-   * - Normalise l’email (trim + lowercase).
-   * - Transmet les données à `AuthFacade.register`.
-   * - Met à jour manuellement la vue (`markForCheck`).
-   * 
-   * @returns void
+   * - Vérifie la correspondance des mots de passe
+   * - Normalise l’email avant l’envoi (trim + lowercase)
+   * - Délègue la création du compte à `AuthFacade`
+   * - Déclenche manuellement la détection de changement
+   *   en raison de la stratégie `OnPush`
    */
   onSubmit(): void {
     if (this.form.invalid) {
@@ -131,19 +110,22 @@ export class RegisterComponent {
         this.cdr.markForCheck();
       });
   }
-  
+
   /**
-   * Ouvre le dialogue affichant les Conditions Générales d'Utilisation.
-   * @param event Empêche la navigation par défaut des liens.
+   * Ouvre le dialogue affichant les Conditions Générales d’Utilisation.
+   * Empêche le comportement par défaut du lien.
+   * 
+   * @param event Événement DOM déclencheur
    */
   openCguDialog(event: Event): void {
     event.preventDefault();
     this.dialogService.openCgu();
   }
-    
+
   /**
-   * Redirige vers une autre vue du module Auth. (login, etc.)
-   * @param path Segment de route
+   * Redirige vers une autre vue du module d’authentification.
+   * 
+   * @param path Segment de route (sans slash initial)
    */
   navigateTo(path: string): void {
     this.router.navigate([`/${path}`]);

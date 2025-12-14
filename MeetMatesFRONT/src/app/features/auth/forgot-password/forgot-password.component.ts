@@ -13,35 +13,16 @@ import { AppButtonComponent } from '../../../shared-components/button/button.com
 import { AppInputComponent } from '../../../shared-components/input/input.component';
 
 /**
- * @component ForgotPasswordComponent
- * @standalone
- * @public
+ * Composant de demande de réinitialisation de mot de passe.
  *
- * @description
- * Composant UI déclaratif pour la demande de réinitialisation du mot de passe.
- * Récupère l’email, délègue la logique métier à `AuthFacade`, et optimise
- * les performances via la stratégie OnPush.
+ * Rôle :
+ * - gérer l’interface utilisateur du formulaire de réinitialisation
+ * - effectuer la validation côté client
+ * - déléguer l’ensemble de la logique métier à `AuthFacade`
+ * - déclencher un feedback utilisateur via `NotificationService`
  *
- * @remarks UI:
- * - Validation immédiate du champ email.
- * - Bouton désactivé pendant la soumission.
- * - Feedback clair via NotificationService.
- *
- * @remarks Form:
- * - `email` : requis, conforme RFC, normalisé (`trim + lowercase`).
- *
- * @remarks Invariant:
- * - `onSubmit()` n’est jamais exécuté si le formulaire est invalide.
- *
- * @security
- * - Données sensibles strictement en mémoire.
- *
- * @remarks Dependencies:
- * - `AuthFacade` : orchestration de la demande de réinitialisation.
- * - `NotificationService` : feedback utilisateur.
- * - `NonNullableFormBuilder` : création du formulaire fortement typé.
- * - `ChangeDetectorRef` : contrôle manuel du cycle de détection.
- * - `DestroyRef` : gestion déclarative du cycle de vie Angular.
+ * La stratégie de détection `OnPush` est utilisée afin d’optimiser
+ * les performances et limiter les cycles de détection inutiles.
  */
 @Component({
   selector: 'app-forgot-password',
@@ -57,6 +38,7 @@ import { AppInputComponent } from '../../../shared-components/input/input.compon
   ],
 })
 export class ForgotPasswordComponent {
+  
   private fb = inject(NonNullableFormBuilder);
   private authFacade = inject(AuthFacade);
   private notification = inject(NotificationService);
@@ -71,19 +53,17 @@ export class ForgotPasswordComponent {
     email: ['', [Validators.required, Validators.email]],
   });
 
-  /** Indique si une soumission est en cours (désactive les actions UI). */
+  /**
+   * Expose l’état de soumission fourni par la facade
+   * afin de désactiver les actions UI pendant la requête.
+   */
   get isSubmitting() {
     return this.authFacade.isSubmitting;
   }
-  
+
   /**
-   * Soumet l’email et déclenche la demande de réinitialisation via AuthFacade.
-   *
-   * @remarks
-   * - Normalise l’email (`trim + lowercase`) avant envoi.
-   * - Actualise manuellement la vue après succès (`markForCheck`).
-   *
-   * @returns void
+   * Soumet l’email et déclenche la demande de réinitialisation via la facade d’authentification.
+   * L’email est normalisé avant l’envoi (trim + lowercase).
    */
   onSubmit(): void {
     if (this.form.invalid) {

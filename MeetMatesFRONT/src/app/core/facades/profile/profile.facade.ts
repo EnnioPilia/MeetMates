@@ -20,13 +20,16 @@ export interface ProfileLoadResult {
 }
 
 /**
- * Facade responsable de la gestion du profil utilisateur :
- * - chargement du profil
- * - récupération des événements organisés et participés
- * - filtrage des événements dupliqués
- * - déconnexion
- * - suppression du compte
- * - exposition d’états via signals
+ * Facade responsable de la gestion du profil utilisateur.
+ *
+ * Responsabilités :
+ * - orchestration des cas d’usage liés au profil utilisateur
+ * - chargement des données utilisateur et de ses événements associés
+ * - application des règles métier de filtrage des événements
+ * - délégation des actions d’authentification et de suppression de compte
+ * - exposition d’états réactifs (signals) destinés à l’interface utilisateur
+ * - centralisation et exposition des effets transverses
+ *   (loading, erreurs, succès) via BaseFacade
  */
 @Injectable({ providedIn: 'root' })
 export class ProfileFacade extends BaseFacade {
@@ -44,10 +47,7 @@ export class ProfileFacade extends BaseFacade {
   /** Événements auxquels l'utilisateur participe */
   readonly eventsParticipating = signal<EventResponse[]>([]);
 
-  /**
-  * Charge le profil complet de l'utilisateur.
-  * @returns Observable<ProfileLoadResult> observable contenant les informations du profil et les événements
-  */
+  /** Charge le profil complet de l'utilisateur. */
   private resetState(): void {
     this.user.set(null);
     this.eventsOrganized.set([]);
@@ -55,10 +55,7 @@ export class ProfileFacade extends BaseFacade {
     this.stopLoading();
   }
 
-  /**
-  * Charge le profil complet de l'utilisateur.
-  * @returns Observable<ProfileLoadResult> observable contenant les informations du profil et les événements
-  */
+  /** Charge le profil complet de l'utilisateur. */
   loadProfile() {
     this.resetState();
     this.startLoading();
@@ -81,7 +78,6 @@ export class ProfileFacade extends BaseFacade {
   /**
   * Charge les événements organisés et participés par l'utilisateur.
   * Les événements organisés sont exclus de la liste des événements participés.
-  * @returns Observable<ProfileLoadResult> observable contenant les événements filtrés
   */
   private loadUserEvents() {
     return forkJoin({
@@ -100,19 +96,13 @@ export class ProfileFacade extends BaseFacade {
     );
   }
 
-  /**
-  * Déconnecte l'utilisateur.
-  * @returns Observable<any> observable de la réponse de déconnexion
-  */
+  /** Déconnecte l'utilisateur. */
   logout() {
     this.resetState();
     return this.authFacade.logout();
   }
 
-  /**
-  * Supprime le compte de l'utilisateur.
-  * @returns Observable<any> observable de la réponse de suppression
-  */
+  /** Supprime le compte de l'utilisateur. */
   deleteAccount() {
     return this.userFacade.deleteMyAccount();
   }

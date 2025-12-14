@@ -2,6 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { tap, map, finalize } from 'rxjs';
 import { takeUntilDestroyed, } from '@angular/core/rxjs-interop';
+import { DestroyRef } from '@angular/core';
 
 import { BaseFacade } from '../base/base.facade';
 
@@ -11,17 +12,21 @@ import { SuccessHandlerService } from '../../services/success-handler/success-ha
 
 import { User } from '../../models/user.model';
 import { ApiResponse } from '../../models/api-response.model';
-import { DestroyRef } from '@angular/core';
 
 /**
-* Facade responsable de la gestion des informations utilisateur.
-*
-* Cette facade gère :
-* - le chargement du profil utilisateur
-* - la mise à jour des informations et de la photo de profil
-* - la suppression du compte
-* - la synchronisation avec les signals
-*/
+ * Facade responsable de la gestion du domaine utilisateur.
+ *
+ * Responsabilités :
+ * - orchestration des cas d’usage liés au profil utilisateur
+ * - chargement et mise à jour des informations utilisateur
+ * - synchronisation de l’état utilisateur entre l’API, les signals globaux
+ *   et l’état local de la facade
+ * - délégation des opérations métier au UserService
+ * - exposition d’états réactifs (signals) destinés à l’interface utilisateur
+ * - centralisation et exposition des effets transverses
+ *   (loading, erreurs, succès) via BaseFacade
+ */
+
 @Injectable({ providedIn: 'root' })
 export class UserFacade extends BaseFacade {
   private destroyRef = inject(DestroyRef);
@@ -33,10 +38,7 @@ export class UserFacade extends BaseFacade {
   /** Signal contenant l'utilisateur courant */
   readonly user = signal<User | null>(null);
 
-  /**
-  * Charge l'utilisateur courant.
-  * @returns Observable<User | null> observable contenant l'utilisateur chargé
-  */
+  /** Charge l'utilisateur courant. */
   loadUser() {
     this.startLoading();
 
@@ -56,9 +58,9 @@ export class UserFacade extends BaseFacade {
   }
 
   /**
-  * Récupère l'utilisateur courant depuis l'API.
-  * @returns Observable<User | null> observable de l'utilisateur
-  */
+   * Récupère l'utilisateur courant depuis l'API et synchronise
+   * l’état utilisateur local et global (signals).
+   */
   getCurrentUser() {
     return this.userService.getCurrentUser().pipe(
       map((res: ApiResponse<User>) => res.data),
@@ -74,8 +76,8 @@ export class UserFacade extends BaseFacade {
 
   /**
   * Met à jour le profil utilisateur.
+  * 
   * @param payload Données partielles pour mise à jour
-  * @returns Observable<User> observable de l'utilisateur mis à jour
   */
   updateMyProfile(payload: Partial<User>) {
     return this.userService.updateMyProfile(payload).pipe(
@@ -91,8 +93,8 @@ export class UserFacade extends BaseFacade {
 
   /**
   * Upload de la photo de profil.
+  * 
   * @param file Fichier image
-  * @returns Observable<User> observable de l'utilisateur mis à jour
   */
   uploadProfilePicture(file: File) {
     return this.userService.uploadProfilePicture(file).pipe(
@@ -105,10 +107,7 @@ export class UserFacade extends BaseFacade {
     );
   }
 
-  /**
-  * Supprime la photo de profil.
-  * @returns Observable<User> observable de l'utilisateur mis à jour
-  */
+  /** Supprime la photo de profil. */
   deleteProfilePicture() {
     return this.userService.deleteProfilePicture().pipe(
       tap(res => {
@@ -120,10 +119,7 @@ export class UserFacade extends BaseFacade {
     );
   }
 
-  /**
-  * Supprime le compte utilisateur et déconnecte l'utilisateur.
-  * @returns Observable<any> observable de la réponse de suppression
-  */
+  /** Supprime le compte utilisateur et déconnecte l'utilisateur. */
   deleteMyAccount() {
     return this.userService.deleteMyAccount().pipe(
       tap(res => {

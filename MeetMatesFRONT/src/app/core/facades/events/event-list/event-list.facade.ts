@@ -16,13 +16,19 @@ import { EventResponse } from '../../../models/event-response.model';
 import { User } from '../../../models/user.model';
 
 /**
- * Facade de gestion de la liste d’événements :
- * - chargement utilisateur / événements
- * - filtrage par activité
- * - mise à jour du titre de page
- * - rejoindre un événement
- * - exposition d’états via signals
+ * Facade responsable de la gestion de la liste d’événements.
+ *
+ * Responsabilités :
+ * - orchestration des cas d’usage liés à l’affichage des événements
+ * - chargement de l’utilisateur courant et des listes d’événements
+ * - filtrage des événements par activité
+ * - délégation des actions de participation aux services dédiés
+ * - synchronisation de l’état global de l’UI (titre de page, utilisateur)
+ * - exposition d’états réactifs (signals) destinés à l’interface utilisateur
+ * - centralisation et exposition des effets transverses
+ *   (loading, erreurs, succès) via BaseFacade
  */
+
 @Injectable({ providedIn: 'root' })
 export class EventListFacade extends BaseFacade {
   private eventService = inject(EventService);
@@ -40,10 +46,7 @@ export class EventListFacade extends BaseFacade {
   /** Utilisateur actuellement connecté */
   readonly currentUser = signal<User | null>(null);
 
-  /**
-  * Charge l'utilisateur courant.
-  * @returns Observable<User | null> observable contenant l'utilisateur chargé ou null
-  */
+  /** Charge l'utilisateur courant. */
   loadCurrentUser() {
     return this.userService.getCurrentUser().pipe(
       takeUntilDestroyed(this.destroyRef),
@@ -56,11 +59,7 @@ export class EventListFacade extends BaseFacade {
     );
   }
 
-  /**
-  * Charge tous les événements.
-  * Met à jour le signal `events`.
-  * @returns Observable<EventResponse[]> observable des événements
-  */
+  /** Charge tous les événements et met à jour le signal `events` */
   loadAllEvents() {
     this.startLoading();
 
@@ -77,8 +76,8 @@ export class EventListFacade extends BaseFacade {
 
   /**
   * Charge les événements filtrés par activité.
+  * 
   * @param activityId ID de l'activité
-  * @returns Observable<EventResponse[]> observable des événements filtrés
   */
   loadEventsByActivity(activityId: string) {
     this.startLoading();
@@ -96,8 +95,8 @@ export class EventListFacade extends BaseFacade {
 
   /**
   * Charge le nom de l'activité et met à jour le titre de la page.
+  * 
   * @param activityId ID de l'activité
-  * @returns Observable<any> observable contenant l'activité chargée
   */
   loadActivityName(activityId: string) {
     return this.activityService.fetchActivityById(activityId).pipe(
@@ -118,8 +117,8 @@ export class EventListFacade extends BaseFacade {
   * - L'utilisateur doit être connecté
   * - L'utilisateur ne doit pas être l'organisateur
   * - L'événement ne doit pas être fermé, complet ou terminé
+  * 
   * @param eventId ID de l'événement
-  * @returns Observable<any> observable de la réponse du service ou EMPTY si non autorisé
   */
   joinEvent(eventId: string) {
     const user = this.signals.currentUser();

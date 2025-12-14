@@ -4,12 +4,10 @@ import { Router } from '@angular/router';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDialog } from '@angular/material/dialog';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { DialogService } from '../../core/services/dialog.service/dialog.service';
 
-import { CguDialogComponent } from '../../shared-components/cgu-dialog/cgu-dialog.component';
 import { ProfileCardComponent } from './components/profile-card.component';
 import { ParticipationTabComponent } from './components/participation-tab.component';
 import { OrganizationTabComponent } from './components/organization-tab.component';
@@ -39,7 +37,6 @@ import { ProfileFacade } from '../../core/facades/profile/profile.facade';
 export class ProfileComponent {
 
   private router = inject(Router);
-  private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
   private profileFacade = inject(ProfileFacade);
   private dialogService = inject(DialogService);

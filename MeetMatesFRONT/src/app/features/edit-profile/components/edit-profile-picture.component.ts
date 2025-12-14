@@ -4,10 +4,23 @@ import { MatIconModule } from '@angular/material/icon';
 import { AppButtonComponent } from '../../../shared-components/button/button.component';
 import { User } from '../../../core/models/user.model';
 
+/**
+ * Sous-composant de présentation dédié à la gestion
+ * de la photo de profil utilisateur.
+ *
+ * Le composant reçoit l’utilisateur depuis le parent
+ * et expose des événements d’intention :
+ * - sélection d’une nouvelle photo
+ * - suppression de la photo existante
+ */
 @Component({
   selector: 'app-edit-profile-picture',
   standalone: true,
-  imports: [CommonModule, MatIconModule, AppButtonComponent],
+  imports: [
+    CommonModule, 
+    MatIconModule, 
+    AppButtonComponent
+  ],
   template: `
 
     <div class="flex flex-col items-center">
@@ -43,6 +56,7 @@ import { User } from '../../../core/models/user.model';
   `
 })
 export class EditProfilePictureComponent {
+  
   @Input({ required: true }) user!: User;
   @Output() photoSelected = new EventEmitter<File>();
   @Output() photoDeleted = new EventEmitter<void>();
@@ -56,7 +70,7 @@ export class EditProfilePictureComponent {
     this.previewUrl = URL.createObjectURL(file);
     this.photoSelected.emit(file);
   }
-
+  
   onDelete(): void {
     this.photoDeleted.emit();
   }

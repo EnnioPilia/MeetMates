@@ -5,15 +5,30 @@ import { EventDetails } from '../../models/event-details.model';
 import { EventListItem } from '../../models/event-list-item.model';
 
 /**
- * Service chargé de transformer les données API des événements
- * en modèles internes utilisés par l'application.
+ * Service de mapping chargé de transformer les réponses API liées aux événements
+ * en modèles internes cohérents utilisés par l'application.
+ *
+ * Responsabilités :
+ * - Normaliser les données provenant de l'API (valeurs nulles, champs optionnels)
+ * - Adapter les formats API vers les modèles métier internes
+ * - Fournir des valeurs par défaut lorsque certaines données sont absentes
+ * 
+ * Il constitue une frontière explicite entre le contrat API et le domaine interne.
  */
 @Injectable({ providedIn: 'root' })
 export class EventMapperService {
 
   /**
-   * Transforme la réponse API d'un événement en modèle `EventDetails`.
-   * @param response Données brutes de l'API
+   * Transforme une réponse API d'événement en modèle interne `EventDetails`.
+   *
+   * Règles de mapping :
+   * - les champs manquants sont remplacés par des valeurs par défaut
+   * - l'adresse est toujours fournie (objet vide si absente)
+   * - les listes de participants sont initialisées à des tableaux vides
+   * - le statut de participation est initialisé à `null`
+   *
+   * @param response Données brutes renvoyées par l'API
+   * @returns Modèle `EventDetails` prêt à être consommé par l'application
    */
   toEventDetails(response: EventResponse): EventDetails {
     return {
@@ -33,7 +48,6 @@ export class EventMapperService {
         city: '',
         postalCode: ''
       },
-
       activityName: response.activityName,
       organizerName: response.organizerName,
       participationStatus: null,
@@ -45,7 +59,11 @@ export class EventMapperService {
   }
 
   /**
-   * Transforme une liste de réponses API en liste de `EventDetails`.
+   * Transforme une liste de réponses API en liste de modèles `EventDetails`.
+   *
+   * Méthode utilitaire s'appuyant sur `toEventDetails`
+   * afin de garantir une normalisation homogène.
+   *
    * @param responses Liste brute renvoyée par l'API
    */
   toEventDetailsList(responses: EventResponse[]): EventDetails[] {
@@ -53,9 +71,16 @@ export class EventMapperService {
   }
 
   /**
-   * Transforme une réponse API en élément `EventListItem`
+   * Transforme une réponse API d'événement en élément `EventListItem`
    * destiné à l'affichage en liste.
+   *
+   * Règles de mapping :
+   * - les champs alternatifs (`eventTitle`, `eventStatus`, etc.) sont pris en compte
+   * - les valeurs absentes sont remplacées par des chaînes vides
+   * - l'adresse est formatée en texte lisible
+   *
    * @param response Données API d’un événement
+   * @returns Élément prêt à être affiché dans une liste
    */
   toEventListItem(response: EventResponse): EventListItem {
     return {
@@ -72,8 +97,11 @@ export class EventMapperService {
     };
   }
 
-  /**
-   * Formate une adresse API en texte lisible.
+ /**
+   * Formate une adresse issue de l'API en une chaîne lisible.
+   *
+   * @param addr Objet adresse renvoyé par l'API
+   * @returns Adresse formatée pour l'interface utilisateur
    */
   private formatAddress(addr: any): string {
     if (!addr) return '';
@@ -87,6 +115,7 @@ export class EventMapperService {
 
   /**
    * Transforme une liste de réponses API en liste d’éléments `EventListItem`.
+   * 
    * @param responses Liste brute renvoyée par l'API
    */
   toEventList(responses: EventResponse[]): EventListItem[] {

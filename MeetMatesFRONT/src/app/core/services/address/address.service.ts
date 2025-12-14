@@ -2,9 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map, catchError, of } from 'rxjs';
 
-/**
- * Représente une suggestion d'adresse retournée par l'API publique.
- */
+/** Représente une suggestion d'adresse retournée par l'API publique. */
 export interface AddressSuggestion {
   label: string;
   street: string;
@@ -12,9 +10,7 @@ export interface AddressSuggestion {
   postalCode: string;
 }
 
-/**
- * Structure interne de la réponse retournée par api-adresse.data.gouv.fr.
- */
+/** Structure interne de la réponse retournée par api-adresse.data.gouv.fr. */
 interface ApiAdresseResponse {
   features: {
     properties: {
@@ -30,14 +26,12 @@ interface ApiAdresseResponse {
  * Service responsable de l’autocomplétion d’adresses via l’API
  * api-adresse.data.gouv.fr.
  *
- * Rôle :
+ * Responsabilités :
  * - Interroger l’API publique d’adresses
  * - Mapper les résultats pour ne renvoyer que les suggestions utiles
  * - Gérer les erreurs en renvoyant une liste vide
  */
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class AddressService {
   private readonly apiUrl = 'https://api-adresse.data.gouv.fr/search/';
   private http = inject(HttpClient);

@@ -5,7 +5,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 /**
  * Service centralisé pour l'affichage des notifications utilisateur.
  *
- * Rôle :
+ * Responsabilités :
  * - Afficher des messages de succès, d’avertissement ou d’erreur
  * - Centraliser la gestion visuelle des feedbacks
  * - Utilise MatSnackBar, notifications d’Angular Material

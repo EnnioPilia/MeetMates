@@ -15,9 +15,9 @@ export interface CurrentUser {
 }
 
 /**
- * Service centralisant l’état global de l’application (via Angular Signals).
+ * Service centralisant l’état UI global de l’application (via Angular Signals).
  *
- * Rôle :
+ * Responsabilités :
  * - Le titre de la page
  * - Le mode sombre
  * - L’état d’ouverture du menu
@@ -46,29 +46,24 @@ export class SignalsService {
     this.pageTitle.set(title);
   }
 
-  /**
-   * Réinitialise l'utilisateur courant (déconnexion).
-   */
+  /** Réinitialise l'utilisateur courant (déconnexion). */
   clearCurrentUser() {
     this.currentUser.set(null);
   }
 
-  /**
-   * Active/désactive le mode sombre.
-   */
+  /** Inverse l’état du mode sombre. */
   toggleDarkMode() {
     this.darkMode.update(v => !v);
   }
 
-  /**
-   * Ouvre ou ferme le menu latéral.
-   */
+  /** Ouvre ou ferme le menu latéral. */
   toggleMenu() {
     this.isMenuOpen.update(v => !v);
   }
 
   /**
    * Met à jour le signal utilisateur à partir du modèle User complet.
+   * 
    * @param user Objet User ou null si l'utilisateur n'est plus connecté
    */
   updateCurrentUser(user: User | null) {

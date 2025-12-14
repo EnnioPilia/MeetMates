@@ -5,15 +5,39 @@ import { AppInputComponent } from '../../../shared-components/input/input.compon
 import { AppButtonComponent } from '../../../shared-components/button/button.component';
 import { User } from '../../../core/models/user.model';
 
+/**
+ * Sous-composant de formulaire dédié à l’édition
+ * des informations personnelles de l’utilisateur.
+ *
+ * Responsabilités :
+ * - initialiser le formulaire
+ * - gérer la validation
+ * - émettre les données vers le parent
+ */
 @Component({
   selector: 'app-edit-profile-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, AppInputComponent, AppButtonComponent],
+  imports: [
+    CommonModule, 
+    ReactiveFormsModule, 
+    AppInputComponent, 
+    AppButtonComponent
+  ],
   template: `
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col items-center gap-1 w-full">
-      <app-input label="Prénom" [control]="form.get('firstName')!" type="text"></app-input>
-      <app-input label="Nom" [control]="form.get('lastName')!" type="text"></app-input>
+
+      <app-input 
+        label="Prénom" 
+        [control]="form.get('firstName')!" 
+        type="text">
+      </app-input>
+        
+      <app-input 
+        label="Nom" 
+        [control]="form.get('lastName')!" 
+        type="text">
+      </app-input>
 
       <app-button 
         label="Enregistrer les modifications" 
@@ -25,6 +49,7 @@ import { User } from '../../../core/models/user.model';
   `
 })
 export class EditProfileFormComponent implements OnInit {
+  
   @Input({ required: true }) user!: User;
   @Output() save = new EventEmitter<Partial<User>>();
 

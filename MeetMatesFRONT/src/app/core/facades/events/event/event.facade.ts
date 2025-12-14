@@ -15,12 +15,14 @@ import { Activity } from '../../../models/activity.model';
 import { EventRequest } from '../../../models/event-request.model';
 
 /**
- * Facade responsable de la gestion d’un événement :
- * - création
- * - chargement
- * - actions participant (accepter / refuser / quitter)
- * - suggestions d’adresse
- * - exposition d’états via signals
+ * Facade responsable de la gestion d’un événement.
+ *
+ * Responsabilités :
+ * - orchestration des cas d’usage liés aux événements
+ * - délégation aux services métier
+ * - exposition d’états réactifs (signals)
+ * - centralisation et exposition des effets transverses
+ *   (loading, erreurs, succès) via BaseFacade
  */
 @Injectable({ providedIn: 'root' })
 export class EventFacade extends BaseFacade {
@@ -44,10 +46,7 @@ export class EventFacade extends BaseFacade {
     private start() { this.isSubmitting = true; }
     private stop() { this.isSubmitting = false; }
 
-    /**
-    * Charge toutes les activités disponibles.
-    * @returns Observable<Activity[]> observable des activités
-    */
+    /** Charge toutes les activités disponibles. */
     loadActivities() {
         this.startLoading();
 
@@ -63,8 +62,8 @@ export class EventFacade extends BaseFacade {
 
     /**
     * Crée un événement.
+    * 
     * @param payload Données de création de l'événement
-    * @returns Observable<any> observable de la réponse du service
     */
     createEvent(payload: EventRequest) {
         this.start();
@@ -82,8 +81,8 @@ export class EventFacade extends BaseFacade {
 
     /**
     * Accepte un participant à un événement.
+    * 
     * @param eventUserId ID du participant
-    * @returns Observable<any> observable de la réponse du service
     */
     acceptParticipant(eventUserId: string) {
         this.start();
@@ -99,8 +98,8 @@ export class EventFacade extends BaseFacade {
 
     /**
     * Refuse un participant à un événement.
+    * 
     * @param eventUserId ID du participant
-    * @returns Observable<any> observable de la réponse du service
     */
     rejectParticipant(eventUserId: string) {
         this.start();
@@ -116,8 +115,8 @@ export class EventFacade extends BaseFacade {
 
     /**
     * Supprime un événement.
+    * 
     * @param eventId ID de l'événement à supprimer
-    * @returns Observable<any> observable de la réponse du service
     */
     deleteEvent(eventId: string) {
         this.start();
@@ -133,8 +132,8 @@ export class EventFacade extends BaseFacade {
 
     /**
     * Charge un événement existant.
+    * 
     * @param eventId ID de l'événement à charger
-    * @returns Observable<EventDetails | null> observable de l'événement chargé
     */
     load(eventId: string) {
         this.startLoading();
@@ -150,8 +149,8 @@ export class EventFacade extends BaseFacade {
 
     /**
     * Quitte un événement.
+    * 
     * @param eventId ID de l'événement à quitter
-    * @returns Observable<any> observable de la réponse du service
     */
     leave(eventId: string) {
         this.start();
@@ -167,8 +166,8 @@ export class EventFacade extends BaseFacade {
     
     /**
     * Recherche des suggestions d'adresses.
+    * 
     * @param query Texte de recherche pour les suggestions d'adresse
-    * @returns Observable<AddressSuggestion[]> observable des suggestions
     */
     searchAddress(query: string) {
         return this.addressService.getAddressSuggestions(query).pipe(

@@ -1,11 +1,25 @@
-import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, Input } from '@angular/core';
 import { ReactiveFormsModule, FormGroup } from '@angular/forms';
+
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+
 import { Activity } from '../../../core/models/activity.model';
 
+/**
+ * Sous-composant de formulaire dédié à la sélection de l’activité
+ * et au nombre maximal de participants.
+ *
+ * Le `FormGroup` est fourni par le parent et doit contenir
+ * les contrôles suivants :
+ * - `activityId`
+ * - `maxParticipants`
+ *
+ * Ce composant est purement déclaratif et ne crée
+ * aucun contrôle de formulaire.
+ */
 @Component({ 
   selector: 'app-edit-event-activity',
   standalone: true,
@@ -38,6 +52,7 @@ import { Activity } from '../../../core/models/activity.model';
   `
 })
 export class EditEventActivityComponent {
+  
   @Input({ required: true }) form!: FormGroup;
-  @Input() activities: Activity[] = [];
+  @Input({ required: true }) activities: Activity[] = [];
 }

@@ -12,39 +12,21 @@ import { AppButtonComponent } from '../../../shared-components/button/button.com
 import { AppInputComponent } from '../../../shared-components/input/input.component';
 
 /**
- * @component LoginComponent
- * @standalone
- * @public
+ * Composant de connexion utilisateur.
  *
- * @description
- * Composant UI purement déclaratif chargé de collecter les identifiants.
- * Aucune logique métier, aucune persistance, aucun traitement d’erreur.
- * L’authentification et l’état d’exécution proviennent exclusivement d’`AuthFacade`.
+ * Responsabilités :
+ * - affiche un formulaire de connexion (email / mot de passe)
+ * - valide les données côté client via Reactive Forms
+ * - délègue l’authentification à `AuthFacade`
+ * - déclenche la navigation via le routeur
  *
- * @remarks UI:
- * - Change detection strictement OnPush.
- * - Le bouton de soumission est désactivé si le formulaire est invalide
- *   ou si une soumission est en cours.
+ * Le composant ne contient aucune logique métier :
+ * l’état d’exécution et les effets (authentification, loading)
+ * sont entièrement gérés par la facade.
  *
- * @remarks Form:
- * - `email` : requis, conforme RFC, normalisé (`trim + lowercase`).
- * - `password` : requis, min. 6 caractères.
- *
- * @remarks Invariant:
- * - `onSubmit()` n’est jamais exécuté si le formulaire est invalide.
- * - Aucun état interne mutable en dehors du formulaire.
- *
- * @security
- * - Aucune conservation locale ; données sensibles strictement en mémoire.
- *
- * @remarks Dependencies:
- * - `Router` : navigation après authentification.
- * - `AuthFacade` : orchestration de l’authentification.
- * - `NonNullableFormBuilder` : création du formulaire fortement typé.
- * - `ChangeDetectorRef` : contrôle manuel du cycle de détection.
- * - `DestroyRef` : gestion déclarative du cycle de vie Angular.
+ * La stratégie de détection `OnPush` est utilisée afin
+ * d’optimiser les performances et limiter les cycles inutiles.
  */
-
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -59,41 +41,34 @@ import { AppInputComponent } from '../../../shared-components/input/input.compon
   ],
 })
 export class LoginComponent {
+  
   private router = inject(Router);
   private fb = inject(NonNullableFormBuilder);
   private authFacade = inject(AuthFacade);
   private cdr = inject(ChangeDetectorRef);
   private destroyRef = inject(DestroyRef);
 
-  /**
-   * Formulaire réactif strictement validé.
-   *
-   * @remarks
-   * - `email` : requis, conforme RFC.
-   * - `password` : requis, minimum 6 caractères.
-   */
+  /** Formulaire réactif de connexion. */
   form = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
   });
 
-  /** Indique si une soumission est en cours (désactive les actions UI). 
-   * @see AuthFacade.isSubmitting
+  /**
+   * Expose l’état de soumission fourni par la facade
+   * afin de désactiver les actions UI pendant la requête.
    */
   get isSubmitting() {
     return this.authFacade.isSubmitting;
   }
 
   /**
-   * Soumet le formulaire si valide et déclenche l’authentification via AuthFacade.
+   * Soumet le formulaire de connexion si valide.
    *
-   * @remarks
-   * - Normalise l’email avant soumission (trim + lowercase).
-   * - Déclenche manuellement la mise à jour de la vue (ChangeDetectionStrategy.OnPush).
-   * - Ne s’exécute jamais si le formulaire est invalide.
-   *
-   * @throws {AuthError} Peut lever des erreurs liées à l’authentification (invalid credentials, network error)
-   * @returns {void} Cette méthode ne retourne pas de valeur.
+   * - Normalise l’email avant l’envoi (trim + lowercase)
+   * - Délègue l’authentification à `AuthFacade`
+   * - Déclenche manuellement la détection de changement
+   *   en raison de la stratégie `OnPush`
    */
   onSubmit(): void {
     if (this.form.invalid) return;
@@ -109,9 +84,9 @@ export class LoginComponent {
   }
 
   /**
-   * Navigue vers un segment de route simple.
-   * @param path - Segment de route sans slash initial.
-   * @see Router
+   * Redirige l’utilisateur vers une route donnée.
+   * 
+   * @param path Segment de route (sans slash initial)
    */
   navigateTo(path: string): void {
     this.router.navigate([`/${path}`]);
