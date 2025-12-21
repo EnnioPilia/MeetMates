@@ -57,13 +57,24 @@ export class EditEventFacade extends BaseFacade {
             this.eventService.fetchEventById(eventId)
         ]).pipe(
             tap(([activities, event]) => {
+
+                const activity = activities.find(
+                    a => a.name === event.activityName
+                );
+
                 this.activities.set(activities);
-                this.event.set(event);
+
+                this.event.set({
+                    ...event,
+                    activityId: activity?.id ?? null
+                });
+
                 this.stopLoading();
             }),
             this.handleError("Erreur lors du chargement.")
         );
     }
+
 
     /**
     * Met à jour un événement et déclenche la notification de succès.

@@ -18,6 +18,7 @@
       </app-edit-event-activity>
       
       <app-edit-event-address
+        [form]="form"
         [suggestions]="addressSuggestions()"
         (inputChange)="onAddressInput($event)"
         (optionSelected)="onAddressSelect($event)">

@@ -7,6 +7,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 // Core (facades, services)
 import { EditEventFacade } from '../../core/facades/events/edit-event/edit-event.facade';
 import { AddressSuggestion } from '../../core/services/address/address.service';
+import { NotificationService } from '../../core/services/notification/notification.service';
 
 // Feature components
 import { EditEventInfoComponent } from './components/edit-event-info.component';
@@ -55,12 +56,13 @@ import { parseLocalDate, formatLocalDate } from '../../core/utils/date.utils';
   styleUrls: ['./edit-event.component.scss']
 })
 export class EditEventComponent implements OnInit {
-  
+
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private fb = inject(FormBuilder);
   private editEventFacade = inject(EditEventFacade);
   private destroyRef = inject(DestroyRef);
+  private notification = inject(NotificationService);
 
   /** États exposés par la facade */
   readonly loading = this.editEventFacade.loading;
@@ -108,19 +110,19 @@ export class EditEventComponent implements OnInit {
     if (!e) return;
 
     this.form = this.fb.group({
-      title: [e.title],
-      description: [e.description],
-      eventDate: [parseLocalDate(e.eventDate)],
-      startTime: [e.startTime],
-      endTime: [e.endTime],
-      maxParticipants: [e.maxParticipants],
+      title: [e.title, Validators.required],
+      description: [e.description, Validators.required],
+      eventDate: [parseLocalDate(e.eventDate), Validators.required],
+      startTime: [e.startTime, Validators.required],
+      endTime: [e.endTime, Validators.required],
+      maxParticipants: [e.maxParticipants,[Validators.required, Validators.min(2)]],
       material: [e.material],
       level: [e.level],
       activityName: [e.activityName],
-      activityId: [null],
+      activityId: [e.activityId],
       status: [e.status],
       address: this.fb.group({
-        street: [e.address.street, Validators.required],
+        street: [e.address.street , Validators.required],
         city: [e.address.city, Validators.required],
         postalCode: [e.address.postalCode, Validators.required],
       })
@@ -136,6 +138,14 @@ export class EditEventComponent implements OnInit {
    * - redirige vers le profil après succès
    */
   saveChanges() {
+    if (this.form.invalid) {
+      this.notification.showWarning(
+        'Veuillez remplir tous les champs correctement.'
+      );
+      this.form.markAllAsTouched();
+      return;
+    }
+
     const updated = {
       ...this.event()!,
       ...this.form.value,
@@ -157,7 +167,7 @@ export class EditEventComponent implements OnInit {
     if (!query) return;
     this.editEventFacade.getAddressSuggestions(query).subscribe();
   }
-  
+
   /**
    * Applique une adresse sélectionnée au formulaire.
    *
