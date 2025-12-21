@@ -1,3 +1,11 @@
+/**
+ * Constantes et types utilisés pour la configuration
+ * des options liées aux événements (matériel requis et niveau de pratique).
+ *
+ * Ce fichier centralise les valeurs utilisées
+ * dans les formulaires et filtres de l’application.
+ */
+
 export type MaterialOptionValue = 'PROVIDED' | 'YOUR_OWN' | 'NOT_REQUIRED';
 export type LevelOptionValue = 'BEGINNER' | 'INTERMEDIATE' | 'EXPERT' | 'ALL_LEVELS';
 

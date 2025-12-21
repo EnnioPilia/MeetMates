@@ -1,12 +1,24 @@
-import { Component, Input } from '@angular/core';
+// Angular
 import { CommonModule } from '@angular/common';
+import { Component, Input } from '@angular/core';
+import { ReactiveFormsModule, FormGroup } from '@angular/forms';
+
+// Angular Material
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { ReactiveFormsModule, FormGroup } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 
+/**
+ * Sous-composant de formulaire dédié à la sélection
+ * de la date et des horaires de l’événement.
+ *
+ * Responsabilités :
+ * - afficher le sélecteur de date
+ * - afficher les champs heure de début / fin
+ * - gérer l’affichage des erreurs de validation
+ */
 @Component({
   selector: 'app-post-date-time',
   standalone: true,

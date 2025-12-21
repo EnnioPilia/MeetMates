@@ -1,12 +1,28 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+// Angular
 import { CommonModule } from '@angular/common';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { ReactiveFormsModule, FormControl, FormGroup } from '@angular/forms';
+
+// Angular Material
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatOptionModule } from '@angular/material/core';
+
+// Core (services)
 import { AddressSuggestion } from '../../../core/services/address/address.service';
 
+/**
+ * Sous-composant de formulaire dédié à la saisie
+ * et à la sélection d’une adresse.
+ *
+ * Responsabilités :
+ * - afficher un champ de saisie avec autocomplétion
+ * - afficher les suggestions d’adresses fournies par le parent
+ * - émettre les intentions utilisateur :
+ *   - saisie de texte (recherche)
+ *   - sélection d’une adresse
+ */
 @Component({
   selector: 'app-post-address',
   standalone: true,
@@ -51,6 +67,7 @@ import { AddressSuggestion } from '../../../core/services/address/address.servic
   `
 })
 export class PostAddressComponent {
+  
   @Input() form!: FormGroup;
   @Input() controlName = 'adresse';
   @Input() suggestions: AddressSuggestion[] = [];

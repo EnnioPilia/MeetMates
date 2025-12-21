@@ -1,12 +1,15 @@
+// Angular
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-
+// Angular Material
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
+// Core (facades)
 import { ActivityFacade } from '../../../core/facades/activity/activity.facade';
 
+// Shared components
 import { IconCardComponent } from '../../../shared-components/icon-card/icon-card.component';
 import { StateHandlerComponent } from '../../../shared-components/state-handler/state-handler.component';
 

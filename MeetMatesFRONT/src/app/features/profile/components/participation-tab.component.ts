@@ -1,14 +1,34 @@
+// Angular
 import { Component, Input, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatExpansionModule } from '@angular/material/expansion';
 import { RouterModule } from '@angular/router';
+
+// Angular Material
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatButtonModule } from '@angular/material/button';
-import { StatusColorPipe } from '../../../shared-components/pipes/statusColor.pipe';
+
+// Core (services, models)
+import { EventMapperService } from '../../../core/services/event/event-mapper.service';
 import { EventListItem } from '../../../core/models/event-list-item.model';
 import { EventResponse } from '../../../core/models/event-response.model';
-import { getStatusLabel, getParticipationLabel } from '../../../core/utils/labels.util';
-import { EventMapperService } from '../../../core/services/event/event-mapper.service';
 
+// Shared components
+import { StatusColorPipe } from '../../../shared-components/pipes/statusColor.pipe';
+
+// Utils
+import { getStatusLabel, getParticipationLabel } from '../../../core/utils/labels.util';
+
+
+/**
+ * Sous-composant dédié à l’affichage des événements
+ * auxquels l’utilisateur participe.
+ *
+ * Responsabilités :
+ * - afficher la liste des événements de participation
+ * - présenter le statut de l’événement
+ * - présenter le statut de participation de l’utilisateur
+ * - fournir un accès à la page de détail participant
+ */
 @Component({
   selector: 'app-participation-tab',
   standalone: true,

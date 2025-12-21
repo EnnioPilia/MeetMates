@@ -1,6 +1,15 @@
+// Angular
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
+/**
+ * Sous-composant de présentation dédié à l’affichage
+ * de la liste des participants acceptés à un événement.
+ *
+ * Responsabilités :
+ * - afficher les participants fournis par le parent
+ * - gérer l’état vide (aucun participant)
+ */
 @Component({
   selector: 'app-participant-list',
   standalone: true,

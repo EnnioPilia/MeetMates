@@ -1,15 +1,18 @@
+// Angular
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { Component, ChangeDetectionStrategy, ChangeDetectorRef, DestroyRef, inject } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
+// Angular Material
 import { MatCardModule } from '@angular/material/card';
 
+// Core (facades, services)
 import { AuthFacade } from '../../../core/facades/auth/auth.facade';
-
 import { NotificationService } from '../../../core/services/notification/notification.service';
 
+// Shared components
 import { AppInputComponent } from '../../../shared-components/input/input.component';
 import { AppButtonComponent } from '../../../shared-components/button/button.component';
 

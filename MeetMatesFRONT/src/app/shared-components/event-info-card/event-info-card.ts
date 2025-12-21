@@ -1,9 +1,25 @@
+// Angular
 import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+
+// Core (models)
 import { EventDetails } from '../../core/models/event-details.model';
+
+// Shared components
 import { StatusColorPipe } from '../../shared-components/pipes/statusColor.pipe';
+
+// Utils 
 import { getStatusLabel as mapStatusLabel } from '../../core/utils/labels.util';
 
+/**
+ * Carte compacte affichant les informations clés d’un événement.
+ *
+ * Responsabilités :
+ * - afficher une version synthétique d’un événement
+ * - gérer l’affichage conditionnel (statut, adresse, date, activité)
+ *
+ * Utilisée dans les listes, recherches et onglets profil.
+ */
 @Component({
   selector: 'app-event-info-card',
   standalone: true,

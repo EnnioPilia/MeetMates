@@ -1,21 +1,25 @@
+// Angular
 import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
+// Core (facades, services)
 import { EditEventFacade } from '../../core/facades/events/edit-event/edit-event.facade';
-
 import { AddressSuggestion } from '../../core/services/address/address.service';
 
+// Feature components
 import { EditEventInfoComponent } from './components/edit-event-info.component';
 import { EditEventDetailsComponent } from './components/edit-event-details.component';
 import { EditEventAddressComponent } from './components/edit-event-address.component';
 import { EditEventDateTimeComponent } from './components/edit-event-dateTime.component';
 import { EditEventActivityComponent } from './components/edit-event-activity.component';
 
+// Shared components
 import { AppButtonComponent } from '../../shared-components/button/button.component';
 import { StateHandlerComponent } from '../../shared-components/state-handler/state-handler.component';
 
+// Utils
 import { parseLocalDate, formatLocalDate } from '../../core/utils/date.utils';
 
 /**
@@ -58,19 +62,11 @@ export class EditEventComponent implements OnInit {
   private editEventFacade = inject(EditEventFacade);
   private destroyRef = inject(DestroyRef);
 
-  /** État de chargement exposé par la facade */
+  /** États exposés par la facade */
   readonly loading = this.editEventFacade.loading;
-
-  /** État d’erreur exposé par la facade */
   readonly error = this.editEventFacade.error;
-
-  /** Liste des activités disponibles */
   readonly activities = this.editEventFacade.activities;
-
-  /** Événement actuellement chargé */
   readonly event = this.editEventFacade.event;
-
-  /** Suggestions d’adresses pour l’auto-complétion */
   readonly addressSuggestions = this.editEventFacade.addressSuggestions;
 
   /** Formulaire racine d’édition de l’événement */

@@ -1,13 +1,16 @@
+// Angular
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
+// Core (facades, models)
 import { UserFacade } from '../../core/facades/user/user.facade';
-
 import { User } from '../../core/models/user.model';
 
+// Feature components
 import { EditProfilePictureComponent } from './components/edit-profile-picture.component';
 import { EditProfileFormComponent } from './components/edit-profile-form.component';
 
+// Shared components
 import { StateHandlerComponent } from '../../shared-components/state-handler/state-handler.component';
 
 /**
@@ -39,13 +42,9 @@ export class EditProfileComponent implements OnInit {
   
   private userFacade = inject(UserFacade);
 
-  /** Utilisateur courant exposé par la facade */
+  /** États exposés par la facade */
   readonly user = this.userFacade.user;
-
-  /** Indique si une action est en cours */
   readonly loading = this.userFacade.loading;
-
-  /** Erreur éventuelle liée au chargement ou à la mise à jour */
   readonly error = this.userFacade.error;
 
   /** Déclenche le chargement du profil utilisateur au montage du composant. */

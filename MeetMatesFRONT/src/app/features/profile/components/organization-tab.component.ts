@@ -1,13 +1,28 @@
+// Angular
 import { Component, Input, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { RouterModule } from '@angular/router';
+
+// Angular Material
 import { MatButtonModule } from '@angular/material/button';
-import { EventInfoCardComponent } from '../../../shared-components/event-info-card/event-info-card';
+
+// Core (services, models)
+import { EventMapperService } from '../../../core/services/event/event-mapper.service';
 import { EventListItem } from '../../../core/models/event-list-item.model';
 import { EventResponse } from '../../../core/models/event-response.model';
-import { EventMapperService } from '../../../core/services/event/event-mapper.service';
 
+// Shared components
+import { EventInfoCardComponent } from '../../../shared-components/event-info-card/event-info-card';
+
+/**
+ * Sous-composant dédié à l’affichage des événements
+ * organisés par l’utilisateur.
+ *
+ * Responsabilités :
+ * - afficher la liste des événements organisés
+ * - permettre l’accès à la page organisateur
+ */
 @Component({
   selector: 'app-organization-tab',
   standalone: true,

@@ -1,10 +1,24 @@
-import { Component, Input } from '@angular/core';
+// Angular
 import { CommonModule } from '@angular/common';
+import { Component, Input } from '@angular/core';
+import { ReactiveFormsModule, FormGroup } from '@angular/forms';
+
+// Angular Material
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { ReactiveFormsModule, FormGroup } from '@angular/forms';
+
+// Shared components
 import { AppInputComponent } from '../../../shared-components/input/input.component';
 
+/**
+ * Sous-composant de formulaire dédié aux champs
+ * textuels principaux de l’événement.
+ *
+ * Responsabilités :
+ * - saisie du titre de l’événement
+ * - saisie de la description
+ * - affichage des erreurs de validation
+ */
 @Component({
   selector: 'app-post-text-fields',
   standalone: true,

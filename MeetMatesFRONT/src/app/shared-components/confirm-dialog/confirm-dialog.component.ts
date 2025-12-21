@@ -1,8 +1,19 @@
+// Angular
 import { Component, inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
 
+// Angular Material
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+
+/**
+ * Boîte de dialogue générique de confirmation.
+ *
+ * Permet de demander une validation utilisateur
+ * avant l’exécution d’une action critique.
+ *
+ * Retourne un booléen indiquant la décision utilisateur.
+ */
 @Component({
   selector: 'app-confirm-dialog',
   standalone: true,

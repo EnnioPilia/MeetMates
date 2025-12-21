@@ -1,19 +1,28 @@
-import { Component, OnInit, inject, DestroyRef, signal } from '@angular/core';
+// Angular
 import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+
+// Angular Material
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTabsModule } from '@angular/material/tabs';
-import { EventFacade } from '../../core/facades/events/event/event.facade';
 
+// Core (facades, services)
+import { EventFacade } from '../../core/facades/events/event/event.facade';
+import { DialogService } from '../../core/services/dialog.service/dialog.service';
+
+// Feature components
+import { EventTabAcceptedComponent } from './components/event-tab-accepted.component';
+import { EventTabPendingComponent } from './components/event-tab-pending.component';
+
+// Shared components
 import { EventHeaderComponent } from '../../shared-components/event-header/event-header.component';
 import { EventInfoComponent } from '../../shared-components/event-info/event-info.component';
 import { AppButtonComponent } from '../../shared-components/button/button.component';
-import { EventTabAcceptedComponent } from './components/event-tab-accepted.component';
-import { EventTabPendingComponent } from './components/event-tab-pending.component';
-import { DialogService } from '../../core/services/dialog.service/dialog.service';
 import { StateHandlerComponent } from '../../shared-components/state-handler/state-handler.component';
+
 
 /**
  * Composant parent chargé de la gestion d’un événement

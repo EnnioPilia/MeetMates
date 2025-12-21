@@ -1,10 +1,25 @@
-import { Component, Output, EventEmitter, ChangeDetectionStrategy, inject } from '@angular/core';
+// Angular
+import { Component, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+
+// Angular Material
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { RouterModule } from '@angular/router';
 
+/**
+ * Sous-composant responsable de l’affichage
+ * du menu de paramètres du profil utilisateur.
+ *
+ * Responsabilités :
+ * - exposer des événements d’intention :
+ *   - édition du profil
+ *   - affichage des mentions légales
+ *   - affichage des CGU
+ *   - déconnexion
+ *   - suppression du compte
+ */
 @Component({
   selector: 'app-settings-menu',
   standalone: true,

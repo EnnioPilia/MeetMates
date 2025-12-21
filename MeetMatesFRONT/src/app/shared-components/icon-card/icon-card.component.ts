@@ -1,7 +1,16 @@
+// Angular
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { NgClass } from '@angular/common';
 
+/**
+ * Carte cliquable avec icône et titre.
+ *
+ * Responsabilités :
+ * - afficher une icône illustrative et un libellé
+ * - gérer différentes tailles prédéfinies
+ * - émettre un événement lors du clic utilisateur
+ */
 @Component({
   selector: 'app-icon-card',
   standalone: true,

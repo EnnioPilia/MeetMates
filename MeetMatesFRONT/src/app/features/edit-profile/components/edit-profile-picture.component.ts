@@ -1,8 +1,14 @@
+// Angular
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+// Angular Material
 import { MatIconModule } from '@angular/material/icon';
-import { AppButtonComponent } from '../../../shared-components/button/button.component';
+
+// Core (models)
 import { User } from '../../../core/models/user.model';
+
+// Shared components
+import { AppButtonComponent } from '../../../shared-components/button/button.component';
 
 /**
  * Sous-composant de présentation dédié à la gestion

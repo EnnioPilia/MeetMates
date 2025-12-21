@@ -1,13 +1,17 @@
+// Angular
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Component, ChangeDetectionStrategy, ChangeDetectorRef, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Validators, NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 
+// Angular Material
 import { MatCardModule } from '@angular/material/card';
 
+// Core (facades)
 import { AuthFacade } from '../../../core/facades/auth/auth.facade';
 
+// Shared components
 import { AppButtonComponent } from '../../../shared-components/button/button.component';
 import { AppInputComponent } from '../../../shared-components/input/input.component';
 

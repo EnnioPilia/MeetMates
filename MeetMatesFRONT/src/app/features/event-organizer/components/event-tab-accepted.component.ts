@@ -1,9 +1,23 @@
+// Angular
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+
+// Angular Material
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+
+// Core (models)
 import { Participant } from '../../../core/models/participant.model';
 
+/**
+ * Sous-composant de présentation dédié à l’affichage
+ * des participants acceptés à un événement.
+ *
+ * Responsabilités :
+ * - afficher les participants acceptés
+ * - exclure l’organisateur de la liste affichée
+ * - exposer un événement de refus de participation
+ */
 @Component({
   selector: 'app-event-tab-accepted',
   standalone: true,

@@ -1,10 +1,27 @@
+// Angular
 import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { StatusColorPipe } from '../pipes/statusColor.pipe';
-import { getStatusLabel, getLevelLabel, getMaterialLabel } from '../../core/utils/labels.util';
+
+// Core (models)
 import { EventDetails } from '../../core/models/event-details.model';
 import { EventResponse } from '../../core/models/event-response.model';
 
+// Shared components
+import { StatusColorPipe } from '../pipes/statusColor.pipe';
+
+// Utils 
+import { getStatusLabel, getLevelLabel, getMaterialLabel } from '../../core/utils/labels.util';
+
+/**
+ * Composant de présentation des informations détaillées d’un événement.
+ *
+ * Responsabilités :
+ * - afficher les informations principales (date, heure, niveau, matériel)
+ * - formater les labels via les utilitaires de mapping
+ * - adapter l’affichage selon le contexte (statut, organisateur)
+ *
+ * Supporte `EventResponse` et `EventDetails`.
+ */
 @Component({
   selector: 'app-event-info',
   standalone: true,

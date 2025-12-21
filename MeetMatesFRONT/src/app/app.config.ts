@@ -1,14 +1,14 @@
+// Angular
 import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection, LOCALE_ID } from '@angular/core';
-// 1. Ajoutez withViewTransitions à l'import
+import { FormsModule } from '@angular/forms';
 import { provideRouter, withViewTransitions } from '@angular/router';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideHttpClient } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
-// Import pour la localisation FR
 import { registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
 registerLocaleData(localeFr);
-// Material modules
-import { FormsModule } from '@angular/forms';
+
+// Angular Material
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -16,29 +16,48 @@ import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+
 // Routes
 import { routes } from './app.routes';
 
-// import { antiSpamInterceptor  } from './core/interceptors/anti-spam.interceptor';
-
+/**
+ * Configuration globale de l’application Angular.
+ *
+ * Ce fichier centralise l’enregistrement des providers principaux :
+ * - routing applicatif (avec View Transitions)
+ * - client HTTP et interceptors
+ * - animations Angular Material
+ * - modules Angular Material partagés
+ * - gestion des zones et optimisation des cycles de détection
+ * - configuration de la localisation (français)
+ *
+ * Cette configuration est utilisée au bootstrap de l’application
+ * via `bootstrapApplication`.
+ */
 export const appConfig: ApplicationConfig = {
   providers: [
+    /**
+     * Optimisation de la détection de changements Angular
+     * en regroupant les événements asynchrones.
+     */
     provideZoneChangeDetection({ eventCoalescing: true }),
-
-    // 2. Utilisez withViewTransitions() ici
+    
+    /**
+     * Configuration du router applicatif avec
+     * prise en charge des View Transitions (animations natives).
+     */
     provideRouter(routes, withViewTransitions()),
 
-    provideHttpClient(
-      withInterceptors([
-        // antiSpamInterceptor   
-      ])
-    ),
+    /** Fournit le client HTTP avec la possibilité d’enregistrer des interceptors globaux. */
+    provideHttpClient(),
+
+    /** Active les animations Angular (nécessaires à Angular Material). */
     provideAnimations(),
 
-    // 🟦 Locale française globale
+    /** Configuration globale de la locale de l’application. Utilisée pour les dates, nombres et pipes Angular. */
     { provide: LOCALE_ID, useValue: 'fr' },
 
-    // 🟪 Import des modules Material et Angular Forms
+    /** Import centralisé des modules Angular Material et Angular Forms utilisés globalement. */
     importProvidersFrom(
       MatButtonModule,
       MatCardModule,

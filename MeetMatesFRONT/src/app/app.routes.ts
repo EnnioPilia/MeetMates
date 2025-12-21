@@ -1,8 +1,20 @@
 import { Routes } from '@angular/router';
 
+/**
+ * Définition des routes principales de l’application.
+ *
+ * Ce fichier centralise :
+ * - la navigation entre les fonctionnalités (features)
+ * - le lazy loading des composants standalone
+ * - les métadonnées de route (titre de page)
+ * - les redirections par défaut et de secours
+ *
+ * Chaque route charge son composant à la demande
+ * afin d’optimiser les performances et le bundle initial.
+ */
 export const routes: Routes = [
+  
   { path: '', redirectTo: 'home', pathMatch: 'full' },
-
   {
     path: 'home',
     loadComponent: () =>
@@ -111,6 +123,7 @@ export const routes: Routes = [
       .then(m => m.DashboardComponent),
     data: { title: 'ADMIN DASHBOARD' }
   },
-
+  
   { path: '**', redirectTo: 'home' }
+
 ];

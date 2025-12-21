@@ -1,3 +1,15 @@
+/**
+ * Styles globaux de l’application.
+ *
+ * Ce fichier définit :
+ * - l’identité visuelle globale (typographie, couleurs, backgrounds)
+ * - les styles communs des composants (header, footer, boutons, cards)
+ * - la surcharge des composants Angular Material
+ * - les effets d’interaction (hover, active, feedback utilisateur)
+ *
+ * Objectif : garantir une cohérence visuelle sur toute l’application.
+ */
+
 html,
 body {
   font-family: 'Poiret One', cursive;

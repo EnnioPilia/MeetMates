@@ -1,11 +1,14 @@
+// Angular
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { ReactiveFormsModule, FormGroup } from '@angular/forms';
 
+// Angular Material
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
+// Core (models)
 import { Activity } from '../../../core/models/activity.model';
 
 /**

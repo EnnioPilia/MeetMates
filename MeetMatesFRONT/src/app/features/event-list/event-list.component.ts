@@ -1,21 +1,25 @@
+// Angular
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { Component, OnInit,inject, ElementRef, QueryList, ViewChildren, DestroyRef } from '@angular/core';
+import { Component, OnInit, inject, ElementRef, QueryList, ViewChildren, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
+// Angular Material
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
+// Core (facades, services)
 import { EventListFacade } from '../../core/facades/events/event-list/event-list.facade';
+import { EventResponse } from '../../core/models/event-response.model';
 
+// Shared components
 import { EventHeaderComponent } from '../../shared-components/event-header/event-header.component';
 import { EventInfoComponent } from '../../shared-components/event-info/event-info.component';
 import { AppButtonComponent } from '../../shared-components/button/button.component';
 import { StateHandlerComponent } from '../../shared-components/state-handler/state-handler.component';
 
-import { EventResponse } from '../../core/models/event-response.model';
-
+// Utils
 import { getStatusLabel, getLevelLabel, getMaterialLabel } from '../../core/utils/labels.util';
 
 /**
@@ -54,7 +58,7 @@ import { getStatusLabel, getLevelLabel, getMaterialLabel } from '../../core/util
   ]
 })
 export class EventListComponent implements OnInit {
-  
+
   private route = inject(ActivatedRoute);
   private eventListFacade = inject(EventListFacade);
   private destroyRef = inject(DestroyRef);
@@ -67,13 +71,13 @@ export class EventListComponent implements OnInit {
   /** Références DOM des cartes événement, utilisées pour le scroll ciblé */
   @ViewChildren('eventCard') eventCards!: QueryList<ElementRef>;
 
- /**
-   * Initialise le composant.
-   *
-   * - charge l’utilisateur courant
-   * - charge les événements selon la route (activité ou global)
-   * - écoute les paramètres de requête pour déclencher un scroll ciblé
-   */
+  /**
+    * Initialise le composant.
+    *
+    * - charge l’utilisateur courant
+    * - charge les événements selon la route (activité ou global)
+    * - écoute les paramètres de requête pour déclencher un scroll ciblé
+    */
   ngOnInit(): void {
     this.eventListFacade.loadCurrentUser()
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -147,6 +151,6 @@ export class EventListComponent implements OnInit {
 
   /** Indique si un événement est ouvert à l’inscription. */
   isEventOpen(event: EventResponse): boolean {
-     return (event.status ?? '').toUpperCase() === 'OPEN'; 
-    }
+    return (event.status ?? '').toUpperCase() === 'OPEN';
+  }
 }

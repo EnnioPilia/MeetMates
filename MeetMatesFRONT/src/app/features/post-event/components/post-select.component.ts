@@ -1,9 +1,23 @@
-import { Component, Input } from '@angular/core';
+// Angular
 import { CommonModule } from '@angular/common';
+import { Component, Input } from '@angular/core';
 import { ReactiveFormsModule, FormGroup } from '@angular/forms';
+
+// Angular Material
 import { MatSelectModule } from '@angular/material/select';
+
+// Core (models)
 import { Activity } from '../../../core/models/activity.model';
 
+/**
+ * Sous-composant de formulaire dédié à la sélection
+ * de l’activité associée à l’événement.
+ *
+ * Responsabilités :
+ * - afficher la liste des activités disponibles
+ * - permettre la sélection d’une activité
+ * - afficher les erreurs de validation
+ */
 @Component({
   selector: 'app-post-select',
   standalone: true,

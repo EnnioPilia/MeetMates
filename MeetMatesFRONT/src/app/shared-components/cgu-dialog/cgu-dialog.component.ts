@@ -1,10 +1,25 @@
-import { Component, Inject, inject } from '@angular/core';
-import { LegalService } from '../../core/services/legal.service/legal.service';
+// Angular
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+
+// Angular Material
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { CommonModule } from '@angular/common';
 
+// Core (services)
+import { LegalService } from '../../core/services/legal.service/legal.service';
+
+/**
+ * Boîte de dialogue affichant les contenus légaux de l’application.
+ *
+ * Responsabilités :
+ * - afficher les CGU ou les mentions légales selon le contexte
+ * - sécuriser le contenu HTML via le `DomSanitizer`
+ *
+ * Le type de contenu affiché est déterminé
+ * via les données injectées dans la dialog.
+ */
 @Component({
   selector: 'app-cgu-dialog',
   standalone: true,

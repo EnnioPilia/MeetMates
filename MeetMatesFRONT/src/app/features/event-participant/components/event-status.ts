@@ -1,8 +1,21 @@
-import { Component, Input, inject } from '@angular/core';
+// Angular
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { StatusColorPipe } from '../../../shared-components/pipes/statusColor.pipe'; // 
+
+// Shared components
+import { StatusColorPipe } from '../../../shared-components/pipes/statusColor.pipe'; 
+// Utils
 import { getStatusLabel, getParticipationLabel } from '../../../core/utils/labels.util';
 
+/**
+ * Sous-composant de présentation dédié à l’affichage
+ * des statuts liés à l’événement et à la participation utilisateur.
+ *
+ * Responsabilités :
+ * - afficher le statut de participation de l’utilisateur
+ * - afficher le statut global de l’événement
+ * - appliquer les couleurs via `StatusColorPipe`
+ */
 @Component({
   selector: 'app-event-status',
   standalone: true,

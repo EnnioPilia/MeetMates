@@ -1,8 +1,11 @@
+// Angular
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
+// Angular Material
 import { MatCardModule } from '@angular/material/card';
 
+// Core (facades)
 import { AuthFacade } from '../../../core/facades/auth/auth.facade';
 
 /**

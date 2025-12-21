@@ -17,6 +17,21 @@ import { StateHandlerComponent } from '../../shared-components/state-handler/sta
 import { getStatusLabel, getLevelLabel, getMaterialLabel, getParticipationLabel } from '../../core/utils/labels.util';
 import { EventFacade } from '../../core/facades/events/event/event.facade';
 
+/**
+ * Composant parent chargé de l’affichage d’un événement
+ * du point de vue d’un participant.
+ *
+ * Responsabilités :
+ * - récupérer l’identifiant de l’événement depuis la route
+ * - charger les données de l’événement via `EventFacade`
+ * - exposer les états (événement, chargement, erreur) à la vue
+ * - orchestrer l’annulation de la participation utilisateur
+ * - fournir les labels formatés à la vue
+ *
+ * Architecture :
+ * - `EventStatusComponent` : affichage des statuts (événement / participation)
+ * - `ParticipantListComponent` : liste des participants acceptés
+ */
 @Component({
   selector: 'app-event-participant',
   standalone: true,
@@ -42,13 +57,18 @@ export class EventParticipantComponent implements OnInit {
   private router = inject(Router);
   private dialogService = inject(DialogService);
   private destroyRef = inject(DestroyRef);
-
   private eventFacade = inject(EventFacade);
 
+  /** États exposés par la facade */
   event = this.eventFacade.event;
   loading = this.eventFacade.loading;
   error = this.eventFacade.error;
 
+  /**
+   * Initialise le composant :
+   * - récupère l’identifiant de l’événement depuis la route
+   * - déclenche le chargement de l’événement via la facade
+   */
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('eventId');
     if (!id) return;
@@ -58,6 +78,15 @@ export class EventParticipantComponent implements OnInit {
       .subscribe();
   }
 
+  /**
+   * Déclenche l’annulation de la participation de l’utilisateur.
+   *
+   * - affiche une boîte de confirmation
+   * - appelle la facade en cas de confirmation
+   * - redirige vers le profil après succès
+   *
+   * @param eventId Identifiant de l’événement
+   */
   cancelParticipation(eventId: string): void {
   this.dialogService
     .confirm(
@@ -73,7 +102,7 @@ export class EventParticipantComponent implements OnInit {
         .subscribe(() => this.router.navigate(['/profile']));
     });
 }
-
+  /** Retourne les labels lisibles */
   getStatusLabel(status?: string): string {
     return status ? getStatusLabel(status) : '';
   }

@@ -1,14 +1,29 @@
-import { Component, Input } from '@angular/core';
+// Angular
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
+import { Component, Input } from '@angular/core';
+import { ReactiveFormsModule, FormGroup } from '@angular/forms';
+
+// Angular Material
 import { MatRadioModule } from '@angular/material/radio';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
 import { MatInputModule } from '@angular/material/input';
+
+// Shared components
 import { AppInputComponent } from '../../../shared-components/input/input.component';
 import { MaterialOption, LevelOption } from '../../../shared-components/constants/event-option';
 
+/**
+ * Sous-composant de formulaire dédié aux options
+ * avancées de l’événement.
+ *
+ * Responsabilités :
+ * - sélection du matériel requis
+ * - sélection du niveau
+ * - saisie du nombre de participants
+ * - affichage des erreurs de validation
+ */
 @Component({
   selector: 'app-post-options',
   standalone: true,
