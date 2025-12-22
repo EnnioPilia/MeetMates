@@ -94,7 +94,7 @@ export class RegisterComponent {
     const { password, confirmPassword } = this.form.getRawValue();
 
     if (password !== confirmPassword) {
-      this.notification.showError('❌ Les mots de passe ne correspondent pas.');
+      this.notification.showError('Les mots de passe ne correspondent pas.');
       return;
     }
 

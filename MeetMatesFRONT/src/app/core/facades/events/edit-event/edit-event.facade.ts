@@ -4,6 +4,7 @@ import { forkJoin } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 import { BaseFacade } from '../../base/base.facade';
+import { EventRequest } from '../../../models/event-request.model';
 
 import { EventService } from '../../../services/event/event.service';
 import { ActivityService } from '../../../services/activity/activity.service';
@@ -82,17 +83,22 @@ export class EditEventFacade extends BaseFacade {
     * @param eventId ID de l'événement à mettre à jour
     * @param payload Données complètes de l'événement pour la mise à jour
     */
-    updateEvent(eventId: string, payload: EventDetails) {
-        this.startLoading();
+    updateEvent(eventId: string, payload: EventRequest) {
+    this.startLoading();
 
-        return this.eventService.updateEvent(eventId, payload).pipe(
-            takeUntilDestroyed(this.destroyRef),
-            tap(res => {
-                this.successHandler.handle(res);
-                this.stopLoading();
-            }),
-            this.handleError()
-        );
+    return this.eventService.updateEvent(eventId, payload).pipe(
+        takeUntilDestroyed(this.destroyRef),
+        tap(res => {
+        this.successHandler.handle(res);
+
+        if (res.data) {
+            this.event.set(res.data); 
+        }
+
+        this.stopLoading();
+        }),
+        this.handleError()
+    );
     }
 
     /**

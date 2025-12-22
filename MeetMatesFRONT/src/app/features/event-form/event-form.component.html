@@ -1,0 +1,34 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col items-center gap-4">
+
+  <app-event-info
+    [form]="form"
+    [showStatus]="mode === 'edit'">
+  </app-event-info>
+
+  <app-event-activity
+    [form]="form"
+    [activities]="activities">
+  </app-event-activity>
+
+  <app-event-address
+    [form]="form"
+    [suggestions]="addressSuggestions"
+    (inputChange)="onAddressInput($event)"
+    (optionSelected)="onAddressSelect($event)">
+  </app-event-address>
+
+  <app-event-date-time
+    [form]="form">
+  </app-event-date-time>
+
+  <app-event-details
+    [form]="form">
+  </app-event-details>
+
+  <app-button
+    label="E N R E G I S T R E R"
+    type="submit"
+    class="primary-button w-80">
+  </app-button>
+
+</form>

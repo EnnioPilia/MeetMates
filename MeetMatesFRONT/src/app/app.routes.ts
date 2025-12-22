@@ -66,8 +66,9 @@ export const routes: Routes = [
   },
   {
     path: 'edit-event/:id',
-    loadComponent: () => import('./features/edit-event/edit-event.component')
-      .then(m => m.EditEventComponent),
+    loadComponent: () =>
+      import('./features/edit-event/edit-event.component')
+        .then(m => m.EditEventPage),
     data: { title: 'MODIFIER L’ÉVÉNEMENT' }
   },
   {
@@ -90,8 +91,9 @@ export const routes: Routes = [
   },
   {
     path: 'post-event',
-    loadComponent: () => import('./features/post-event/post-event.component')
-      .then(m => m.PostEventComponent),
+    loadComponent: () =>
+      import('./features/post-event/post-event.component')
+        .then(m => m.PostEventPage),
     data: { title: 'CRÉER UNE ACTIVITÉ' }
   },
   {

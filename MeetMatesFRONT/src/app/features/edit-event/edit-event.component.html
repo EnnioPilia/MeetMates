@@ -1,43 +1,21 @@
-<div class="container flex flex-col items-center justify-start min-h-screen px-6 py-10 mt-8">
+<div class="container flex flex-col items-center min-h-screen px-6 py-10 mt-8">
 
-  <app-state-handler 
+  <app-state-handler
     [loading]="loading"
     [error]="error">
   </app-state-handler>
 
-  @if (event() && form) {
-    <div class="flex flex-col items-center p-6">
+  @if (formData()) {
 
-      <app-edit-event-info 
-        [form]="form">
-      </app-edit-event-info>
+    <app-event-form
+      class="mb-10"
+      mode="edit"
+      [initialData]="formData()!"
+      [activities]="activities()"
+      [addressSuggestions]="addressSuggestions()"
+      (addressInput)="searchAddress($event)"
+      (submitForm)="update($event)">
+    </app-event-form>
 
-      <app-edit-event-activity 
-        [form]="form" 
-        [activities]="activities()">
-      </app-edit-event-activity>
-      
-      <app-edit-event-address
-        [form]="form"
-        [suggestions]="addressSuggestions()"
-        (inputChange)="onAddressInput($event)"
-        (optionSelected)="onAddressSelect($event)">
-      </app-edit-event-address>
-
-      <app-edit-event-date-time 
-        [form]="form">
-      </app-edit-event-date-time>
-
-      <app-edit-event-details 
-        [form]="form">
-      </app-edit-event-details>
-
-      <app-button 
-        label="Sauvegarder" 
-        class="primary-button mb-5"
-        (click)="saveChanges()">
-      </app-button>
-
-    </div>
   }
 </div>

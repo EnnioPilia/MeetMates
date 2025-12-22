@@ -79,13 +79,16 @@ export class EventService {
   * @param eventId Identifiant de l’événement
   * @param updatedEvent Données partiellement modifiées
   */
-  updateEvent(eventId: string, updatedEvent: Partial<EventDetails>) {
-    return this.http.put<ApiResponse<EventDetails>>(
-      `${this.baseUrl}/event/${eventId}`,
-      updatedEvent,
-      { withCredentials: true }
-    );
-  }
+updateEvent(
+  eventId: string,
+  payload: EventRequest
+): Observable<ApiResponse<EventDetails>> {
+  return this.http.put<ApiResponse<EventDetails>>(
+    `${this.baseUrl}/event/${eventId}`,
+    payload,
+    { withCredentials: true }
+  );
+}
 
   /**
    * Supprime un événement.

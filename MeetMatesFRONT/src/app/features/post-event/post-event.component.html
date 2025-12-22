@@ -1,43 +1,22 @@
-<div class="flex flex-col items-center min-h-screen px-8 py-12 bg-gray-50">
-  @if (error()) {
-    <p class="text-red-600 mt-10">{{ error() }}</p>
-  } 
-  @else {
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col items-center gap-4 w-full max-w-2xl mt-10 mb-10">
+<div class="container flex flex-col items-center justify-start min-h-screen px-6 py-10 mt-8">
 
-        <app-post-select 
-          [form]="form" 
-          [activities]="activities()">
-        </app-post-select>
+  <app-state-handler
+    [loading]="loading"
+    [error]="error">
+  </app-state-handler>
 
-        <app-post-text-fields 
-          [form]="form">
-        </app-post-text-fields>
+  <div class="flex flex-col items-center p-6">
+    
+    <app-event-form
+      class="mb-4"
+      mode="create"
+      [activities]="activities()"
+      [addressSuggestions]="addressSuggestions()"
+      (addressInput)="searchAddress($event)"
+      (addressSelected)="selectAddress($event)"
+      (submitForm)="create($event)">
+    </app-event-form>
 
-        <app-post-date-time 
-          [form]="form">
-        </app-post-date-time>
-        
-        <app-post-options 
-          [form]="form" 
-          [materialOptions]="materialOptions" 
-          [levelOptions]="levelOptions">
-        </app-post-options>
+  </div>
 
-        <app-post-address 
-          [form]="form" controlName="adresse" 
-          [suggestions]="suggestions()"
-          (inputChange)="onAddressInput($event)" 
-          (optionSelected)="onAddressSelect($event)">
-        </app-post-address>
-
-        <app-button 
-          label="CRÉER L’ACTIVITÉ"  
-          class="primary-button w-80" 
-          type="submit"
-          [disabled]="isSubmitting">
-        </app-button>
-
-    </form>
-    } 
 </div>
