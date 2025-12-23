@@ -1,3 +1,4 @@
+// Angular
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -7,9 +8,18 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 
-// Core
+// Core (models)
 import { Activity } from '../../../core/models/activity.model';
 
+/**
+ * Sous-composant de présentation dédié à la sélection
+ * de l’activité et du nombre de participants d’un événement.
+ *
+ * Responsabilités :
+ * - afficher la liste des activités disponibles
+ * - permettre la sélection d’une activité
+ * - saisir et valider le nombre maximal de participants
+ */
 @Component({
   selector: 'app-event-activity',
   standalone: true,
@@ -56,6 +66,7 @@ import { Activity } from '../../../core/models/activity.model';
   `
 })
 export class EventActivityComponent {
+
   @Input({ required: true }) form!: FormGroup;
   @Input() activities: Activity[] = [];
   

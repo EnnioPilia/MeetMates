@@ -1,17 +1,17 @@
+// Angular
 import { Injectable, inject, DestroyRef, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
+// Core (facades, services, models)
 import { BaseFacade } from '../../base/base.facade';
-import { EventRequest } from '../../../models/event-request.model';
-
 import { EventService } from '../../../services/event/event.service';
 import { ActivityService } from '../../../services/activity/activity.service';
 import { AddressService } from '../../../services/address/address.service';
 import { SuccessHandlerService } from '../../../services/success-handler/success-handler.service';
 import { AddressSuggestion } from '../../../services/address/address.service';
-
+import { EventRequest } from '../../../models/event-request.model';
 import { EventDetails } from '../../../models/event-details.model';
 import { Activity } from '../../../models/activity.model';
 

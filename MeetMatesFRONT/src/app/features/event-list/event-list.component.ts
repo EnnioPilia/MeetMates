@@ -20,7 +20,7 @@ import { AppButtonComponent } from '../../shared-components/button/button.compon
 import { StateHandlerComponent } from '../../shared-components/state-handler/state-handler.component';
 
 // Utils
-import { getStatusLabel, getLevelLabel, getMaterialLabel } from '../../core/utils/labels.util';
+import { getStatusLabel, getLevelLabel, getMaterialLabel } from '../../core/utils/labels.utils';
 
 /**
  * Composant parent chargé de l’affichage et de l’interaction

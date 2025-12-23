@@ -1,6 +1,9 @@
+// Core (models)
 import { EventFormValue } from '../../core/models/event-form.model';
 import { EventRequest } from '../../core/models/event-request.model';
 import { EventDetails } from '../../core/models/event-details.model';
+
+// utils
 import { formatLocalDate } from '../../core/utils/date.utils';
 
 /**

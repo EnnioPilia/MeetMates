@@ -120,12 +120,36 @@ export const routes: Routes = [
     data: { title: 'RECHERCHE' }
   },
   {
-    path: 'admin-dashboard',
-    loadComponent: () => import('./features/admin/dashboard/dashboard.component')
-      .then(m => m.DashboardComponent),
-    data: { title: 'ADMIN DASHBOARD' }
+    path: 'admin',
+    children: [
+      {
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: 'full'
+      },
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./features/admin/admin-dashboard/admin-dashboard.component')
+            .then(m => m.AdminDashboardComponent),
+        data: { title: 'ADMIN – DASHBOARD' }
+      },
+      {
+        path: 'users',
+        loadComponent: () =>
+          import('./features/admin/admin-users/admin-users.component')
+            .then(m => m.AdminUsersComponent),
+        data: { title: 'ADMIN – UTILISATEURS' }
+      },
+      {
+        path: 'events',
+        loadComponent: () =>
+          import('./features/admin/admin-events/admin-events.component')
+            .then(m => m.AdminEventsComponent),
+        data: { title: 'ADMIN – ÉVÉNEMENTS' }
+      }
+    ]
   },
-  
   { path: '**', redirectTo: 'home' }
 
 ];

@@ -1,10 +1,13 @@
+// Angular
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
+// Varible d'environment
 import { environment } from '../../../../environments/environment';
 
+// Core (models)
 import { EventResponse } from '../../models/event-response.model';
 import { ApiResponse } from '../../models/api-response.model';
 

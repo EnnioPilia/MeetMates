@@ -1,5 +1,7 @@
+// Angular
 import { Injectable, signal } from '@angular/core';
 
+// Core (models)
 import { User } from '../../models/user.model';
 
 /**

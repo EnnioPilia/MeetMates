@@ -1,10 +1,10 @@
+// Angular
 import { Injectable, inject, signal } from '@angular/core';
 import { tap } from 'rxjs';
 
+// Core (facades, services, models)
 import { BaseFacade } from '../base/base.facade';
-
 import { ActivityService } from '../../services/activity/activity.service';
-
 import { Activity } from '../../models/activity.model';
 import { Category } from '../../models/category.model';
 

@@ -1,5 +1,7 @@
+// Angular
 import { Injectable } from '@angular/core';
 
+// Core (models)
 import { EventResponse } from '../models/event-response.model';
 import { EventDetails } from '../models/event-details.model';
 import { EventListItem } from '../models/event-list-item.model';

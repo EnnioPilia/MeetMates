@@ -1,3 +1,4 @@
+// Angular
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -7,8 +8,19 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
-// Core
+// Core (services)
 import { AddressSuggestion } from '../../../core/services/address/address.service';
+
+/**
+ * Sous-composant de présentation dédié à la saisie
+ * et à l’autocomplétion de l’adresse d’un événement.
+ *
+ * Responsabilités :
+ * - gérer la saisie textuelle de l’adresse
+ * - déclencher la recherche d’adresses à partir de l’input utilisateur
+ * - afficher les suggestions d’adresses
+ * - synchroniser l’adresse sélectionnée avec le FormGroup parent
+ */
 
 @Component({
   selector: 'app-event-address',
@@ -61,12 +73,18 @@ export class EventAddressComponent implements OnInit {
   @Output() inputChange = new EventEmitter<string>();
   @Output() optionSelected = new EventEmitter<AddressSuggestion>();
 
+  /** Contrôle interne utilisé pour l’input d’adresse */
   addressInput = new FormControl('');
 
+  /**
+   * FormGroup imbriqué contenant les champs
+   * structurels de l’adresse (street, city, postalCode).
+   */
   get addressGroup(): FormGroup {
     return this.form.get('address') as FormGroup;
   }
 
+  /** Valeur formatée de l’adresse à afficher dans le champ texte */
   get displayValue(): string {
     const a = this.addressGroup.value;
     return a?.street
@@ -74,10 +92,12 @@ export class EventAddressComponent implements OnInit {
       : '';
   }
 
+  /** Contrôle associé au champ texte affiché (mat-error) . */
   get addressLabelControl(): FormControl {
     return this.form.get('addressLabel') as FormControl;
   }
 
+  /** Initialise le champ d’affichage si une adresse est déjà présente (mode édition). */
   ngOnInit() {
     const a = this.addressGroup?.value;
     if (a?.street) {
@@ -88,6 +108,10 @@ export class EventAddressComponent implements OnInit {
     }
   }
 
+  /**
+   * Déclenché lors de la saisie utilisateur.
+   * Émet une recherche d’adresse si la longueur minimale est atteinte.
+   */
   onInput() {
     const value = this.addressLabelControl.value ?? '';
     if (value.length < 3) {
@@ -99,7 +123,7 @@ export class EventAddressComponent implements OnInit {
     this.inputChange.emit(value);
   }
 
-
+  /** Applique l’adresse sélectionnée depuis l’autocomplétion et synchronise le FormGroup parent. */
   onSelect(address: AddressSuggestion) {
     this.addressGroup.patchValue({
       street: address.street,

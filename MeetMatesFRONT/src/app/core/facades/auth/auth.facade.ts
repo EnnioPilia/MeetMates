@@ -1,13 +1,13 @@
+// Angular
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { switchMap, tap, of } from 'rxjs';
 
+// Core (facades, services, models)
 import { BaseFacade } from '../base/base.facade';
-
 import { AuthService } from '../../services/auth/auth.service';
 import { SignalsService } from '../../services/signals/signals.service';
 import { NotificationService } from '../../services/notification/notification.service';
-
 import { RegisterRequest } from '../../models/auth.model';
 
 /**

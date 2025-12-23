@@ -1,7 +1,9 @@
+// Angular
 import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
 
+// Shared components
 import { ConfirmDialogComponent } from '../../../shared-components/confirm-dialog/confirm-dialog.component';
 import { CguDialogComponent } from '../../../shared-components/cgu-dialog/cgu-dialog.component';
 

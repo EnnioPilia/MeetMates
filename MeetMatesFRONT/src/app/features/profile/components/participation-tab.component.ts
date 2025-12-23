@@ -16,7 +16,7 @@ import { EventResponse } from '../../../core/models/event-response.model';
 import { StatusColorPipe } from '../../../shared-components/pipes/statusColor.pipe';
 
 // Utils
-import { getStatusLabel, getParticipationLabel } from '../../../core/utils/labels.util';
+import { getStatusLabel, getParticipationLabel } from '../../../core/utils/labels.utils';
 
 
 /**

@@ -1,14 +1,14 @@
+// Angular
 import { Injectable, inject, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin } from 'rxjs';
 import { tap, finalize, switchMap } from 'rxjs/operators';
 
+// Core (facades, services, models)
 import { BaseFacade } from '../base/base.facade';
 import { UserFacade } from '../../facades/user/user.facade';
 import { AuthFacade } from '../../facades/auth/auth.facade';
-
 import { EventUserService } from '../../services/event-user/event-user.service';
-
 import { User } from '../../models/user.model';
 import { EventResponse } from '../../models/event-response.model';
 

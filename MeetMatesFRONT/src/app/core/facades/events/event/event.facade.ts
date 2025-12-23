@@ -1,15 +1,15 @@
+// Angular
 import { Injectable, inject, signal } from '@angular/core';
 import { tap, finalize } from 'rxjs';
 
+// Core (facades, services, models)
 import { BaseFacade } from '../../base/base.facade';
-
 import { ActivityService } from '../../../services/activity/activity.service';
 import { EventService } from '../../../services/event/event.service';
 import { EventUserService } from '../../../services/event-user/event-user.service';
 import { AddressService } from '../../../services/address/address.service';
 import { SuccessHandlerService } from '../../../services/success-handler/success-handler.service';
 import { AddressSuggestion } from '../../../services/address/address.service';
-
 import { EventDetails } from '../../../models/event-details.model';
 import { Activity } from '../../../models/activity.model';
 import { EventRequest } from '../../../models/event-request.model';

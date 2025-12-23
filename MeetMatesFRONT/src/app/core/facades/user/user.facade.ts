@@ -1,15 +1,15 @@
+// Angular
 import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { tap, map, finalize } from 'rxjs';
 import { takeUntilDestroyed, } from '@angular/core/rxjs-interop';
 import { DestroyRef } from '@angular/core';
 
+// Core (facades, services, models)
 import { BaseFacade } from '../base/base.facade';
-
 import { UserService } from '../../services/user/user.service';
 import { SignalsService } from '../../services/signals/signals.service';
 import { SuccessHandlerService } from '../../services/success-handler/success-handler.service';
-
 import { User } from '../../models/user.model';
 import { ApiResponse } from '../../models/api-response.model';
 
@@ -26,7 +26,6 @@ import { ApiResponse } from '../../models/api-response.model';
  * - centralisation et exposition des effets transverses
  *   (loading, erreurs, succès) via BaseFacade
  */
-
 @Injectable({ providedIn: 'root' })
 export class UserFacade extends BaseFacade {
   private destroyRef = inject(DestroyRef);

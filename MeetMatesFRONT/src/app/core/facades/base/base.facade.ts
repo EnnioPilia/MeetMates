@@ -1,6 +1,8 @@
+// Angular
 import { signal, inject } from '@angular/core';
 import { catchError, of, Observable } from 'rxjs';
 
+// Core (services)
 import { ErrorHandlerService } from '../../services/error-handler/error-handler.service';
 
 /**

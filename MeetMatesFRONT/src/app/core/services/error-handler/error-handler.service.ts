@@ -1,6 +1,8 @@
+// Angular
 import { Injectable, inject } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 
+// Core (services)
 import { NotificationService } from '../notification/notification.service';
 
 /**

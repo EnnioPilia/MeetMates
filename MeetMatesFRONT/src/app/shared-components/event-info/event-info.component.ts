@@ -10,7 +10,7 @@ import { EventResponse } from '../../core/models/event-response.model';
 import { StatusColorPipe } from '../pipes/statusColor.pipe';
 
 // Utils 
-import { getStatusLabel, getLevelLabel, getMaterialLabel } from '../../core/utils/labels.util';
+import { getStatusLabel, getLevelLabel, getMaterialLabel } from '../../core/utils/labels.utils';
 
 /**
  * Composant de présentation des informations détaillées d’un événement.

@@ -1,9 +1,12 @@
+// Angular
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+// Varible d'environment
 import { environment } from '../../../../environments/environment';
 
+// Core (models)
 import { RegisterRequest, PasswordResetRequest, PasswordResetConfirmRequest } from '../../models/auth.model';
 import { ApiResponse } from '../../models/api-response.model';
 

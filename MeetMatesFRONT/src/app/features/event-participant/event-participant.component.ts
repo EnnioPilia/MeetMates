@@ -14,7 +14,7 @@ import { EventInfoComponent } from '../../shared-components/event-info/event-inf
 import { AppButtonComponent } from '../../shared-components/button/button.component';
 import { StateHandlerComponent } from '../../shared-components/state-handler/state-handler.component';
 
-import { getStatusLabel, getLevelLabel, getMaterialLabel, getParticipationLabel } from '../../core/utils/labels.util';
+import { getStatusLabel, getLevelLabel, getMaterialLabel, getParticipationLabel } from '../../core/utils/labels.utils';
 import { EventFacade } from '../../core/facades/events/event/event.facade';
 
 /**

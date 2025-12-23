@@ -1,3 +1,4 @@
+// Angular
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -7,9 +8,18 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
-// Shared
+// Shared components
 import { AppInputComponent } from '../../../shared-components/input/input.component';
 
+/**
+ * Sous-composant de présentation dédié aux informations générales
+ * d’un événement.
+ *
+ * Responsabilités :
+ * - saisir le titre de l’événement
+ * - saisir la description
+ * - afficher et gérer le statut de l’événement (en mode édition)
+ */
 @Component({
   selector: 'app-event-info',
   standalone: true,
@@ -52,6 +62,8 @@ import { AppInputComponent } from '../../../shared-components/input/input.compon
   `
 })
 export class EventInfoComponent {
+
   @Input({ required: true }) form!: FormGroup;
   @Input() showStatus = false;
+  
 }

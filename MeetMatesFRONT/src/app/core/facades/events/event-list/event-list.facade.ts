@@ -1,9 +1,10 @@
+// Angular
 import { Injectable, inject, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { tap, EMPTY, finalize } from 'rxjs';
 
+// Core (facades, services, models)
 import { BaseFacade } from '../../base/base.facade';
-
 import { EventService } from '../../../services/event/event.service';
 import { ActivityService } from '../../../services/activity/activity.service';
 import { EventUserService } from '../../../services/event-user/event-user.service';
@@ -11,7 +12,6 @@ import { UserService } from '../../../services/user/user.service';
 import { SignalsService } from '../../../services/signals/signals.service';
 import { SuccessHandlerService } from '../../../services/success-handler/success-handler.service';
 import { NotificationService } from '../../../services/notification/notification.service';
-
 import { EventResponse } from '../../../models/event-response.model';
 import { User } from '../../../models/user.model';
 
@@ -28,7 +28,6 @@ import { User } from '../../../models/user.model';
  * - centralisation et exposition des effets transverses
  *   (loading, erreurs, succès) via BaseFacade
  */
-
 @Injectable({ providedIn: 'root' })
 export class EventListFacade extends BaseFacade {
   private eventService = inject(EventService);

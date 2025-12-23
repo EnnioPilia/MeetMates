@@ -1,9 +1,12 @@
+// Angular
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 
+// Varible d'environment
 import { environment } from '../../../../environments/environment';
 
+// Core (models)
 import { EventResponse } from '../../models/event-response.model';
 import { EventDetails } from '../../models/event-details.model';
 import { EventRequest } from '../../models/event-request.model';

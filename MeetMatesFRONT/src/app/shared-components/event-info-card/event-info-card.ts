@@ -9,7 +9,7 @@ import { EventDetails } from '../../core/models/event-details.model';
 import { StatusColorPipe } from '../../shared-components/pipes/statusColor.pipe';
 
 // Utils 
-import { getStatusLabel as mapStatusLabel } from '../../core/utils/labels.util';
+import { getStatusLabel as mapStatusLabel } from '../../core/utils/labels.utils';
 
 /**
  * Carte compacte affichant les informations clés d’un événement.
