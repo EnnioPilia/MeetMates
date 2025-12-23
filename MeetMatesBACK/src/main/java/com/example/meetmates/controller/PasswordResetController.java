@@ -12,18 +12,18 @@ import com.example.meetmates.dto.PasswordResetRequestDto;
 import com.example.meetmates.service.MessageService;
 import com.example.meetmates.service.PasswordResetService;
 
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * Contrôleur gérant la réinitialisation des mots de passe.
  *
- * Fournit plusieurs endpoints pour :
- *  - demander l’envoi d’un lien de réinitialisation
- *  - confirmer la réinitialisation via un token
+ * Fournit plusieurs endpoints pour : - demander l’envoi d’un lien de
+ * réinitialisation - confirmer la réinitialisation via un token
  *
- * Utilise ApiResponse pour garantir une structure uniforme des retours.
- * Les messages utilisateurs sont centralisés via MessageService, 
- * lequel lit les codes dans le fichier messages.properties (i18n).
+ * Utilise ApiResponse pour garantir une structure uniforme des retours. Les
+ * messages utilisateurs sont centralisés via MessageService, lequel lit les
+ * codes dans le fichier messages.properties (i18n).
  */
 @Slf4j
 @RestController
@@ -36,11 +36,13 @@ public class PasswordResetController {
     /**
      * Injection des services nécessaires.
      *
-     * @param passwordResetService service gérant la création et validation des tokens
-     * @param messageService gestionnaire des messages utilisateurs (messages.properties)
+     * @param passwordResetService service gérant la création et validation des
+     * tokens
+     * @param messageService gestionnaire des messages utilisateurs
+     * (messages.properties)
      */
     public PasswordResetController(PasswordResetService passwordResetService,
-                                   MessageService messageService) {
+            MessageService messageService) {
         this.passwordResetService = passwordResetService;
         this.messageService = messageService;
     }
@@ -52,15 +54,16 @@ public class PasswordResetController {
      * @return confirmation d’envoi
      */
     @PostMapping("/request-reset")
-    public ResponseEntity<ApiResponse<Void>> requestReset(@RequestBody PasswordResetRequestDto request) {
-    log.info("Demande de réinitialisation de mot de passe reçue");
+    public ResponseEntity<ApiResponse<Void>> requestReset(
+            @Valid @RequestBody PasswordResetRequestDto request
+    ) {
+        log.info("Demande de réinitialisation de mot de passe reçue");
         passwordResetService.createPasswordResetToken(request.getEmail());
 
-    log.info("Token de réinitialisation envoyé");
         String message = messageService.get("PASSWORD.RESET.REQUEST_SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, null));
     }
-    
+
     /**
      * Confirme la réinitialisation du mot de passe via un token valide.
      *
@@ -68,12 +71,15 @@ public class PasswordResetController {
      * @return confirmation de réinitialisation
      */
     @PostMapping("/reset-password")
-    public ResponseEntity<ApiResponse<Void>> resetPassword(@RequestBody PasswordResetConfirmDto dto) {
+    public ResponseEntity<ApiResponse<Void>> resetPassword(
+            @Valid @RequestBody PasswordResetConfirmDto dto
+    ) {
         log.info("Tentative de réinitialisation du mot de passe");
         passwordResetService.resetPassword(dto.getToken(), dto.getNewPassword());
-        
+
         log.info("Mot de passe réinitialisé avec succès");
         String message = messageService.get("PASSWORD.RESET.CONFIRM_SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, null));
     }
+
 }
