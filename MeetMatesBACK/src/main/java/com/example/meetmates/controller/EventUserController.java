@@ -94,7 +94,7 @@ public class EventUserController {
         EventUserDto dto = eventUserService.joinEvent(eventId, user.getId());
 
         log.info("L’utilisateur a rejoint l’événement, eventId={}", eventId);
-        String message = messageService.get("EVENT.JOIN.SUCCESS");
+        String message = messageService.get("EVENT_JOIN_SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, dto));
     }
 
@@ -112,7 +112,7 @@ public class EventUserController {
         EventUserDto dto = eventUserService.leaveEvent(eventId, user.getId());
 
         log.info("L’utilisateur a quitté l’événement, eventId={}", eventId);
-        String message = messageService.get("EVENT.LEAVE.SUCCESS");
+        String message = messageService.get("EVENT_LEAVE_SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, dto));
     }
 
@@ -129,7 +129,7 @@ public class EventUserController {
         EventUserDto dto = eventUserService.acceptParticipant(eventUserId);
 
         log.info("Participant accepté, eventUserId={}", eventUserId);
-        String message = messageService.get("EVENT.PARTICIPANT.ACCEPT.SUCCESS");
+        String message = messageService.get("EVENT_PARTICIPANT_ACCEPT_SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, dto));
     }
 
@@ -146,7 +146,7 @@ public class EventUserController {
         EventUserDto dto = eventUserService.rejectParticipant(eventUserId);
 
         log.info("Participant refusé, eventUserId={}", eventUserId);
-        String message = messageService.get("EVENT.PARTICIPANT.REJECT.SUCCESS");
+        String message = messageService.get("EVENT_PARTICIPANT_REJECT_SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, dto));
     }
 
@@ -163,7 +163,7 @@ public class EventUserController {
         List<EventUserDto> dtos = eventUserService.findByUserId(user.getId());
 
         log.info("Événements auxquels l’utilisateur participe récupérés");
-        String message = messageService.get("EVENT.PARTICIPATING.LIST.SUCCESS");
+        String message = messageService.get("EVENT_PARTICIPATING_LIST_SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, dtos));
     }
 
@@ -180,7 +180,7 @@ public class EventUserController {
         List<EventUserDto> dtos = eventUserService.findOrganizedByUserId(user.getId());
 
         log.info("Événements organisés par l’utilisateur récupérés");
-        String message = messageService.get("EVENT.ORGANIZED.LIST.SUCCESS");
+        String message = messageService.get("EVENT_ORGANIZED_LIST_SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, dtos));
     }
 
@@ -204,7 +204,7 @@ public class EventUserController {
         eventUserService.removeParticipant(eventId, userId, organizer.getId());
         
         log.info("Participant retiré de l’événement, eventId={}", eventId);
-        String message = messageService.get("EVENT.PARTICIPANT.REMOVE.SUCCESS");
+        String message = messageService.get("EVENT_PARTICIPANT_REMOVE_SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, null));
     }
 }

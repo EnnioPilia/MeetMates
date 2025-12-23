@@ -140,7 +140,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorDto> handleRuntime(RuntimeException ex) {
-        return build(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL.ERROR");
+        return build(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
     }
 
     /**

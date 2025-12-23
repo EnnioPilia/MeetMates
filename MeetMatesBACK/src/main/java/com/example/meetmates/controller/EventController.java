@@ -61,7 +61,7 @@ public class EventController {
         EventResponseDto dto = eventService.createEvent(request);
         log.info("Événement créé, id={}");
 
-        String message = messageService.get("EVENT.CREATE.SUCCESS");
+        String message = messageService.get("EVENT_CREATE_SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, dto));
     }
 
@@ -75,7 +75,7 @@ public class EventController {
         List<EventResponseDto> dtos = eventService.findAllResponses();
         log.info("Liste récupérée, {} événements", dtos.size());
 
-        String message = messageService.get("EVENT.LIST.SUCCESS");
+        String message = messageService.get("EVENT_LIST_SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, dtos));
     }
 
@@ -90,7 +90,7 @@ public class EventController {
         EventDetailsDto dto = eventService.findEventDetailsById(eventId);
         log.info("Détails récupérés, id={}", eventId);
 
-        String message = messageService.get("EVENT.GET.SUCCESS");
+        String message = messageService.get("EVENT_GET_SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, dto));
     }
 
@@ -105,7 +105,7 @@ public class EventController {
         List<EventResponseDto> dtos = eventService.getEventResponsesByActivity(activityId);
         log.info("Evénements récupérés pour activité id={}", dtos.size(), activityId);
 
-        String message = messageService.get("EVENT.BY_ACTIVITY.SUCCESS");
+        String message = messageService.get("EVENT_BY_ACTIVITY_SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, dtos));
     }
 
@@ -126,7 +126,7 @@ public class EventController {
         EventResponseDto dto = eventService.updateEvent(eventId, request);
         log.info("Événement mis à jour, id={}", eventId);
 
-        String message = messageService.get("EVENT.UPDATE.SUCCESS");
+        String message = messageService.get("EVENT_UPDATE_SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, dto));
     }
 
@@ -143,7 +143,7 @@ public class EventController {
         eventService.deleteEvent(eventId);
         log.info("Événement supprimé, id={}", eventId);
 
-        String message = messageService.get("EVENT.DELETE.SUCCESS");
+        String message = messageService.get("EVENT_DELETE_SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, null));
     }
 
@@ -158,7 +158,7 @@ public class EventController {
         List<EventResponseDto> dtos = eventService.searchEvents(query);
         log.info("Recherche effectuée, {} résultats trouvés", dtos.size());
 
-        String message = messageService.get("EVENT.SEARCH.SUCCESS");
+        String message = messageService.get("EVENT_SEARCH_SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, dtos));
     }
 }

@@ -90,7 +90,7 @@ public class UserController {
                 .toList();
 
         log.info("Liste des utilisateurs récupérée ({} utilisateurs)", dtos.size());
-        String message = messageService.get("USER.GET_ALL.SUCCESS");
+        String message = messageService.get("USER_GET_ALL_SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, dtos));
     }
 
@@ -108,7 +108,7 @@ public class UserController {
         log.info("Demande de récupération du profil utilisateur");
         User user = userService.findActiveByEmailOrThrow(userDetails.getUsername());
 
-        String message = messageService.get("USER.GET_ME.SUCCESS");
+        String message = messageService.get("USER_GET_ME_SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, userMapper.toDto(user)));
     }
 
@@ -137,7 +137,7 @@ public class UserController {
         User updated = userService.updateMyProfilePicture(userDetails.getUsername(), file);
 
         log.info("Photo de profil mise à jour");
-        String message = messageService.get("USER.PICTURE.UPLOAD.SUCCESS");
+        String message = messageService.get("USER_PICTURE_UPLOAD_SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, userMapper.toDto(updated)));
     }
 
@@ -159,7 +159,7 @@ public class UserController {
         User updated = userService.updateProfile(user, dto);
 
         log.info("Profil utilisateur mis à jour");
-        String message = messageService.get("USER.PROFILE.UPDATE.SUCCESS");
+        String message = messageService.get("USER_PROFILE_UPDATE_SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, userMapper.toDto(updated)));
     }
 
@@ -177,7 +177,7 @@ public class UserController {
         userService.hardDeleteById(id);
 
         log.info("Utilisateur supprimé définitivement");
-        String message = messageService.get("USER.DELETE.SUCCESS");
+        String message = messageService.get("USER_DELETE_SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, null));
     }
 
@@ -201,7 +201,7 @@ public class UserController {
         User updated = userService.deleteMyProfilePicture(userDetails.getUsername());
 
         log.info("Photo de profil supprimée");
-        String message = messageService.get("USER.PICTURE.DELETE.SUCCESS");
+        String message = messageService.get("USER_PICTURE_DELETE_SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, userMapper.toDto(updated)));
     }
 
@@ -224,7 +224,7 @@ public class UserController {
         cookieService.clearAuthCookies(response);
 
         log.info("Compte supprimé (soft delete) et cookies d’authentification nettoyés");
-        String message = messageService.get("USER.DELETE_ACCOUNT.SUCCESS");
+        String message = messageService.get("USER_DELETE_ACCOUNT_SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, null));
     }
 

@@ -123,7 +123,7 @@ public class AuthService {
             String token = verificationService.createVerificationToken(user);
             emailService.sendVerificationEmail(user.getEmail(), token);
 
-            return "AUTH.REGISTER.SUCCESS";
+            return "AUTH_REGISTER_SUCCESS";
         }
 
         User user = new User();
@@ -141,7 +141,7 @@ public class AuthService {
         String token = verificationService.createVerificationToken(user);
         emailService.sendVerificationEmail(user.getEmail(), token);
 
-        return "AUTH.REGISTER.SUCCESS";
+        return "AUTH_REGISTER_SUCCESS";
     }
 
     /**
@@ -215,7 +215,7 @@ public class AuthService {
         verificationService.confirmToken(token);
 
         log.info("Compte vérifié avec succès");
-        return "AUTH.VERIFY.SUCCESS";
+        return "AUTH_VERIFY_SUCCESS";
     }
 
     /**
@@ -228,6 +228,6 @@ public class AuthService {
         log.info("Déconnexion utilisateur");
         cookieService.clearAuthCookies(response);
         
-        return "AUTH.LOGOUT.SUCCESS";
+        return "AUTH_LOGOUT_SUCCESS";
     }
 }

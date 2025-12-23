@@ -86,7 +86,7 @@ public class AuthController {
 
         log.info("Login request received");
         LoginResponseDto dto = authService.login(request, response);
-        String message = messageService.get("AUTH.LOGIN.SUCCESS");
+        String message = messageService.get("AUTH_LOGIN_SUCCESS");
 
         log.info("Login successful");
         return ResponseEntity.ok(new ApiResponse<>(message, dto));
@@ -135,7 +135,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<String>> refreshToken(HttpServletRequest request) {
         log.info("RefreshToken request received");
 
-        String message = messageService.get("AUTH.REFRESH.HANDLED_BY_FILTER");
+        String message = messageService.get("AUTH_REFRESH_HANDLED_BY_FILTER");
         log.info("RefreshToken handled by filter");
 
         return ResponseEntity.ok(new ApiResponse<>(message, null));
