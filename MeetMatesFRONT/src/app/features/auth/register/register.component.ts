@@ -63,7 +63,7 @@ export class RegisterComponent {
     firstName: ['', Validators.required],
     lastName: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
+    password: ['', [Validators.required, Validators.minLength(8)]],
     confirmPassword: ['', Validators.required],
     acceptCgu: [false, Validators.requiredTrue],
   });
@@ -87,6 +87,7 @@ export class RegisterComponent {
    */
   onSubmit(): void {
     if (this.form.invalid) {
+      this.form.markAllAsTouched();
       this.notification.showWarning('Veuillez remplir tous les champs correctement.');
       return;
     }

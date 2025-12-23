@@ -1,14 +1,12 @@
 <div class="container flex flex-col items-center justify-start min-h-screen px-6 py-10 mt-8">
 
-  <app-state-handler
-    [loading]="loading"
-    [error]="error">
-  </app-state-handler>
+    <app-state-handler
+      [loading]="loading"
+      [error]="error">
+    </app-state-handler>
 
-  <div class="flex flex-col items-center p-6">
-    
     <app-event-form
-      class="mb-4"
+      class="mb-8"
       mode="create"
       [activities]="activities()"
       [addressSuggestions]="addressSuggestions()"
@@ -17,6 +15,5 @@
       (submitForm)="create($event)">
     </app-event-form>
 
-  </div>
 
 </div>

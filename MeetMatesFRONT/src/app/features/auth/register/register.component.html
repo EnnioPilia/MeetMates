@@ -32,7 +32,8 @@
     <app-input 
       label="Confirmez le mot de passe" 
       [control]="form.controls.confirmPassword" 
-      type="password"[required]="true">
+      type="password"
+      [required]="true">
     </app-input>
 
     <mat-checkbox
@@ -42,6 +43,12 @@
       class="underline hover:opacity-60">
       Conditions Générales d’Utilisation</a>
     </mat-checkbox>
+      @if (form.controls.acceptCgu.hasError('required') 
+        && form.controls.acceptCgu.touched) {
+          <span class="ml-3 text-[#ff0000] text-[15px] ">
+            Vous devez accepter les Conditions Générales.
+          </span>
+      }
 
     <app-button 
       label="S’inscrire"

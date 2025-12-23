@@ -7,8 +7,6 @@
     [formControl]="control"
     [type]="type"
     [required]="required"
-    [attr.min]="min"
-    [attr.max]="max"
     [attr.maxlength]="maxLength"
   />
 
@@ -21,23 +19,11 @@
   }
 
   @if (control.hasError('minlength') && !control.hasError('required')) {
-    <mat-error>
-      Minimum {{ control.getError('minlength')?.requiredLength }} caractères.</mat-error>
+    <mat-error>Minimum {{ control.getError('minlength')?.requiredLength }} caractères.</mat-error>
   }
   
   @if (control.hasError('maxlength') && !control.hasError('required')) {
-  <mat-error>
-    Maximum {{ control.getError('maxlength')?.requiredLength }} caractères.</mat-error>
-  }
-
-  @if (control.hasError('min') && !control.hasError('required')) {
-    <mat-error>
-      La valeur minimale est {{ control.getError('min')?.min }}.</mat-error>
-  }
-
-  @if (control.hasError('max') && !control.hasError('required')) {
-    <mat-error>
-      La valeur maximale est {{ control.getError('max')?.max }}.</mat-error>
+    <mat-error>Maximum {{ control.getError('maxlength')?.requiredLength }} caractères.</mat-error>
   }
   
 </mat-form-field>

@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 
-import { EventResponse } from '../../models/event-response.model';
-import { EventDetails } from '../../models/event-details.model';
-import { EventListItem } from '../../models/event-list-item.model';
+import { EventResponse } from '../models/event-response.model';
+import { EventDetails } from '../models/event-details.model';
+import { EventListItem } from '../models/event-list-item.model';
 
 /**
  * Service de mapping chargé de transformer les réponses API liées aux événements

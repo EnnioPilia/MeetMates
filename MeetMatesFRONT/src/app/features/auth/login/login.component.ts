@@ -8,8 +8,9 @@ import { Validators, NonNullableFormBuilder, ReactiveFormsModule } from '@angula
 // Angular Material
 import { MatCardModule } from '@angular/material/card';
 
-// Core (facades)
+// Core (services, facades)
 import { AuthFacade } from '../../../core/facades/auth/auth.facade';
+import { NotificationService } from '../../../core/services/notification/notification.service';
 
 // Shared components
 import { AppButtonComponent } from '../../../shared-components/button/button.component';
@@ -45,17 +46,18 @@ import { AppInputComponent } from '../../../shared-components/input/input.compon
   ],
 })
 export class LoginComponent {
-  
+
   private router = inject(Router);
   private fb = inject(NonNullableFormBuilder);
   private authFacade = inject(AuthFacade);
   private cdr = inject(ChangeDetectorRef);
   private destroyRef = inject(DestroyRef);
+  private notification = inject(NotificationService);
 
   /** Formulaire réactif de connexion. */
   form = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
+    password: ['', [Validators.required, Validators.minLength(6)]], // remettre 8 
   });
 
   /**
@@ -75,7 +77,11 @@ export class LoginComponent {
    *   en raison de la stratégie `OnPush`
    */
   onSubmit(): void {
-    if (this.form.invalid) return;
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      this.notification.showWarning('Veuillez remplir tous les champs correctement.');
+      return;
+    }
 
     const { email, password } = this.form.getRawValue();
 

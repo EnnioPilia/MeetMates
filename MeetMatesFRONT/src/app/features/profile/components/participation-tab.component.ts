@@ -8,7 +8,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatButtonModule } from '@angular/material/button';
 
 // Core (services, models)
-import { EventMapperService } from '../../../core/services/event/event-mapper.service';
+import { EventMapperService } from '../../../core/mappers/event-mapper';
 import { EventListItem } from '../../../core/models/event-list-item.model';
 import { EventResponse } from '../../../core/models/event-response.model';
 

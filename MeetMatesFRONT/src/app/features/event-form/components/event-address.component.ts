@@ -27,11 +27,12 @@ import { AddressSuggestion } from '../../../core/services/address/address.servic
       <mat-form-field class="w-full">
         <mat-label>Adresse</mat-label>
 
-        <input
-          matInput
-          [formControl]="addressInput"
-          [matAutocomplete]="auto"
-          (input)="onInput()" />
+      <input
+        matInput
+        [formControl]="addressLabelControl"
+        [matAutocomplete]="auto"
+        (input)="onInput()" />
+
 
         <mat-autocomplete
           #auto="matAutocomplete"
@@ -42,12 +43,11 @@ import { AddressSuggestion } from '../../../core/services/address/address.servic
               {{ s.street }}, {{ s.postalCode }} {{ s.city }}
             </mat-option>
           }
-
         </mat-autocomplete>
-            @if (form.get('adresse')?.hasError('required') && (form.get('adresse')?.touched || form.get('adresse')?.dirty)) {
-          <mat-error>L’adresse est requise.</mat-error>
-        }
-      </mat-form-field>
+          @if (addressLabelControl.hasError('required') && addressLabelControl.touched) {
+            <mat-error>L’adresse est requise.</mat-error>
+          } 
+        </mat-form-field>
 
     </div>
 
@@ -74,6 +74,10 @@ export class EventAddressComponent implements OnInit {
       : '';
   }
 
+  get addressLabelControl(): FormControl {
+    return this.form.get('addressLabel') as FormControl;
+  }
+
   ngOnInit() {
     const a = this.addressGroup?.value;
     if (a?.street) {
@@ -85,8 +89,13 @@ export class EventAddressComponent implements OnInit {
   }
 
   onInput() {
-    const value = this.addressInput.value ?? '';
-    if (value.length < 3) return;
+    const value = this.addressLabelControl.value ?? '';
+    if (value.length < 3) {
+      return;
+    }
+
+    this.addressGroup.reset();
+    this.addressLabelControl.setErrors({ required: true });
     this.inputChange.emit(value);
   }
 
@@ -98,7 +107,9 @@ export class EventAddressComponent implements OnInit {
       postalCode: address.postalCode,
     });
 
-    this.addressInput.setValue(this.displayValue, { emitEvent: false });
+    this.addressLabelControl.setValue(this.displayValue, { emitEvent: false });
+    this.addressLabelControl.setErrors(null);
+    this.addressLabelControl.markAsTouched();
     this.optionSelected.emit(address);
   }
 }

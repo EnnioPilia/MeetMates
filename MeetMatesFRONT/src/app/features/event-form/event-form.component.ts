@@ -55,12 +55,20 @@ export class EventFormComponent implements OnInit {
 
     if (this.mode === 'edit' && this.initialData) {
       this.form.patchValue(this.initialData);
+
+      const addr = this.form.get('address')?.value;
+      if (addr?.street) {
+        this.form.get('addressLabel')?.setValue(
+          `${addr.street}, ${addr.postalCode} ${addr.city}`,
+          { emitEvent: false }
+        );
+      }
     }
   }
 
   private buildForm() {
     this.form = this.fb.group({
-      title: ['', [Validators.required, Validators.maxLength(15)]],
+      title: ['', [Validators.required, Validators.maxLength(16)]],
       description: ['', Validators.required],
       eventDate: ['', Validators.required],
       startTime: ['', Validators.required],
@@ -77,6 +85,9 @@ export class EventFormComponent implements OnInit {
         city: ['', Validators.required],
         postalCode: ['', Validators.required],
       }),
+
+      addressLabel: ['', Validators.required],
+
     });
   }
 

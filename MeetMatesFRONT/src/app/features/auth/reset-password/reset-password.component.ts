@@ -55,7 +55,7 @@ export class ResetPasswordComponent {
 
   /** Formulaire strict de réinitialisation du mot de passe. */
   form = this.fb.nonNullable.group({
-    newPassword: ['', [Validators.required, Validators.minLength(6)]],
+    newPassword: ['', [Validators.required, Validators.minLength(8)]],
     confirmPassword: ['', Validators.required],
   });
 

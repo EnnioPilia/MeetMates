@@ -12,7 +12,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 // Core (services, models)
 import { EventService } from '../../core/services/event/event.service';
-import { EventMapperService } from '../../core/services/event/event-mapper.service';
+import { EventMapperService } from '../../core/mappers/event-mapper';
 import { NotificationService } from '../../core/services/notification/notification.service';
 import { EventResponse } from '../../core/models/event-response.model';
 import { EventListItem } from '../../core/models/event-list-item.model';

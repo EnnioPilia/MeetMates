@@ -39,8 +39,6 @@ export class AppInputComponent<T = any> {
   @Input() required = false;
   @Input() placeholder = '';
   @Input() icon?: string;
-  @Input() min?: number;
-  @Input() max?: number;
   @Input() maxLength?: number;
 
   private _control!: FormControl<T>;
