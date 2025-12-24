@@ -121,6 +121,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers(PUBLIC_URLS.toArray(String[]::new)).permitAll()
                 .requestMatchers("/admin/**", "/admin/dashboard/**").hasRole(ROLE_ADMIN)
+                .requestMatchers(HttpMethod.DELETE, "/event/**").hasRole(ROLE_ADMIN)
                 .requestMatchers("/user/me", "/user/me/picture").hasAnyRole(ROLE_USER, ROLE_ADMIN)
                 .requestMatchers("/user/**").hasRole(ROLE_ADMIN)
                 .anyRequest().authenticated()

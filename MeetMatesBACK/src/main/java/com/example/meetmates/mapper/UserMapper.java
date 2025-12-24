@@ -34,7 +34,8 @@ public class UserMapper {
                 user.getEmail(),
                 user.getAge(),
                 user.getCity(),
-                user.getProfilePictureUrl()
+                user.getProfilePictureUrl(),
+                user.getRole() != null ? user.getRole().name() : null
         );
     }
 
@@ -51,6 +52,7 @@ public class UserMapper {
      */
     public void updateFromDto(UpdateUserDto dto, User user) {
         if (dto == null || user == null) return;
+        
         if (dto.getFirstName() != null) user.setFirstName(dto.getFirstName());
         if (dto.getLastName()  != null) user.setLastName(dto.getLastName());
         if (dto.getAge()       != null && dto.getAge() >= 13) user.setAge(dto.getAge());

@@ -231,4 +231,46 @@ public class UserService implements UserDetailsService {
         log.info("Soft delete réussi pour user={} email={}", user.getId(), email);
         return true;
     }
+
+
+
+
+
+
+
+
+
+
+    @Transactional
+    public void softDeleteById(UUID userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
+
+        if (user.getDeletedAt() != null) {
+            return;
+        }
+
+        softDelete(user); // méthode privée commune
+    }
+
+    /**
+     * Logique commune de suppression logique (soft delete).
+     */
+    private void softDelete(User user) {
+
+        tokenRepository.deleteByUser_Id(user.getId());
+        if (user.getTokens() != null) {
+            user.getTokens().clear();
+        }
+
+        user.setDeletedAt(LocalDateTime.now());
+        user.setStatus(UserStatus.DELETED);
+        user.setEnabled(false);
+
+        userRepository.save(user);
+
+        log.info("Soft delete exécuté pour user={}", user.getId());
+    }
+
 }

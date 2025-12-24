@@ -15,6 +15,7 @@ import java.util.UUID;
  * @param age âge de l'utilisateur
  * @param city ville de résidence de l'utilisateur
  * @param profilePictureUrl URL de la photo de profil de l'utilisateur
+ * @param role Role de l'utilisateur ADMIN ou USER
  */
 public record UserDto(
         UUID id,
@@ -23,5 +24,6 @@ public record UserDto(
         String email,
         Integer age,
         String city,
-        String profilePictureUrl
+        String profilePictureUrl,
+        String role
 ) {}

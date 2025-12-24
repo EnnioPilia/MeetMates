@@ -30,6 +30,11 @@ import com.example.meetmates.model.Event;
 @Repository
 public interface EventRepository extends JpaRepository<Event, UUID> {
 
+
+List<Event> findAll(); // admin only
+
+
+
     /**
      * Recherche les événements associés à une activité donnée.
      *

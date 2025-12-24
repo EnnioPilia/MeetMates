@@ -33,6 +33,7 @@ public enum ErrorCode {
 
     // Événements
     EVENT_NOT_FOUND,
+    EVENT_DELETED,
     EVENT_FULL,
     EVENT_ALREADY_PARTICIPANT,
     EVENT_PENDING_ALREADY,

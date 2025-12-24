@@ -1,5 +1,6 @@
 package com.example.meetmates.service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -110,13 +111,10 @@ public class EventService {
 
     /**
      * Récupère les détails complets d'un événement par son identifiant.
-     * 
-     * Inclut :
-     *  -Les informations générales de l'événement
-     *  -L'adresse associée<
-     *  -Le nom de l'organisateur
-     *  -Les listes de participants par statut
-     *  -Le statut de participation de l'utilisateur connecté
+     *
+     * Inclut : -Les informations générales de l'événement -L'adresse associée<
+     * -Le nom de l'organisateur -Les listes de participants par statut -Le
+     * statut de participation de l'utilisateur connecté
      *
      * @param eventId ID de l'événement
      * @return DTO détaillé de l'événement
@@ -203,14 +201,44 @@ public class EventService {
      * @param eventId ID de l'événement
      * @throws ApiException si l'événement n'existe pas
      */
-    @Transactional
-    public void deleteEvent(UUID eventId) {
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new ApiException(ErrorCode.EVENT_NOT_FOUND));
 
-        log.info("Utilisateur {} supprime l'événement {}", getAuthenticatedUser().getEmail(), eventId);
-        eventRepository.delete(event);
+
+
+
+
+
+// event toujours pas soft delelt 
+
+
+
+@Transactional
+public void deleteEvent(UUID eventId) {
+    Event event = eventRepository.findById(eventId)
+            .orElseThrow(() -> new ApiException(ErrorCode.EVENT_NOT_FOUND));
+
+    if (event.getDeletedAt() != null) {
+        throw new ApiException(ErrorCode.EVENT_DELETED);
     }
+
+    User currentUser = getAuthenticatedUser();
+
+    boolean isOrganizer = event.getParticipants().stream()
+            .anyMatch(p ->
+                p.getRole() == ParticipantRole.ORGANIZER &&
+                p.getUser().getId().equals(currentUser.getId())
+            );
+
+    if (!isOrganizer) {
+        throw new ApiException(ErrorCode.EVENT_FORBIDDEN);
+    }
+
+    event.setDeletedAt(LocalDateTime.now());
+    event.setStatus(Event.EventStatus.CANCELLED);
+
+    eventRepository.save(event);
+
+    log.info("Organisateur {} a soft-delete l'événement {}", currentUser.getEmail(), eventId);
+}
 
     /**
      * Met à jour un événement existant avec les informations fournies.
@@ -333,4 +361,48 @@ public class EventService {
         }
         return userRepository.findByEmail(auth.getName()).orElse(null);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+    @Transactional
+    public void softDeleteById(UUID eventId) {
+
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new ApiException(ErrorCode.EVENT_NOT_FOUND));
+
+        if (event.getDeletedAt() != null) {
+            return;
+        }
+
+        softDelete(event);
+    }
+
+    private void softDelete(Event event) {
+        event.setDeletedAt(LocalDateTime.now());
+        event.setStatus(Event.EventStatus.CANCELLED);
+        eventRepository.save(event);
+    }
+
+    @Transactional
+    public void hardDeleteById(UUID eventId) {
+
+        if (!eventRepository.existsById(eventId)) {
+            throw new ApiException(ErrorCode.EVENT_NOT_FOUND);
+        }
+
+        eventRepository.deleteById(eventId);
+
+        log.warn("ADMIN hard delete event {}", eventId);
+    }
+
 }
