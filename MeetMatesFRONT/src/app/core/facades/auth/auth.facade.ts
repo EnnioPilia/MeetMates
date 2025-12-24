@@ -155,4 +155,13 @@ export class AuthFacade extends BaseFacade {
       this.handleError()
     );
   }
+
+  loadCurrentUser() {
+  return this.authService.getMe().pipe(
+    tap(user => {
+      this.signals.updateCurrentUser(user);
+    })
+  );
+}
+
 }

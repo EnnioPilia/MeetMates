@@ -1,7 +1,54 @@
-<div class="p-6">
-  <h2 class="text-xl font-semibold mb-4">Gestion des événements</h2>
+<div class="flex flex-col items-center justify-start min-h-screen px-7 py-20">
 
-  <div class="bg-white rounded shadow p-4 text-gray-500">
-    Liste des événements (modération admin).
-  </div>
+  <app-state-handler
+    [loading]="loading"
+    [error]="error">
+  </app-state-handler>
+
+  @if (events()?.length) {
+
+    <div class="w-full max-w-4xl flex flex-col gap-4">
+
+      <h2 class="text-3xl font-semibold text-center mb-6">
+        Gestion des événements
+      </h2>
+
+      @for (event of events(); track event.id) {
+
+        <div class="bg-white rounded shadow p-5 flex justify-between items-center">
+
+          <div class="flex flex-col gap-1">
+            <span class="font-semibold">
+              {{ event.title }}
+            </span>
+
+            <span class="text-sm text-gray-500">
+              Organisateur : {{ event.organizerName }}
+            </span>
+
+            <span class="text-xs text-gray-400">
+              Date : {{ event.eventDate | date:'dd/MM/yyyy' }}
+            </span>
+          </div>
+
+          <app-button
+            label="S U P P R I M E R"
+            class="primary-button w-40"
+            (clicked)="deleteEvent(event.id)">
+          </app-button>
+
+        </div>
+
+      }
+
+    </div>
+
+  } @else {
+
+    <p class="text-gray-500 text-center">
+      Aucun événement trouvé.
+    </p>
+
+  }
+
 </div>

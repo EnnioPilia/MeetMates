@@ -8,5 +8,6 @@ export interface User {
   email: string;
   age: number;
   city: string;
+  role: 'USER' | 'ADMIN';
   profilePictureUrl: string | null;
 }

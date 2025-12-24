@@ -45,7 +45,7 @@ export class AdminFacade extends BaseFacade {
     return this.adminService.getAllUsers().pipe(
       tap(res => this.users.set(res.data)),
       finalize(() => this.stopLoading()),
-      this.handleError("Impossible de charger les utilisateurs")
+      this.handleError()
     );
   }
 
@@ -69,7 +69,7 @@ export class AdminFacade extends BaseFacade {
     return this.adminService.getAllEvents().pipe(
       tap(res => this.events.set(res.data)),
       finalize(() => this.stopLoading()),
-      this.handleError("Impossible de charger les événements")
+      this.handleError()
     );
   }
 
@@ -79,9 +79,11 @@ export class AdminFacade extends BaseFacade {
 
     return this.adminService.deleteEvent(eventId).pipe(
       tap(res => this.successHandler.handle(res)),
+      tap(() => this.loadEvents().subscribe()),
       tap(() => this.stop()),
       finalize(() => this.stopLoading()),
       this.handleError()
     );
   }
+
 }

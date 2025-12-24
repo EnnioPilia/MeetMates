@@ -1,5 +1,5 @@
 // Angular
-import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, computed  } from '@angular/core';
 import { Router } from '@angular/router';
 
 // Angular Material
@@ -8,6 +8,8 @@ import { MatCardModule } from '@angular/material/card';
 
 // Shared components
 import { AppButtonComponent } from '../../../app/shared-components/button/button.component';
+
+import { SignalsService } from '../../core/services/signals/signals.service';
 
 /**
  * Composant de page d’accueil de l’application.
@@ -26,8 +28,14 @@ import { AppButtonComponent } from '../../../app/shared-components/button/button
 })
 export class HomeComponent {
   private router = inject(Router);
+  private signals = inject(SignalsService);
 
   navigateTo(path: string): void {
     this.router.navigate([path]);
   }
+
+  readonly isAdmin = computed(() =>
+    this.signals.currentUser()?.role === 'ADMIN'
+  );
+
 }

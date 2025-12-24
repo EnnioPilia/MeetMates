@@ -2,6 +2,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 // Varible d'environment
 import { environment } from '../../../../environments/environment';
@@ -9,6 +10,7 @@ import { environment } from '../../../../environments/environment';
 // Core (models)
 import { RegisterRequest, PasswordResetRequest, PasswordResetConfirmRequest } from '../../models/auth.model';
 import { ApiResponse } from '../../models/api-response.model';
+import { User } from '../../models/user.model';
 
 /**
  * Service responsable de la communication avec l'API d'authentification.
@@ -99,4 +101,11 @@ export class AuthService {
       { params: { token } }
     );
   }
+
+getMe() {
+  return this.http.get<ApiResponse<User>>(`${environment.apiUrl}/user/me`).pipe(
+    map(res => res.data)
+  );
+}
+
 }

@@ -11,32 +11,35 @@ export class AdminService {
   private http = inject(HttpClient);
   private readonly baseUrl = environment.apiUrl;
 
+  /* ================= USERS ================= */
 
- /** ADMIN – récupérer tous les utilisateurs */
+  /** ADMIN – récupérer tous les utilisateurs */
   getAllUsers(): Observable<{ message: string; data: User[] }> {
     return this.http.get<{ message: string; data: User[] }>(
-      `${this.baseUrl}/user`
+      `${this.baseUrl}/admin/users`
     );
   }
 
-  /** ADMIN – supprimer un utilisateur */
+  /** ADMIN – hard delete utilisateur */
   deleteUser(userId: string): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(
-      `${this.baseUrl}/user/${userId}`
+      `${this.baseUrl}/admin/users/${userId}`
     );
   }
 
-  /** ADMIN – récupérer tous les événements */
-getAllEvents(): Observable<{ message: string; data: EventResponse[] }> {
-  return this.http.get<{ message: string; data: EventResponse[] }>(
-    `${this.baseUrl}/event`
-  );
-}
+  /* ================= EVENTS ================= */
 
-  /** ORGANIZER (ou ADMIN si autorisé côté back) */
+  /** ADMIN – récupérer tous les événements */
+  getAllEvents(): Observable<{ message: string; data: EventResponse[] }> {
+    return this.http.get<{ message: string; data: EventResponse[] }>(
+      `${this.baseUrl}/admin/events`
+    );
+  }
+
+  /** ADMIN – hard delete événement */
   deleteEvent(eventId: string): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(
-      `${this.baseUrl}/event/${eventId}`
+      `${this.baseUrl}/admin/events/${eventId}`
     );
   }
 }

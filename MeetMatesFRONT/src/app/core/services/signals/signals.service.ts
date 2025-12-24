@@ -13,6 +13,7 @@ export interface CurrentUser {
   firstName: string;
   lastName: string;
   email: string;
+  role: 'USER' | 'ADMIN'; // ✅ AJOUT ICI
   profilePictureUrl?: string | null;
 }
 
@@ -73,13 +74,25 @@ export class SignalsService {
       this.currentUser.set(null);
       return;
     }
+
     this.currentUser.set({
       id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
+      role: user.role, // 👈 CRUCIAL
       profilePictureUrl: user.profilePictureUrl ?? null
     });
   }
+
+    /** Utilisateur connecté */
+    isAuthenticated(): boolean {
+      return !!this.currentUser();
+    }
+
+    /** Rôle ADMIN */
+    isAdmin(): boolean {
+      return this.currentUser()?.role === 'ADMIN';
+    }
 
 }

@@ -22,6 +22,14 @@
       routerLink="/register">
     </app-button>
 
+    @if (isAdmin()) {
+      <app-button
+        label="admin"
+        class="primary-button"
+        routerLink="/admin/dashboard">
+      </app-button>
+    }
+
   </div>
 
 </div>

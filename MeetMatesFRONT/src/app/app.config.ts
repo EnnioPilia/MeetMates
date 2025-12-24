@@ -20,6 +20,10 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 // Routes
 import { routes } from './app.routes';
 
+import { withInterceptors } from '@angular/common/http';
+import { credentialsInterceptor } from './core/interceptors/credentials.interceptor';
+
+
 /**
  * Configuration globale de l’application Angular.
  *
@@ -49,8 +53,9 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes, withViewTransitions()),
 
     /** Fournit le client HTTP avec la possibilité d’enregistrer des interceptors globaux. */
-    provideHttpClient(),
-
+    provideHttpClient(
+      withInterceptors([credentialsInterceptor])
+    ),
     /** Active les animations Angular (nécessaires à Angular Material). */
     provideAnimations(),
 

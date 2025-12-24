@@ -3,6 +3,7 @@ import { Component, inject, DestroyRef } from '@angular/core';
 import { RouterOutlet, ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { effect } from '@angular/core';
 
 // Layout 
 import { FooterComponent } from './layout/footer/footer.component';
@@ -10,6 +11,8 @@ import { HeaderComponent } from './layout/header/header.component';
 
 // Core (services)
 import { SignalsService } from './core/services/signals/signals.service';
+import { AuthFacade } from './core/facades/auth/auth.facade';
+
 
 
 /**
@@ -40,15 +43,25 @@ export class AppComponent {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
+  private authFacade = inject(AuthFacade);
 
-  ngOnInit() {
-    this.router.events
-      .pipe(
-        filter(event => event instanceof NavigationEnd),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe(() => this.updatePageTitle());
+  constructor() {
+    effect(() => {
+      console.log('Current user:', this.signals.currentUser());
+    });
   }
+ngOnInit() {
+
+  // 🔥 HYDRATATION UTILISATEUR (OBLIGATOIRE)
+  this.authFacade.loadCurrentUser().subscribe();
+
+  this.router.events
+    .pipe(
+      filter(event => event instanceof NavigationEnd),
+      takeUntilDestroyed(this.destroyRef)
+    )
+    .subscribe(() => this.updatePageTitle());
+}
 
   /**
    * Met à jour le titre de la page courante
