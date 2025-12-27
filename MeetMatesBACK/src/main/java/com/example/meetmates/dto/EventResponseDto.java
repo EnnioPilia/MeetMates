@@ -1,6 +1,7 @@
 package com.example.meetmates.dto;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
@@ -52,7 +53,8 @@ public record EventResponseDto(
         AddressDto address,
         UUID organizerId,
         String organizerName,
-        List<String> participantNames
+        List<String> participantNames,
+        LocalDateTime deletedAt 
 ) {
 
     /**
@@ -109,7 +111,8 @@ public record EventResponseDto(
                 addressDto,
                 organizerId,
                 organizerName,
-                participantNames
+                participantNames,
+                e.getDeletedAt() 
         );
     }
 }

@@ -1,7 +1,6 @@
 package com.example.meetmates.service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.security.core.userdetails.UserDetails;
@@ -51,18 +50,7 @@ public class UserService implements UserDetailsService {
         this.pictureService = pictureService;
     }
 
-    /**
-     * Retourne tous les utilisateurs actifs (non supprimés).
-     *
-     * @return liste des utilisateurs
-     */
-    @Transactional(readOnly = true)
-    public List<User> getAllUsers() {
-        return userRepository.findAll()
-                .stream()
-                .filter(u -> u.getDeletedAt() == null)
-                .toList();
-    }
+
 
     /**
      * Récupère un utilisateur actif par email ou lance une exception.

@@ -1,5 +1,5 @@
 package com.example.meetmates.dto;
-
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
@@ -25,5 +25,6 @@ public record UserDto(
         Integer age,
         String city,
         String profilePictureUrl,
-        String role
+        String role,
+        LocalDateTime deletedAt
 ) {}

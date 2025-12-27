@@ -1,6 +1,5 @@
 package com.example.meetmates.controller;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
@@ -73,27 +72,7 @@ public class UserController {
         this.cookieService = cookieService;
         this.messageService = messageService;
     }
-
-    /**
-     * Récupère tous les utilisateurs (admin uniquement). Sécurisé par une règle
-     * custom : seul un administrateur peut effectuer cette action.
-     *
-     * @return liste complète des utilisateurs
-     */
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping
-    public ResponseEntity<ApiResponse<List<UserDto>>> getAllUsers() {
-        log.info("Demande de récupération de tous les utilisateurs reçue");
-        List<UserDto> dtos = userService.getAllUsers()
-                .stream()
-                .map(userMapper::toDto)
-                .toList();
-
-        log.info("Liste des utilisateurs récupérée ({} utilisateurs)", dtos.size());
-        String message = messageService.get("USER_GET_ALL_SUCCESS");
-        return ResponseEntity.ok(new ApiResponse<>(message, dtos));
-    }
-
+    
     /**
      * Récupère les informations de l’utilisateur connecté.
      *

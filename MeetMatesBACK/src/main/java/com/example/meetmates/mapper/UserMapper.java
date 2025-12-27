@@ -35,7 +35,8 @@ public class UserMapper {
                 user.getAge(),
                 user.getCity(),
                 user.getProfilePictureUrl(),
-                user.getRole() != null ? user.getRole().name() : null
+                user.getRole() != null ? user.getRole().name() : null,
+                user.getDeletedAt() 
         );
     }
 

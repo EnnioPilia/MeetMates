@@ -66,7 +66,8 @@ public class EventMapper {
                 AddressMapper.toDto(e.getAddress()),
                 organizerId,
                 organizerName,
-                participantNames
+                participantNames,
+                e.getDeletedAt()
         );
     }
 
