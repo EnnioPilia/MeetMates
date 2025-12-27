@@ -1,9 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+
 import { User } from '../../models/user.model';
-import { environment } from '../../../../environments/environment';
 import { EventResponse } from '../../models/event-response.model';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
@@ -20,12 +21,26 @@ export class AdminService {
     );
   }
 
-  /** ADMIN – hard delete utilisateur */
-  deleteUser(userId: string): Observable<{ message: string }> {
+  /** ADMIN – soft delete utilisateur */
+  softDeleteUser(userId: string): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(
       `${this.baseUrl}/admin/users/${userId}`
     );
   }
+
+  /** ADMIN – hard delete utilisateur */
+  hardDeleteUser(userId: string): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(
+      `${this.baseUrl}/admin/users/${userId}/hard`
+    );
+  }
+/** ADMIN – restore utilisateur */
+restoreUser(userId: string): Observable<{ message: string }> {
+  return this.http.put<{ message: string }>(
+    `${this.baseUrl}/admin/users/${userId}/restore`,
+    {}
+  );
+}
 
   /* ================= EVENTS ================= */
 
@@ -36,10 +51,26 @@ export class AdminService {
     );
   }
 
-  /** ADMIN – hard delete événement */
-  deleteEvent(eventId: string): Observable<{ message: string }> {
+  /** ADMIN – soft delete événement */
+  softDeleteEvent(eventId: string): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(
       `${this.baseUrl}/admin/events/${eventId}`
     );
   }
+
+  /** ADMIN – hard delete événement */
+  hardDeleteEvent(eventId: string): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(
+      `${this.baseUrl}/admin/events/${eventId}/hard`
+    );
+  }
+
+  /** ADMIN – restore événement */
+restoreEvent(eventId: string): Observable<{ message: string }> {
+  return this.http.put<{ message: string }>(
+    `${this.baseUrl}/admin/events/${eventId}/restore`,
+    {}
+  );
+}
+
 }

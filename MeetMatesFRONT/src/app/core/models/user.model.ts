@@ -10,4 +10,5 @@ export interface User {
   city: string;
   role: 'USER' | 'ADMIN';
   profilePictureUrl: string | null;
+  deletedAt?: string | null;
 }

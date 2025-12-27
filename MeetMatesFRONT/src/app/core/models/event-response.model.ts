@@ -23,6 +23,7 @@ export interface EventResponse {
   eventStatus?: string;
   participationStatus?: string | null;
   imageUrl?: string | null;
+  deletedAt?: string | null;
   address?: {
     street: string;
     city: string;

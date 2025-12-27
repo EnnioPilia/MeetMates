@@ -31,10 +31,26 @@
             </span>
           </div>
 
+          @if (!event.deletedAt) {
+            <app-button
+              label="SUPPRIMER"
+              class="primary-button w-40"
+              (clicked)="softDeleteEvent(event.id)">
+            </app-button>
+          }
+
+          @if (event.deletedAt) {
+            <app-button
+              label="RESTAURER"
+              class="secondary-button w-40"
+              (clicked)="restoreEvent(event.id)">
+            </app-button>
+          }
+
           <app-button
-            label="S U P P R I M E R"
-            class="primary-button w-40"
-            (clicked)="deleteEvent(event.id)">
+            label="SUPPRIMER DÉFINITIVEMENT"
+            class="danger-button w-52"
+            (clicked)="hardDeleteEvent(event.id)">
           </app-button>
 
         </div>

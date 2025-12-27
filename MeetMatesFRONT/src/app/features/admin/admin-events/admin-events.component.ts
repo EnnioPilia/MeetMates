@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { AdminFacade } from '../../../core/facades/admin/admin.facade';
@@ -17,22 +17,29 @@ import { AppButtonComponent } from '../../../shared-components/button/button.com
   styleUrls: ['./admin-events.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AdminEventsComponent {
+export class AdminEventsComponent implements OnInit {
 
-  private facade = inject(AdminFacade);
+  private adminFacade = inject(AdminFacade);
 
-  /** États exposés */
-  readonly events = this.facade.events;
-  readonly loading = this.facade.loading;
-  readonly error = this.facade.error;
+  readonly events = this.adminFacade.events;
+  readonly loading = this.adminFacade.loading;
+  readonly error = this.adminFacade.error;
 
   ngOnInit(): void {
-    this.facade.loadEvents().subscribe();
+    this.adminFacade.loadEvents().subscribe();
   }
 
-  deleteEvent(eventId: string): void {
-    this.facade.deleteEvent(eventId).subscribe({
-      complete: () => this.facade.loadEvents().subscribe()
-    });
+  /** Soft delete événement */
+  softDeleteEvent(eventId: string): void {
+    this.adminFacade.softDeleteEvent(eventId).subscribe();
   }
+
+  /** Hard delete événement (optionnel) */
+  hardDeleteEvent(eventId: string): void {
+    this.adminFacade.hardDeleteEvent(eventId).subscribe();
+  }
+
+  restoreEvent(id: string) {
+  this.adminFacade.restoreEvent(id).subscribe();
+}
 }

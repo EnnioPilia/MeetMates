@@ -14,11 +14,10 @@ import { EventResponse } from '../../models/event-response.model';
 /**
  * Facade responsable des cas d’usage d’administration.
  *
- * Alignée avec EventFacade :
  * - signals
  * - loading centralisé
- * - success handler
- * - aucun subscribe interne
+ * - aucune souscription interne
+ * - séparation soft / hard delete
  */
 @Injectable({ providedIn: 'root' })
 export class AdminFacade extends BaseFacade {
@@ -26,16 +25,14 @@ export class AdminFacade extends BaseFacade {
   private adminService = inject(AdminService);
   private successHandler = inject(SuccessHandlerService);
 
-  /** Liste des utilisateurs */
+  /** Listes */
   readonly users = signal<User[]>([]);
-
-  /** Liste des événements */
   readonly events = signal<EventResponse[]>([]);
 
-  /** Indique si une action admin est en cours */
+  /** État de soumission */
   isSubmitting = false;
-  private start() { this.isSubmitting = true; }
-  private stop() { this.isSubmitting = false; }
+  private startSubmit() { this.isSubmitting = true; }
+  private stopSubmit() { this.isSubmitting = false; }
 
   /* ================= USERS ================= */
 
@@ -49,18 +46,67 @@ export class AdminFacade extends BaseFacade {
     );
   }
 
-  deleteUser(userId: string) {
-    this.start();
+softDeleteUser(userId: string) {
+  this.startSubmit();
+  this.startLoading();
+
+  return this.adminService.softDeleteUser(userId).pipe(
+    tap(res => this.successHandler.handle(res)),
+    tap(() => {
+      this.users.update(users =>
+        users.map(user =>
+          user.id === userId
+            ? { ...user, deletedAt: new Date().toISOString() } // <-- juste mettre deletedAt
+            : user
+        )
+      );
+    }),
+    finalize(() => {
+      this.stopSubmit();
+      this.stopLoading();
+    }),
+    this.handleError()
+  );
+}
+
+
+  hardDeleteUser(userId: string) {
+    this.startSubmit();
     this.startLoading();
 
-    return this.adminService.deleteUser(userId).pipe(
+    return this.adminService.hardDeleteUser(userId).pipe(
       tap(res => this.successHandler.handle(res)),
-      tap(() => this.stop()),
-      finalize(() => this.stopLoading()),
+      tap(() => this.users.update(u => u.filter(user => user.id !== userId))),
+      finalize(() => {
+        this.stopSubmit();
+        this.stopLoading();
+      }),
       this.handleError()
     );
   }
+  
+restoreUser(userId: string) {
+  this.startSubmit();
+  this.startLoading();
 
+  return this.adminService.restoreUser(userId).pipe(
+    tap(res => this.successHandler.handle(res)),
+    tap(() => {
+      this.users.update(users =>
+        users.map(user =>
+          user.id === userId
+            ? { ...user, deletedAt: null }
+            : user
+        )
+      );
+    }),
+    finalize(() => {
+      this.stopSubmit();
+      this.stopLoading();
+    }),
+    this.handleError()
+  );
+}
   /* ================= EVENTS ================= */
 
   loadEvents() {
@@ -73,17 +119,67 @@ export class AdminFacade extends BaseFacade {
     );
   }
 
-  deleteEvent(eventId: string) {
-    this.start();
+softDeleteEvent(eventId: string) {
+  this.startSubmit();
+  this.startLoading();
+
+  return this.adminService.softDeleteEvent(eventId).pipe(
+    tap(res => this.successHandler.handle(res)),
+    tap(() => {
+      this.events.update(events =>
+        events.map(ev =>
+          ev.id === eventId
+            ? { ...ev, deletedAt: new Date().toISOString() }
+            : ev
+        )
+      );
+    }),
+    finalize(() => {
+      this.stopSubmit();
+      this.stopLoading();
+    }),
+    this.handleError()
+  );
+}
+
+
+  hardDeleteEvent(eventId: string) {
+    this.startSubmit();
     this.startLoading();
 
-    return this.adminService.deleteEvent(eventId).pipe(
+    return this.adminService.hardDeleteEvent(eventId).pipe(
       tap(res => this.successHandler.handle(res)),
-      tap(() => this.loadEvents().subscribe()),
-      tap(() => this.stop()),
-      finalize(() => this.stopLoading()),
+      tap(() => this.events.update(e => e.filter(ev => ev.id !== eventId))),
+      finalize(() => {
+        this.stopSubmit();
+        this.stopLoading();
+      }),
       this.handleError()
     );
   }
+
+  restoreEvent(eventId: string) {
+  this.startSubmit();
+  this.startLoading();
+
+  return this.adminService.restoreEvent(eventId).pipe(
+    tap(res => this.successHandler.handle(res)),
+    tap(() => {
+      this.events.update(events =>
+        events.map(ev =>
+          ev.id === eventId
+            ? { ...ev, deletedAt: null }
+            : ev
+        )
+      );
+    }),
+    finalize(() => {
+      this.stopSubmit();
+      this.stopLoading();
+    }),
+    this.handleError()
+  );
+}
+
 
 }

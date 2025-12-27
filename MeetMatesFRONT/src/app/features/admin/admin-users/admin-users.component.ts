@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { AdminFacade } from '../../../core/facades/admin/admin.facade';
@@ -17,21 +17,30 @@ import { AppButtonComponent } from '../../../shared-components/button/button.com
   styleUrls: ['./admin-users.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AdminUsersComponent {
+export class AdminUsersComponent implements OnInit {
 
   private facade = inject(AdminFacade);
-  
+
   readonly users = this.facade.users;
   readonly loading = this.facade.loading;
   readonly error = this.facade.error;
 
-  ngOnInit(): void {
-    this.facade.loadUsers().subscribe();
+ngOnInit(): void {
+  this.facade.loadUsers().subscribe(() => {
+    console.log(this.users());
+  });
+}
+
+  /** Soft delete utilisateur */
+  softDeleteUser(userId: string): void {
+    this.facade.softDeleteUser(userId).subscribe();
   }
 
-  deleteUser(userId: string): void {
-    this.facade.deleteUser(userId).subscribe({
-      complete: () => this.facade.loadUsers().subscribe()
-    });
+  /** Hard delete utilisateur (optionnel) */
+  hardDeleteUser(userId: string): void {
+    this.facade.hardDeleteUser(userId).subscribe();
   }
+  restoreUser(userId: string): void {
+  this.facade.restoreUser(userId).subscribe();
+}
 }
