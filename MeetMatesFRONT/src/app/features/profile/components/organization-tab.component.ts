@@ -1,8 +1,9 @@
 // Angular
-import { Component, Input, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy, inject , effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { RouterModule } from '@angular/router';
+import { Signal } from '@angular/core';
 
 // Angular Material
 import { MatButtonModule } from '@angular/material/button';
@@ -43,7 +44,7 @@ import { EventInfoCardComponent } from '../../../shared-components/event-info-ca
         </p>
       } @else {
         <mat-accordion multi class="flex flex-col gap-4">
-          @for (event of mappedEvents; track event.id) {
+          @for (event of mappedEvents; track event.eventId) {
             <mat-expansion-panel class="w-full">
               <mat-expansion-panel-header class="items-start">
                 <div class="flex justify-between w-full items-start mr-3">
@@ -67,9 +68,15 @@ import { EventInfoCardComponent } from '../../../shared-components/event-info-ca
 export class OrganizationTabComponent {
   private mapper = inject(EventMapperService);
 
-  @Input() events: EventResponse[] = [];
+  @Input({ required: true }) events!: Signal<EventResponse[]>;
 
-  get mappedEvents(): EventListItem[] {
-    return this.mapper.toEventList(this.events);
+  constructor() {
+    effect(() => {
+      console.log('ORGANIZED EVENTS', this.events());
+    });
+  }
+
+  get mappedEvents() {
+    return this.mapper.toEventList(this.events());
   }
 }

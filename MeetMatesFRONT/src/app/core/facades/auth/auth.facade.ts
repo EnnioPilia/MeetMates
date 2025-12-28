@@ -67,12 +67,16 @@ export class AuthFacade extends BaseFacade {
     return this.authService.login({ email, password }).pipe(
       tap(res => {
         this.notification.showSuccess(res.message);
+      }),
+      switchMap(() => this.loadCurrentUser()), 
+      tap(() => {
         this.stop();
         this.stopLoading();
         this.router.navigate(['/home']);
       }),
       this.handleError(undefined, () => this.stop())
     );
+
   }
 
   /**
@@ -157,11 +161,11 @@ export class AuthFacade extends BaseFacade {
   }
 
   loadCurrentUser() {
-  return this.authService.getMe().pipe(
-    tap(user => {
-      this.signals.updateCurrentUser(user);
-    })
-  );
-}
+    return this.authService.getMe().pipe(
+      tap(user => {
+        this.signals.updateCurrentUser(user);
+      })
+    );
+  }
 
 }

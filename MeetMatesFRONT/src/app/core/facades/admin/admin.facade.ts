@@ -46,28 +46,33 @@ export class AdminFacade extends BaseFacade {
     );
   }
 
-softDeleteUser(userId: string) {
-  this.startSubmit();
-  this.startLoading();
+  softDeleteUser(userId: string) {
+    this.startSubmit();
+    this.startLoading();
 
-  return this.adminService.softDeleteUser(userId).pipe(
-    tap(res => this.successHandler.handle(res)),
-    tap(() => {
-      this.users.update(users =>
-        users.map(user =>
-          user.id === userId
-            ? { ...user, deletedAt: new Date().toISOString() } // <-- juste mettre deletedAt
-            : user
-        )
-      );
-    }),
-    finalize(() => {
-      this.stopSubmit();
-      this.stopLoading();
-    }),
-    this.handleError()
-  );
-}
+    return this.adminService.softDeleteUser(userId).pipe(
+      tap(res => this.successHandler.handle(res)),
+      tap(() => {
+        this.users.update(users =>
+          users.map(user =>
+            user.id === userId
+              ? {
+                ...user,
+                deletedAt: new Date().toISOString(),
+                status: 'BANNED'
+              }
+              : user
+          )
+        );
+      }),
+
+      finalize(() => {
+        this.stopSubmit();
+        this.stopLoading();
+      }),
+      this.handleError()
+    );
+  }
 
 
   hardDeleteUser(userId: string) {
@@ -84,29 +89,34 @@ softDeleteUser(userId: string) {
       this.handleError()
     );
   }
-  
-restoreUser(userId: string) {
-  this.startSubmit();
-  this.startLoading();
 
-  return this.adminService.restoreUser(userId).pipe(
-    tap(res => this.successHandler.handle(res)),
-    tap(() => {
-      this.users.update(users =>
-        users.map(user =>
-          user.id === userId
-            ? { ...user, deletedAt: null }
-            : user
-        )
-      );
-    }),
-    finalize(() => {
-      this.stopSubmit();
-      this.stopLoading();
-    }),
-    this.handleError()
-  );
-}
+  restoreUser(userId: string) {
+    this.startSubmit();
+    this.startLoading();
+
+    return this.adminService.restoreUser(userId).pipe(
+      tap(res => this.successHandler.handle(res)),
+      tap(() => {
+        this.users.update(users =>
+          users.map(user =>
+            user.id === userId
+              ? {
+                ...user,
+                deletedAt: null,
+                status: 'ACTIVE'
+              }
+              : user
+          )
+        );
+      }),
+      finalize(() => {
+        this.stopSubmit();
+        this.stopLoading();
+      }),
+      this.handleError()
+    );
+  }
+
   /* ================= EVENTS ================= */
 
   loadEvents() {
@@ -119,28 +129,28 @@ restoreUser(userId: string) {
     );
   }
 
-softDeleteEvent(eventId: string) {
-  this.startSubmit();
-  this.startLoading();
+  softDeleteEvent(eventId: string) {
+    this.startSubmit();
+    this.startLoading();
 
-  return this.adminService.softDeleteEvent(eventId).pipe(
-    tap(res => this.successHandler.handle(res)),
-    tap(() => {
-      this.events.update(events =>
-        events.map(ev =>
-          ev.id === eventId
-            ? { ...ev, deletedAt: new Date().toISOString() }
-            : ev
-        )
-      );
-    }),
-    finalize(() => {
-      this.stopSubmit();
-      this.stopLoading();
-    }),
-    this.handleError()
-  );
-}
+    return this.adminService.softDeleteEvent(eventId).pipe(
+      tap(res => this.successHandler.handle(res)),
+      tap(() => {
+        this.events.update(events =>
+          events.map(ev =>
+            ev.id === eventId
+              ? { ...ev, deletedAt: new Date().toISOString() }
+              : ev
+          )
+        );
+      }),
+      finalize(() => {
+        this.stopSubmit();
+        this.stopLoading();
+      }),
+      this.handleError()
+    );
+  }
 
 
   hardDeleteEvent(eventId: string) {
@@ -159,27 +169,27 @@ softDeleteEvent(eventId: string) {
   }
 
   restoreEvent(eventId: string) {
-  this.startSubmit();
-  this.startLoading();
+    this.startSubmit();
+    this.startLoading();
 
-  return this.adminService.restoreEvent(eventId).pipe(
-    tap(res => this.successHandler.handle(res)),
-    tap(() => {
-      this.events.update(events =>
-        events.map(ev =>
-          ev.id === eventId
-            ? { ...ev, deletedAt: null }
-            : ev
-        )
-      );
-    }),
-    finalize(() => {
-      this.stopSubmit();
-      this.stopLoading();
-    }),
-    this.handleError()
-  );
-}
+    return this.adminService.restoreEvent(eventId).pipe(
+      tap(res => this.successHandler.handle(res)),
+      tap(() => {
+        this.events.update(events =>
+          events.map(ev =>
+            ev.id === eventId
+              ? { ...ev, deletedAt: null }
+              : ev
+          )
+        );
+      }),
+      finalize(() => {
+        this.stopSubmit();
+        this.stopLoading();
+      }),
+      this.handleError()
+    );
+  }
 
 
 }

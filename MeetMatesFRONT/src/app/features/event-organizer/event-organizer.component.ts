@@ -12,6 +12,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 // Core (facades, services)
 import { EventFacade } from '../../core/facades/events/event/event.facade';
 import { DialogService } from '../../core/services/dialog.service/dialog.service';
+import { ProfileFacade } from '../../core/facades/profile/profile.facade';
 
 // Feature components
 import { EventTabAcceptedComponent } from './components/event-tab-accepted.component';
@@ -68,6 +69,7 @@ export class EventOrganizerComponent implements OnInit {
   private dialogService = inject(DialogService);
   private destroyRef = inject(DestroyRef);
   private eventFacade = inject(EventFacade);
+  private profileFacade = inject(ProfileFacade);
 
   /** États exposés par la facade */
   event = this.eventFacade.event;
@@ -113,7 +115,7 @@ export class EventOrganizerComponent implements OnInit {
     this.dialogService
       .confirm("Supprimer l’activité", "Êtes-vous sûr ?")
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((confirmed: boolean) => {
+      .subscribe(confirmed => {
         if (!confirmed) return;
 
         const id = this.eventFacade.event()?.id;
@@ -121,9 +123,13 @@ export class EventOrganizerComponent implements OnInit {
 
         this.eventFacade.deleteEvent(id)
           .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe(() => this.router.navigate(['/profile']));
+          .subscribe(() => {
+            this.profileFacade.loadProfile().subscribe();
+            this.router.navigate(['/profile']);
+          });
       });
   }
+
 
   /**
    * Recharge les données de l’événement courant.

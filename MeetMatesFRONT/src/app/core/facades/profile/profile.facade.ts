@@ -106,5 +106,11 @@ export class ProfileFacade extends BaseFacade {
   deleteAccount() {
     return this.userFacade.deleteMyAccount();
   }
+removeOrganizedEvent(eventId: string): void {
+  this.eventsOrganized.update(events =>
+    events.filter(e => String(e.eventId ?? e.id) !== eventId)
+  );
+}
+
 
 }

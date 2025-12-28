@@ -1,70 +1,83 @@
-<div class="flex flex-col items-center justify-start min-h-screen px-7 py-20">
+<div class="max-w-3xl mx-auto py-10">
 
   <app-state-handler
     [loading]="loading"
     [error]="error">
   </app-state-handler>
 
-  @if (events()?.length) {
+  @if (events().length > 0) {
 
-    <div class="w-full max-w-4xl flex flex-col gap-4">
-
-      <h2 class="text-3xl font-semibold text-center mb-6">
-        Gestion des événements
-      </h2>
+    <mat-accordion multi class="flex flex-col gap-4 p-4 mt-5">
 
       @for (event of events(); track event.id) {
 
-        <div class="bg-white rounded shadow p-5 flex justify-between items-center">
+        <mat-expansion-panel>
 
-          <div class="flex flex-col gap-1">
-            <span class="font-semibold">
-              {{ event.title }}
-            </span>
+          <!-- HEADER -->
+          <mat-expansion-panel-header>
+            <div class="flex justify-between w-full">
+              <span class="font-semibold">
+                {{ event.title }}
+              </span>
 
-            <span class="text-sm text-gray-500">
-              Organisateur : {{ event.organizerName }}
-            </span>
+              <span class="text-sm text-gray-500 pr-2">
+                {{ event.eventDate  | date:'dd/MM/yyyy' }}
+              </span>
+            </div>
+          </mat-expansion-panel-header>
 
-            <span class="text-xs text-gray-400">
-              Date : {{ event.eventDate | date:'dd/MM/yyyy' }}
-            </span>
+          <div class="flex flex-col items-center gap-2 p-4">
+
+            <app-event-header
+              [title]="event.title"
+              [description]="event.description">
+            </app-event-header>
+
+            <app-event-info
+              class="w-72"
+              [event]="event"
+              [showStatus]="true"
+              [showOrganizer]="true">
+            </app-event-info>
+
+            <div class="flex flex-col gap-3 mt-4">
+
+              @if (!event.deletedAt) {
+                <app-button
+                  label="SUPPRESSION"
+                  class="primary-button"
+                  (clicked)="softDeleteEvent(event.id)">
+                </app-button>
+              }
+
+              @if (event.deletedAt) {
+                <app-button
+                  label="RESTAURER"
+                  class="primary-button"
+                  (clicked)="restoreEvent(event.id)">
+                </app-button>
+              }
+
+              <app-button
+                label="SUPPRESSION DÉFINITIVE"
+                class="primary-button"
+                (clicked)="hardDeleteEvent(event.id)">
+              </app-button>
+
+            </div>
+
           </div>
 
-          @if (!event.deletedAt) {
-            <app-button
-              label="SUPPRIMER"
-              class="primary-button w-40"
-              (clicked)="softDeleteEvent(event.id)">
-            </app-button>
-          }
-
-          @if (event.deletedAt) {
-            <app-button
-              label="RESTAURER"
-              class="secondary-button w-40"
-              (clicked)="restoreEvent(event.id)">
-            </app-button>
-          }
-
-          <app-button
-            label="SUPPRIMER DÉFINITIVEMENT"
-            class="danger-button w-52"
-            (clicked)="hardDeleteEvent(event.id)">
-          </app-button>
-
-        </div>
+        </mat-expansion-panel>
 
       }
 
-    </div>
+    </mat-accordion>
 
-  } @else {
-
-    <p class="text-gray-500 text-center">
-      Aucun événement trouvé.
-    </p>
-
-  }
-
+} @else {
+  <p class="text-gray-500 text-center mt-6">
+    Aucun événement trouvé.
+  </p>
+}
+  
 </div>

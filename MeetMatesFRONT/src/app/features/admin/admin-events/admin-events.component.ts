@@ -1,17 +1,24 @@
 import { Component, ChangeDetectionStrategy, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
+import { DialogService } from '../../../core/services/dialog.service/dialog.service';
+import { DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AdminFacade } from '../../../core/facades/admin/admin.facade';
 import { StateHandlerComponent } from '../../../shared-components/state-handler/state-handler.component';
 import { AppButtonComponent } from '../../../shared-components/button/button.component';
-
+import { MatExpansionModule } from '@angular/material/expansion';
+import { EventHeaderComponent } from '../../../shared-components/event-header/event-header.component';
+import { EventInfoComponent } from '../../../shared-components/event-info/event-info.component';
 @Component({
   selector: 'app-admin-events',
   standalone: true,
   imports: [
     CommonModule,
     StateHandlerComponent,
-    AppButtonComponent
+    AppButtonComponent,
+    MatExpansionModule,
+    EventHeaderComponent,
+    EventInfoComponent
   ],
   templateUrl: './admin-events.component.html',
   styleUrls: ['./admin-events.component.scss'],
@@ -20,6 +27,8 @@ import { AppButtonComponent } from '../../../shared-components/button/button.com
 export class AdminEventsComponent implements OnInit {
 
   private adminFacade = inject(AdminFacade);
+  private dialogService = inject(DialogService);
+  private destroyRef = inject(DestroyRef);
 
   readonly events = this.adminFacade.events;
   readonly loading = this.adminFacade.loading;
@@ -29,17 +38,27 @@ export class AdminEventsComponent implements OnInit {
     this.adminFacade.loadEvents().subscribe();
   }
 
-  /** Soft delete événement */
   softDeleteEvent(eventId: string): void {
     this.adminFacade.softDeleteEvent(eventId).subscribe();
   }
 
-  /** Hard delete événement (optionnel) */
-  hardDeleteEvent(eventId: string): void {
-    this.adminFacade.hardDeleteEvent(eventId).subscribe();
+  restoreEvent(id: string) {
+    this.adminFacade.restoreEvent(id).subscribe();
   }
 
-  restoreEvent(id: string) {
-  this.adminFacade.restoreEvent(id).subscribe();
-}
+  hardDeleteEvent(eventId: string): void {
+    this.dialogService
+      .confirm(
+        'Suppression définitive',
+        'Cette action est irréversible. Voulez-vous vraiment supprimer cet événement ?'
+      )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(confirmed => {
+        if (!confirmed) return;
+
+        this.adminFacade.hardDeleteEvent(eventId).subscribe();
+      });
+  }
+
+
 }

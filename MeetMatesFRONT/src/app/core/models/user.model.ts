@@ -9,6 +9,8 @@ export interface User {
   age: number;
   city: string;
   role: 'USER' | 'ADMIN';
+  status: 'ACTIVE' | 'BANNED' | 'DELETED';
   profilePictureUrl: string | null;
   deletedAt?: string | null;
+  
 }

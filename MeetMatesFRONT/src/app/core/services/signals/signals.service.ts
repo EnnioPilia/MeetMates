@@ -80,7 +80,7 @@ export class SignalsService {
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
-      role: user.role, // 👈 CRUCIAL
+      role: user.role, 
       profilePictureUrl: user.profilePictureUrl ?? null
     });
   }

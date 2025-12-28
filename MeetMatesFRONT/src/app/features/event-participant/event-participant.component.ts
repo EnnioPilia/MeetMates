@@ -47,7 +47,7 @@ import { EventFacade } from '../../core/facades/events/event/event.facade';
     EventInfoComponent,
     AppButtonComponent,
     StateHandlerComponent
-    ],
+  ],
   templateUrl: './event-participant.component.html',
   styleUrls: ['./event-participant.component.scss']
 })
@@ -88,20 +88,20 @@ export class EventParticipantComponent implements OnInit {
    * @param eventId Identifiant de l’événement
    */
   cancelParticipation(eventId: string): void {
-  this.dialogService
-    .confirm(
-      'Confirmer l’annulation',
-      "Êtes-vous sûr de vouloir annuler votre participation ?"
-    )
-    .pipe(takeUntilDestroyed(this.destroyRef))
-    .subscribe((confirmed: boolean) => {
-      if (!confirmed) return;
+    this.dialogService
+      .confirm(
+        'Confirmer l’annulation',
+        "Êtes-vous sûr de vouloir annuler votre participation ?"
+      )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((confirmed: boolean) => {
+        if (!confirmed) return;
 
-      this.eventFacade.leave(eventId)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(() => this.router.navigate(['/profile']));
-    });
-}
+        this.eventFacade.leave(eventId)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(() => this.router.navigate(['/profile']));
+      });
+  }
   /** Retourne les labels lisibles */
   getStatusLabel(status?: string): string {
     return status ? getStatusLabel(status) : '';
