@@ -26,5 +26,6 @@ public record UserDto(
         String city,
         String profilePictureUrl,
         String role,
+        String status,
         LocalDateTime deletedAt
 ) {}

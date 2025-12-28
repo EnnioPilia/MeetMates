@@ -23,8 +23,15 @@ import com.example.meetmates.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Service de gestion des participants aux événements.
- * Fournit les fonctionnalités pour rejoindre, quitter, accepter, rejeter et gérer les participants.
+ * Service de gestion des participations aux événements.
+ *
+ * Ce service encapsule l’ensemble des règles métier liées à la participation
+ * des utilisateurs à un événement : - demande de participation - acceptation /
+ * rejet par l’organisateur - départ volontaire d’un participant - suppression
+ * forcée d’un participant par l’organisateur
+ *
+ * Les transitions de statuts sont strictement contrôlées afin de garantir la
+ * cohérence métier (PENDING → ACCEPTED / REJECTED, LEFT, etc.).
  */
 @Slf4j
 @Service
@@ -36,9 +43,9 @@ public class EventUserService {
     private final EventMapper eventMapper;
 
     public EventUserService(EventRepository eventRepository,
-                            UserRepository userRepository,
-                            EventUserRepository eventUserRepository,
-                            EventMapper eventMapper) {
+            UserRepository userRepository,
+            EventUserRepository eventUserRepository,
+            EventMapper eventMapper) {
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
         this.eventUserRepository = eventUserRepository;
@@ -46,13 +53,21 @@ public class EventUserService {
     }
 
     /**
-     * Permet à un utilisateur de rejoindre un événement.
-     * Gère les différents statuts existants et le nombre maximum de participants.
+     * Permet à un utilisateur de demander à rejoindre un événement.
      *
-     * @param eventId ID de l'événement
-     * @param userId  ID de l'utilisateur
-     * @return DTO représentant la participation de l'utilisateur
-     * @throws ApiException en cas de statut incompatible, d'événement plein ou introuvable
+     * Règles métier : - si l'utilisateur est déjà ACCEPTED → refus - si la
+     * participation est déjà PENDING → refus - si la participation a été
+     * REJECTED ou LEFT_REJECTED → refus - si l'utilisateur avait quitté
+     * l'événement (LEFT) → nouvelle demande autorisée (PENDING) - si le nombre
+     * maximal de participants est atteint → refus
+     *
+     * @param eventId identifiant de l'événement
+     * @param userId identifiant de l'utilisateur
+     * @return DTO représentant la participation créée ou mise à jour
+     *
+     * @throws ApiException si : - l'événement n'existe pas - l'utilisateur
+     * n'existe pas - l'événement est complet - le statut de participation
+     * existant est incompatible
      */
     @Transactional
     public EventUserDto joinEvent(UUID eventId, UUID userId) {
@@ -103,12 +118,17 @@ public class EventUserService {
 
     /**
      * Permet à un utilisateur de quitter un événement.
-     * Met à jour le statut de participation en conséquence.
      *
-     * @param eventId ID de l'événement
-     * @param userId  ID de l'utilisateur
+     * Règles métier : - un utilisateur ne peut pas quitter un événement s'il
+     * l'a déjà quitté - si la participation était REJECTED → passage à
+     * LEFT_REJECTED - sinon → passage à LEFT
+     *
+     * @param eventId identifiant de l'événement
+     * @param userId identifiant de l'utilisateur
      * @return DTO représentant la participation mise à jour
-     * @throws ApiException si l'utilisateur n'a pas le droit de quitter l'événement
+     *
+     * @throws ApiException si la participation n'existe pas ou si l'utilisateur
+     * n'est pas autorisé à quitter l'événement
      */
     @Transactional
     public EventUserDto leaveEvent(UUID eventId, UUID userId) {
@@ -131,10 +151,14 @@ public class EventUserService {
     }
 
     /**
-     * Accepte la participation d'un utilisateur à un événement.
+     * Accepte la demande de participation d'un utilisateur à un événement.
      *
-     * @param eventUserId ID de la participation
+     * Cette action est réservée à l'organisateur de l'événement. La
+     * participation passe de PENDING à ACCEPTED.
+     *
+     * @param eventUserId identifiant de la participation
      * @return DTO de la participation acceptée
+     *
      * @throws ApiException si la participation n'existe pas
      */
     public EventUserDto acceptParticipant(UUID eventUserId) {
@@ -148,10 +172,14 @@ public class EventUserService {
     }
 
     /**
-     * Rejette la participation d'un utilisateur à un événement.
+     * Rejette la demande de participation d'un utilisateur à un événement.
      *
-     * @param eventUserId ID de la participation
+     * La participation passe à l'état REJECTED et ne peut plus être acceptée
+     * ultérieurement.
+     *
+     * @param eventUserId identifiant de la participation
      * @return DTO de la participation rejetée
+     *
      * @throws ApiException si la participation n'existe pas
      */
     public EventUserDto rejectParticipant(UUID eventUserId) {
@@ -173,9 +201,9 @@ public class EventUserService {
     public List<EventUserDto> findByUserId(UUID userId) {
         log.info("Récupération des participations actives de l'utilisateur {}", userId);
         return eventUserRepository.findAllByUserIdAndRoleAndParticipationStatusNotIn(
-                        userId,
-                        ParticipantRole.PARTICIPANT,
-                        List.of(ParticipationStatus.LEFT, ParticipationStatus.LEFT_REJECTED))
+                userId,
+                ParticipantRole.PARTICIPANT,
+                List.of(ParticipationStatus.LEFT, ParticipationStatus.LEFT_REJECTED))
                 .stream()
                 .map(eventMapper::EventUserDto)
                 .toList();
@@ -189,20 +217,26 @@ public class EventUserService {
      */
     public List<EventUserDto> findOrganizedByUserId(UUID userId) {
         log.info("Récupération des événements organisés par l'utilisateur {}", userId);
-        return eventUserRepository.findAllByUserIdAndRole(userId, ParticipantRole.ORGANIZER)
+        return eventUserRepository.findActiveByUserIdAndRole(userId, ParticipantRole.ORGANIZER)
                 .stream()
                 .map(eventMapper::EventUserDto)
                 .toList();
+
     }
 
     /**
-     * Supprime un participant d'un événement.
-     * Seul l'organisateur peut effectuer cette action.
+     * Retire un participant d'un événement.
      *
-     * @param eventId     ID de l'événement
-     * @param userId      ID de l'utilisateur à retirer
-     * @param organizerId ID de l'organisateur effectuant l'action
-     * @throws ApiException si les droits sont insuffisants ou si la participation n'existe pas
+     * Règles métier : - seule une participation avec le rôle ORGANIZER peut
+     * effectuer cette action - un organisateur ne peut pas se retirer lui-même
+     *
+     * @param eventId identifiant de l'événement
+     * @param userId identifiant de l'utilisateur à retirer
+     * @param organizerId identifiant de l'organisateur effectuant l'action
+     *
+     * @throws ApiException si : - l'organisateur n'a pas les droits requis - la
+     * participation ciblée n'existe pas - l'utilisateur à retirer est
+     * organisateur
      */
     @Transactional
     public void removeParticipant(UUID eventId, UUID userId, UUID organizerId) {

@@ -25,7 +25,6 @@ public class AdminUserService {
     private final UserRepository userRepository;
 
     /* ===================== READ ===================== */
-
     @Transactional(readOnly = true)
     public List<User> getAllActiveUsers() {
         return userRepository.findAll()
@@ -34,36 +33,35 @@ public class AdminUserService {
                 .toList();
     }
 
-@Transactional(readOnly = true)
-public List<User> getAllUsersIncludingDeleted() {
-    return userRepository.findAll(); // tous les utilisateurs
-}
-
-    /* ===================== WRITE ===================== */
-
-public void softDeleteUser(UUID userId) {
-    User user = getUser(userId);
-
-    if (user.getDeletedAt() != null) {
-        return;
+    @Transactional(readOnly = true)
+    public List<User> getAllUsersIncludingDeleted() {
+        return userRepository.findAll(); // tous les utilisateurs
     }
 
-    user.setDeletedAt(LocalDateTime.now());
-    user.setEnabled(false);
-    user.setStatus(UserStatus.BANNED); // <-- statut BANNED pour soft delete
+    /* ===================== WRITE ===================== */
+    public void softDeleteUser(UUID userId) {
+        User user = getUser(userId);
 
-    log.warn("ADMIN soft-deleted (banned) user {}", user.getEmail());
-}
+        if (user.getDeletedAt() != null) {
+            return;
+        }
 
-public void restoreUser(UUID userId) {
-    User user = getUser(userId);
+        user.setDeletedAt(LocalDateTime.now());
+        user.setEnabled(false);
+        user.setStatus(UserStatus.BANNED); // <-- statut BANNED pour soft delete
 
-    user.setDeletedAt(null);
-    user.setEnabled(true);
-    user.setStatus(UserStatus.ACTIVE); // <-- statut actif au restore
+        log.warn("ADMIN soft-deleted (banned) user {}", user.getEmail());
+    }
 
-    log.info("ADMIN restored user {}", user.getEmail());
-}
+    public void restoreUser(UUID userId) {
+        User user = getUser(userId);
+
+        user.setDeletedAt(null);
+        user.setEnabled(true);
+        user.setStatus(UserStatus.ACTIVE); 
+
+        log.info("ADMIN restored user {}", user.getEmail());
+    }
 
     public void hardDeleteUser(UUID userId) {
         User user = getUser(userId);
@@ -74,13 +72,12 @@ public void restoreUser(UUID userId) {
     }
 
     /* ===================== PRIVATE ===================== */
-
     private User getUser(UUID userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
     }
 
-        /**
+    /**
      * Retourne tous les utilisateurs actifs (non supprimés).
      *
      * @return liste des utilisateurs
@@ -93,5 +90,4 @@ public void restoreUser(UUID userId) {
                 .toList();
     }
 
-    
 }

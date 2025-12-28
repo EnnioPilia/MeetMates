@@ -1,6 +1,5 @@
 package com.example.meetmates.repository;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -11,7 +10,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.example.meetmates.model.Activity;
-import com.example.meetmates.model.Address;
 import com.example.meetmates.model.Event;
 
 /**
@@ -42,38 +40,6 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
     List<Event> findByActivity(Activity activity);
 
     /**
-     * Recherche les événements associés à une adresse spécifique.
-     *
-     * @param address l'adresse liée aux événements recherchés
-     * @return la liste des événements correspondant à cette adresse
-     */
-    List<Event> findByAddress(Address address);
-
-    /**
-     * Retourne les événements dont la date est postérieure à la date spécifiée.
-     *
-     * @param date la date minimale de l’événement
-     * @return la liste des événements à venir
-     */
-    List<Event> findByEventDateAfter(LocalDateTime date);
-
-    /**
-     * Recherche les événements selon leur statut.
-     *
-     * @param status le statut recherché
-     * @return la liste des événements correspondant au statut
-     */
-    List<Event> findByStatus(Event.EventStatus status);
-
-    /**
-     * Recherche les événements à partir de l'identifiant d'une activité.
-     *
-     * @param activityId l'identifiant de l'activité
-     * @return la liste des événements liés à cette activité
-     */
-    List<Event> findByActivityId(UUID activityId);
-
-    /**
      * Charge tous les événements liés à une activité spécifique en incluant
      * l'activité et l'adresse.
      *
@@ -94,16 +60,15 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
      *
      * @return la liste complète des événements enrichis
      */
-@Query("""
-    SELECT DISTINCT e
-    FROM Event e
-    LEFT JOIN FETCH e.participants
-    LEFT JOIN FETCH e.activity
-    LEFT JOIN FETCH e.address
-    WHERE e.deletedAt IS NULL
-""")
-List<Event> findAllActiveWithDetails();
-
+    @Query("""
+      SELECT DISTINCT e
+      FROM Event e
+      LEFT JOIN FETCH e.participants
+      LEFT JOIN FETCH e.activity
+      LEFT JOIN FETCH e.address
+      WHERE e.deletedAt IS NULL
+      """)
+    List<Event> findAllActiveWithDetails();
 
     /**
      * Charge un événement complet avec activité, adresse, participants et
@@ -112,16 +77,16 @@ List<Event> findAllActiveWithDetails();
      * @param id l'identifiant de l'événement
      * @return un Optional contenant l'événement enrichi si trouvé
      */
-@Query("""
-  SELECT DISTINCT e FROM Event e
-  LEFT JOIN FETCH e.activity
-  LEFT JOIN FETCH e.address
-  LEFT JOIN FETCH e.participants eu
-  LEFT JOIN FETCH eu.user
-  WHERE e.id = :id
-    AND e.deletedAt IS NULL
-""")
-Optional<Event> findByIdWithAllRelations(@Param("id") UUID id);
+    @Query("""
+      SELECT DISTINCT e FROM Event e
+      LEFT JOIN FETCH e.activity
+      LEFT JOIN FETCH e.address
+      LEFT JOIN FETCH e.participants eu
+      LEFT JOIN FETCH eu.user
+      WHERE e.id = :id
+        AND e.deletedAt IS NULL
+    """)
+    Optional<Event> findByIdWithAllRelations(@Param("id") UUID id);
 
     /**
      * Recherche des événements en fonction d'un texte, en examinant le titre,
@@ -131,25 +96,24 @@ Optional<Event> findByIdWithAllRelations(@Param("id") UUID id);
      * @return la liste des événements correspondant au texte recherché
      */
     @Query("""
-  SELECT DISTINCT e FROM Event e
-  JOIN FETCH e.activity a
-  LEFT JOIN FETCH e.address addr
-  LEFT JOIN FETCH e.participants p
-  LEFT JOIN FETCH p.user
-  WHERE e.deletedAt IS NULL
-    AND (
-      LOWER(e.title) LIKE LOWER(CONCAT('%', :query, '%'))
-      OR LOWER(a.name) LIKE LOWER(CONCAT('%', :query, '%'))
-      OR LOWER(CONCAT(
-        COALESCE(addr.street, ''), ' ',
-        COALESCE(addr.postalCode, ''), ' ',
-        COALESCE(addr.city, '')
-      )) LIKE LOWER(CONCAT('%', :query, '%'))
-    )
-""")
+      SELECT DISTINCT e FROM Event e
+      JOIN FETCH e.activity a
+      LEFT JOIN FETCH e.address addr
+      LEFT JOIN FETCH e.participants p
+      LEFT JOIN FETCH p.user
+      WHERE e.deletedAt IS NULL
+        AND (
+          LOWER(e.title) LIKE LOWER(CONCAT('%', :query, '%'))
+          OR LOWER(a.name) LIKE LOWER(CONCAT('%', :query, '%'))
+          OR LOWER(CONCAT(
+            COALESCE(addr.street, ''), ' ',
+            COALESCE(addr.postalCode, ''), ' ',
+            COALESCE(addr.city, '')
+          )) LIKE LOWER(CONCAT('%', :query, '%'))
+        )
+    """)
     List<Event> searchActiveEvents(@Param("query") String query);
 
     List<Event> findByDeletedAtIsNull();
 
-    List<Event> findByDeletedAtIsNotNull();
 }

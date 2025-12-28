@@ -31,10 +31,15 @@ import com.example.meetmates.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Service de gestion des événements. Fournit les fonctionnalités de création,
- * mise à jour, suppression, recherche et récupération des événements. Gère
- * également l'ajout de participants et la récupération des détails liés aux
- * événements.
+ * Service de gestion des événements.
+ *
+ * Ce service encapsule l’ensemble des règles métier liées aux événements : -
+ * création et modification par un organisateur - suppression logique (soft
+ * delete) - recherche et consultation publique - récupération des détails
+ * complets d’un événement
+ *
+ * Il gère également les relations entre événements et participants
+ * (organisateur, statuts de participation).
  */
 @Slf4j
 @Service
@@ -59,12 +64,17 @@ public class EventService {
     }
 
     /**
-     * Crée un nouvel événement et l'associe à l'utilisateur authentifié en tant
-     * qu'organisateur.
+     * Crée un nouvel événement et associe automatiquement l'utilisateur
+     * authentifié en tant qu'organisateur.
      *
-     * @param req DTO contenant les informations de l'événement
-     * @return DTO de réponse de l'événement créé
-     * @throws ApiException si l'activité liée n'existe pas
+     * Règles métier : - l'utilisateur authentifié devient ORGANIZER avec le
+     * statut ACCEPTED - l'activité associée doit exister
+     *
+     * @param req données de création de l'événement
+     * @return DTO de l'événement créé
+     *
+     * @throws ApiException si l'activité n'existe pas ou si l'utilisateur n'est
+     * pas authentifié
      */
     @Transactional
     public EventResponseDto createEvent(EventRequestDto req) {
@@ -223,9 +233,7 @@ public class EventService {
             throw new ApiException(ErrorCode.EVENT_FORBIDDEN);
         }
 
-        // 🔥 SOFT DELETE UNIQUEMENT
         event.setDeletedAt(LocalDateTime.now());
-
         eventRepository.save(event);
 
         log.info("Organisateur {} a soft-delete l'événement {}", currentUser.getEmail(), eventId);

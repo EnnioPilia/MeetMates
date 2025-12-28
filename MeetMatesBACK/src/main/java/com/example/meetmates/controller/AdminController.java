@@ -35,7 +35,6 @@ public class AdminController {
     private final UserMapper userMapper;
     private final MessageService messageService;
 
-    /* ===================== USERS ===================== */
     /**
      * Récupère tous les utilisateurs (admin uniquement). Sécurisé par une règle
      * custom : seul un administrateur peut effectuer cette action.
@@ -67,7 +66,7 @@ public class AdminController {
 
         return ResponseEntity.ok(
                 new ApiResponse<>(
-                        messageService.get("USER_DELETE_SUCCESS"),
+                        messageService.get("ADMIN_USER_SOFT_DELETE_SUCCESS"),
                         null
                 )
         );
@@ -81,7 +80,7 @@ public class AdminController {
 
         return ResponseEntity.ok(
                 new ApiResponse<>(
-                        messageService.get("USER_RESTORE_SUCCESS"),
+                        messageService.get("ADMIN_USER_RESTORE_SUCCESS"),
                         null
                 )
         );
@@ -95,13 +94,12 @@ public class AdminController {
 
         return ResponseEntity.ok(
                 new ApiResponse<>(
-                        messageService.get("USER_HARD_DELETE_SUCCESS"),
+                        messageService.get("ADMIN_USER_HARD_DELETE_SUCCESS"),
                         null
                 )
         );
     }
 
-    /* ===================== EVENTS ===================== */
     @GetMapping("/events")
     public ResponseEntity<ApiResponse<List<EventResponseDto>>> getAllEvents() {
         log.info("ADMIN – récupération de tous les événements");
@@ -122,7 +120,7 @@ public class AdminController {
 
         return ResponseEntity.ok(
                 new ApiResponse<>(
-                        messageService.get("EVENT_DELETE_SUCCESS"),
+                        messageService.get("ADMIN_EVENT_SOFT_DELETE_SUCCESS"),
                         null
                 )
         );

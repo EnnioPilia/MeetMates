@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import com.example.meetmates.model.EventUser;
 import com.example.meetmates.model.EventUser.ParticipantRole;
@@ -12,25 +13,17 @@ import com.example.meetmates.model.EventUser.ParticipantRole;
 /**
  * Repository dédié à la gestion des entités {@link EventUser}.
  *
- * Cette interface fournit les opérations CRUD standard via {@link JpaRepository},
- * ainsi que plusieurs méthodes permettant de rechercher ou vérifier la présence
- * d’un utilisateur dans un événement, déterminer son rôle ou son statut de participation.
+ * Cette interface fournit les opérations CRUD standard via
+ * {@link JpaRepository}, ainsi que plusieurs méthodes permettant de rechercher
+ * ou vérifier la présence d’un utilisateur dans un événement, déterminer son
+ * rôle ou son statut de participation.
  *
- * Elle facilite également l’extraction de listes de participants selon divers critères
- * comme l’événement, l’utilisateur, le rôle ou les statuts exclus.
+ * Elle facilite également l’extraction de listes de participants selon divers
+ * critères comme l’événement, l’utilisateur, le rôle ou les statuts exclus.
  *
  * L’implémentation est automatiquement fournie par Spring Data JPA.
  */
 public interface EventUserRepository extends JpaRepository<EventUser, UUID> {
-
-    /**
-     * Vérifie si un utilisateur est déjà lié à un événement.
-     *
-     * @param eventId l'identifiant de l'événement
-     * @param userId l'identifiant de l'utilisateur
-     * @return true si l'association existe, sinon false
-     */
-    boolean existsByEventIdAndUserId(UUID eventId, UUID userId);
 
     /**
      * Recherche l’association entre un événement et un utilisateur.
@@ -50,14 +43,6 @@ public interface EventUserRepository extends JpaRepository<EventUser, UUID> {
     List<EventUser> findAllByUserId(UUID userId);
 
     /**
-     * Recherche toutes les associations pour un événement donné.
-     *
-     * @param eventId l'identifiant de l'événement
-     * @return la liste des utilisateurs associés à cet événement
-     */
-    List<EventUser> findAllByEventId(UUID eventId);
-
-    /**
      * Recherche les participations d’un utilisateur selon un rôle spécifique.
      *
      * @param userId l'identifiant de l'utilisateur
@@ -67,19 +52,8 @@ public interface EventUserRepository extends JpaRepository<EventUser, UUID> {
     List<EventUser> findAllByUserIdAndRole(UUID userId, ParticipantRole role);
 
     /**
-     * Recherche les participations d’un utilisateur en excluant certains statuts.
-     *
-     * @param userId l'identifiant de l'utilisateur
-     * @param excludedStatuses les statuts à exclure
-     * @return la liste correspondante des participations filtrées
-     */
-    List<EventUser> findAllByUserIdAndParticipationStatusNotIn(
-            UUID userId,
-            List<EventUser.ParticipationStatus> excludedStatuses
-    );
-
-    /**
-     * Recherche les participations d’un utilisateur selon un rôle, et en excluant certains statuts.
+     * Recherche les participations d’un utilisateur selon un rôle, et en
+     * excluant certains statuts.
      *
      * @param userId l'identifiant de l'utilisateur
      * @param role le rôle du participant
@@ -91,4 +65,18 @@ public interface EventUserRepository extends JpaRepository<EventUser, UUID> {
             ParticipantRole role,
             List<EventUser.ParticipationStatus> excludedStatuses
     );
+
+    @Query("""
+        SELECT eu
+        FROM EventUser eu
+        JOIN eu.event e
+        WHERE eu.user.id = :userId
+        AND eu.role = :role
+        AND e.deletedAt IS NULL
+        """)
+    List<EventUser> findActiveByUserIdAndRole(
+            UUID userId,
+            ParticipantRole role
+    );
+
 }
