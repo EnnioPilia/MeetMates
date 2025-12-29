@@ -35,6 +35,12 @@ body {
   border-bottom: black solid 1px !important;
 }
 
+app-button.secondary-button button {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
 p {
   font-weight: 700;
   color: #000000;
@@ -65,6 +71,15 @@ h3 {
   cursor: pointer;
 }
 
+.user-card {
+  background-color: #ddedff !important;
+  box-shadow: 0 6px 10px -6px rgba(0, 0, 0, 0.6) !important;
+  border: 1px solid #6d829b !important;
+  margin-bottom: 3rem !important;
+  padding-bottom: 1rem;
+
+}
+
 // Organization and Participant TABS (profil)
 mat-expansion-panel {
   box-shadow: 0 6px 8px -6px rgba(0, 0, 0, 0.8) !important;
@@ -74,6 +89,7 @@ mat-expansion-panel {
   background-color: #f5f8fd !important;
   border-radius: 0 !important;
 }
+
 .mat-accordion .mat-expansion-panel:not(.mat-expanded),
 .mat-accordion .mat-expansion-panel:not(.mat-expansion-panel-spacing) {
   border-radius: 3px !important;
@@ -102,6 +118,7 @@ mat-expansion-panel {
   background-color: #f3f4f6 !important;
   width: 20rem !important;
 }
+
 .mat-calendar-body-cell {
   background-color: #f3f4f6 !important;
 }
@@ -137,17 +154,17 @@ mat-error {
 // Clic effects
 .primary-button {
   cursor: pointer;
-  transition: transform 0.05s cubic-bezier(0.25, 0.1, 0.25, 1), 
+  transition: transform 0.05s cubic-bezier(0.25, 0.1, 0.25, 1),
 }
 
 .primary-button:active {
   transform: translateY(4px);
-  box-shadow: 0 1.5px 0 #000000; 
+  box-shadow: 0 1.5px 0 #000000;
 }
 
 .icon-card {
   cursor: pointer;
-  transition: transform 0.05s cubic-bezier(0.25, 0.1, 0.25, 1), 
+  transition: transform 0.05s cubic-bezier(0.25, 0.1, 0.25, 1),
 }
 
 .icon-card:active {

@@ -9,6 +9,7 @@ import { AppButtonComponent } from '../../../shared-components/button/button.com
 import { MatExpansionModule } from '@angular/material/expansion';
 import { EventHeaderComponent } from '../../../shared-components/event-header/event-header.component';
 import { EventInfoComponent } from '../../../shared-components/event-info/event-info.component';
+
 @Component({
   selector: 'app-admin-events',
   standalone: true,
@@ -18,7 +19,7 @@ import { EventInfoComponent } from '../../../shared-components/event-info/event-
     AppButtonComponent,
     MatExpansionModule,
     EventHeaderComponent,
-    EventInfoComponent
+    EventInfoComponent,
   ],
   templateUrl: './admin-events.component.html',
   styleUrls: ['./admin-events.component.scss'],
@@ -33,6 +34,8 @@ export class AdminEventsComponent implements OnInit {
   readonly events = this.adminFacade.events;
   readonly loading = this.adminFacade.loading;
   readonly error = this.adminFacade.error;
+
+  participants: { id: string; firstName: string; lastName: string }[] = [];
 
   ngOnInit(): void {
     this.adminFacade.loadEvents().subscribe();

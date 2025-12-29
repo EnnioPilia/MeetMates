@@ -9,11 +9,12 @@
 
     <mat-accordion multi class="flex flex-col gap-4 p-4 mt-5">
 
+      <h2 class="text-3xl font-semibold text-center">
+        Liste des événements
+      </h2>
+
       @for (event of events(); track event.id) {
-
         <mat-expansion-panel>
-
-          <!-- HEADER -->
           <mat-expansion-panel-header>
             <div class="flex justify-between w-full">
               <span class="font-semibold">
@@ -39,6 +40,24 @@
               [showStatus]="true"
               [showOrganizer]="true">
             </app-event-info>
+
+            <div class="flex flex-col w-full mt-4">
+              <p class="font-semibold text-lg mb-2 border-b border-black">
+                LISTE DES PARTICIPANTS :
+              </p>
+
+              @if (event.participantNames.length > 0) {
+                <ul class="list-disc pl-6 flex flex-col gap-1">
+                  @for (name of event.participantNames; track name) {
+                    <li>{{ name }}</li>
+                  }
+                </ul>
+              } @else {
+                <p class="text-gray-500">
+                  Aucun participant accepté pour le moment.
+                </p>
+              }
+            </div>
 
             <div class="flex flex-col gap-3 mt-4">
 
@@ -75,7 +94,7 @@
     </mat-accordion>
 
 } @else {
-  <p class="text-gray-500 text-center mt-6">
+  <p class="text-gray-500 text-center mt-12">
     Aucun événement trouvé.
   </p>
 }
