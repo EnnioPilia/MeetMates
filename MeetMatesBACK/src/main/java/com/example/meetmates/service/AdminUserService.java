@@ -35,7 +35,7 @@ public class AdminUserService {
 
     @Transactional(readOnly = true)
     public List<User> getAllUsersIncludingDeleted() {
-        return userRepository.findAll(); // tous les utilisateurs
+        return userRepository.findAll(); 
     }
 
     /* ===================== WRITE ===================== */
@@ -48,7 +48,7 @@ public class AdminUserService {
 
         user.setDeletedAt(LocalDateTime.now());
         user.setEnabled(false);
-        user.setStatus(UserStatus.BANNED); // <-- statut BANNED pour soft delete
+        user.setStatus(UserStatus.BANNED);
 
         log.warn("ADMIN soft-deleted (banned) user {}", user.getEmail());
     }
