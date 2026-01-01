@@ -16,8 +16,9 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Service pour l'envoi des emails via SMTP.
- * Utilise des templates HTML avec Thymeleaf pour la réinitialisation de mot de passe et la vérification de compte.
+ * Service pour l'envoi des emails via SMTP. Utilise des templates HTML avec
+ * Thymeleaf pour la réinitialisation de mot de passe et la vérification de
+ * compte.
  */
 @Slf4j
 @Service
@@ -38,11 +39,12 @@ public class EmailService {
     }
 
     /**
-     * Envoie un email de réinitialisation du mot de passe à l'utilisateur.
-     * Le mail contient un lien vers la page de réinitialisation avec le token associé.
+     * Envoie un email de réinitialisation du mot de passe à l'utilisateur. Le
+     * mail contient un lien vers la page de réinitialisation avec le token
+     * associé.
      *
      * @param toEmail adresse email du destinataire
-     * @param token   token de réinitialisation du mot de passe
+     * @param token token de réinitialisation du mot de passe
      */
     public void sendPasswordResetEmail(String toEmail, String token) {
         String url = frontendUrl + "/reset-password?token=" + token;
@@ -60,11 +62,11 @@ public class EmailService {
     }
 
     /**
-     * Envoie un email de vérification du compte à l'utilisateur.
-     * Le mail contient un lien vers la page de vérification avec le token associé.
+     * Envoie un email de vérification du compte à l'utilisateur. Le mail
+     * contient un lien vers la page de vérification avec le token associé.
      *
      * @param toEmail adresse email du destinataire
-     * @param token   token de vérification du compte
+     * @param token token de vérification du compte
      */
     public void sendVerificationEmail(String toEmail, String token) {
         String url = frontendUrl + "/verify?token=" + token;
@@ -84,16 +86,16 @@ public class EmailService {
     /**
      * Méthode générique pour envoyer un email HTML.
      *
-     * @param toEmail     adresse email du destinataire
-     * @param subject     objet de l'email
+     * @param toEmail adresse email du destinataire
+     * @param subject objet de l'email
      * @param htmlContent contenu HTML de l'email
      * @throws ApiException si l'envoi échoue
      */
     private void sendHtmlEmail(String toEmail, String subject, String htmlContent) {
         try {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
-            MimeMessageHelper helper =
-                    new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, "UTF-8");
+            MimeMessageHelper helper
+                    = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, "UTF-8");
 
             helper.setFrom(fromEmail);
             helper.setTo(toEmail);
@@ -108,5 +110,8 @@ public class EmailService {
             throw new ApiException(ErrorCode.EMAIL_SEND_FAILED);
         }
     }
+
+public void setFrontendUrl(String frontendUrl) { this.frontendUrl = frontendUrl; }
+public void setFromEmail(String fromEmail) { this.fromEmail = fromEmail; }
 
 }
