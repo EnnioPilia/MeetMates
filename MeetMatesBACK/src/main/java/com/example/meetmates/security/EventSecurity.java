@@ -5,10 +5,10 @@ import java.util.UUID;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import com.example.meetmates.model.EventUser.ParticipantRole;
-import com.example.meetmates.model.User;
-import com.example.meetmates.repository.EventUserRepository;
-import com.example.meetmates.repository.UserRepository;
+import com.example.meetmates.event.model.EventUser.ParticipantRole;
+import com.example.meetmates.event.repository.EventUserRepository;
+import com.example.meetmates.user.model.User;
+import com.example.meetmates.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 

@@ -9,11 +9,11 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.example.meetmates.exception.ApiException;
-import com.example.meetmates.model.Token;
-import com.example.meetmates.service.CookieService;
-import com.example.meetmates.service.RefreshTokenService;
-import com.example.meetmates.service.UserService;
+import com.example.meetmates.auth.model.Token;
+import com.example.meetmates.auth.service.RefreshTokenService;
+import com.example.meetmates.common.exception.ApiException;
+import com.example.meetmates.common.service.CookieService;
+import com.example.meetmates.user.service.UserService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
