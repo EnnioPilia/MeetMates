@@ -32,6 +32,11 @@ import com.example.meetmates.event.model.Event.MaterialOption;
 import com.example.meetmates.event.service.EventService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+
+//  Ce test n’est pas un IT
+
+//  C’est un Controller Slice déguisé en IT
+
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
 class EventControllerIT {

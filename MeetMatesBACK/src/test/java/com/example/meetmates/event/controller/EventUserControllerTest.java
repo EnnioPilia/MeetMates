@@ -1,175 +1,210 @@
-// package com.example.meetmates.event.controller;
+package com.example.meetmates.event.controller;
 
-// import static org.mockito.ArgumentMatchers.any;
-// import static org.mockito.Mockito.doNothing;
-// import static org.mockito.Mockito.when;
-// import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-// import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-// import java.util.List;
-// import java.util.UUID;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
-// import org.junit.jupiter.api.BeforeEach;
-// import org.junit.jupiter.api.Test;
-// import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-// import org.springframework.boot.test.context.SpringBootTest;
-// import org.springframework.boot.test.mock.mockito.MockBean;
-// import org.springframework.security.test.context.support.WithMockUser;
-// import org.springframework.test.web.servlet.MockMvc;
-// import com.example.meetmates.security.EventSecurity;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
 
-// import com.example.meetmates.address.dto.AddressDto;
-// import com.example.meetmates.event.dto.EventUserDto;
-// import com.example.meetmates.event.service.EventUserService;
-// import com.example.meetmates.user.model.User;
-// import com.example.meetmates.user.repository.UserRepository;
-// import com.example.meetmates.common.service.MessageService;
+import com.example.meetmates.common.service.MessageService;
+import com.example.meetmates.config.TestSecurityConfig;
+import com.example.meetmates.event.dto.EventUserDto;
+import com.example.meetmates.event.service.EventUserService;
+import com.example.meetmates.security.EventSecurity;
+import com.example.meetmates.user.model.User;
+import com.example.meetmates.user.repository.UserRepository;
 
-// @SpringBootTest
-// @AutoConfigureMockMvc(addFilters = false) // désactive Spring Security HTTP
-// class EventUserControllerTest {
+@WebMvcTest(
+    controllers = EventUserController.class,
+    excludeFilters = {
+        @ComponentScan.Filter(
+            type = FilterType.ASSIGNABLE_TYPE,
+            classes = com.example.meetmates.security.JwtAuthenticationFilter.class
+        )
+    }
+)
+@AutoConfigureMockMvc
+@Import(TestSecurityConfig.class)
+class EventUserControllerTest {
 
-//     @Autowired
-//     private MockMvc mockMvc;
+    @Autowired
+    private MockMvc mockMvc;
 
-//     @MockBean
-//     private EventUserService eventUserService;
+    @MockBean
+    private EventUserService eventUserService;
 
-//     @MockBean
-//     private UserRepository userRepository;
+    @MockBean
+    private UserRepository userRepository;
 
-//     @MockBean
-//     private MessageService messageService;
+    @MockBean
+    private MessageService messageService;
 
-//     @MockBean
-//     private EventSecurity eventSecurity; // MOCK pour éviter PreAuthorize AccessDenied
+    @MockBean(name = "eventSecurity")
+    private EventSecurity eventSecurity;
 
-//     private User mockUser;
-//     private EventUserDto mockEventUserDto;
+    /* ===== UTILS ===== */
 
-//     @BeforeEach
-//     void setup() {
-//         mockUser = new User();
-//         mockUser.setId(UUID.randomUUID());
-//         mockUser.setEmail("test@example.com");
+    private User mockUser() {
+        User user = new User();
+        user.setId(UUID.randomUUID());
+        user.setEmail("user@test.com");
+        return user;
+    }
 
-//         AddressDto address = new AddressDto(UUID.randomUUID(), "Street", "City", "75000");
+    private EventUserDto mockEventUserDto() {
+        return new EventUserDto(
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                "Event title",
+                "Event description",
+                UUID.randomUUID(),
+                "John",
+                "Doe",
+                "john.doe@test.com",
+                "PARTICIPANT",
+                "PENDING",
+                "2024-01-01T10:00:00",
+                "OPEN",
+                "2024-02-01",
+                null,
+                "Football"
+        );
+    }
 
-//         mockEventUserDto = new EventUserDto(
-//                 UUID.randomUUID(),
-//                 UUID.randomUUID(),
-//                 "Titre événement",
-//                 "Description",
-//                 mockUser.getId(),
-//                 "John",
-//                 "Doe",
-//                 mockUser.getEmail(),
-//                 "PARTICIPANT",
-//                 "JOINED",
-//                 "2026-01-02T10:00",
-//                 "OPEN",
-//                 "2026-01-10",
-//                 address,
-//                 "Basketball"
-//         );
+    /* ===== TESTS ===== */
 
-//         // Important : SecurityContextHolder utilisera "test@example.com"
-//         when(userRepository.findByEmail("test@example.com"))
-//                 .thenReturn(java.util.Optional.of(mockUser));
+    @Test
+    @WithMockUser(username = "user@test.com")
+    void joinEvent_shouldReturn200() throws Exception {
+        UUID eventId = UUID.randomUUID();
+        User user = mockUser();
 
-//         // Toujours renvoyer true pour EventSecurity pour éviter AccessDenied
-//         when(eventSecurity.isOrganizer(any(UUID.class))).thenReturn(true);
-//         when(eventSecurity.isOrganizerByEventUserId(any(UUID.class))).thenReturn(true);
-//     }
+        when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
+        when(eventUserService.joinEvent(eventId, user.getId()))
+                .thenReturn(mockEventUserDto());
+        when(messageService.get("EVENT_JOIN_SUCCESS"))
+                .thenReturn("Event rejoint");
 
-//     @Test
-//     @WithMockUser(username = "test@example.com")
-//     void joinEvent_shouldReturn200() throws Exception {
-//         UUID eventId = UUID.randomUUID();
+        mockMvc.perform(post("/event-user/{eventId}/join", eventId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Event rejoint"));
+    }
 
-//         when(eventUserService.joinEvent(eventId, mockUser.getId())).thenReturn(mockEventUserDto);
-//         when(messageService.get("EVENT_JOIN_SUCCESS")).thenReturn("Participant ajouté avec succès");
+    @Test
+    @WithMockUser(username = "user@test.com")
+    void leaveEvent_shouldReturn200() throws Exception {
+        UUID eventId = UUID.randomUUID();
+        User user = mockUser();
 
-//         mockMvc.perform(post("/event-user/{eventId}/join", eventId))
-//                 .andExpect(status().isOk())
-//                 .andExpect(jsonPath("$.message").value("Participant ajouté avec succès"))
-//                 .andExpect(jsonPath("$.data.id").value(mockEventUserDto.id().toString()));
-//     }
+        when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
+        when(eventUserService.leaveEvent(eventId, user.getId()))
+                .thenReturn(mockEventUserDto());
+        when(messageService.get("EVENT_LEAVE_SUCCESS"))
+                .thenReturn("Event quitté");
 
-//     @Test
-//     @WithMockUser(username = "test@example.com")
-//     void leaveEvent_shouldReturn200() throws Exception {
-//         UUID eventId = UUID.randomUUID();
+        mockMvc.perform(delete("/event-user/{eventId}/leave", eventId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Event quitté"));
+    }
 
-//         when(eventUserService.leaveEvent(eventId, mockUser.getId())).thenReturn(mockEventUserDto);
-//         when(messageService.get("EVENT_LEAVE_SUCCESS")).thenReturn("Participant retiré avec succès");
+    @Test
+    void acceptParticipant_shouldReturn200() throws Exception {
+        UUID eventUserId = UUID.randomUUID();
 
-//         mockMvc.perform(delete("/event-user/{eventId}/leave", eventId))
-//                 .andExpect(status().isOk())
-//                 .andExpect(jsonPath("$.message").value("Participant retiré avec succès"));
-//     }
+        when(eventSecurity.isOrganizerByEventUserId(eventUserId)).thenReturn(true);
+        when(eventUserService.acceptParticipant(eventUserId))
+                .thenReturn(mockEventUserDto());
+        when(messageService.get("EVENT_PARTICIPANT_ACCEPT_SUCCESS"))
+                .thenReturn("Participant accepté");
 
-//     @Test
-//     void acceptParticipant_shouldReturn200() throws Exception {
-//         UUID eventUserId = UUID.randomUUID();
+        mockMvc.perform(put("/event-user/{id}/accept", eventUserId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Participant accepté"));
+    }
 
-//         when(eventUserService.acceptParticipant(eventUserId)).thenReturn(mockEventUserDto);
-//         when(messageService.get("EVENT_PARTICIPANT_ACCEPT_SUCCESS")).thenReturn("Participant accepté");
+    @Test
+    void rejectParticipant_shouldReturn200() throws Exception {
+        UUID eventUserId = UUID.randomUUID();
 
-//         mockMvc.perform(put("/event-user/{eventUserId}/accept", eventUserId))
-//                 .andExpect(status().isOk())
-//                 .andExpect(jsonPath("$.message").value("Participant accepté"));
-//     }
+        when(eventSecurity.isOrganizerByEventUserId(eventUserId)).thenReturn(true);
+        when(eventUserService.rejectParticipant(eventUserId))
+                .thenReturn(mockEventUserDto());
+        when(messageService.get("EVENT_PARTICIPANT_REJECT_SUCCESS"))
+                .thenReturn("Participant refusé");
 
-//     @Test
-//     void rejectParticipant_shouldReturn200() throws Exception {
-//         UUID eventUserId = UUID.randomUUID();
+        mockMvc.perform(put("/event-user/{id}/reject", eventUserId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Participant refusé"));
+    }
 
-//         when(eventUserService.rejectParticipant(eventUserId)).thenReturn(mockEventUserDto);
-//         when(messageService.get("EVENT_PARTICIPANT_REJECT_SUCCESS")).thenReturn("Participant refusé");
+    @Test
+    @WithMockUser(username = "user@test.com")
+    void getEventsParticipating_shouldReturn200() throws Exception {
+        User user = mockUser();
 
-//         mockMvc.perform(put("/event-user/{eventUserId}/reject", eventUserId))
-//                 .andExpect(status().isOk())
-//                 .andExpect(jsonPath("$.message").value("Participant refusé"));
-//     }
+        when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
+        when(eventUserService.findByUserId(user.getId()))
+                .thenReturn(List.of(mockEventUserDto()));
+        when(messageService.get("EVENT_PARTICIPATING_LIST_SUCCESS"))
+                .thenReturn("Liste participation");
 
-//     @Test
-//     @WithMockUser(username = "test@example.com")
-//     void getEventsParticipating_shouldReturn200() throws Exception {
-//         when(eventUserService.findByUserId(mockUser.getId())).thenReturn(List.of(mockEventUserDto));
-//         when(messageService.get("EVENT_PARTICIPATING_LIST_SUCCESS")).thenReturn("Liste des événements participant");
+        mockMvc.perform(get("/event-user/participating"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Liste participation"));
+    }
 
-//         mockMvc.perform(get("/event-user/participating"))
-//                 .andExpect(status().isOk())
-//                 .andExpect(jsonPath("$.message").value("Liste des événements participant"))
-//                 .andExpect(jsonPath("$.data[0].id").value(mockEventUserDto.id().toString()));
-//     }
+    @Test
+    @WithMockUser(username = "user@test.com")
+    void getEventsOrganized_shouldReturn200() throws Exception {
+        User user = mockUser();
 
-//     @Test
-//     @WithMockUser(username = "test@example.com")
-//     void getEventsOrganized_shouldReturn200() throws Exception {
-//         when(eventUserService.findOrganizedByUserId(mockUser.getId())).thenReturn(List.of(mockEventUserDto));
-//         when(messageService.get("EVENT_ORGANIZED_LIST_SUCCESS")).thenReturn("Liste des événements organisés");
+        when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
+        when(eventUserService.findOrganizedByUserId(user.getId()))
+                .thenReturn(List.of(mockEventUserDto()));
+        when(messageService.get("EVENT_ORGANIZED_LIST_SUCCESS"))
+                .thenReturn("Liste organisée");
 
-//         mockMvc.perform(get("/event-user/organized"))
-//                 .andExpect(status().isOk())
-//                 .andExpect(jsonPath("$.message").value("Liste des événements organisés"))
-//                 .andExpect(jsonPath("$.data[0].id").value(mockEventUserDto.id().toString()));
-//     }
+        mockMvc.perform(get("/event-user/organized"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Liste organisée"));
+    }
 
-//     @Test
-//     @WithMockUser(username = "test@example.com")
-//     void removeParticipant_shouldReturn200() throws Exception {
-//         UUID eventId = UUID.randomUUID();
-//         UUID userId = UUID.randomUUID();
+    @Test
+    @WithMockUser(username = "organizer@test.com")
+    void removeParticipant_shouldReturn200() throws Exception {
+        UUID eventId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+        User organizer = mockUser();
 
-//         doNothing().when(eventUserService).removeParticipant(eventId, userId, mockUser.getId());
-//         when(messageService.get("EVENT_PARTICIPANT_REMOVE_SUCCESS")).thenReturn("Participant retiré");
+        when(userRepository.findByEmail(anyString()))
+                .thenReturn(Optional.of(organizer));
+        when(eventSecurity.isOrganizer(eventId))
+                .thenReturn(true);
 
-//         mockMvc.perform(delete("/event-user/{eventId}/participants/{userId}", eventId, userId))
-//                 .andExpect(status().isOk())
-//                 .andExpect(jsonPath("$.message").value("Participant retiré"))
-//                 .andExpect(jsonPath("$.data").isEmpty());
-//     }
-// }
+        doNothing().when(eventUserService)
+                .removeParticipant(eventId, userId, organizer.getId());
+
+        when(messageService.get("EVENT_PARTICIPANT_REMOVE_SUCCESS"))
+                .thenReturn("Participant retiré");
+
+        mockMvc.perform(delete("/event-user/{eventId}/participants/{userId}", eventId, userId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Participant retiré"));
+    }
+}
