@@ -34,8 +34,8 @@ import { AuthFacade } from './core/facades/auth/auth.facade';
     HeaderComponent, 
     FooterComponent
   ],
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  templateUrl: './app.component.html'
+
 })
 export class AppComponent {
 

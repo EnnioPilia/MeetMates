@@ -1,29 +1,101 @@
-// import { TestBed } from '@angular/core/testing';
-// import { AppComponent } from './app.component';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
+import { Router, NavigationEnd } from '@angular/router';
+import { Subject, of } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
 
-// describe('AppComponent', () => {
-//   beforeEach(async () => {
-//     await TestBed.configureTestingModule({
-//       imports: [AppComponent],
-//     }).compileComponents();
-//   });
+import { AppComponent } from './app.component';
 
-//   it('should create the app', () => {
-//     const fixture = TestBed.createComponent(AppComponent);
-//     const app = fixture.componentInstance;
-//     expect(app).toBeTruthy();
-//   });
+// Services
+import { SignalsService } from './core/services/signals/signals.service';
+import { AuthFacade } from './core/facades/auth/auth.facade';
 
-//   it(`should have the 'AdminFindersKeepers' title`, () => {
-//     const fixture = TestBed.createComponent(AppComponent);
-//     const app = fixture.componentInstance;
-//     expect(app.title).toEqual('AdminFindersKeepers');
-//   });
+// -----------------------------------------------------------------------------
+// MOCKS
+// -----------------------------------------------------------------------------
 
-//   it('should render title', () => {
-//     const fixture = TestBed.createComponent(AppComponent);
-//     fixture.detectChanges();
-//     const compiled = fixture.nativeElement as HTMLElement;
-//     expect(compiled.querySelector('h1')?.textContent).toContain('Hello, AdminFindersKeepers');
-//   });
-// });
+const routerEvents$ = new Subject<any>();
+
+const routerSpy = {
+  events: routerEvents$.asObservable(),
+  navigate: jasmine.createSpy('navigate'),
+};
+
+const activatedRouteMock: any = {
+  root: {
+    firstChild: null,
+    snapshot: {
+      data: {}
+    }
+  }
+};
+
+const signalsServiceMock = {
+  pageTitle: signal('MeetMates'),
+  currentUser: signal(null),
+  setPageTitle: jasmine.createSpy('setPageTitle')
+};
+
+const authFacadeSpy = jasmine.createSpyObj('AuthFacade', ['loadCurrentUser']);
+authFacadeSpy.loadCurrentUser.and.returnValue(of({}));
+
+// -----------------------------------------------------------------------------
+// TESTS
+// -----------------------------------------------------------------------------
+
+describe('AppComponent', () => {
+  let component: AppComponent;
+  let fixture: ComponentFixture<AppComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [AppComponent],
+      providers: [
+        { provide: Router, useValue: routerSpy },
+        { provide: ActivatedRoute, useValue: activatedRouteMock },
+        { provide: SignalsService, useValue: signalsServiceMock },
+        { provide: AuthFacade, useValue: authFacadeSpy }
+      ]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(AppComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges(); // 🔥 déclenche ngOnInit
+  });
+
+  // ---------------------------------------------------------------------------
+  // BASE
+  // ---------------------------------------------------------------------------
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+
+  // ---------------------------------------------------------------------------
+  // INIT
+  // ---------------------------------------------------------------------------
+
+  it('should load current user on init', () => {
+    expect(authFacadeSpy.loadCurrentUser).toHaveBeenCalled();
+  });
+
+  // ---------------------------------------------------------------------------
+  // PAGE TITLE
+  // ---------------------------------------------------------------------------
+
+  it('should update page title on NavigationEnd', () => {
+    routerEvents$.next(new NavigationEnd(1, '/test', '/test'));
+
+    expect(signalsServiceMock.setPageTitle)
+      .toHaveBeenCalledWith('MeetMates');
+  });
+
+  it('should fallback to default title when no route title is provided', () => {
+    activatedRouteMock.root.snapshot.data = {};
+
+    routerEvents$.next(new NavigationEnd(1, '/', '/'));
+
+    expect(signalsServiceMock.setPageTitle)
+      .toHaveBeenCalledWith('MeetMates');
+  });
+});

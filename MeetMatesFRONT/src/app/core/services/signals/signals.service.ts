@@ -13,7 +13,7 @@ export interface CurrentUser {
   firstName: string;
   lastName: string;
   email: string;
-  role: 'USER' | 'ADMIN'; // ✅ AJOUT ICI
+  role: 'USER' | 'ADMIN'; 
   profilePictureUrl?: string | null;
 }
 
