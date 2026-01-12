@@ -5,35 +5,37 @@
 
 ## 📌 Présentation
 
-Meet Mates est une application web permettant aux utilisateurs de découvrir, organiser et participer
+**Meet Mates** est une application web permettant aux utilisateurs de découvrir, organiser et participer  
 à des activités variées afin de rencontrer de nouvelles personnes et partager des moments de convivialité.
 
-Les utilisateurs peuvent consulter des événements publiés par la communauté, participer à des activités existantes
-ou créer leurs propres annonces afin d’inviter d’autres membres à les rejoindre.
+Les utilisateurs peuvent :
+- consulter des événements publiés par la communauté
+- participer à des activités existantes
+- créer leurs propres annonces afin d’inviter d’autres membres
 
-Ce projet a été réalisé dans le cadre de la formation **Concepteur Développeur d’Applications (CDA)**.
+Projet réalisé dans le cadre de la formation **Concepteur Développeur d’Applications (CDA)**.
 
 ---
 
 ## 🚀 Fonctionnalités
 
 ### 👤 Utilisateur
-- Création de compte utilisateur
-- Authentification sécurisée via JWT (cookies HTTP-only + refresh token)
-- Modification du profil utilisateur
-- Suppression du compte (soft delete et hard delete)
+- Création de compte
+- Authentification sécurisée (JWT + cookies HTTP-only)
+- Gestion du profil utilisateur
+- Suppression du compte (soft delete / hard delete)
 - Consultation des événements
 - Recherche et filtrage des activités
-- Participation à des événements
-- Création, modification et suppression d’annonces (soft delete et hard delete)
-- Accès à une page **Mes activités** :
+- Participation aux événements
+- Création, modification et suppression d’annonces
+- Page **Mes activités**
   - événements organisés
   - événements auxquels l’utilisateur participe
 
 ### 🛠️ Administration
-- Accès à une interface d’administration dédiée
-- Gestion des utilisateurs (soft delete et hard delete)
-- Gestion des annonces / événements (soft delete et hard delete)
+- Interface d’administration dédiée
+- Gestion des utilisateurs
+- Gestion des annonces et événements
 - Protection des routes administrateur
 
 ---
@@ -49,7 +51,7 @@ Ce projet a été réalisé dans le cadre de la formation **Concepteur Développ
 - Spring Boot
 - Java
 - Spring Security
-- MySQL (Workbench)
+- MySQL
 
 ### Outils & DevOps
 - Git / GitHub
@@ -61,24 +63,25 @@ Ce projet a été réalisé dans le cadre de la formation **Concepteur Développ
 
 ## 🏗️ Architecture
 
-- **Frontend** : SPA Angular avec architecture moderne (Standalone Components)
+- **Frontend** : SPA Angular (Standalone Components)
 - **Backend** : API REST Spring Boot
 - **Base de données** : MySQL
-- **Authentification** :
+- **Authentification**
   - JWT stocké en cookies HTTP-only
   - Refresh token
   - Sécurisation via Spring Security
-- **Architecture back-end** :
-  - Controllers
-  - Services
-  - Repositories
-  - DTO / Mappers
-- **Architecture front-end** :
-  - Facades
-  - Services
-  - Guards
-  - Interceptors
-  - Components et Features modulaires
+
+### Back-end
+- Controllers
+- Services
+- Repositories
+- DTO / Mappers
+
+### Front-end
+- Services
+- Guards
+- Interceptors
+- Components & Features modulaires
 
 ---
 
@@ -87,28 +90,27 @@ Ce projet a été réalisé dans le cadre de la formation **Concepteur Développ
 ### Prérequis
 - Node.js >= 22
 - Angular CLI >= 19
-- Java JDK 17 ou supérieur
+- Java JDK 17+
 - Maven
 - MySQL
 - Docker (optionnel)
 
 ---
 
-### 🔧 Installation du back-end
+## 🔧 Installation du back-end
 
 ```bash
 git clone https://github.com/tonpseudo/meet-mates-back.git
 cd meet-mates-back
 mvn clean install
----
-## 🔐 Variables d’environnement
+```
 
-Les données sensibles ne sont **pas stockées en dur** dans les fichiers de configuration.
+🔐 Variables d’environnement
 
-Les fichiers `application.properties` et `application-*.properties` référencent uniquement
+Les données sensibles ne sont pas stockées en dur.
+
+Les fichiers application.properties utilisent uniquement
 des variables d’environnement système.
-
-### Variables requises
 
 ```env
 DB_URL=jdbc:mysql://localhost:3306/meetmates
@@ -116,86 +118,62 @@ DB_USER=your_db_user
 DB_PASS=your_db_password
 JWT_SECRET=your_jwt_secret
 FRONTEND_URL=http://localhost:4200
+```
 
-MAIL_HOST=...
-MAIL_USER=...
-MAIL_PASS=...
----
 ## ▶️ Lancer le back-end
 
 ```bash
 mvn spring-boot:run
 ```
 
-L’API est accessible par défaut à l’adresse :
+API accessible à l’adresse :
 
-```
 http://localhost:8080
-```
 
----
 
-## 🎨 Installation du front-end
-
+🎨 Installation du front-end
 ```bash
 git clone https://github.com/tonpseudo/meet-mates-front.git
 cd meet-mates-front
 npm install
 ```
 
----
-
-## ▶️ Lancer le front-end
-
+▶️ Lancer le front-end
 ```bash
 ng serve
 ```
 
-L’application est accessible à l’adresse :
-
-```
+Application accessible à l’adresse :
 http://localhost:4200
-```
 
----
-
-## 🧪 Tests
-
-### Front-end
-
+🧪 Tests
+Front-end
 ```bash
 ng test
 ```
-
-### Back-end
-
+Back-end
 ```bash
 mvn test
 ```
+Technologies de test
 
-### Technologies de test
+JUnit
+Mockito
+Spring Security Test
+Base de données H2
 
-- JUnit
-- Mockito
-- Spring Security Test
-- Base de données H2 (tests)
+🔐 Sécurité
 
----
+Authentification JWT
+Cookies HTTP-only
+Refresh token
+Rôles User / Admin
+Guards Angular
+Configuration Spring Security
+Aucune clé sensible exposée côté client
 
-## 🔐 Sécurité
+👤 Auteur
 
-- Authentification JWT
-- Cookies HTTP-only
-- Refresh token
-- Protection des routes par rôles (**User / Admin**)
-- Guards Angular côté front
-- Filtres et configuration Spring Security côté back
-- Aucune clé sensible exposée côté client
-
----
-
-## 👤 Auteur
-
-- **Ton Nom**
-- Formation Concepteur Développeur d’Applications (CDA)
-- GitHub : https://github.com/tonpseudo
+Ton Nom
+Formation Concepteur Développeur d’Applications (CDA)
+GitHub : https://github.com/tonpseudo
