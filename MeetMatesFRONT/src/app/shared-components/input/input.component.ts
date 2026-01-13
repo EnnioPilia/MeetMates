@@ -18,7 +18,6 @@ import { MatIconModule } from '@angular/material/icon';
  *
  * Utilisé dans les formulaires de création, édition et recherche.
  */
-
 @Component({
   selector: 'app-input',
   standalone: true,
