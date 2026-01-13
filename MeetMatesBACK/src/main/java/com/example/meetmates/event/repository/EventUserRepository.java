@@ -66,6 +66,17 @@ public interface EventUserRepository extends JpaRepository<EventUser, UUID> {
             List<EventUser.ParticipationStatus> excludedStatuses
     );
 
+    /**
+     * Récupère les participations actives d’un utilisateur pour un rôle donné.
+     * 
+     * Une participation est considérée comme <strong>active</strong> lorsque
+     * l’événement associé n’a pas été supprimé logiquement
+     * ({@code deletedAt IS NULL}).
+     *
+     * @param userId identifiant de l’utilisateur
+     * @param role rôle du participant dans l’événement
+     * @return liste des participations actives correspondant au rôle
+     */
     @Query("""
         SELECT eu
         FROM EventUser eu
@@ -78,5 +89,4 @@ public interface EventUserRepository extends JpaRepository<EventUser, UUID> {
             UUID userId,
             ParticipantRole role
     );
-
 }

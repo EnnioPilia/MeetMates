@@ -51,8 +51,6 @@ public class UserService implements UserDetailsService {
         this.pictureService = pictureService;
     }
 
-
-
     /**
      * Récupère un utilisateur actif par email ou lance une exception.
      *
@@ -162,10 +160,8 @@ public class UserService implements UserDetailsService {
      */
     @Transactional
     public User updateMyProfilePicture(String email, MultipartFile file) {
-        // Récupère l'utilisateur actif
         User user = findActiveByEmailOrThrow(email);
 
-        // Met à jour la photo via PictureService et sauvegarde l'URL
         String imageUrl = pictureService.updateProfilePicture(user, file);
         user.setProfilePictureUrl(imageUrl);
 
@@ -184,10 +180,8 @@ public class UserService implements UserDetailsService {
      */
     @Transactional
     public User deleteMyProfilePicture(String email) {
-        // Récupère l'utilisateur actif
         User user = findActiveByEmailOrThrow(email);
 
-        // Supprime la photo via PictureService et nettoie l'URL
         pictureService.deleteProfilePicture(user);
         user.setProfilePictureUrl(null);
 
@@ -221,15 +215,14 @@ public class UserService implements UserDetailsService {
         return true;
     }
 
-
-
-
-
-
-
-
-
-
+    /**
+     * Effectue une suppression logique (soft delete) d’un utilisateur par son ID.
+     *
+     * Si l’utilisateur est déjà supprimé, l’opération est ignorée.
+     *
+     * @param userId identifiant de l’utilisateur
+     * @throws ApiException si l’utilisateur n’existe pas
+     */
     @Transactional
     public void softDeleteById(UUID userId) {
 
@@ -240,11 +233,16 @@ public class UserService implements UserDetailsService {
             return;
         }
 
-        softDelete(user); // méthode privée commune
+        softDelete(user);
     }
 
     /**
      * Logique commune de suppression logique (soft delete).
+     *
+     * Centralise la désactivation du compte, la révocation des tokens et la
+     * mise à jour du statut utilisateur.
+     *
+     * @param user utilisateur à supprimer logiquement
      */
     private void softDelete(User user) {
 

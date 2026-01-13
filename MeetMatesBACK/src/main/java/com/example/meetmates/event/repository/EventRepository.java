@@ -113,7 +113,5 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
         )
     """)
     List<Event> searchActiveEvents(@Param("query") String query);
-
     List<Event> findByDeletedAtIsNull();
-
 }

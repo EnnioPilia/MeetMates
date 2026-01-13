@@ -23,6 +23,19 @@ import com.example.meetmates.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Contrôleur REST dédié aux opérations d’administration.
+ *
+ * Fournit plusieurs endpoints pour :
+ *  - gérer les utilisateurs (consultation, suppression logique, restauration, suppression définitive)
+ *  - gérer les événements (consultation globale, suppression logique, restauration, suppression définitive)
+ *
+ * Tous les endpoints sont réservés aux utilisateurs disposant du rôle ADMIN.
+ *
+ * Utilise ApiResponse pour garantir une structure uniforme des retours.
+ * Les messages utilisateurs sont centralisés via MessageService,
+ * lequel lit les codes dans le fichier messages.properties (i18n).
+ */
 @Slf4j
 @RestController
 @RequestMapping("/admin")
@@ -45,7 +58,7 @@ public class AdminController {
     public ResponseEntity<ApiResponse<List<UserDto>>> getAllUsers() {
         log.info("ADMIN – récupération de tous les utilisateurs");
 
-        List<UserDto> users = adminUserService.getAllUsersIncludingDeleted() // <-- change ici
+        List<UserDto> users = adminUserService.getAllUsersIncludingDeleted() 
                 .stream()
                 .map(userMapper::toDto)
                 .toList();
@@ -58,6 +71,13 @@ public class AdminController {
         );
     }
 
+    /**
+     * Supprime un utilisateur de manière logique (soft delete).
+     * L’utilisateur est désactivé mais conservé en base de données.
+     *
+     * @param id identifiant UUID de l’utilisateur
+     * @return message de confirmation
+     */
     @DeleteMapping("/users/{id}")
     public ResponseEntity<ApiResponse<Void>> softDeleteUser(@PathVariable UUID id) {
         log.info("ADMIN – soft delete utilisateur {}", id);
@@ -72,6 +92,12 @@ public class AdminController {
         );
     }
 
+    /**
+     * Restaure un utilisateur précédemment supprimé logiquement.
+     *
+     * @param id identifiant UUID de l’utilisateur
+     * @return message de confirmation
+     */
     @PutMapping("/users/{id}/restore")
     public ResponseEntity<ApiResponse<Void>> restoreUser(@PathVariable UUID id) {
         log.info("ADMIN – restore utilisateur {}", id);
@@ -86,6 +112,12 @@ public class AdminController {
         );
     }
 
+    /**
+     * Supprime définitivement un utilisateur (hard delete).
+     *
+     * @param id identifiant UUID de l’utilisateur
+     * @return message de confirmation
+     */
     @DeleteMapping("/users/{id}/hard")
     public ResponseEntity<ApiResponse<Void>> hardDeleteUser(@PathVariable UUID id) {
         log.warn("ADMIN – HARD delete utilisateur {}", id);
@@ -100,6 +132,11 @@ public class AdminController {
         );
     }
 
+    /**
+     * Récupère la liste complète des événements.
+     *
+     * @return liste complète des événements
+     */
     @GetMapping("/events")
     public ResponseEntity<ApiResponse<List<EventResponseDto>>> getAllEvents() {
         log.info("ADMIN – récupération de tous les événements");
@@ -112,6 +149,14 @@ public class AdminController {
         );
     }
 
+    /**
+     * Supprime un événement de manière logique (soft delete).
+     *
+     * L’événement est désactivé mais conservé en base de données.
+     *
+     * @param eventId identifiant UUID de l’événement
+     * @return message de confirmation
+     */
     @DeleteMapping("/events/{eventId}")
     public ResponseEntity<ApiResponse<Void>> softDeleteEvent(@PathVariable UUID eventId) {
         log.info("ADMIN – soft delete événement {}", eventId);
@@ -126,6 +171,12 @@ public class AdminController {
         );
     }
 
+    /**
+     * Supprime définitivement un événement (hard delete).
+     * 
+     * @param eventId identifiant UUID de l’événement
+     * @return message de confirmation
+     */
     @DeleteMapping("/events/{eventId}/hard")
     public ResponseEntity<ApiResponse<Void>> hardDeleteEvent(@PathVariable UUID eventId) {
         log.warn("ADMIN – HARD delete événement {}", eventId);
@@ -139,7 +190,13 @@ public class AdminController {
                 )
         );
     }
-
+    
+    /**
+     * Restaure un événement précédemment supprimé logiquement.
+     *
+     * @param eventId identifiant UUID de l’événement
+     * @return message de confirmation
+     */
     @PutMapping("/events/{eventId}/restore")
     public ResponseEntity<ApiResponse<Void>> restoreEvent(@PathVariable UUID eventId) {
         log.info("ADMIN – restore événement {}", eventId);
