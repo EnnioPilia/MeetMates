@@ -44,13 +44,10 @@ class RefreshTokenServiceTest {
 
     @Test
     void should_create_refresh_token() {
-        // GIVEN
         when(tokenRepository.save(any(Token.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        // WHEN
         Token token = refreshTokenService.createRefreshToken(user);
 
-        // THEN
         assertThat(token).isNotNull();
         assertThat(token.getUser()).isEqualTo(user);
         assertThat(token.getType()).isEqualTo(TokenType.REFRESH);
@@ -62,14 +59,11 @@ class RefreshTokenServiceTest {
 
     @Test
     void should_return_valid_refresh_token() {
-        // GIVEN
         Token token = new Token("token-123", user, Instant.now(), Instant.now().plusSeconds(3600), TokenType.REFRESH);
         when(tokenRepository.findByTokenWithUser("token-123")).thenReturn(Optional.of(token));
 
-        // WHEN
         Token result = refreshTokenService.getValidRefreshToken("token-123");
 
-        // THEN
         assertThat(result).isEqualTo(token);
     }
 
@@ -105,14 +99,11 @@ class RefreshTokenServiceTest {
 
     @Test
     void should_rotate_refresh_token() {
-        // GIVEN
         Token oldToken = new Token("old-token", user, Instant.now(), Instant.now().plusSeconds(3600), TokenType.REFRESH);
         when(tokenRepository.save(any(Token.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        // WHEN
         Token newToken = refreshTokenService.rotateRefreshToken(oldToken);
 
-        // THEN
         assertThat(oldToken.isUsed()).isTrue();
         assertThat(oldToken.getConfirmedAt()).isNotNull();
 
@@ -121,6 +112,6 @@ class RefreshTokenServiceTest {
         assertThat(newToken.getType()).isEqualTo(TokenType.REFRESH);
         assertThat(newToken.isUsed()).isFalse();
 
-        verify(tokenRepository, times(2)).save(any(Token.class)); // old + new
+        verify(tokenRepository, times(2)).save(any(Token.class));
     }
 }

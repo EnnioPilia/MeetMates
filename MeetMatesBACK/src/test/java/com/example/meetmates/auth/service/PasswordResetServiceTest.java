@@ -14,6 +14,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
@@ -51,22 +52,22 @@ class PasswordResetServiceTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         user = new User();
-        user.setId(UUID.randomUUID()); // <-- utiliser UUID au lieu de 1L
+        user.setId(UUID.randomUUID());
         user.setEmail("test@mail.com");
     }
 
+
     @Test
     void should_create_password_reset_token_successfully() {
-        UUID userId = UUID.randomUUID();
-        user.setId(userId);
-
         when(userRepository.findByEmail("test@mail.com")).thenReturn(Optional.of(user));
         doNothing().when(emailService).sendPasswordResetEmail(anyString(), anyString());
 
         passwordResetService.createPasswordResetToken("test@mail.com");
 
-        verify(tokenRepository).deleteByUser_IdAndType(userId, TokenType.PASSWORD_RESET);
+        verify(tokenRepository).deleteByUser_IdAndType(user.getId(), TokenType.PASSWORD_RESET);
+
         verify(tokenRepository).save(any(Token.class));
+
         verify(emailService).sendPasswordResetEmail(eq("test@mail.com"), anyString());
     }
 
@@ -78,6 +79,18 @@ class PasswordResetServiceTest {
                 .isInstanceOf(ApiException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.USER_NOT_FOUND);
     }
+
+    @Test
+    void should_throw_exception_if_email_sending_fails() {
+        when(userRepository.findByEmail("test@mail.com")).thenReturn(Optional.of(user));
+        doThrow(new RuntimeException("SMTP error")).when(emailService)
+                .sendPasswordResetEmail(anyString(), anyString());
+
+        assertThatThrownBy(() -> passwordResetService.createPasswordResetToken("test@mail.com"))
+                .isInstanceOf(ApiException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.EMAIL_SEND_FAILED);
+    }
+
 
     @Test
     void should_reset_password_successfully() {
@@ -114,7 +127,7 @@ class PasswordResetServiceTest {
                 UUID.randomUUID().toString(),
                 user,
                 Instant.now().minusSeconds(3600),
-                Instant.now().minusSeconds(10),
+                Instant.now().minusSeconds(1),
                 TokenType.PASSWORD_RESET
         );
 
@@ -140,5 +153,25 @@ class PasswordResetServiceTest {
         assertThatThrownBy(() -> passwordResetService.resetPassword(token.getToken(), "newPass"))
                 .isInstanceOf(ApiException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.TOKEN_INVALID);
+    }
+
+
+
+    @Test
+    void should_allow_reset_password_exactly_at_expiration_time() {
+        Instant now = Instant.now();
+        Token token = new Token(
+                UUID.randomUUID().toString(),
+                user,
+                now.minusSeconds(3600),
+                now,
+                TokenType.PASSWORD_RESET
+        );
+        when(tokenRepository.findByToken(token.getToken())).thenReturn(Optional.of(token));
+        when(passwordEncoder.encode("newPass")).thenReturn("encodedPass");
+
+        assertThatThrownBy(() -> passwordResetService.resetPassword(token.getToken(), "newPass"))
+                .isInstanceOf(ApiException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.TOKEN_EXPIRED);
     }
 }

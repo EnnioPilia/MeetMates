@@ -50,7 +50,6 @@ class PictureServiceTest {
 
     @Test
     void should_upload_profile_picture_successfully() {
-        // Simule qu'il n'y a pas de photo principale existante
         when(pictureUserRepository.findByUserAndMainTrue(user)).thenReturn(Optional.empty());
 
         String imageUrl = pictureService.updateProfilePicture(user, validFile);

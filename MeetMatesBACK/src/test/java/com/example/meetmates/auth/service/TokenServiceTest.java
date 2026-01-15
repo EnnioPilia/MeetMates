@@ -43,13 +43,10 @@ class TokenServiceTest {
 
     @Test
     void should_create_token_and_delete_previous_tokens() {
-        // GIVEN
         when(tokenRepository.save(any(Token.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        // WHEN
         Token token = tokenService.createToken(user, TokenType.VERIFICATION, 3600);
 
-        // THEN
         assertThat(token.getUser()).isEqualTo(user);
         assertThat(token.getType()).isEqualTo(TokenType.VERIFICATION);
         assertThat(token.isUsed()).isFalse();
@@ -61,10 +58,8 @@ class TokenServiceTest {
 
     @Test
     void should_throw_exception_when_token_not_found() {
-        // GIVEN
         when(tokenRepository.findByToken("invalid-token")).thenReturn(Optional.empty());
 
-        // WHEN / THEN
         assertThatThrownBy(() -> tokenService.getValidToken("invalid-token"))
                 .isInstanceOf(ApiException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.TOKEN_NOT_FOUND);
@@ -72,12 +67,10 @@ class TokenServiceTest {
 
     @Test
     void should_throw_exception_when_token_used() {
-        // GIVEN
         Token token = new Token("token1", user, Instant.now(), Instant.now().plusSeconds(3600), TokenType.VERIFICATION);
         token.setUsed(true);
         when(tokenRepository.findByToken("token1")).thenReturn(Optional.of(token));
 
-        // WHEN / THEN
         assertThatThrownBy(() -> tokenService.getValidToken("token1"))
                 .isInstanceOf(ApiException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.TOKEN_INVALID);
@@ -85,11 +78,9 @@ class TokenServiceTest {
 
     @Test
     void should_throw_exception_when_token_expired() {
-        // GIVEN
         Token token = new Token("token2", user, Instant.now().minusSeconds(3600), Instant.now().minusSeconds(10), TokenType.VERIFICATION);
         when(tokenRepository.findByToken("token2")).thenReturn(Optional.of(token));
 
-        // WHEN / THEN
         assertThatThrownBy(() -> tokenService.getValidToken("token2"))
                 .isInstanceOf(ApiException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.TOKEN_EXPIRED);
@@ -97,14 +88,11 @@ class TokenServiceTest {
 
     @Test
     void should_mark_token_as_used() {
-        // GIVEN
         Token token = new Token("token3", user, Instant.now(), Instant.now().plusSeconds(3600), TokenType.VERIFICATION);
         when(tokenRepository.save(any(Token.class))).thenReturn(token);
 
-        // WHEN
         tokenService.markTokenAsUsed(token);
 
-        // THEN
         assertThat(token.isUsed()).isTrue();
         assertThat(token.getConfirmedAt()).isNotNull();
         verify(tokenRepository).save(token);
@@ -112,10 +100,8 @@ class TokenServiceTest {
 
     @Test
     void should_delete_tokens_by_user_and_type() {
-        // WHEN
         tokenService.deleteTokenByUserAndType(user.getId(), TokenType.REFRESH);
 
-        // THEN
         verify(tokenRepository).deleteByUser_IdAndType(user.getId(), TokenType.REFRESH);
     }
 }

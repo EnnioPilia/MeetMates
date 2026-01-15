@@ -20,9 +20,9 @@ class JWTUtilsTest {
 
     private JWTUtils jwtUtils;
 
-    private static final String SECRET =
-        "my-super-secret-key-my-super-secret-key-my-super-secret-key-my-super";
-    private static final int EXPIRATION = 1000 * 60; // 1 minute
+    private static final String SECRET
+            = "my-super-secret-key-my-super-secret-key-my-super-secret-key-my-super";
+    private static final int EXPIRATION = 1000 * 60;
 
     @BeforeEach
     void setUp() {
@@ -84,14 +84,20 @@ class JWTUtilsTest {
     }
 
     @Test
-    void shouldRejectExpiredToken() throws InterruptedException {
-        JWTUtils shortLivedJwtUtils = new JWTUtils(SECRET, 1);
+    void shouldRejectExpiredTokenWithoutSleep() {
+        String expiredToken = Jwts.builder()
+                .setSubject("user@test.com")
+                .claim("role", "USER")
+                .claim("tokenType", "ACCESS")
+                .setIssuedAt(new Date(System.currentTimeMillis() - 10_000))
+                .setExpiration(new Date(System.currentTimeMillis() - 5_000))
+                .signWith(
+                        Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8)),
+                        SignatureAlgorithm.HS512
+                )
+                .compact();
 
-        String token = shortLivedJwtUtils.generateAccessToken("user@test.com", "user");
-
-        Thread.sleep(5);
-
-        assertFalse(shortLivedJwtUtils.isValidAccessToken(token));
+        assertFalse(jwtUtils.isValidAccessToken(expiredToken));
     }
 
     @Test
@@ -120,4 +126,25 @@ class JWTUtilsTest {
 
         assertNull(role);
     }
+
+    @Test
+    void shouldRejectTokenWithInvalidSignature() {
+        String otherSecret
+                = "other-super-secret-key-other-super-secret-key-other-super-secret";
+
+        String tokenWithWrongSignature = Jwts.builder()
+                .setSubject("user@test.com")
+                .claim("role", "USER")
+                .claim("tokenType", "ACCESS")
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
+                .signWith(
+                        Keys.hmacShaKeyFor(otherSecret.getBytes(StandardCharsets.UTF_8)),
+                        SignatureAlgorithm.HS512
+                )
+                .compact();
+
+        assertFalse(jwtUtils.isValidAccessToken(tokenWithWrongSignature));
+    }
+
 }

@@ -15,7 +15,7 @@ public class CookieService {
     private static final String AUTH_COOKIE_NAME = "authToken";
     private static final String REFRESH_COOKIE_NAME = "refreshToken";
 
-    private static final boolean SECURE = false; // mettre true en prod
+    private static final boolean SECURE = true; // mettre true en prod
     private static final String SAME_SITE = "Strict"; // ou "None" si cross-site
 
     /**

@@ -27,8 +27,7 @@ class CookieServiceTest {
     }
 
     @Test
-    void should_set_auth_and_refresh_cookies() {
-        // WHEN
+    void should_set_auth_and_refresh_cookies_with_security_flags() {
         cookieService.setAuthCookies(
                 response,
                 "auth-token",
@@ -37,30 +36,56 @@ class CookieServiceTest {
                 7200
         );
 
-        // THEN
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 
         verify(response, times(2))
                 .addHeader(eq("Set-Cookie"), captor.capture());
 
         assertThat(captor.getAllValues())
-                .anyMatch(c -> c.contains("authToken=auth-token"))
-                .anyMatch(c -> c.contains("refreshToken=refresh-token"));
+                .anySatisfy(cookie -> {
+                    assertThat(cookie)
+                            .contains("authToken=auth-token")
+                            .contains("HttpOnly")
+                            .contains("Secure")
+                            .contains("SameSite=Strict")
+                            .contains("Max-Age=3600");
+                })
+                .anySatisfy(cookie -> {
+                    assertThat(cookie)
+                            .contains("refreshToken=refresh-token")
+                            .contains("HttpOnly")
+                            .contains("Secure")
+                            .contains("SameSite=Strict")
+                            .contains("Max-Age=7200");
+                });
     }
 
     @Test
     void should_clear_auth_and_refresh_cookies() {
-        // WHEN
+
         cookieService.clearAuthCookies(response);
 
-        // THEN
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 
         verify(response, times(2))
                 .addHeader(eq("Set-Cookie"), captor.capture());
 
         assertThat(captor.getAllValues())
-                .anyMatch(c -> c.contains("authToken="))
-                .anyMatch(c -> c.contains("refreshToken="));
+                .anySatisfy(cookie -> {
+                    assertThat(cookie)
+                            .contains("authToken=")
+                            .contains("Max-Age=0")
+                            .contains("HttpOnly")
+                            .contains("Secure")
+                            .contains("SameSite=Strict");
+                })
+                .anySatisfy(cookie -> {
+                    assertThat(cookie)
+                            .contains("refreshToken=")
+                            .contains("Max-Age=0")
+                            .contains("HttpOnly")
+                            .contains("Secure")
+                            .contains("SameSite=Strict");
+                });
     }
 }

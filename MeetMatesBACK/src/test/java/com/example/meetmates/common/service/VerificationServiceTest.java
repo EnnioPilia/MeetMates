@@ -35,17 +35,15 @@ class VerificationServiceTest {
 
     @Test
     void should_create_verification_token_for_non_verified_user() {
-        // GIVEN
+
         User user = new User();
         UUID userId = UUID.randomUUID();
         user.setId(userId);
         user.setEnabled(false);
         user.setEmail("test@mail.com");
 
-        // WHEN
         String token = verificationService.createVerificationToken(user);
 
-        // THEN
         assertThat(token).isNotBlank();
 
         verify(tokenRepository)
@@ -56,12 +54,11 @@ class VerificationServiceTest {
 
     @Test
     void should_throw_exception_when_user_already_verified() {
-        // GIVEN
+
         User user = new User();
         user.setEnabled(true);
         user.setEmail("verified@mail.com");
 
-        // WHEN / THEN
         assertThatThrownBy(() -> verificationService.createVerificationToken(user))
                 .isInstanceOf(ApiException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.USER_ALREADY_VERIFIED);
@@ -71,11 +68,9 @@ class VerificationServiceTest {
 
     @Test
     void should_throw_exception_when_token_not_found() {
-        // GIVEN
         when(tokenRepository.findByToken("invalid-token"))
                 .thenReturn(Optional.empty());
 
-        // WHEN / THEN
         assertThatThrownBy(() -> verificationService.confirmToken("invalid-token"))
                 .isInstanceOf(ApiException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.TOKEN_INVALID);
@@ -83,7 +78,6 @@ class VerificationServiceTest {
 
     @Test
     void should_throw_exception_when_token_expired() {
-        // GIVEN
         User user = new User();
         user.setEnabled(false);
 
@@ -98,7 +92,6 @@ class VerificationServiceTest {
         when(tokenRepository.findByToken("expired-token"))
                 .thenReturn(Optional.of(token));
 
-        // WHEN / THEN
         assertThatThrownBy(() -> verificationService.confirmToken("expired-token"))
                 .isInstanceOf(ApiException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.TOKEN_EXPIRED);
@@ -108,7 +101,6 @@ class VerificationServiceTest {
 
     @Test
     void should_confirm_token_and_enable_user() {
-        // GIVEN
         User user = new User();
         user.setEnabled(false);
         user.setEmail("confirm@mail.com");
@@ -124,10 +116,8 @@ class VerificationServiceTest {
         when(tokenRepository.findByToken("valid-token"))
                 .thenReturn(Optional.of(token));
 
-        // WHEN
         verificationService.confirmToken("valid-token");
 
-        // THEN
         assertThat(user.isEnabled()).isTrue();
         verify(tokenRepository).delete(token);
     }

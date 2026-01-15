@@ -12,6 +12,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -58,7 +60,6 @@ class EventSecurityTest {
     }
 
     // ================= isOrganizer =================
-
     @Test
     void shouldReturnTrueWhenUserIsOrganizer() {
         EventUser eu = new EventUser();
@@ -94,7 +95,6 @@ class EventSecurityTest {
     }
 
     // ================= isOrganizerByEventUserId =================
-
     @Test
     void shouldReturnTrueForOrganizerByEventUserId() {
         UUID eventUserId = UUID.randomUUID();
@@ -127,4 +127,35 @@ class EventSecurityTest {
 
         assertFalse(eventSecurity.isOrganizerByEventUserId(UUID.randomUUID()));
     }
+
+    @Test
+    void shouldReturnFalseWhenNoEventUserLink() {
+        when(userRepository.findByEmail("test@mail.com"))
+                .thenReturn(Optional.of(user));
+        when(eventUserRepository.findByEventIdAndUserId(any(), any()))
+                .thenReturn(Optional.empty());
+
+        assertFalse(eventSecurity.isOrganizer(eventId));
+    }
+
+    @Test
+    void shouldReturnFalseWhenAuthenticationNameIsNull() {
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(null, null)
+        );
+
+        assertFalse(eventSecurity.isOrganizer(UUID.randomUUID()));
+    }
+
+    @Test
+    void shouldNotQueryEventUserWhenUserNotFound() {
+        when(userRepository.findByEmail("test@mail.com"))
+                .thenReturn(Optional.empty());
+
+        eventSecurity.isOrganizer(eventId);
+
+        verify(eventUserRepository, never())
+                .findByEventIdAndUserId(any(), any());
+    }
+
 }

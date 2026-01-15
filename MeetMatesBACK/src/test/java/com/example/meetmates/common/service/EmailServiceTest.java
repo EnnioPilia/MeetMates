@@ -42,7 +42,7 @@ class EmailServiceTest {
         MockitoAnnotations.openMocks(this);
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
         when(templateEngine.process(anyString(), any(Context.class))).thenReturn("<html>Mock HTML</html>");
-        // Injection du frontendUrl et fromEmail si besoin
+
         emailService.setFrontendUrl("http://localhost:3000");
         emailService.setFromEmail("no-reply@test.com");
     }
