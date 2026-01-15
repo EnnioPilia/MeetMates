@@ -37,12 +37,13 @@ class EventControllerIT {
                 .param("query", "sport"))
                 .andExpect(status().isOk());
     }
+    
 @Test
-void findById_whenEventDoesNotExist_shouldReturn500() throws Exception {
+void findById_whenEventDoesNotExist_shouldReturn404() throws Exception {
     UUID eventId = UUID.randomUUID();
 
     mockMvc.perform(get("/event/{id}", eventId))
-            .andExpect(status().isInternalServerError());
+            .andExpect(status().isNotFound());
 }
 
 

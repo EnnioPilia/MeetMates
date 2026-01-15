@@ -19,6 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.example.meetmates.common.dto.ErrorDto;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
@@ -92,11 +93,12 @@ public class GlobalExceptionHandler {
             case INVALID_FILE, FILE_TOO_LARGE, INVALID_FILE_TYPE ->
                 HttpStatus.BAD_REQUEST;
 
-            case USER_NOT_FOUND ->
-                HttpStatus.NOT_FOUND;
-
             case USER_BANNED, USER_DISABLED ->
                 HttpStatus.FORBIDDEN;
+
+            case USER_NOT_FOUND, EVENT_NOT_FOUND ->
+                HttpStatus.NOT_FOUND;
+
 
             default ->
                 HttpStatus.INTERNAL_SERVER_ERROR;
@@ -181,4 +183,16 @@ public class GlobalExceptionHandler {
         );
     }
 
+@ExceptionHandler(EntityNotFoundException.class)
+public ResponseEntity<ErrorDto> handleEntityNotFound(EntityNotFoundException ex) {
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+            new ErrorDto(
+                    Instant.now(),
+                    HttpStatus.NOT_FOUND.value(),
+                    HttpStatus.NOT_FOUND.getReasonPhrase(),
+                    ex.getMessage(),
+                    ""
+            )
+    );
+}
 }

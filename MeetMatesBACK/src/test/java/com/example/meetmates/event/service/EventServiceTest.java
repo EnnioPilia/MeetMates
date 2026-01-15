@@ -27,6 +27,7 @@ import com.example.meetmates.activity.model.Activity;
 import com.example.meetmates.activity.repository.ActivityRepository;
 import com.example.meetmates.common.exception.ApiException;
 import com.example.meetmates.common.exception.ErrorCode;
+import com.example.meetmates.event.dto.EventDetailsDto;
 import com.example.meetmates.event.dto.EventRequestDto;
 import com.example.meetmates.event.dto.EventResponseDto;
 import com.example.meetmates.event.mapper.EventMapper;
@@ -154,4 +155,138 @@ class EventServiceTest {
 
         assertEquals(ErrorCode.EVENT_FORBIDDEN, ex.getErrorCode());
     }
+    @Test
+void findEventDetailsById_success() {
+    UUID eventId = UUID.randomUUID();
+
+    Event event = new Event();
+    event.setId(eventId);
+    event.setTitle("Test Event");
+    event.setDescription("Desc");
+    event.setEventDate(LocalDate.now());
+    event.setStartTime(LocalTime.of(10, 0));
+    event.setEndTime(LocalTime.of(12, 0));
+    event.setLevel(Event.Level.ALL_LEVELS);
+    event.setMaterial(Event.MaterialOption.NOT_REQUIRED);
+    event.setStatus(Event.EventStatus.OPEN);
+    event.setMaxParticipants(10);
+
+    // Organizer
+    EventUser organizerEU = new EventUser();
+    organizerEU.setUser(mockUser);
+    organizerEU.setRole(ParticipantRole.ORGANIZER);
+    organizerEU.setParticipationStatus(EventUser.ParticipationStatus.ACCEPTED);
+
+    // Participant pending
+    EventUser pendingEU = new EventUser();
+    pendingEU.setUser(new User());
+    pendingEU.setRole(ParticipantRole.PARTICIPANT);
+    pendingEU.setParticipationStatus(EventUser.ParticipationStatus.PENDING);
+
+    event.setParticipants(List.of(organizerEU, pendingEU));
+
+    when(eventRepository.findByIdWithAllRelations(eventId))
+            .thenReturn(Optional.of(event));
+
+    EventDetailsDto dto = eventService.findEventDetailsById(eventId);
+
+    assertNotNull(dto);
+    assertEquals("Test Event", dto.title());
+    assertEquals("John Doe", dto.organizerName());
+    assertEquals("ACCEPTED", dto.participationStatus());
+    assertEquals(1, dto.acceptedParticipants().size());
+    assertEquals(1, dto.pendingParticipants().size());
+}
+@Test
+void findAllResponses_success() {
+    Event event = new Event();
+    EventResponseDto dto = mock(EventResponseDto.class);
+
+    when(eventRepository.findAllActiveWithDetails())
+            .thenReturn(List.of(event));
+    when(eventMapper.toResponse(event)).thenReturn(dto);
+
+    List<EventResponseDto> result = eventService.findAllResponses();
+
+    assertEquals(1, result.size());
+    verify(eventMapper).toResponse(event);
+}
+@Test
+void getEventResponsesByActivity_success() {
+    UUID activityId = UUID.randomUUID();
+    Event event = new Event();
+
+    when(activityRepository.findById(activityId))
+            .thenReturn(Optional.of(new Activity()));
+    when(eventRepository.findActiveByActivityIdWithDetails(activityId))
+            .thenReturn(List.of(event));
+    when(eventMapper.toResponse(event))
+            .thenReturn(mock(EventResponseDto.class));
+
+    List<EventResponseDto> result =
+            eventService.getEventResponsesByActivity(activityId);
+
+    assertEquals(1, result.size());
+}
+@Test
+void getEventResponsesByActivity_activityNotFound() {
+    UUID activityId = UUID.randomUUID();
+
+    when(activityRepository.findById(activityId))
+            .thenReturn(Optional.empty());
+
+    ApiException ex = assertThrows(ApiException.class,
+            () -> eventService.getEventResponsesByActivity(activityId));
+
+    assertEquals(ErrorCode.ACTIVITY_NOT_FOUND, ex.getErrorCode());
+}
+@Test
+void updateEvent_success() {
+    UUID eventId = UUID.randomUUID();
+    Event event = new Event();
+    event.setId(eventId);
+
+    EventRequestDto dto = new EventRequestDto();
+    dto.setTitle("Updated title");
+    dto.setDescription("Updated desc");
+    dto.setEventDate(LocalDate.now());
+    dto.setStartTime(LocalTime.of(9, 0));
+    dto.setEndTime(LocalTime.of(11, 0));
+    dto.setMaxParticipants(20);
+
+    when(eventRepository.findById(eventId))
+            .thenReturn(Optional.of(event));
+    when(eventRepository.save(event))
+            .thenReturn(event);
+    when(eventMapper.toResponse(event))
+            .thenReturn(mock(EventResponseDto.class));
+
+    EventResponseDto result =
+            eventService.updateEvent(eventId, dto);
+
+    assertNotNull(result);
+    assertEquals("Updated title", event.getTitle());
+}
+@Test
+void searchEvents_success() {
+    Event event = new Event();
+
+    when(eventRepository.searchActiveEvents("sport"))
+            .thenReturn(List.of(event));
+    when(eventMapper.toResponse(event))
+            .thenReturn(mock(EventResponseDto.class));
+
+    List<EventResponseDto> result =
+            eventService.searchEvents("sport");
+
+    assertEquals(1, result.size());
+}
+@Test
+void searchEvents_blank_shouldReturnEmpty() {
+    List<EventResponseDto> result =
+            eventService.searchEvents("  ");
+
+    assertEquals(0, result.size());
+}
+
 }

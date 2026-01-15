@@ -105,7 +105,6 @@ class AuthServiceTest {
         refreshToken.setToken("refresh123");
 
         when(userRepository.findByEmail("john@mail.com")).thenReturn(Optional.of(user));
-        // Ici on mock correctement l'AuthenticationManager
         Authentication authMock = mock(Authentication.class);
         when(authenticationManager.authenticate(any())).thenReturn(authMock);
 
@@ -150,4 +149,101 @@ class AuthServiceTest {
         assertThat(result).isEqualTo("AUTH_LOGOUT_SUCCESS");
         verify(cookieService).clearAuthCookies(response);
     }
+
+    @Test
+    void should_throw_when_email_already_used() {
+        User existing = new User();
+        existing.setDeletedAt(null);
+
+        when(userRepository.findByEmail("john@mail.com"))
+                .thenReturn(Optional.of(existing));
+
+        assertThatThrownBy(() -> authService.register(registerRequest))
+                .isInstanceOf(ApiException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.USER_EMAIL_USED);
+    }
+
+    @Test
+    void should_throw_when_registering_banned_user() {
+        User banned = new User();
+        banned.setStatus(UserStatus.BANNED);
+
+        when(userRepository.findByEmail("john@mail.com"))
+                .thenReturn(Optional.of(banned));
+
+        assertThatThrownBy(() -> authService.register(registerRequest))
+                .isInstanceOf(ApiException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.USER_BANNED);
+    }
+
+    @Test
+    void should_throw_when_login_user_not_found() {
+        LoginRequestDto loginRequest
+                = new LoginRequestDto("john@mail.com", "Password1!");
+
+        when(userRepository.findByEmail("john@mail.com"))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> authService.login(loginRequest, response))
+                .isInstanceOf(ApiException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.USER_NOT_FOUND);
+    }
+
+    @Test
+    void should_throw_when_login_user_disabled() {
+        User user = new User();
+        user.setEnabled(false);
+        user.setStatus(UserStatus.ACTIVE);
+
+        when(userRepository.findByEmail("john@mail.com"))
+                .thenReturn(Optional.of(user));
+
+        LoginRequestDto loginRequest
+                = new LoginRequestDto("john@mail.com", "Password1!");
+
+        assertThatThrownBy(() -> authService.login(loginRequest, response))
+                .isInstanceOf(ApiException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.USER_DISABLED);
+    }
+
+    @Test
+    void should_throw_when_login_user_deleted() {
+        User user = new User();
+        user.setEnabled(true);
+        user.setStatus(UserStatus.ACTIVE);
+        user.setDeletedAt(LocalDateTime.now());
+
+        when(userRepository.findByEmail("john@mail.com"))
+                .thenReturn(Optional.of(user));
+
+        LoginRequestDto loginRequest
+                = new LoginRequestDto("john@mail.com", "Password1!");
+
+        assertThatThrownBy(() -> authService.login(loginRequest, response))
+                .isInstanceOf(ApiException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.USER_DELETED);
+    }
+
+    @Test
+    void should_throw_when_bad_password() {
+        User user = new User();
+        user.setEmail("john@mail.com");
+        user.setEnabled(true);
+        user.setStatus(UserStatus.ACTIVE);
+        user.setRole(UserRole.USER);
+
+        when(userRepository.findByEmail("john@mail.com"))
+                .thenReturn(Optional.of(user));
+
+        when(authenticationManager.authenticate(any()))
+                .thenThrow(new org.springframework.security.authentication.BadCredentialsException("bad"));
+
+        LoginRequestDto loginRequest
+                = new LoginRequestDto("john@mail.com", "wrong");
+
+        assertThatThrownBy(() -> authService.login(loginRequest, response))
+                .isInstanceOf(ApiException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.AUTH_BAD_PASSWORD);
+    }
+
 }

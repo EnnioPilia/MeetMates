@@ -18,15 +18,16 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.meetmates.common.dto.ApiResponse;
+import com.example.meetmates.common.service.CookieService;
+import com.example.meetmates.common.service.MessageService;
 import com.example.meetmates.user.dto.UpdateUserDto;
 import com.example.meetmates.user.dto.UserDto;
 import com.example.meetmates.user.mapper.UserMapper;
 import com.example.meetmates.user.model.User;
-import com.example.meetmates.common.service.CookieService;
-import com.example.meetmates.common.service.MessageService;
 import com.example.meetmates.user.service.UserService;
 
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -130,7 +131,7 @@ public class UserController {
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/me")
     public ResponseEntity<ApiResponse<UserDto>> updateMyProfile(
-            @RequestBody UpdateUserDto dto,
+            @Valid @RequestBody UpdateUserDto dto,
             @AuthenticationPrincipal UserDetails userDetails) {
 
         log.info("Demande de mise à jour du profil utilisateur");

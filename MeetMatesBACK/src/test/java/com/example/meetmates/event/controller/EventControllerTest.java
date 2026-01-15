@@ -19,6 +19,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.security.test.context.support.WithMockUser;
+import com.example.meetmates.event.dto.EventDetailsDto;
 
 import com.example.meetmates.address.dto.AddressRequestDto;
 import com.example.meetmates.common.service.MessageService;
@@ -69,8 +70,29 @@ class EventControllerTest {
         );
     }
 
-    /* ===== TESTS ===== */
+    private EventDetailsDto mockEventDetails() {
+        return new EventDetailsDto(
+                UUID.randomUUID(),
+                "Titre",
+                "Description",
+                "2025-03-21",
+                "10:00",
+                "12:00",
+                null, 
+                "Activity",
+                "John Doe",
+                "ALL_LEVELS",
+                "NOT_REQUIRED",
+                "OPEN",
+                10,
+                "ACCEPTED",
+                List.of(),
+                List.of(),
+                List.of()
+        );
+    }
 
+    /* ===== TESTS ===== */
     @Test
     @WithMockUser
     void create_shouldReturn200() throws Exception {
@@ -116,12 +138,16 @@ class EventControllerTest {
     void findById_shouldReturn200() throws Exception {
         UUID id = UUID.randomUUID();
 
-        when(eventService.findEventDetailsById(id)).thenReturn(null);
-        when(messageService.get(anyString())).thenReturn("EVENT_GET_SUCCESS");
+        when(eventService.findEventDetailsById(id))
+                .thenReturn(mockEventDetails());
+        when(messageService.get(anyString()))
+                .thenReturn("EVENT_GET_SUCCESS");
 
         mockMvc.perform(get("/event/{id}", id))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("EVENT_GET_SUCCESS"));
+                .andExpect(jsonPath("$.message").value("EVENT_GET_SUCCESS"))
+                .andExpect(jsonPath("$.data.id").exists())
+                .andExpect(jsonPath("$.data.title").value("Titre"));
     }
 
     @Test

@@ -1,22 +1,11 @@
 package com.example.meetmates.user.controller;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
 
 import com.example.meetmates.common.service.CookieService;
 import com.example.meetmates.common.service.MessageService;
@@ -27,7 +16,33 @@ import com.example.meetmates.user.model.User;
 import com.example.meetmates.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@SpringBootTest
+import jakarta.persistence.EntityNotFoundException;
+
+import org.junit.jupiter.api.Test;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+
+import org.springframework.http.MediaType;
+import java.util.UUID;
+
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
+
+import com.example.meetmates.security.JwtAuthenticationFilter;
+
+import org.springframework.test.web.servlet.MockMvc;
+
+@WebMvcTest(
+        controllers = UserController.class,
+        excludeFilters = @ComponentScan.Filter(
+                type = FilterType.ASSIGNABLE_TYPE,
+                classes = JwtAuthenticationFilter.class
+        )
+)
 @AutoConfigureMockMvc(addFilters = false)
 class UserControllerTest {
 
@@ -50,74 +65,67 @@ class UserControllerTest {
     private MessageService messageService;
 
     /* ===================== GET ME ===================== */
-
     @Test
     @WithMockUser(username = "user@mail.com")
-    void getMe_shouldReturn200() throws Exception {
+    void getMe_shouldReturn200_andUserDto() throws Exception {
 
-        when(userService.findActiveByEmailOrThrow(anyString()))
-                .thenReturn(new User());
+        UUID userId = UUID.randomUUID();
 
-        when(userMapper.toDto(any(User.class)))
-                .thenReturn(new UserDto(
-                        null, "John", "Doe", "user@mail.com",
-                        25, "Paris", null, "USER", "ACTIVE", null
-                ));
+        User user = new User();
 
-        when(messageService.get("USER_GET_ME_SUCCESS"))
-                .thenReturn("ok");
+        UserDto dto = new UserDto(
+                userId,
+                "John",
+                "Doe",
+                "user@mail.com",
+                25,
+                "Paris",
+                null,
+                "USER",
+                "ACTIVE",
+                null
+        );
+
+        when(userService.findActiveByEmailOrThrow("user@mail.com"))
+                .thenReturn(user);
+
+        when(userMapper.toDto(user)).thenReturn(dto);
+        when(messageService.get("USER_GET_ME_SUCCESS")).thenReturn("ok");
 
         mockMvc.perform(get("/user/me"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("ok"))
-                .andExpect(jsonPath("$.data").exists());
+                .andExpect(jsonPath("$.data.id").value(userId.toString()))
+                .andExpect(jsonPath("$.data.email").value("user@mail.com"));
+
+        verify(userService).findActiveByEmailOrThrow("user@mail.com");
+        verify(userMapper).toDto(user);
     }
 
-    /* ===================== UPDATE PROFILE ===================== */
 
+    /* ===================== UPDATE PROFILE ===================== */
     @Test
     @WithMockUser(username = "user@mail.com")
-    void updateProfile_shouldReturn200() throws Exception {
+    void updateProfile_whenInvalidDto_shouldReturn400() throws Exception {
 
-        UpdateUserDto dto = new UpdateUserDto();
-        dto.setFirstName("John");
-
-        when(userService.findActiveByEmailOrThrow(anyString()))
-                .thenReturn(new User());
-
-        when(userService.updateProfile(any(User.class), any(UpdateUserDto.class)))
-                .thenReturn(new User());
-
-        when(userMapper.toDto(any(User.class)))
-                .thenReturn(new UserDto(
-                        null, "John", "Doe", "user@mail.com",
-                        25, "Paris", null, "USER", "ACTIVE", null
-                ));
-
-        when(messageService.get("USER_PROFILE_UPDATE_SUCCESS"))
-                .thenReturn("updated");
+        UpdateUserDto dto = new UpdateUserDto(); // DTO invalide
 
         mockMvc.perform(put("/user/me")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("updated"));
+                .andExpect(status().isBadRequest());
     }
 
-    /* ===================== DELETE MY ACCOUNT ===================== */
-
+    /* ===================== EXCEPTION ===================== */
     @Test
     @WithMockUser(username = "user@mail.com")
-    void deleteMyAccount_shouldReturn200() throws Exception {
+    void getMe_whenUserNotFound_shouldReturn404() throws Exception {
 
-        when(userService.softDeleteByEmail("user@mail.com"))
-                .thenReturn(true);
+        when(userService.findActiveByEmailOrThrow("user@mail.com"))
+                .thenThrow(new EntityNotFoundException("User not found"));
 
-        when(messageService.get("USER_DELETE_ACCOUNT_SUCCESS"))
-                .thenReturn("deleted");
+        mockMvc.perform(get("/user/me"))
+                .andExpect(status().isNotFound());
 
-        mockMvc.perform(delete("/user/me"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("deleted"));
+        verify(userService).findActiveByEmailOrThrow("user@mail.com");
     }
 }

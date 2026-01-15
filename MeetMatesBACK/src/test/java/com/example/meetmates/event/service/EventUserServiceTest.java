@@ -1,5 +1,6 @@
 package com.example.meetmates.event.service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -32,12 +33,17 @@ import com.example.meetmates.user.repository.UserRepository;
 
 class EventUserServiceTest {
 
-    @Mock private EventRepository eventRepository;
-    @Mock private UserRepository userRepository;
-    @Mock private EventUserRepository eventUserRepository;
-    @Mock private EventMapper eventMapper;
+    @Mock
+    private EventRepository eventRepository;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private EventUserRepository eventUserRepository;
+    @Mock
+    private EventMapper eventMapper;
 
-    @InjectMocks private EventUserService eventUserService;
+    @InjectMocks
+    private EventUserService eventUserService;
 
     private User user;
     private Event event;
@@ -155,4 +161,145 @@ class EventUserServiceTest {
 
         assertEquals(ErrorCode.EVENT_FORBIDDEN, ex.getErrorCode());
     }
+
+    @Test
+    void joinEvent_eventFull_shouldThrow() {
+        event.setMaxParticipants(1);
+        event.setParticipants(List.of(new EventUser())); // déjà plein
+
+        when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(eventUserRepository.findByEventIdAndUserId(eventId, userId))
+                .thenReturn(Optional.empty());
+
+        ApiException ex = assertThrows(ApiException.class,
+                () -> eventUserService.joinEvent(eventId, userId));
+
+        assertEquals(ErrorCode.EVENT_FULL, ex.getErrorCode());
+    }
+
+    @Test
+    void joinEvent_alreadyAccepted_shouldThrow() {
+        eventUser.setParticipationStatus(ParticipationStatus.ACCEPTED);
+
+        when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(eventUserRepository.findByEventIdAndUserId(eventId, userId))
+                .thenReturn(Optional.of(eventUser));
+
+        ApiException ex = assertThrows(ApiException.class,
+                () -> eventUserService.joinEvent(eventId, userId));
+
+        assertEquals(ErrorCode.EVENT_ALREADY_PARTICIPANT, ex.getErrorCode());
+    }
+
+    @Test
+    void joinEvent_alreadyPending_shouldThrow() {
+        eventUser.setParticipationStatus(ParticipationStatus.PENDING);
+
+        when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(eventUserRepository.findByEventIdAndUserId(eventId, userId))
+                .thenReturn(Optional.of(eventUser));
+
+        ApiException ex = assertThrows(ApiException.class,
+                () -> eventUserService.joinEvent(eventId, userId));
+
+        assertEquals(ErrorCode.EVENT_PENDING_ALREADY, ex.getErrorCode());
+    }
+
+    @Test
+    void joinEvent_leftBefore_shouldRejoinAsPending() {
+        eventUser.setParticipationStatus(ParticipationStatus.LEFT);
+
+        when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(eventUserRepository.findByEventIdAndUserId(eventId, userId))
+                .thenReturn(Optional.of(eventUser));
+        when(eventUserRepository.save(eventUser)).thenReturn(eventUser);
+        when(eventMapper.EventUserDto(eventUser)).thenReturn(mock(EventUserDto.class));
+
+        EventUserDto dto = eventUserService.joinEvent(eventId, userId);
+
+        assertNotNull(dto);
+        assertEquals(ParticipationStatus.PENDING, eventUser.getParticipationStatus());
+    }
+
+    @Test
+    void leaveEvent_alreadyLeft_shouldThrow() {
+        eventUser.setParticipationStatus(ParticipationStatus.LEFT);
+
+        when(eventUserRepository.findByEventIdAndUserId(eventId, userId))
+                .thenReturn(Optional.of(eventUser));
+
+        ApiException ex = assertThrows(ApiException.class,
+                () -> eventUserService.leaveEvent(eventId, userId));
+
+        assertEquals(ErrorCode.EVENT_FORBIDDEN, ex.getErrorCode());
+    }
+
+    @Test
+    void leaveEvent_rejected_shouldBecomeLeftRejected() {
+        eventUser.setParticipationStatus(ParticipationStatus.REJECTED);
+
+        when(eventUserRepository.findByEventIdAndUserId(eventId, userId))
+                .thenReturn(Optional.of(eventUser));
+        when(eventUserRepository.save(eventUser)).thenReturn(eventUser);
+        when(eventMapper.EventUserDto(eventUser)).thenReturn(mock(EventUserDto.class));
+
+        EventUserDto dto = eventUserService.leaveEvent(eventId, userId);
+
+        assertNotNull(dto);
+        assertEquals(ParticipationStatus.LEFT_REJECTED, eventUser.getParticipationStatus());
+    }
+
+    @Test
+    void acceptParticipant_notFound() {
+        when(eventUserRepository.findById(any()))
+                .thenReturn(Optional.empty());
+
+        ApiException ex = assertThrows(ApiException.class,
+                () -> eventUserService.acceptParticipant(UUID.randomUUID()));
+
+        assertEquals(ErrorCode.PARTICIPANT_NOT_FOUND, ex.getErrorCode());
+    }
+
+    @Test
+    void removeParticipant_cannotRemoveOrganizer() {
+        UUID organizerId = UUID.randomUUID();
+
+        User organizer = new User();
+        organizer.setId(organizerId);
+
+        EventUser organizerEU = new EventUser();
+        organizerEU.setUser(organizer);
+        organizerEU.setEvent(event);
+        organizerEU.setRole(ParticipantRole.PARTICIPANT);
+
+        when(eventUserRepository.findByEventIdAndUserId(eventId, organizerId))
+                .thenReturn(Optional.of(organizerEU));
+
+        ApiException ex = assertThrows(ApiException.class, ()
+                -> eventUserService.removeParticipant(eventId, userId, organizerId)
+        );
+
+        assertEquals(ErrorCode.EVENT_FORBIDDEN, ex.getErrorCode());
+    }
+
+    @Test
+    void findByUserId_success() {
+        when(eventUserRepository.findAllByUserIdAndRoleAndParticipationStatusNotIn(
+                userId,
+                ParticipantRole.PARTICIPANT,
+                List.of(ParticipationStatus.LEFT, ParticipationStatus.LEFT_REJECTED)))
+                .thenReturn(List.of(eventUser));
+
+        when(eventMapper.EventUserDto(eventUser))
+                .thenReturn(mock(EventUserDto.class));
+
+        List<EventUserDto> result = eventUserService.findByUserId(userId);
+
+        assertEquals(1, result.size());
+    }
+
 }

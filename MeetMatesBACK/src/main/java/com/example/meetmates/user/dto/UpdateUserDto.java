@@ -1,4 +1,5 @@
 package com.example.meetmates.user.dto;
+import jakarta.validation.constraints.NotBlank;
 
 /**
  * DTO utilisé pour la mise à jour des informations d'un utilisateur existant.
@@ -8,6 +9,7 @@ package com.example.meetmates.user.dto;
  */
 public class UpdateUserDto {
 
+    @NotBlank
     private String firstName;
     private String lastName;
     private Integer age;
