@@ -15,6 +15,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 
 import com.example.meetmates.auth.dto.LoginRequestDto;
 import com.example.meetmates.auth.dto.LoginResponseDto;
@@ -22,8 +24,10 @@ import com.example.meetmates.auth.dto.RegisterRequestDto;
 import com.example.meetmates.auth.service.AuthService;
 import com.example.meetmates.common.service.MessageService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.meetmates.security.JWTUtils;
+import com.example.meetmates.security.JwtAuthenticationFilter;
 
-@SpringBootTest
+@WebMvcTest(AuthController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class AuthControllerTest {
 
@@ -38,6 +42,12 @@ class AuthControllerTest {
 
     @MockBean
     private MessageService messageService;
+
+    @MockBean
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @MockBean
+    private JWTUtils jwtUtils;
 
     @Test
     void login_shouldReturn200() throws Exception {
@@ -56,6 +66,21 @@ class AuthControllerTest {
                 .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Connexion réussie"));
+    }
+
+    @Test
+    void login_shouldReturn401_whenBadCredentials() throws Exception {
+        LoginRequestDto dto = new LoginRequestDto();
+        dto.setEmail("test@test.com");
+        dto.setPassword("wrong");
+
+        when(authService.login(any(), any()))
+                .thenThrow(new BadCredentialsException("Bad credentials"));
+
+        mockMvc.perform(post("/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test

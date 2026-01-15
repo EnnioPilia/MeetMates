@@ -7,6 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -17,15 +18,16 @@ class AuthControllerIT {
     private MockMvc mockMvc;
 
     @Test
-    void contextLoads_andLoginEndpointExists() throws Exception {
+    void login_withoutBody_shouldReturn500_andStandardErrorStructure() throws Exception {
         mockMvc.perform(post("/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                    {
-                      "email": "test@test.com",
-                      "password": "Password1!"
-                    }
-                """))
-                .andExpect(status().is4xxClientError());
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.status").value(500))
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.path").value("/auth/login"))
+                .andExpect(jsonPath("$.timestamp").exists());
     }
 }
+
+    
+

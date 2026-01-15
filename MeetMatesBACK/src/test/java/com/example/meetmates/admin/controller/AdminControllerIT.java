@@ -7,6 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -33,8 +34,11 @@ class AdminControllerIT {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void ok_whenAdmin() throws Exception {
+    void ok_whenAdmin_shouldReturnApiResponseStructure() throws Exception {
         mockMvc.perform(get("/admin/users"))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.data").exists());
     }
+
 }
