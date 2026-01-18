@@ -9,6 +9,9 @@ package com.example.meetmates.auth.model;
  * - {@code VERIFICATION} : token utilisé pour valider l'adresse email d'un utilisateur.
  *
  * Le type permet de distinguer les logiques métier associées à chaque token.
+ * 
+ * Les tokens JWT d'accès (ACCESS) ne sont pas représentés ici car ils sont stateless et non persistés.
+ * 
  */
 public enum TokenType {
     REFRESH,

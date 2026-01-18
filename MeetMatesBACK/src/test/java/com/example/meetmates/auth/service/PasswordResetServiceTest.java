@@ -157,21 +157,24 @@ class PasswordResetServiceTest {
 
 
 
-    @Test
-    void should_allow_reset_password_exactly_at_expiration_time() {
-        Instant now = Instant.now();
-        Token token = new Token(
-                UUID.randomUUID().toString(),
-                user,
-                now.minusSeconds(3600),
-                now,
-                TokenType.PASSWORD_RESET
-        );
-        when(tokenRepository.findByToken(token.getToken())).thenReturn(Optional.of(token));
-        when(passwordEncoder.encode("newPass")).thenReturn("encodedPass");
+@Test
+void should_allow_reset_password_exactly_at_expiration_time() {
+    Instant now = Instant.now();
+    Token token = new Token(
+            UUID.randomUUID().toString(),
+            user,
+            now.minusSeconds(3600),
+            now, 
+            TokenType.PASSWORD_RESET
+    );
+    when(tokenRepository.findByToken(token.getToken())).thenReturn(Optional.of(token));
+    when(passwordEncoder.encode("newPass")).thenReturn("encodedPass");
 
-        assertThatThrownBy(() -> passwordResetService.resetPassword(token.getToken(), "newPass"))
-                .isInstanceOf(ApiException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.TOKEN_EXPIRED);
-    }
+    passwordResetService.resetPassword(token.getToken(), "newPass"); 
+
+    assertThat(user.getPassword()).isEqualTo("encodedPass");
+    verify(userRepository).save(user);
+    verify(tokenRepository).delete(token);
+}
+
 }

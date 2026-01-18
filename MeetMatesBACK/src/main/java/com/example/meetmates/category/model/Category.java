@@ -29,7 +29,6 @@ import jakarta.persistence.Table;
  * L’entité stocke :
  * - un identifiant UUID unique
  * - un nom obligatoire et unique
- * - une image illustrative optionnelle
  * - la liste des activités qui lui sont associées
  *
  * La relation One-To-Many assure qu’une catégorie peut regrouper plusieurs
@@ -59,9 +58,6 @@ public class Category {
     @Column(nullable = false, unique = true)
     private String name;
 
-    @Column(name = "image_url")
-    private String imageUrl;
-
     /**
      * Liste des activités associées à cette catégorie.
      * Relation One-To-Many : une catégorie peut contenir plusieurs activités.
@@ -78,9 +74,6 @@ public class Category {
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
-
-    public String getImageUrl() { return imageUrl; }
-    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 
     public List<Activity> getActivities() { return activities; }
     public void setActivities(List<Activity> activities) { this.activities = activities; }

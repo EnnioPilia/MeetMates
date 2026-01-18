@@ -36,7 +36,7 @@ import jakarta.persistence.Table;
 public class PictureUser {
 
     /**
-     * Identifiant UUID unique de la relation participant–événement .
+     * Identifiant UUID unique de la photo utilisateur. .
      * Généré automatiquement par Hibernate via un générateur UUID.
      */
     @Id
