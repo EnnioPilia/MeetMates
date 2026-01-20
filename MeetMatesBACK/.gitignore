@@ -1,54 +1,90 @@
-HELP.md
-target/
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+############################
+# Java / JVM
+############################
+*.class
+*.log
+*.ctxt
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+############################
+# Build tools
+############################
+# Maven
+/target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+dependency-reduced-pom.xml
+buildNumber.properties
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
+# Gradle
+/build/
+.gradle/
+!gradle/wrapper/gradle-wrapper.jar
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+############################
+# Spring Boot
+############################
+# Logs
+logs/
+*.log
 
-### VS Code ###
-.vscode/
+# Fichiers de config sensibles
+src/main/resources/application-*.properties
+src/main/resources/application-*.yml
 
-# Build
-target/
+# Exception : garder les fichiers de base
+!src/main/resources/application.properties
+!src/main/resources/application.yml
 
+############################
 # IDEs
+############################
+# IntelliJ IDEA
 .idea/
 *.iml
-*.ipr
 *.iws
-.vscode/
+*.ipr
+out/
+
+# Eclipse
+.classpath
+.project
 .settings/
+.factorypath
 
+# VS Code
+.vscode/
+
+############################
 # OS
-.DS_Store
+############################
+# Windows
 Thumbs.db
+ehthumbs.db
+Desktop.ini
 
-# Local environment
-application-dev-local.properties
+# macOS
+.DS_Store
 
+############################
+# Tests / Coverage
+############################
+/test-output/
+/coverage/
+/jacoco/
+jacoco.exec
 
+############################
+# Docker
+############################
+.env
+docker-compose.override.yml
 
+############################
+# Divers
+############################
+*.tmp
+*.swp
+*.bak
+*.orig
