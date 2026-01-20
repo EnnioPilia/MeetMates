@@ -19,7 +19,7 @@ RUN mvn -q -DskipTests clean package
 FROM eclipse-temurin:17-jre
 
 # Create non-root user (security best practice)
-RUN addgroup -S spring && adduser -S spring -G spring
+RUN groupadd spring && useradd -r -g spring spring
 
 WORKDIR /app
 
