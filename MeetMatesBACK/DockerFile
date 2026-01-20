@@ -16,7 +16,7 @@ RUN mvn -q -DskipTests clean package
 # ------------------------------------------------------------
 # Stage 2: Runtime image
 # ------------------------------------------------------------
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17-jre
 
 # Create non-root user (security best practice)
 RUN addgroup -S spring && adduser -S spring -G spring
