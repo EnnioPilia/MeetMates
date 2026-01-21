@@ -37,6 +37,8 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
     networks:
       - meetmates-network
+    env_file:
+      - .env
 
   frontend:
     build:
