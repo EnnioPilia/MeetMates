@@ -38,7 +38,7 @@ services:
     networks:
       - meetmates-network
     env_file:
-      - .env.dev
+      - .env
 
   frontend:
     build:
