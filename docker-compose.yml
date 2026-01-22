@@ -4,7 +4,7 @@ services:
 
   mysql:
     image: mysql:8.4
-    container_name: meetmates-mysql-dev
+    container_name: meetmates-mysql
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
@@ -25,13 +25,13 @@ services:
     build:
       context: ./MeetMatesBACK
       dockerfile: Dockerfile
-    container_name: meetmates-backend-dev
+    container_name: meetmates-backend
     restart: unless-stopped
     depends_on:
       mysql:
         condition: service_healthy
     environment:
-      SPRING_PROFILES_ACTIVE: prod
+      SPRING_PROFILES_ACTIVE: dev
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
@@ -44,7 +44,7 @@ services:
     build:
       context: ./MeetMatesFRONT
       dockerfile: Dockerfile
-    container_name: meetmates-frontend-dev
+    container_name: meetmates-frontend
     restart: unless-stopped
     depends_on:
       - backend

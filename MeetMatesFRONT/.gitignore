@@ -41,4 +41,3 @@ testem.log
 .DS_Store
 Thumbs.db
 
-docker-compose-dev.yml
