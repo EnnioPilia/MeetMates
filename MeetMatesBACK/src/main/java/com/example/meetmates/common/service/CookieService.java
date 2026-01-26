@@ -15,8 +15,8 @@ public class CookieService {
     private static final String AUTH_COOKIE_NAME = "authToken";
     private static final String REFRESH_COOKIE_NAME = "refreshToken";
 
-    private static final boolean SECURE = true; // mettre true en prod
-    private static final String SAME_SITE = "None"; // ou "None" si cross-site
+    private static final boolean SECURE = true; 
+    private static final String SAME_SITE = "Lax"; 
 
     /**
      * Configure et ajoute les cookies d'authentification et de refresh dans la réponse HTTP.
