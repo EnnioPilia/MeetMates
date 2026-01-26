@@ -22,7 +22,7 @@ jobs:
 
       - name: Deploy to production via SSH
         run: |
-          ssh -o StrictHostKeyChecking=no ennio@pi << 'EOF'
+          ssh -o StrictHostKeyChecking=no ennio@100.118.36.88 << 'EOF'
             set -e
 
             cd ~/MeetMates
