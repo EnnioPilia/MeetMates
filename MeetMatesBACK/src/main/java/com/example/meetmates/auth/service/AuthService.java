@@ -203,7 +203,7 @@ public class AuthService {
                 7 * 24 * 60 * 60
         );
 
-        return new LoginResponseDto(jwt);
+        return new LoginResponseDto(null);
     }
 
     /**

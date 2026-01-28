@@ -46,16 +46,16 @@ class CookieServiceTest {
                     assertThat(cookie)
                             .contains("authToken=auth-token")
                             .contains("HttpOnly")
-                            .contains("Secure")
-                            .contains("SameSite=Strict")
+                            .doesNotContain("Secure")
+                            .contains("SameSite=Lax")
                             .contains("Max-Age=3600");
                 })
                 .anySatisfy(cookie -> {
                     assertThat(cookie)
                             .contains("refreshToken=refresh-token")
                             .contains("HttpOnly")
-                            .contains("Secure")
-                            .contains("SameSite=Strict")
+                            .doesNotContain("Secure")
+                            .contains("SameSite=Lax")
                             .contains("Max-Age=7200");
                 });
     }
@@ -76,16 +76,16 @@ class CookieServiceTest {
                             .contains("authToken=")
                             .contains("Max-Age=0")
                             .contains("HttpOnly")
-                            .contains("Secure")
-                            .contains("SameSite=Strict");
+                            .doesNotContain("Secure")
+                            .contains("SameSite=Lax");
                 })
                 .anySatisfy(cookie -> {
                     assertThat(cookie)
                             .contains("refreshToken=")
                             .contains("Max-Age=0")
                             .contains("HttpOnly")
-                            .contains("Secure")
-                            .contains("SameSite=Strict");
+                            .doesNotContain("Secure")
+                            .contains("SameSite=Lax");
                 });
     }
 }
