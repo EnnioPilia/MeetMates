@@ -58,9 +58,6 @@ describe('AuthFacade', () => {
         router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     });
 
-    // -----------------------
-    // REGISTER
-    // -----------------------
     it('should register user and navigate to login', () => {
         authService.register.and.returnValue(
             of({
@@ -78,9 +75,6 @@ describe('AuthFacade', () => {
         expect(facade.isSubmitting).toBeFalse();
     });
 
-    // -----------------------
-    // LOGIN
-    // -----------------------
     it('should login user, load profile and navigate to home', () => {
 
         const mockUser: User = {
@@ -118,9 +112,6 @@ describe('AuthFacade', () => {
         expect(facade.isSubmitting).toBeFalse();
     });
 
-    // -----------------------
-    // LOGOUT
-    // -----------------------
     it('should logout user and clear state', () => {
         authService.logout.and.returnValue(
             of({

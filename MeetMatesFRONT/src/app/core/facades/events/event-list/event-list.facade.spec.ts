@@ -25,9 +25,6 @@ describe('EventListFacade', () => {
     let successHandler: jasmine.SpyObj<SuccessHandlerService>;
     let notification: jasmine.SpyObj<NotificationService>;
 
-    // -----------------------------
-    // MOCKS
-    // -----------------------------
     const mockUser: User = {
         id: 'u1',
         firstName: 'John',
@@ -90,9 +87,6 @@ describe('EventListFacade', () => {
         notification = TestBed.inject(NotificationService) as jasmine.SpyObj<NotificationService>;
     });
 
-    // ----------------------------------
-    // loadCurrentUser
-    // ----------------------------------
     it('should load current user and update signals', () => {
         userService.getCurrentUser.and.returnValue(
             of({ message: 'ok', data: mockUser })
@@ -104,9 +98,6 @@ describe('EventListFacade', () => {
         expect(signals.updateCurrentUser).toHaveBeenCalledWith(mockUser);
     });
 
-    // ----------------------------------
-    // loadAllEvents
-    // ----------------------------------
     it('should load all events', () => {
         eventService.fetchAllEvents.and.returnValue(of([mockEvent]));
 
@@ -116,9 +107,6 @@ describe('EventListFacade', () => {
         expect(facade.events()).toEqual([mockEvent]);
     });
 
-    // ----------------------------------
-    // loadEventsByActivity
-    // ----------------------------------
     it('should load events by activity', () => {
         eventService.fetchEventsByActivity.and.returnValue(of([mockEvent]));
 
@@ -128,9 +116,6 @@ describe('EventListFacade', () => {
         expect(facade.events()).toEqual([mockEvent]);
     });
 
-    // ----------------------------------
-    // loadActivityName
-    // ----------------------------------
     it('should set page title from activity', () => {
         activityService.fetchActivityById.and.returnValue(
             of({ id: 'a1', name: 'Football' })
@@ -141,9 +126,6 @@ describe('EventListFacade', () => {
         expect(signals.setPageTitle).toHaveBeenCalledWith('Football');
     });
 
-    // ----------------------------------
-    // joinEvent
-    // ----------------------------------
     it('should block join if user is not logged in', () => {
         signals.currentUser.and.returnValue(null);
 

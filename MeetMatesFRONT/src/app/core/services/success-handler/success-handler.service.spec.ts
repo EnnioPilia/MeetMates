@@ -24,9 +24,6 @@ describe('SuccessHandlerService', () => {
     ) as jasmine.SpyObj<NotificationService>;
   });
 
-  // ----------------------------
-  // standard behavior
-  // ----------------------------
   it('should display backend success message when provided', () => {
     const res = { message: 'Succès backend' };
 
@@ -57,9 +54,6 @@ describe('SuccessHandlerService', () => {
     );
   });
 
-  // ----------------------------
-  // silent mode
-  // ----------------------------
   it('should not display any message when silent option is enabled', () => {
     const res = { message: 'Ne doit pas apparaître' };
 
@@ -68,9 +62,6 @@ describe('SuccessHandlerService', () => {
     expect(notificationService.showSuccess).not.toHaveBeenCalled();
   });
 
-  // ----------------------------
-  // edge cases
-  // ----------------------------
   it('should ignore non-string message values', () => {
     const res = { message: 123 };
 

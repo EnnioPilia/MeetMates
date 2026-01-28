@@ -112,10 +112,6 @@ describe('EventOrganizerComponent', () => {
         fixture.detectChanges();
     });
 
-    // ------------------------
-    // Basics
-    // ------------------------
-
     it('should create', () => {
         expect(component).toBeTruthy();
     });
@@ -123,10 +119,6 @@ describe('EventOrganizerComponent', () => {
     it('should load event on init', () => {
         expect(eventFacadeSpy.load).toHaveBeenCalledWith('e1');
     });
-
-    // ------------------------
-    // Accept / Reject
-    // ------------------------
 
     it('should accept participant and refresh event', () => {
         spyOn(component, 'refresh');
@@ -146,10 +138,6 @@ describe('EventOrganizerComponent', () => {
         expect(component.refresh).toHaveBeenCalled();
     });
 
-    // ------------------------
-    // Delete event
-    // ------------------------
-
     it('should delete event after confirmation and navigate to profile', () => {
         component.deleteEvent();
 
@@ -167,10 +155,6 @@ describe('EventOrganizerComponent', () => {
         expect(eventFacadeSpy.deleteEvent).not.toHaveBeenCalled();
         expect(routerSpy.navigate).not.toHaveBeenCalled();
     });
-
-    // ------------------------
-    // Refresh
-    // ------------------------
 
     it('should reload event on refresh()', () => {
         component.refresh();

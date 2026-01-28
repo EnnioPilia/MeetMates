@@ -74,25 +74,13 @@ describe('ProfileComponent', () => {
         fixture.detectChanges();
     });
 
-    // ---------------------------------------------------------------------------
-    // Base
-    // ---------------------------------------------------------------------------
-
     it('should create', () => {
         expect(component).toBeTruthy();
     });
 
-    // ---------------------------------------------------------------------------
-    // Init
-    // ---------------------------------------------------------------------------
-
     it('should load profile on init', () => {
         expect(profileFacadeSpy.loadProfile).toHaveBeenCalled();
     });
-
-    // ---------------------------------------------------------------------------
-    // Logout
-    // ---------------------------------------------------------------------------
 
     it('should logout when confirmation is accepted', () => {
         dialogServiceSpy.confirm.and.returnValue(of(true));
@@ -111,10 +99,6 @@ describe('ProfileComponent', () => {
         expect(profileFacadeSpy.logout).not.toHaveBeenCalled();
     });
 
-    // ---------------------------------------------------------------------------
-    // Delete account
-    // ---------------------------------------------------------------------------
-
     it('should delete account when confirmation is accepted', () => {
         dialogServiceSpy.confirm.and.returnValue(of(true));
 
@@ -124,19 +108,11 @@ describe('ProfileComponent', () => {
         expect(profileFacadeSpy.deleteAccount).toHaveBeenCalled();
     });
 
-    // ---------------------------------------------------------------------------
-    // Navigation
-    // ---------------------------------------------------------------------------
-
     it('should navigate to edit profile page', () => {
         component.onEditProfile();
 
         expect(routerSpy.navigate).toHaveBeenCalledWith(['/edit-profile']);
     });
-
-    // ---------------------------------------------------------------------------
-    // Dialogs
-    // ---------------------------------------------------------------------------
 
     it('should open CGU dialog', () => {
         component.openCguDialog();

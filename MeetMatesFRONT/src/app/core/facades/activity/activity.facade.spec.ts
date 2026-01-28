@@ -29,9 +29,6 @@ describe('ActivityFacade', () => {
     ) as jasmine.SpyObj<ActivityService>;
   });
 
-  // ---------------------------
-  // loadCategories
-  // ---------------------------
   it('should load categories and update signal', () => {
     const mockCategories: Category[] = [
       { id: '1', name: 'Sport' },
@@ -46,9 +43,6 @@ describe('ActivityFacade', () => {
     expect(facade.categories()).toEqual(mockCategories);
   });
 
-  // ---------------------------
-  // loadActivities
-  // ---------------------------
   it('should load activities for a category and update signal', () => {
     const categoryId = '1';
 
@@ -69,9 +63,6 @@ describe('ActivityFacade', () => {
     expect(facade.activities()).toEqual(mockActivities);
   });
 
-  // ---------------------------
-  // Error handling
-  // ---------------------------
   it('should not update categories when service fails', () => {
     activityService.fetchAllCategories.and.returnValue(
       throwError(() => new Error('API error'))

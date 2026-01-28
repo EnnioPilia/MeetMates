@@ -3,16 +3,9 @@ import { signal } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { Subject, of } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
-
 import { AppComponent } from './app.component';
-
-// Services
 import { SignalsService } from './core/services/signals/signals.service';
 import { AuthFacade } from './core/facades/auth/auth.facade';
-
-// -----------------------------------------------------------------------------
-// MOCKS
-// -----------------------------------------------------------------------------
 
 const routerEvents$ = new Subject<any>();
 
@@ -39,10 +32,6 @@ const signalsServiceMock = {
 const authFacadeSpy = jasmine.createSpyObj('AuthFacade', ['loadCurrentUser']);
 authFacadeSpy.loadCurrentUser.and.returnValue(of({}));
 
-// -----------------------------------------------------------------------------
-// TESTS
-// -----------------------------------------------------------------------------
-
 describe('AppComponent', () => {
   let component: AppComponent;
   let fixture: ComponentFixture<AppComponent>;
@@ -60,28 +49,16 @@ describe('AppComponent', () => {
 
     fixture = TestBed.createComponent(AppComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges(); // 🔥 déclenche ngOnInit
+    fixture.detectChanges(); 
   });
-
-  // ---------------------------------------------------------------------------
-  // BASE
-  // ---------------------------------------------------------------------------
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  // ---------------------------------------------------------------------------
-  // INIT
-  // ---------------------------------------------------------------------------
-
   it('should load current user on init', () => {
     expect(authFacadeSpy.loadCurrentUser).toHaveBeenCalled();
   });
-
-  // ---------------------------------------------------------------------------
-  // PAGE TITLE
-  // ---------------------------------------------------------------------------
 
   it('should update page title on NavigationEnd', () => {
     routerEvents$.next(new NavigationEnd(1, '/test', '/test'));

@@ -20,24 +20,16 @@ describe('AddressService', () => {
   });
 
   afterEach(() => {
-    httpMock.verify(); 
+    httpMock.verify();
   });
 
-  // ----------------------------------
-  // Query trop courte
-  // ----------------------------------
   it('should return empty array if query length < 3', () => {
     service.getAddressSuggestions('pa').subscribe(result => {
       expect(result).toEqual([]);
     });
-
-    // AUCUN appel HTTP attendu
     httpMock.expectNone(apiUrl);
   });
 
-  // ----------------------------------
-  // Appel HTTP + mapping
-  // ----------------------------------
   it('should fetch and map address suggestions', () => {
     const apiResponse = {
       features: [
@@ -75,22 +67,19 @@ describe('AddressService', () => {
     req.flush(apiResponse);
   });
 
-  // ----------------------------------
-  // Gestion d’erreur
-  // ----------------------------------
-it('should return empty array on HTTP error', () => {
-  service.getAddressSuggestions('paris').subscribe(result => {
-    expect(result).toEqual([]);
+  it('should return empty array on HTTP error', () => {
+    service.getAddressSuggestions('paris').subscribe(result => {
+      expect(result).toEqual([]);
+    });
+
+    const req = httpMock.expectOne(req =>
+      req.method === 'GET' &&
+      req.url === apiUrl &&
+      req.params.get('q') === 'paris' &&
+      req.params.get('limit') === '5'
+    );
+
+    req.flush('Error', { status: 500, statusText: 'Server Error' });
   });
-
-  const req = httpMock.expectOne(req =>
-    req.method === 'GET' &&
-    req.url === apiUrl &&
-    req.params.get('q') === 'paris' &&
-    req.params.get('limit') === '5'
-  );
-
-  req.flush('Error', { status: 500, statusText: 'Server Error' });
-});
 
 });

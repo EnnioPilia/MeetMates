@@ -28,9 +28,7 @@ describe('EventService', () => {
     httpMock.verify();
   });
 
-  // ----------------------------------
-  // fetchAllEvents
-  // ----------------------------------
+  
   it('should fetch all events', () => {
     const mockEvents: EventResponse[] = [
       { id: '1', title: 'Event 1' } as EventResponse
@@ -52,9 +50,7 @@ describe('EventService', () => {
     req.flush(response);
   });
 
-  // ----------------------------------
-  // fetchEventsByActivity
-  // ----------------------------------
+  
   it('should fetch events by activity', () => {
     const mockEvents: EventResponse[] = [
       { id: '2', title: 'Sport Event' } as EventResponse
@@ -76,9 +72,7 @@ describe('EventService', () => {
     req.flush(response);
   });
 
-  // ----------------------------------
-  // fetchEventById
-  // ----------------------------------
+  
   it('should fetch event details by id', () => {
     const eventDetails: EventDetails = {
       id: 'e1',
@@ -117,9 +111,7 @@ describe('EventService', () => {
     req.flush(response);
   });
 
-  // ----------------------------------
-  // createEvent
-  // ----------------------------------
+  
   it('should create event', () => {
     const payload: EventRequest = { title: 'New Event' } as EventRequest;
 
@@ -140,9 +132,7 @@ describe('EventService', () => {
     req.flush(response);
   });
 
-  // ----------------------------------
-  // updateEvent
-  // ----------------------------------
+  
   it('should update event', () => {
     const payload: EventRequest = { title: 'Updated Event' } as EventRequest;
 
@@ -161,9 +151,6 @@ describe('EventService', () => {
     req.flush(response);
   });
 
-  // ----------------------------------
-  // deleteEvent
-  // ----------------------------------
   it('should delete event', () => {
     const response: ApiResponse<void> = {
       message: 'Deleted',
@@ -180,9 +167,6 @@ describe('EventService', () => {
     req.flush(response);
   });
 
-  // ----------------------------------
-  // searchEvents
-  // ----------------------------------
   it('should search events', () => {
     const mockEvents: EventResponse[] = [
       { id: '3', title: 'Search Event' } as EventResponse

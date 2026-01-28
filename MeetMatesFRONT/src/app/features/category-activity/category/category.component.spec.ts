@@ -17,7 +17,6 @@ describe('CategoryComponent', () => {
   ];
 
   beforeEach(async () => {
-    // Création du spy pour ActivityFacade avec des signals
     activityFacade = jasmine.createSpyObj<ActivityFacade>(
       'ActivityFacade',
       ['loadCategories'],
@@ -30,7 +29,6 @@ describe('CategoryComponent', () => {
 
     activityFacade.loadCategories.and.returnValue(of(mockCategories));
 
-    // Spy pour Router
     router = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({

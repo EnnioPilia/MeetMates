@@ -116,35 +116,19 @@ describe('PostEventComponent', () => {
         fixture.detectChanges();
     });
 
-    // ---------------------------------------------------------------------------
-    // Base
-    // ---------------------------------------------------------------------------
-
     it('should create', () => {
         expect(component).toBeTruthy();
     });
 
-    // ---------------------------------------------------------------------------
-    // Init
-    // ---------------------------------------------------------------------------
-
     it('should load activities on init', () => {
         expect(eventFacadeSpy.loadActivities).toHaveBeenCalled();
     });
-
-    // ---------------------------------------------------------------------------
-    // Address search
-    // ---------------------------------------------------------------------------
 
     it('should search address when query is provided', () => {
         component.searchAddress('Paris');
 
         expect(eventFacadeSpy.searchAddress).toHaveBeenCalledWith('Paris');
     });
-
-    // ---------------------------------------------------------------------------
-    // Create event
-    // ---------------------------------------------------------------------------
 
     it('should map form value and call createEvent', () => {
         const mapperSpy = spyOn(EventFormMapper, 'toCreateRequest').and.callThrough();

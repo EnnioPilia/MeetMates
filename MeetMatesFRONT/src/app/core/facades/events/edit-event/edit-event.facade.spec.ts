@@ -21,9 +21,6 @@ describe('EditEventFacade', () => {
   let addressService: jasmine.SpyObj<AddressService>;
   let successHandler: jasmine.SpyObj<SuccessHandlerService>;
 
-  // -----------------------
-  // MOCKS
-  // -----------------------
   const mockActivities: Activity[] = [
     { id: 'a1', name: 'Football' } as Activity,
     { id: 'a2', name: 'Tennis' } as Activity
@@ -73,9 +70,6 @@ describe('EditEventFacade', () => {
     successHandler = TestBed.inject(SuccessHandlerService) as jasmine.SpyObj<SuccessHandlerService>;
   });
 
-  // ----------------------------------
-  // loadEvent
-  // ----------------------------------
   it('should load activities and event and set activityId', () => {
     activityService.fetchAllActivities.and.returnValue(of(mockActivities));
     eventService.fetchEventById.and.returnValue(of(mockEventDetails));
@@ -89,9 +83,6 @@ describe('EditEventFacade', () => {
     expect(facade.event()?.activityId).toBe('a1');
   });
 
-  // ----------------------------------
-  // updateEvent
-  // ----------------------------------
   it('should update event and refresh state', () => {
     const payload = { title: 'Updated' } as EventRequest;
 
@@ -109,9 +100,6 @@ describe('EditEventFacade', () => {
     expect(facade.event()?.title).toBe('Updated');
   });
 
-  // ----------------------------------
-  // getAddressSuggestions
-  // ----------------------------------
   it('should load address suggestions', () => {
     const suggestions: AddressSuggestion[] = [
       {

@@ -1,12 +1,8 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
-
 import { SearchEventsComponent } from './search-events.component';
-
-// Services
 import { EventService } from '../../core/services/event/event.service';
 import { NotificationService } from '../../core/services/notification/notification.service';
 import { EventMapperService } from '../../core/mappers/event-mapper';
@@ -64,17 +60,9 @@ describe('SearchEventsComponent', () => {
         fixture.detectChanges();
     });
 
-    // ---------------------------------------------------------------------------
-    // Base
-    // ---------------------------------------------------------------------------
-
     it('should create', () => {
         expect(component).toBeTruthy();
     });
-
-    // ---------------------------------------------------------------------------
-    // Search behavior
-    // ---------------------------------------------------------------------------
 
     it('should search events after debounce when query changes', fakeAsync(() => {
         component.form.controls['query'].setValue('football');
@@ -88,17 +76,14 @@ describe('SearchEventsComponent', () => {
     }));
 
     it('should clear results when query is empty', fakeAsync(() => {
-        // 1️⃣ valeur initiale non vide
         component.form.controls['query'].setValue('football');
         tick(400);
 
         expect(component.results().length).toBe(1);
 
-        // 2️⃣ retour à une valeur vide
         component.form.controls['query'].setValue('');
         tick(400);
 
-        // 3️⃣ résultats vidés
         expect(component.results()).toEqual([]);
         expect(component.loadingSearch()).toBeFalse();
     }));
@@ -117,10 +102,6 @@ describe('SearchEventsComponent', () => {
         expect(notificationSpy.showError)
             .toHaveBeenCalledWith('Erreur lors de la recherche des événements.');
     }));
-
-    // ---------------------------------------------------------------------------
-    // Navigation
-    // ---------------------------------------------------------------------------
 
     it('should navigate to event details', () => {
         const item: EventListItem = {

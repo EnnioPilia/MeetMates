@@ -13,18 +13,12 @@ describe('SignalsService', () => {
     service = TestBed.inject(SignalsService);
   });
 
-  // ----------------------------
-  // pageTitle
-  // ----------------------------
   it('should set page title', () => {
     service.setPageTitle('Profil');
 
     expect(service.pageTitle()).toBe('Profil');
   });
 
-  // ----------------------------
-  // dark mode
-  // ----------------------------
   it('should toggle dark mode', () => {
     expect(service.darkMode()).toBeFalse();
 
@@ -35,9 +29,6 @@ describe('SignalsService', () => {
     expect(service.darkMode()).toBeFalse();
   });
 
-  // ----------------------------
-  // menu
-  // ----------------------------
   it('should toggle menu open state', () => {
     expect(service.isMenuOpen()).toBeFalse();
 
@@ -48,9 +39,6 @@ describe('SignalsService', () => {
     expect(service.isMenuOpen()).toBeFalse();
   });
 
-  // ----------------------------
-  // current user
-  // ----------------------------
   it('should update current user from User model', () => {
     const user: User = {
       id: 'u1',
@@ -88,9 +76,6 @@ describe('SignalsService', () => {
     expect(service.currentUser()).toBeNull();
   });
 
-  // ----------------------------
-  // auth helpers
-  // ----------------------------
   it('should return true when user is authenticated', () => {
     service.currentUser.set({
       id: 'u1',

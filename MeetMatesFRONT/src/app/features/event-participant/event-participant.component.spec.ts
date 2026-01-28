@@ -91,8 +91,6 @@ describe('EventParticipantComponent', () => {
         fixture.detectChanges();
     });
 
-    // ---------------------------------------------------------------------------
-
     it('should create', () => {
         expect(component).toBeTruthy();
     });
@@ -117,10 +115,6 @@ describe('EventParticipantComponent', () => {
         expect(eventFacadeSpy.leave).not.toHaveBeenCalled();
         expect(routerSpy.navigate).not.toHaveBeenCalled();
     });
-
-    // ---------------------------------------------------------------------------
-    // Labels helpers
-    // ---------------------------------------------------------------------------
 
     it('should return formatted status label', () => {
         expect(component.getStatusLabel('OPEN')).toBeTruthy();

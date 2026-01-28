@@ -30,7 +30,7 @@ describe('AdminDashboardComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         AdminDashboardComponent,
-        RouterTestingModule // ✅ FIX ICI
+        RouterTestingModule 
       ],
       providers: [
         { provide: AdminFacade, useValue: facadeSpy }

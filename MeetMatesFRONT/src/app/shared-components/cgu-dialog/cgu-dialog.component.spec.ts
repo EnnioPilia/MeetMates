@@ -24,7 +24,7 @@ describe('CguDialogComponent', () => {
         { provide: LegalService, useValue: legalServiceSpy },
         {
           provide: MAT_DIALOG_DATA,
-          useValue: { type: 'cgu' } // valeur par défaut
+          useValue: { type: 'cgu' } 
         }
       ],
     }).compileComponents();

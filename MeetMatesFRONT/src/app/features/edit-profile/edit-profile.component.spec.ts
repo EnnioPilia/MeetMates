@@ -11,7 +11,6 @@ describe('EditProfileComponent', () => {
   let fixture: ComponentFixture<EditProfileComponent>;
   let userFacade: jasmine.SpyObj<UserFacade>;
 
-  // Mock utilisateur
   const mockUser: User = {
     id: '1',
     firstName: 'John',
@@ -24,14 +23,12 @@ describe('EditProfileComponent', () => {
     profilePictureUrl: null,
   };
 
-  // Mock ApiResponse
   const mockApiResponse = {
     message: 'ok',
     data: mockUser,
   };
 
   beforeEach(async () => {
-    // SpyObj avec signaux
     userFacade = jasmine.createSpyObj<UserFacade>(
       'UserFacade',
       ['loadUser', 'updateMyProfile', 'uploadProfilePicture', 'deleteProfilePicture'],
@@ -42,13 +39,11 @@ describe('EditProfileComponent', () => {
       }
     );
 
-    // Chaque méthode retourne Observable<ApiResponse<User>>
     userFacade.loadUser.and.returnValue(of(mockUser));
     userFacade.updateMyProfile.and.returnValue(of(mockApiResponse));
     userFacade.uploadProfilePicture.and.returnValue(of(mockApiResponse));
     userFacade.deleteProfilePicture.and.returnValue(of(mockApiResponse));
 
-    // Mock minimal d'ActivatedRoute
     const activatedRouteMock = {
       snapshot: {
         paramMap: {

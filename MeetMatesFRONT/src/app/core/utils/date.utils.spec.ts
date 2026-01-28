@@ -33,7 +33,7 @@ describe('Date utils', () => {
     });
 
     it('should pad month and day with leading zeros', () => {
-      const date = new Date(2023, 0, 3); // 3 janvier 2023
+      const date = new Date(2023, 0, 3);
 
       const result = formatLocalDate(date);
 

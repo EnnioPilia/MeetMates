@@ -70,9 +70,6 @@ describe('UserFacade', () => {
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
   });
 
-  // -----------------------------
-  // getCurrentUser
-  // -----------------------------
   it('should load current user and sync signals', () => {
     const response: ApiResponse<User> = {
       message: 'OK',
@@ -89,9 +86,6 @@ describe('UserFacade', () => {
     expect(facade.user()).toEqual(mockUser);
   });
 
-  // -----------------------------
-  // loadUser
-  // -----------------------------
   it('should load user and update signal', () => {
     const response: ApiResponse<User> = {
       message: 'OK',
@@ -105,9 +99,6 @@ describe('UserFacade', () => {
     expect(facade.user()).toEqual(mockUser);
   });
 
-  // -----------------------------
-  // updateMyProfile
-  // -----------------------------
   it('should update profile and redirect', () => {
     const response: ApiResponse<User> = {
       message: 'Profile updated',
@@ -123,9 +114,6 @@ describe('UserFacade', () => {
     expect(router.navigate).toHaveBeenCalledWith(['/profile']);
   });
 
-  // -----------------------------
-  // uploadProfilePicture
-  // -----------------------------
   it('should upload profile picture', () => {
     const response: ApiResponse<User> = {
       message: 'Picture uploaded',
@@ -140,9 +128,6 @@ describe('UserFacade', () => {
     expect(successHandler.handle).toHaveBeenCalledWith(response);
   });
 
-  // -----------------------------
-  // deleteProfilePicture
-  // -----------------------------
   it('should delete profile picture', () => {
     const response: ApiResponse<User> = {
       message: 'Picture deleted',
@@ -157,9 +142,6 @@ describe('UserFacade', () => {
     expect(successHandler.handle).toHaveBeenCalledWith(response);
   });
 
-  // -----------------------------
-  // deleteMyAccount
-  // -----------------------------
   it('should delete account and logout user', () => {
     const response: ApiResponse<void> = {
       message: 'Account deleted',

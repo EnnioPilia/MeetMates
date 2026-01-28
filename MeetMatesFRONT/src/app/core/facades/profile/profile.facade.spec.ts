@@ -17,9 +17,6 @@ describe('ProfileFacade', () => {
     let authFacade: jasmine.SpyObj<AuthFacade>;
     let eventUserService: jasmine.SpyObj<EventUserService>;
 
-    // -----------------------
-    // MOCK DATA
-    // -----------------------
     const mockUser: User = {
         id: 'u1',
         firstName: 'John',
@@ -73,9 +70,6 @@ describe('ProfileFacade', () => {
         eventUserService = TestBed.inject(EventUserService) as jasmine.SpyObj<EventUserService>;
     });
 
-    // ----------------------------------
-    // loadProfile
-    // ----------------------------------
     it('should load user profile and filter events correctly', () => {
         userFacade.getCurrentUser.and.returnValue(of(mockUser));
         eventUserService.getOrganizedEvents.and.returnValue(of(organizedEvents));
@@ -94,9 +88,6 @@ describe('ProfileFacade', () => {
         ]);
     });
 
-    // ----------------------------------
-    // logout
-    // ----------------------------------
     it('should reset state and logout', () => {
         authFacade.logout.and.returnValue(
             of({
@@ -113,9 +104,6 @@ describe('ProfileFacade', () => {
         expect(facade.eventsParticipating()).toEqual([]);
     });
 
-    // ----------------------------------
-    // deleteAccount
-    // ----------------------------------
     it('should delete user account', () => {
         userFacade.deleteMyAccount.and.returnValue(
             of({
@@ -129,9 +117,6 @@ describe('ProfileFacade', () => {
         expect(userFacade.deleteMyAccount).toHaveBeenCalled();
     });
 
-    // ----------------------------------
-    // removeOrganizedEvent
-    // ----------------------------------
     it('should remove an organized event by id', () => {
         facade.eventsOrganized.set(organizedEvents);
 

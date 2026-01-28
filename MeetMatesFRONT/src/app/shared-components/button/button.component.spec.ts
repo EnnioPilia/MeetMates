@@ -10,7 +10,7 @@ describe('AppButtonComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         AppButtonComponent,
-        RouterTestingModule // 🔥 FIX IMPORTANT
+        RouterTestingModule 
       ],
     }).compileComponents();
 

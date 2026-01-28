@@ -117,9 +117,6 @@ describe('EventFacade', () => {
         successHandler = TestBed.inject(SuccessHandlerService) as jasmine.SpyObj<SuccessHandlerService>;
     });
 
-    // -----------------------------
-    // loadActivities
-    // -----------------------------
     it('should load activities and update signal', () => {
         const activities: Activity[] = [{ id: '1', name: 'Sport' } as Activity];
 
@@ -131,9 +128,6 @@ describe('EventFacade', () => {
         expect(facade.activities()).toEqual(activities);
     });
 
-    // -----------------------------
-    // createEvent
-    // -----------------------------
     it('should create event and call success handler', () => {
         eventService.createEvent.and.returnValue(
             of({
@@ -148,9 +142,6 @@ describe('EventFacade', () => {
         expect(facade.isSubmitting).toBeFalse();
     });
 
-    // -----------------------------
-    // acceptParticipant
-    // -----------------------------
     it('should accept participant', () => {
         eventUserService.acceptParticipant.and.returnValue(
             of<ApiResponse<void>>({ message: 'Accepted', data: undefined })
@@ -163,9 +154,6 @@ describe('EventFacade', () => {
         expect(facade.isSubmitting).toBeFalse();
     });
 
-    // -----------------------------
-    // deleteEvent
-    // -----------------------------
     it('should delete event', () => {
         eventService.deleteEvent.and.returnValue(
             of<ApiResponse<void>>({ message: 'Deleted', data: undefined })
@@ -178,9 +166,6 @@ describe('EventFacade', () => {
         expect(facade.isSubmitting).toBeFalse();
     });
 
-    // -----------------------------
-    // load event
-    // -----------------------------
     it('should load event details', () => {
         eventService.fetchEventById.and.returnValue(
             of(mockEventDetails)
@@ -192,9 +177,6 @@ describe('EventFacade', () => {
         expect(facade.event()).toEqual(mockEventDetails);
     });
 
-    // -----------------------------
-    // searchAddress
-    // -----------------------------
     it('should load address suggestions', () => {
         const suggestions: AddressSuggestion[] = [
             {
