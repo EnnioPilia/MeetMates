@@ -3,27 +3,31 @@ name: CI/CD Docker
 on:
   push:
     branches:
-      - main
+      
+main
 
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      
+name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Setup Tailscale (OAuth)
-        uses: tailscale/github-action@v3
-        with:
-          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
-          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
-          tags: tag:ci
+      
+name: Setup Tailscale (OAuth)
+      uses: tailscale/github-action@v3
+      with:
+        oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+        oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+        tags: tag:ci
 
-      - name: Deploy to production via SSH
-        run: |
-          ssh -o StrictHostKeyChecking=no ennio@100.118.36.88 << 'EOF'
-            set -e
+      
+name: Deploy to production via SSH
+      run: |
+        ssh -o StrictHostKeyChecking=no ennio@100.118.36.88 << 'EOF'
+          set -e
 
             cd ~/MeetMates
 
