@@ -203,7 +203,7 @@ public class AuthService {
                 7 * 24 * 60 * 60
         );
 
-        return new LoginResponseDto(null);
+        return new LoginResponseDto("AUTH_LOGIN_SUCCESS");
     }
 
     /**

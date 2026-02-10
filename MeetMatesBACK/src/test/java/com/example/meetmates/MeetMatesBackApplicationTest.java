@@ -2,6 +2,7 @@ package com.example.meetmates;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 /**
  * Test de démarrage de l'application.
@@ -10,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
  * sans erreur de configuration.
  */
 @SpringBootTest
+@ActiveProfiles("test")
 class MeetMatesBackApplicationTest {
 
     @Test

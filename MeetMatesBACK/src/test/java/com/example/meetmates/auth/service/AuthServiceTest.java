@@ -114,8 +114,14 @@ class AuthServiceTest {
 
         LoginResponseDto result = authService.login(loginRequest, response);
 
-        assertThat(result.getMessage()).isEqualTo("jwt123");
-        verify(cookieService).setAuthCookies(eq(response), eq("jwt123"), eq("refresh123"), anyLong(), anyLong());
+        assertThat(result.getMessage()).isEqualTo("AUTH_LOGIN_SUCCESS");
+        verify(cookieService).setAuthCookies(
+        eq(response),
+        eq("jwt123"),
+        eq("refresh123"),
+        anyLong(),
+        anyLong()
+        );
     }
 
     @Test
