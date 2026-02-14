@@ -128,7 +128,8 @@ FRONTEND_URL=http://localhost:4200
 mvn spring-boot:run
 ```
 
-API accessible à l’adresse :
+### API accessible à l’adresse :
+
 http://localhost:8080
 
 
@@ -144,11 +145,13 @@ npm install
 ng serve
 ```
 
-Application accessible à l’adresse :
+### Application accessible à l’adresse :
+
 http://localhost:4200
+
 ---
 
-## 🐳 DOCKER
+## DOCKER
 
 L’application peut être exécutée via Docker afin de garantir un environnement isolé, reproductible et conforme aux standards professionnels.
 
@@ -174,11 +177,11 @@ Cette approche permet :
 
 ---
 
-## 🔄 CI/CD
+## CI/CD
 
 Un pipeline d’intégration continue et de déploiement continu est mis en place via GitHub Actions.
 
-### 🔹 Intégration Continue (CI)
+###  Intégration Continue (CI)
 
 À chaque `push` ou `pull request` :
 
@@ -189,7 +192,7 @@ Un pipeline d’intégration continue et de déploiement continu est mis en plac
 
 Cela permet de détecter automatiquement les erreurs avant intégration dans la branche principale et garantit la stabilité du code.
 
-### 🔹 Déploiement Continu (CD)
+###  Déploiement Continu (CD)
 
 Selon la branche ciblée :
 
