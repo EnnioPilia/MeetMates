@@ -1,4 +1,4 @@
-package com.example.meetmates.security;
+package com.example.meetmates.security.unit;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -23,6 +23,7 @@ import com.example.meetmates.event.model.Event;
 import com.example.meetmates.event.model.EventUser;
 import com.example.meetmates.event.model.EventUser.ParticipantRole;
 import com.example.meetmates.event.repository.EventUserRepository;
+import com.example.meetmates.security.EventSecurity;
 import com.example.meetmates.user.model.User;
 import com.example.meetmates.user.repository.UserRepository;
 

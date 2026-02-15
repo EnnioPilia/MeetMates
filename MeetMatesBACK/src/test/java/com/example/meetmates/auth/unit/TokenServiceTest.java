@@ -1,5 +1,4 @@
-package com.example.meetmates.auth.service;
-
+package com.example.meetmates.auth.unit;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
@@ -19,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.example.meetmates.auth.model.Token;
 import com.example.meetmates.auth.model.TokenType;
 import com.example.meetmates.auth.repository.TokenRepository;
+import com.example.meetmates.auth.service.TokenService;
 import com.example.meetmates.common.exception.ApiException;
 import com.example.meetmates.common.exception.ErrorCode;
 import com.example.meetmates.user.model.User;

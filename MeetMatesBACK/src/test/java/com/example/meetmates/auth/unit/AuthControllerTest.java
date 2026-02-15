@@ -1,4 +1,4 @@
-package com.example.meetmates.auth.controller;
+package com.example.meetmates.auth.unit;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -26,6 +26,7 @@ import com.example.meetmates.common.service.MessageService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.example.meetmates.security.JWTUtils;
 import com.example.meetmates.security.JwtAuthenticationFilter;
+import com.example.meetmates.auth.controller.AuthController;
 
 @WebMvcTest(AuthController.class)
 @AutoConfigureMockMvc(addFilters = false)

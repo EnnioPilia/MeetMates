@@ -1,4 +1,4 @@
-package com.example.meetmates.security;
+package com.example.meetmates.security.unit;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
@@ -10,6 +10,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import com.example.meetmates.security.JWTUtils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

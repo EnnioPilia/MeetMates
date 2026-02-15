@@ -1,4 +1,4 @@
-package com.example.meetmates.auth.service;
+package com.example.meetmates.auth.unit;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -27,10 +27,13 @@ import com.example.meetmates.auth.dto.LoginRequestDto;
 import com.example.meetmates.auth.dto.LoginResponseDto;
 import com.example.meetmates.auth.dto.RegisterRequestDto;
 import com.example.meetmates.auth.model.Token;
+import com.example.meetmates.auth.service.AuthService;
+import com.example.meetmates.auth.service.RefreshTokenService;
 import com.example.meetmates.common.exception.ApiException;
 import com.example.meetmates.common.exception.ErrorCode;
 import com.example.meetmates.common.service.CookieService;
 import com.example.meetmates.common.service.EmailService;
+import com.example.meetmates.common.service.MessageService;
 import com.example.meetmates.common.service.VerificationService;
 import com.example.meetmates.security.JWTUtils;
 import com.example.meetmates.user.model.User;
@@ -61,6 +64,8 @@ class AuthServiceTest {
     private CookieService cookieService;
     @Mock
     private HttpServletResponse response;
+    @Mock
+    private MessageService messageService;
 
     @InjectMocks
     private AuthService authService;
@@ -92,37 +97,52 @@ class AuthServiceTest {
         verify(emailService).sendVerificationEmail("john@mail.com", "token123");
     }
 
-    @Test
-    void should_login_user_successfully() {
-        User user = new User();
-        user.setEmail("john@mail.com");
-        user.setEnabled(true);
-        user.setStatus(UserStatus.ACTIVE);
-        user.setRole(UserRole.USER);
+@Test
+void should_login_user_successfully() {
 
-        LoginRequestDto loginRequest = new LoginRequestDto("john@mail.com", "Password1!");
-        Token refreshToken = new Token();
-        refreshToken.setToken("refresh123");
+    User user = new User();
+    user.setEmail("john@mail.com");
+    user.setEnabled(true);
+    user.setStatus(UserStatus.ACTIVE);
+    user.setRole(UserRole.USER);
 
-        when(userRepository.findByEmail("john@mail.com")).thenReturn(Optional.of(user));
-        Authentication authMock = mock(Authentication.class);
-        when(authenticationManager.authenticate(any())).thenReturn(authMock);
+    LoginRequestDto loginRequest =
+            new LoginRequestDto("john@mail.com", "Password1!");
 
-        when(jwtUtils.generateAccessToken(any(), any())).thenReturn("jwt123");
-        when(jwtUtils.getJwtExpirationMs()).thenReturn(3600000);
-        when(refreshTokenService.createRefreshToken(user)).thenReturn(refreshToken);
+    Token refreshToken = new Token();
+    refreshToken.setToken("refresh123");
 
-        LoginResponseDto result = authService.login(loginRequest, response);
+    when(userRepository.findByEmail("john@mail.com"))
+            .thenReturn(Optional.of(user));
 
-        assertThat(result.getMessage()).isEqualTo("AUTH_LOGIN_SUCCESS");
-        verify(cookieService).setAuthCookies(
-        eq(response),
-        eq("jwt123"),
-        eq("refresh123"),
-        anyLong(),
-        anyLong()
-        );
-    }
+    Authentication authMock = mock(Authentication.class);
+    when(authenticationManager.authenticate(any()))
+            .thenReturn(authMock);
+
+    when(jwtUtils.generateAccessToken(any(), any()))
+            .thenReturn("jwt123");
+
+    when(jwtUtils.getJwtExpirationMs())
+            .thenReturn(3600000);
+
+    when(refreshTokenService.createRefreshToken(user))
+            .thenReturn(refreshToken);
+
+    LoginResponseDto result =
+            authService.login(loginRequest, response);
+
+    assertThat(result.getMessage())
+            .isEqualTo("AUTH_LOGIN_SUCCESS");
+
+    verify(cookieService).setAuthCookies(
+            eq(response),
+            eq("jwt123"),
+            eq("refresh123"),
+            anyLong(),
+            anyLong()
+    );
+}
+
 
     @Test
     void should_throw_when_login_user_banned() {

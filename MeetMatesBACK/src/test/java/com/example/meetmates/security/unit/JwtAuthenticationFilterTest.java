@@ -1,4 +1,4 @@
-package com.example.meetmates.security;
+package com.example.meetmates.security.unit;
 
 import java.io.IOException;
 import java.util.List;
@@ -26,6 +26,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.example.meetmates.auth.model.Token;
 import com.example.meetmates.auth.service.RefreshTokenService;
 import com.example.meetmates.common.service.CookieService;
+import com.example.meetmates.security.JWTUtils;
+import com.example.meetmates.security.JwtAuthenticationFilter;
 import com.example.meetmates.user.model.UserRole;
 import com.example.meetmates.user.service.UserService;
 

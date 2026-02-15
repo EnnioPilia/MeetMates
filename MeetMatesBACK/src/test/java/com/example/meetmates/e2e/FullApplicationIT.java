@@ -1,6 +1,6 @@
-package com.example.meetmates.integration;
+package com.example.meetmates.e2e;
 
-import java.time.LocalDate;
+import java.time.LocalDate;                 
 import java.time.LocalTime;
 
 import org.junit.jupiter.api.Test;
