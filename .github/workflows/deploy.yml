@@ -18,6 +18,11 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
+          cache: maven
+
+      - name: Give execute permission to mvnw
+        run: chmod +x mvnw
+        working-directory: MeetMatesBACK
 
       - name: Build & Run Tests
         run: ./mvnw clean verify
