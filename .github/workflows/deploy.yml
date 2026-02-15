@@ -20,7 +20,8 @@ jobs:
           java-version: '21'
 
       - name: Build & Run Tests
-        run: mvn clean verify
+        run: ./mvnw clean verify
+        working-directory: MeetMatesBACK
 
       - name: Setup Tailscale (OAuth)
         uses: tailscale/github-action@v3
