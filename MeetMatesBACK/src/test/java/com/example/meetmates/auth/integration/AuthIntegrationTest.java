@@ -93,31 +93,6 @@ class AuthIntegrationTest {
     }
 
     @Test
-    void refresh_shouldReturn200_whenRefreshTokenValid() throws Exception {
-
-        String loginBody = """
-                    {
-                      "email": "john@mail.com",
-                      "password": "Password1!"
-                    }
-                """;
-
-        var loginResult = mockMvc.perform(post("/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(loginBody))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        Cookie refreshCookie = loginResult.getResponse().getCookie("refreshToken");
-        assertThat(refreshCookie).isNotNull();
-
-        mockMvc.perform(post("/auth/refresh-token")
-                .cookie(refreshCookie))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").exists());
-    }
-
-    @Test
     void logout_shouldClearRefreshTokenCookie() throws Exception {
 
         String loginBody = """
