@@ -150,13 +150,12 @@ public class UserController {
      * @param id identifiant de l’utilisateur à supprimer
      * @return confirmation de suppression
      */
+    
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable UUID id) {
-        log.info("Demande de suppression d’un utilisateur reçue");
+        
         userService.hardDeleteById(id);
-
-        log.info("Utilisateur supprimé définitivement");
         String message = messageService.get("USER_DELETE_SUCCESS");
         return ResponseEntity.ok(new ApiResponse<>(message, null));
     }

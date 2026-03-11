@@ -39,7 +39,6 @@ public class RefreshTokenService {
     @Transactional
     public Token createRefreshToken(User user) {
 
-        // Efface les refresh tokens précédents
         tokenRepository.deleteByUser_IdAndType(user.getId(), TokenType.REFRESH);
 
         Token token = new Token(

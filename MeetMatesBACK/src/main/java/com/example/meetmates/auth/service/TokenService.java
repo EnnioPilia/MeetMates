@@ -38,10 +38,9 @@ public class TokenService {
      * @param durationSeconds durée de validité du token en secondes
      * @return le token créé
      */
+    
     @Transactional
     public Token createToken(User user, TokenType type, long durationSeconds) {
-
-        // Supprime les anciens tokens du même type
         tokenRepository.deleteByUser_IdAndType(user.getId(), type);
 
         Token token = new Token(
@@ -51,12 +50,8 @@ public class TokenService {
                 Instant.now().plusSeconds(durationSeconds),
                 type
         );
-
         token.setUsed(false); 
-
         Token saved = tokenRepository.save(token);
-
-        log.info("Token créé pour user={} type={}", user.getEmail(), type);
         return saved;
     }
 

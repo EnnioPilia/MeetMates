@@ -60,15 +60,6 @@ export class AuthService {
     );
   }
 
-  /** Rafraîchit la session via les cookies HttpOnly. */
-  refreshToken(): Observable<ApiResponse<null>> {
-    return this.http.post<ApiResponse<null>>(
-      `${this.baseUrl}/refresh-token`,
-      {},
-      { withCredentials: true }
-    );
-  }
-
   /**
    * Demande l’envoi d’un email contenant un lien de réinitialisation.
    * @param data email de l'utilisateur
@@ -102,10 +93,10 @@ export class AuthService {
     );
   }
 
-getMe() {
-  return this.http.get<ApiResponse<User>>(`${environment.apiUrl}/user/me`).pipe(
-    map(res => res.data)
-  );
-}
+  getMe() {
+    return this.http.get<ApiResponse<User>>(`${environment.apiUrl}/user/me`).pipe(
+      map(res => res.data)
+    );
+  }
 
 }

@@ -16,7 +16,6 @@ import com.example.meetmates.auth.service.AuthService;
 import com.example.meetmates.common.dto.ApiResponse;
 import com.example.meetmates.common.service.MessageService;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -125,19 +124,4 @@ public class AuthController {
         return ResponseEntity.ok(new ApiResponse<>(message, null));
     }
     
-    /**
-     * Endpoint "virtuel" pour le rafraîchissement du token.
-     * Le traitement réel est effectué par un filtre JWT avant d'arriver dans ce contrôleur.
-     *
-     * @return message indiquant que l'opération est gérée par le filtre
-     */
-    @PostMapping("/refresh-token")
-    public ResponseEntity<ApiResponse<String>> refreshToken(HttpServletRequest request) {
-        log.info("RefreshToken request received");
-
-        String message = messageService.get("AUTH_REFRESH_HANDLED_BY_FILTER");
-        log.info("RefreshToken handled by filter");
-
-        return ResponseEntity.ok(new ApiResponse<>(message, null));
-    }
 }
