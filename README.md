@@ -44,6 +44,7 @@ Les utilisateurs peuvent :
 - Java
 - Persistance des données via JPA / Hibernate (ORM)
 - Spring Security
+- Apache Maven
 
 ### Bases de données
 - MySQL
@@ -53,7 +54,6 @@ Les utilisateurs peuvent :
 - Git / GitHub
 - GitHub Actions (CI/CD)
 - Docker
-- Maven
 - Postman
 - Figma
 
