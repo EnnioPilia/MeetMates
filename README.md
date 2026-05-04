@@ -1,6 +1,5 @@
-﻿# MEET MATES
-> Application web de mise en relation autour d’activités et de centres d’intérêt
-
+﻿# MEET MATES 
+ > Projet réalisé dans le cadre de l’obtention du titre de Concepteur Développeur d’Applications (Bac +4) à Simplon Grenoble en 2026.
 ---
 
 ## PRESENTATION
@@ -9,41 +8,33 @@
 à des activités variées afin de rencontrer de nouvelles personnes et partager des moments de convivialité .
 
 Les utilisateurs peuvent :
-- consulter des événements publiés par la communauté
-- participer à des activités existantes
-- créer leurs propres annonces afin d’inviter d’autres membres
-
-Projet réalisé dans le cadre de la formation **Concepteur Développeur d’Applications (CDA)**.
-
+- Consulter des événements publiés par la communauté
+- Participer à des activités existantes
+- Créer et gérer ses propres annonces afin d’inviter d’autres membres
+  
 ---
 
 ## FONCTIONNALITÉS
 
 ###  Utilisateur
-- Création de compte
-- Authentification sécurisée (JWT + cookies HTTP-only)
+- Inscription & authentification sécurisée (JWT + cookies HTTP-only)
 - Gestion du profil utilisateur
 - Suppression du compte (soft delete / hard delete)
-- Consultation des événements
+- Création et participation aux événements
+- Modification et suppression d’annonces
 - Recherche et filtrage des activités
-- Participation aux événements
-- Création, modification et suppression d’annonces
-- Page **Mes activités**
-  - événements organisés
-  - événements auxquels l’utilisateur participe
 
 ###  Administration
 - Interface d’administration dédiée
-- Gestion des utilisateurs
-- Gestion des annonces et événements
-- Protection des routes administrateur
+- Gestion des utilisateurs  (désactivation ou bannissement de comptes)
+- Modéreration des événements (suppression / désactivation)
 
 ---
 
-## TECHNOLOGIES UTILISÉES
+## STACK & OUTILS 
 
 ### Front-end
-- Angular 19 (Standalone API)
+- Angular (RxJS, Signals)
 - TypeScript
 - Tailwind CSS
 - Angular Material
@@ -51,8 +42,12 @@ Projet réalisé dans le cadre de la formation **Concepteur Développeur d’App
 ### Back-end
 - Spring Boot
 - Java
+- Persistance des données via JPA / Hibernate (ORM)
 - Spring Security
+
+### Bases de données
 - MySQL
+- Flyway
 
 ### Outils & DevOps
 - Git / GitHub
@@ -60,34 +55,82 @@ Projet réalisé dans le cadre de la formation **Concepteur Développeur d’App
 - Docker
 - Maven
 - Postman
+- Figma
 
 ---
 
 ## ARCHITECTURE
 
-- **Frontend** : SPA Angular (Standalone Components)
-- **Backend** : API REST Spring Boot
-- **Base de données** : MySQL
-- **Authentification**
-  - JWT stocké en cookies HTTP-only
-  - Refresh token
-  - Sécurisation via Spring Security
+### Front-end
+**SPA Angular** avec Standalone Components
+
+Architecture modulaire en couches (core, features, shared) :
+- Services & Facades : abstraction de la logique métier
+- Guards : contrôle d’accès côté UX
+- Interceptors : gestion centralisée des requêtes HTTP et des credentials
+- Components features & shared : pour l’affichage UI
 
 ### Back-end
-- Controllers
-- Services
-- Repositories
-- DTO / Mappers
+**API REST stateless Spring Boot** 
 
-### Front-end
-- Services
-- Guards
-- Interceptors
-- Components & Features modulaires
+Architecture modulaire par domaine métier (auth, user, event...) :
+- Controllers : exposition des endpoints REST
+- Services : logique métier
+- Repositories : accès aux données via JPA
+- DTO & Mappers : découplage des modèles internes / externes
+  
+Services transverses :
+- Gestion centralisée des erreurs (DTO standardisés)
+- Centralisation des messages applicatifs
+- Gestion des emails (Spring Mail + Thymeleaf)
+
+### Base de données
+- **MySQL** : Modélisation relationnelle des entités métier
+- **Flyway** : Versioning et exécution automatique des migrations de base de données
+
+---
+
+## SECURITE
+Authentification basée sur **JWT** :
+- JWT stocké en **cookies HTTP-only**
+- Durée de vie courte de l’access token
+- Rotation des **refresh tokens** 
+  
+Sécurisation de l’API :
+- Protection via **Spring Security**
+- API **Stateless** (aucune session côté serveur)
+- Configuration CORS sécurisée 
+- Contrôle des accès basé sur les rôles (USER / ADMIN)
+  
+Protection des entrées :
+- Utilisation de l'ORM **JPA / Hibernate** avec requêtes paramétrées (réduction des risques d’injection SQL)
+- Validation des données via les **Bean Validation** et les **DTO**
+
+Protection des données sensibles :
+- Hashage des mots de passe
+- Utilisation de variables d’environnement
+- Aucune donnée sensible exposée côté client
+
+---
+    
+## UI & UX
+
+Le front-end a été développé selon une approche **mobile-first**, en combinant :
+
+- **Angular Material** pour garantir une cohérence visuelle, une bonne accessibilité et des composants UI robustes, 
+conformes aux standards (navigation clavier, gestion du focus, contrastes) et reposant sur une structuration sémantique adaptée.
+
+- **Tailwind CSS** pour la mise en page et le responsive. L’interface est ensuite adaptée aux écrans tablette et desktop grâce aux breakpoints Tailwind, 
+complétés ponctuellement par des **media queries personnalisées** lorsque nécessaire.
 
 ---
 
 ## INSTALLATION
+
+```bash
+git clone https://github.com/EnnioPilia/MeetMates.git
+cd MeetMates
+```
 
 ### Prérequis
 - Node.js >= 22
@@ -99,15 +142,14 @@ Projet réalisé dans le cadre de la formation **Concepteur Développeur d’App
 
 ---
 
-## Installation du back-end
+### Installation du back-end
 
 ```bash
-git clone https://github.com/tonpseudo/meet-mates-back.git
-cd meet-mates-back
+cd MeetMatesBACK
 mvn clean install
 ```
 
-## Variables d’environnement
+### Variables d’environnement
 
 Les données sensibles ne sont pas stockées en dur.
 
@@ -122,7 +164,7 @@ JWT_SECRET=your_jwt_secret
 FRONTEND_URL=http://localhost:4200
 ```
 
-##  Lancer le back-end
+###  Lancer le back-end
 
 ```bash
 mvn spring-boot:run
@@ -132,15 +174,17 @@ mvn spring-boot:run
 
 http://localhost:8080
 
+---
 
 ###  Installation du front-end
+
 ```bash
-git clone https://github.com/tonpseudo/meet-mates-front.git
-cd meet-mates-front
+cd MeetMatesFRONT
 npm install
 ```
 
 ###  Lancer le front-end
+
 ```bash
 ng serve
 ```
@@ -151,55 +195,63 @@ http://localhost:4200
 
 ---
 
-## DOCKER
+## DÉPLOIEMENT (anciennement en production / projet de formation terminé)
 
-L’application peut être exécutée via Docker afin de garantir un environnement isolé, reproductible et conforme aux standards professionnels.
+Architecture applicative structurée et prête pour la production 
 
-### Services conteneurisés
+### Infrastructure
+  - Serveur distant (VPS)
+  - Connexion sécurisée via SSH (clé privée)
+  - Reverse proxy (Nginx)
+  - Déploiement via Docker
+  - Pipeline CI/CD avec GitHub Actions
+          
+### Sécurité 
+  - Accès serveur restreint par clé SSH
+  - Aucune donnée sensible stockée en dur
+  - Variables sécurisées via GitHub Secrets
+  - Authentification JWT avec cookies HTTP-only
 
-- Backend Spring Boot  
-- Base de données MySQL  
-- (Optionnel) Frontend Angular  
+---
 
-Un fichier `docker-compose.yml` permet de lancer l’ensemble des services :
+## DOCKER 
+L’application peut être exécutée via Docker afin de garantir un environnement isolé, reproductible et conforme aux standards professionnels. 
+
+### Services conteneurisés :
+  - Backend Spring Boot
+  - Base de données MySQL
+  - Frontend Angular
+       
+Chaque service dispose de son propre Dockerfile. Les images sont construites en utilisant des builds multi-stage 
+
+### Orchestration :
+Un fichier docker-compose.yml permet de lancer l’ensemble des services avec leurs dépendances :
 
 ```bash
 docker compose up --build
 ```
 
-Cette approche permet :
-
-- d’assurer la cohérence des environnements (développement / production)  
-- de simplifier l’installation du projet  
-- d’éviter les problèmes liés aux configurations locales  
-- de standardiser le déploiement  
-- de faciliter la mise en production  
-
----
+--- 
 
 ## CI/CD
+Un pipeline d’intégration continue et de déploiement continu est mis en place via GitHub Actions. 
 
-Un pipeline d’intégration continue et de déploiement continu est mis en place via GitHub Actions.
+### Intégration Continue (CI)
 
-###  Intégration Continue (CI)
+À chaque `push` ou `pull request` : 
 
-À chaque `push` ou `pull request` :
+- Installation des dépendances
+- Compilation du projet
+- Exécution des tests unitaires
+- Vérification du build
+      
+### Déploiement Continu (CD)
 
-- Installation des dépendances  
-- Compilation du projet  
-- Exécution des tests unitaires  
-- Vérification du build  
-
-Cela permet de détecter automatiquement les erreurs avant intégration dans la branche principale et garantit la stabilité du code.
-
-###  Déploiement Continu (CD)
-
-Selon la branche ciblée :
-
-- Construction de l’image Docker  
-- Publication de l’image  
-- Déploiement automatisé vers l’environnement cible  
-
+Le déploiement est automatisé en fonction de la branche ciblée (main) :
+  - Construction de l’image Docker
+  - Publication de l’image
+  - Déploiement automatisé vers l’environnement cible
+     
 Les variables sensibles (base de données, clé JWT, etc.) sont stockées de manière sécurisée dans les **GitHub Secrets** et ne sont jamais exposées dans le code source.
 
 Cette stratégie CI/CD permet :
@@ -230,39 +282,24 @@ ng test
 ```bash
 mvn test
 ```
-
-## Sécurité
-
-Authentification JWT
-Cookies HTTP-only
-Refresh token
-Rôles User / Admin
-Guards Angular
-Configuration Spring Security
-Aucune clé sensible exposée côté client
+---
 
 ## Conclusion
 
 Ce projet met l’accent sur :
-- la **sécurité** des échanges (JWT, cookies HTTP-only, rôles)
+- la **sécurité** des échanges 
 - la **maintenabilité** du code grâce à une architecture claire et modulaire
-- l’utilisation de **technologies modernes full-stack** (Angular, Spring Boot)
+- l’utilisation de **technologies modernes full-stack** 
 - une **expérience utilisateur fluide et accessible**, pensée dès la conception
-
-Le front-end a été développé selon une approche **mobile-first**,
-en combinant **Angular Material** pour garantir
-une cohérence visuelle, une bonne accessibilité et des composants UI robustes,
-avec **Tailwind CSS** pour la mise en page et le responsive.
-L’interface est ensuite adaptée aux écrans tablette et desktop
-grâce aux breakpoints Tailwind, complétés ponctuellement
-par des **media queries personnalisées** lorsque nécessaire.
 
 Meet Mates a été conçu comme une application évolutive, pouvant être enrichie
 de nouvelles fonctionnalités et déployée dans un environnement professionnel
 
+---
+
 ## Auteur
 
 PILIA Ennio
-Formation Concepteur Développeur d’Applications à Grenoble 
-GitHub : https://github.com/EnnioPilia/MeetMates
+ Développeur Fullstack 
+
 
