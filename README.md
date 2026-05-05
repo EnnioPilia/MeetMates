@@ -9,8 +9,8 @@
 
 Les utilisateurs peuvent :
 - Consulter des événements publiés par la communauté
-- Participer à des activités existantes
-- Créer et gérer ses propres annonces afin d’inviter d’autres membres
+- Participer à des activités variées
+- Organiser leurs propres rencontres
   
 ---
 
