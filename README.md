@@ -1,10 +1,10 @@
-﻿# MEET MATES 
+﻿# MEETMATES 
  > Projet réalisé dans le cadre de l’obtention du titre de Concepteur Développeur d’Applications (Bac +4) à Simplon Grenoble en 2026.
 ---
 
 ## PRESENTATION
 
-**Meet Mates** est une application web permettant aux utilisateurs de découvrir, organiser et participer  
+**MeetMates** est une application web permettant aux utilisateurs de découvrir, organiser et participer  
 à des activités variées afin de rencontrer de nouvelles personnes et partager des moments de convivialité .
 
 Les utilisateurs peuvent :
