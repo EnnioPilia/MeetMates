@@ -103,7 +103,7 @@ Sécurisation de l’API :
 - Contrôle des accès basé sur les rôles (USER / ADMIN)
   
 Protection des entrées :
-- Utilisation de l'ORM **JPA / Hibernate** avec requêtes paramétrées (réduction des risques d’injection SQL)
+- Utilisation de l'ORM **JPA / Hibernate** avec requêtes paramétrées 
 - Validation des données via les **Bean Validation** et les **DTO**
 
 Protection des données sensibles :
